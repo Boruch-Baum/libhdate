@@ -67,7 +67,7 @@ hdate_get_holyday (hdate_struct * h, int diaspora)
 			0, 0, 0, 0, 0, 0, 0, 18, 0, 0,
 			0, 0, 0, 0, 0, 0, 0, 26, 0, 0},
 		{	/* Sivan */
-			0, 0, 0, 0, 19, 20, 0, 0, 0, 0,
+			0, 0, 0, 0, 19, 20, 30, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 		{	/* Tamuz */
@@ -168,11 +168,17 @@ hdate_get_holyday (hdate_struct * h, int diaspora)
 		}
 	}
 	
+	/* diaspora holidays */
+	
 	/* simchat tora only in diaspora in israel just one day shmini+simchat tora */
 	if (holyday == 8 && !diaspora)
 		holyday = 0;
 	
 	/* FIXME: no diff to sukkut and pesach I in diaspora ? */
+	
+	/* shavot II holiday only in diaspora */
+	if (holyday == 30 && !diaspora)
+		holyday = 0;
 	
 	/* pesach VIII holiday only in diaspora */
 	if (holyday == 29 && !diaspora)
