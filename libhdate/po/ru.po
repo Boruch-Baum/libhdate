@@ -231,7 +231,7 @@ msgstr "Рош-а-Шана II"
 
 #: src/hdate_strings.c:239 src/hdate_strings.c:270
 msgid "Tzom Gedaliah"
-msgstr ""
+msgstr "Цом гдаляа"
 
 #: src/hdate_strings.c:240 src/hdate_strings.c:271
 msgid "Yom Kippur"
@@ -268,7 +268,7 @@ msgstr "Ту би-Шват"
 
 #: src/hdate_strings.c:248 src/hdate_strings.c:279
 msgid "Ta'anit Esther"
-msgstr ""
+msgstr "Танйт зстер"
 
 #: src/hdate_strings.c:249 src/hdate_strings.c:280
 msgid "Purim"
