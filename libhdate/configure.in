@@ -135,6 +135,7 @@ examples/hcal/Makefile
 examples/ical/Makefile
 examples/html/Makefile
 examples/hebcal/Makefile
+examples/bindings/Makefile
 bindings/Makefile
 bindings/python/Makefile
 bindings/perl/Makefile

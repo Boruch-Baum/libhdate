@@ -1,1 +1,1 @@
-SUBDIRS = hcal ical html hebcal
+SUBDIRS = hcal ical html hebcal bindings
