@@ -69,7 +69,7 @@ print_calendar(int month, int year)
 	hdate_struct h;
 	int jd;
 	int i,j;
-	char type_char[] = {'/', '-', '+', '*'};
+	char type_char[] = {'/', '+', '*', '-'};
 	int holyday_type;
 	
 	/* Find day to start calendar with */
@@ -146,7 +146,7 @@ main (int argc, char* argv[])
 	else if (argc == 1)
 		{
 			hdate_set_gdate (&h, 0, 0, 0); /* get today's year */
-			month = 0;
+			month = h.gd_mon;
 			year = h.gd_year;
 		}
 	else

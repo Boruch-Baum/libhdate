@@ -17,4 +17,6 @@ hcal_LDFLAGS =
 hcal_DEPENDENCIES = $(DEPS)
 hcal_LDADD = $(ldadd)
 
+man_MANS = hdate.1
+
 endif

@@ -1,0 +1,41 @@
+.\" .UC 4
+.TH "HDATE" "1" "2 Mar 2005" "Yaacov Zamir" "libhdate"
+.SH "NAME"
+hdate, hcal \- Hebrew date and calendar
+.PP 
+example programs for libhdate, a library that help use hebrew dates.
+.PP 
+LibHdate is a small C,C++ library for Hebrew dates,
+holidays, and reading sequence (parasha). It is using 
+the source code from Amos Shapir's "hdate" package fixed and 
+patched by Nadav Har'El. The Torah reading sequence
+is from tables by Zvi Har'El.
+.SH "SYNOPSIS"
+.B hdate
+[ day month year ]
+.PP 
+.B hcal
+[ [ month ] year ]
+.SH "DESCRIPTION"
+.I Hdate
+translates the specified date to the Hebrew calendar.
+If no arguments are given, it uses today's date.
+`month' is a number between 1 and 12.
+.PP 
+If the year is greater than 3000,
+.I hdate
+takes the given date as a Hebrew date, and translates it
+back to the common calendar.
+Months are numbered with Tishrey being 1 and Elul 12; Adar I and Adar II are months 13 and 14.
+.PP 
+.I Hcal
+prints a calendar with both common and Hebrew dates for the
+specified month, or the whole year if no month is specified.
+If no arguments are given, it prints the current month.
+Major holidays are marked by a `*', other holidays by a `+', 
+fast days by a `\-'.
+
+.SH "SEE ALSO"
+date(1), cal(1), hebcal(1), remind(1), hdate.h(3), hdate_struct(3)
+.SH "AUTHOR"
+Copied from Amos Shapir, HUJI
