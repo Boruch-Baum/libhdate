@@ -64,7 +64,7 @@ print_help (char *program)
 	printf ("        The -l and -L switches must both be used, or not at all.\n");
 	printf ("   -z : Use specified timezone,\n");
 	
-	printf ("   ( default location for sunrise/set is Tel Aviv ).\n");
+	printf ("   ( default location for sunrise/set is Tel Aviv winter time ).\n");
 
 	return 0;
 }
@@ -113,7 +113,7 @@ print_sunrise (hdate_struct * h, double lat, double lon, int tz)
 	/* print sunset/rise times */
 	printf ("%d:%d - %d:%d ",
 		sunrise / 60, sunrise % 60,
-		sunset / 60 - 12, sunset % 60);
+		sunset / 60, sunset % 60);
 
 	return 0;
 }
