@@ -18,8 +18,8 @@ hdate_wrap.cxx: hdate.i
 	swig -perl -c++ hdate.i
 
 install-data-local: hdate.so
-	$(mkinstalldirs) $(DESTDIR)$(PE_MODULES_PATH)
-	$(INSTALL_DATA) hdate.so $(DESTDIR)$(PE_MODULES_PATH)/hdate.so
+	$(mkinstalldirs) $(DESTDIR)$(PE_MODULES_PATH)/auto/hdate/
+	$(INSTALL_DATA) hdate.so $(DESTDIR)$(PE_MODULES_PATH)/auto/hdate/hdate.so
 	$(INSTALL_DATA) hdate.pm $(DESTDIR)$(PE_MODULES_PATH)/hdate.pm
 
 endif
