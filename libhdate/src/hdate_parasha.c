@@ -32,48 +32,46 @@
 int
 hdate_get_parasha (hdate_struct * h, int diaspora)
 {
-	int** joining;
-	
-	static int join_flags[14][7] =
+	static int join_flags[2][14][7] =
 	{
-		{1, 1, 1, 1, 0, 1, 1}, /* 1 */
-		{1, 1, 1, 1, 0, 1, 0}, /* 2 */
-		{1, 1, 1, 1, 0, 1, 1}, /* 3 */
-		{1, 1, 1, 0, 0, 1, 0}, /* 4 */
-		{1, 1, 1, 1, 0, 1, 1}, /* 5 */
-		{0, 1, 1, 1, 0, 1, 0}, /* 6 */
-		{1, 1, 1, 1, 0, 1, 1}, /* 7 */
-		{0, 0, 0, 0, 0, 1, 1}, /* 8 */
-		{0, 0, 0, 0, 0, 0, 0}, /* 9 */
-		{0, 0, 0, 0, 0, 1, 1}, /* 10 */
-		{0, 0, 0, 0, 0, 0, 0}, /* 11 */
-		{0, 0, 0, 0, 0, 0, 0}, /* 12 */
-		{0, 0, 0, 0, 0, 0, 1}, /* 13 */
-		{0, 0, 0, 0, 0, 1, 1}  /* 14 */
-	};
-	
-	static int join_flags_diaspora[14][7] =
-	{
-		{1, 1, 1, 1, 0, 1, 1}, /* 1 */
-		{1, 1, 1, 1, 0, 1, 0}, /* 2 */
-		{1, 1, 1, 1, 1, 1, 1}, /* 3 */
-		{1, 1, 1, 1, 0, 1, 0}, /* 4 */
-		{1, 1, 1, 1, 1, 1, 1}, /* 5 */
-		{0, 1, 1, 1, 0, 1, 0}, /* 6 */
-		{1, 1, 1, 1, 0, 1, 1}, /* 7 */
-		{0, 0, 0, 0, 1, 1, 1}, /* 8 */
-		{0, 0, 0, 0, 0, 0, 0}, /* 9 */
-		{0, 0, 0, 0, 0, 1, 1}, /* 10 */
-		{0, 0, 0, 0, 0, 1, 0}, /* 11 */
-		{0, 0, 0, 0, 0, 1, 0}, /* 12 */
-		{0, 0, 0, 0, 0, 0, 1}, /* 13 */
-		{0, 0, 0, 0, 1, 1, 1}  /* 14 */
+		{
+			{1, 1, 1, 1, 0, 1, 1}, /* 1 */
+			{1, 1, 1, 1, 0, 1, 0}, /* 2 */
+			{1, 1, 1, 1, 0, 1, 1}, /* 3 */
+			{1, 1, 1, 0, 0, 1, 0}, /* 4 */
+			{1, 1, 1, 1, 0, 1, 1}, /* 5 */
+			{0, 1, 1, 1, 0, 1, 0}, /* 6 */
+			{1, 1, 1, 1, 0, 1, 1}, /* 7 */
+			{0, 0, 0, 0, 0, 1, 1}, /* 8 */
+			{0, 0, 0, 0, 0, 0, 0}, /* 9 */
+			{0, 0, 0, 0, 0, 1, 1}, /* 10 */
+			{0, 0, 0, 0, 0, 0, 0}, /* 11 */
+			{0, 0, 0, 0, 0, 0, 0}, /* 12 */
+			{0, 0, 0, 0, 0, 0, 1}, /* 13 */
+			{0, 0, 0, 0, 0, 1, 1}  /* 14 */
+		},
+		{
+			{1, 1, 1, 1, 0, 1, 1}, /* 1 */
+			{1, 1, 1, 1, 0, 1, 0}, /* 2 */
+			{1, 1, 1, 1, 1, 1, 1}, /* 3 */
+			{1, 1, 1, 1, 0, 1, 0}, /* 4 */
+			{1, 1, 1, 1, 1, 1, 1}, /* 5 */
+			{0, 1, 1, 1, 0, 1, 0}, /* 6 */
+			{1, 1, 1, 1, 0, 1, 1}, /* 7 */
+			{0, 0, 0, 0, 1, 1, 1}, /* 8 */
+			{0, 0, 0, 0, 0, 0, 0}, /* 9 */
+			{0, 0, 0, 0, 0, 1, 1}, /* 10 */
+			{0, 0, 0, 0, 0, 1, 0}, /* 11 */
+			{0, 0, 0, 0, 0, 1, 0}, /* 12 */
+			{0, 0, 0, 0, 0, 0, 1}, /* 13 */
+			{0, 0, 0, 0, 1, 1, 1}  /* 14 */
+		}
 	};
 	
 	int reading;
 	
 	/* check for diaspora readings */
-	joining = diaspora?join_flags_diaspora:join_flags;
+	diaspora = diaspora?1:0;
 	
 	switch (h->hd_weeks)
 	{
@@ -137,7 +135,7 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 		}
 		
 		/* joining */
-		if (joining[h->hd_year_type - 1][0] && (reading >= 22))
+		if (join_flags[diaspora][h->hd_year_type - 1][0] && (reading >= 22))
 		{
 			if (reading == 22)
 			{
@@ -161,7 +159,7 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 			reading--;
 		}
 
-		if (joining[h->hd_year_type - 1][1] && (reading >= 27))
+		if (join_flags[diaspora][h->hd_year_type - 1][1] && (reading >= 27))
 		{
 			if (reading == 27)
 			{
@@ -173,7 +171,7 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 				reading++;
 			}
 		}
-		if (joining[h->hd_year_type - 1][2] && (reading >= 29))
+		if (join_flags[diaspora][h->hd_year_type - 1][2] && (reading >= 29))
 		{
 			if (reading == 29)
 			{
@@ -185,7 +183,7 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 				reading++;
 			}
 		}
-		if (joining[h->hd_year_type - 1][3] && (reading >= 32))
+		if (join_flags[diaspora][h->hd_year_type - 1][3] && (reading >= 32))
 		{
 			if (reading == 32)
 			{
@@ -197,7 +195,7 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 				reading++;
 			}
 		}
-		if (joining[h->hd_year_type - 1][4] && (reading >= 39))
+		if (join_flags[diaspora][h->hd_year_type - 1][4] && (reading >= 39))
 		{
 			if (reading == 39)
 			{
@@ -209,7 +207,7 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 				reading++;
 			}
 		}
-		if (joining[h->hd_year_type - 1][5] && (reading >= 42))
+		if (join_flags[diaspora][h->hd_year_type - 1][5] && (reading >= 42))
 		{
 			if (reading == 42)
 			{
@@ -221,7 +219,7 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 				reading++;
 			}
 		}
-		if (joining[h->hd_year_type - 1][6] && (reading >= 51))
+		if (join_flags[diaspora][h->hd_year_type - 1][6] && (reading >= 51))
 		{
 			if (reading == 51)
 			{

@@ -1,3 +1,5 @@
+if WITH_EXAMPLES
+
 INCLUDES=-I$(top_srcdir)/src
 
 DEPS= $(top_builddir)/src/libhdate.la
@@ -14,3 +16,5 @@ hdate_holydays_ical_SOURCES = hdate_holydays_ical.c
 hdate_holydays_ical_LDFLAGS =
 hdate_holydays_ical_DEPENDENCIES = $(DEPS)
 hdate_holydays_ical_LDADD = $(ldadd)
+
+endif

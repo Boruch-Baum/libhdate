@@ -1,3 +1,5 @@
+if WITH_HCAL
+
 INCLUDES=-I$(top_srcdir)/src
 
 DEPS= $(top_builddir)/src/libhdate.la
@@ -14,3 +16,5 @@ hcal_SOURCES = hcal.c
 hcal_LDFLAGS =
 hcal_DEPENDENCIES = $(DEPS)
 hcal_LDADD = $(ldadd)
+
+endif
