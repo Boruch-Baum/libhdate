@@ -19,7 +19,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifdef ENABLE_NLS
 #include <locale.h>
+#endif
 
 #include "hdate.h"
 #include "support.h"
@@ -46,13 +49,13 @@ hdate_get_int_string (int n)
 	char *locale;
 
 	/* Get the name of the current locale.  */
-	locale = setlocale (LC_MESSAGES, NULL);
+#ifdef ENABLE_NLS
+	locale = setlocale (LC_MESSAGES, "");
+#else
+	locale = NULL
+#endif
 
-	if ((locale != NULL) && (locale[0] == 'h') && (locale[1] == 'e'))
-	{
-		/* do nothing hebrew locale */
-	}
-	else
+	if ((!locale) || (locale[0] != 'h') || (locale[1] != 'e'))
 	{
 		/* not hebrew locale return the number in decimal form */
 		snprintf (h_number, 100, "%d", n);
@@ -106,8 +109,8 @@ hdate_get_int_string (int n)
 		h_number[length - 1] = h_number[length - 2];
 		h_number[length - 2] = '\"';
 	}
-	return h_number;
 
+	return h_number;
 }
 
 /**
@@ -447,7 +450,7 @@ hdate_get_parasha_string (int parasha, int s)
 		return _(parashaot[s][parasha - 1]);
 	}
 
-	/* if not a valid month return NULL */
+	/* if not a valid parasha return NULL */
 	return NULL;
 }
 
@@ -464,7 +467,6 @@ char *
 hdate_get_format_date (hdate_struct * h, int s)
 {
 	static char format_date[500];
-	static char temp[500];
 
 	/* you dont realy need it here */
 #ifdef ENABLE_NLS
@@ -472,38 +474,24 @@ hdate_get_format_date (hdate_struct * h, int s)
 	bind_textdomain_codeset (PACKAGE, "UTF-8");
 #endif
 
-	if (s)
-	{			/* short format */
-		if (h != 0)
-		{
-			snprintf (format_date, 500,
-				  "%s %s",
-				  hdate_get_int_string (h->
-							hd_day),
-				  hdate_get_hebrew_month_string (h->hd_mon, s));
-
-			return (format_date);
-		}
-		return NULL;
-	}
-	else
-	{			/* long format */
-		if (h != 0)
-		{
+	if (h)
+	{
+		if (s)
+		{	/* short format */
 			snprintf (format_date, 500, "%s %s",
-				  hdate_get_day_string (h->
-							hd_dw,
-							s),
-				  hdate_get_int_string (h->hd_day));
-			snprintf (temp, 500, " %s %s ",
-				  hdate_get_hebrew_month_string
-				  (h->hd_mon, s),
-				  hdate_get_int_string (h->hd_year));
-			strncat (format_date, temp, 500);
-
+				  hdate_get_int_string (h->hd_day),
+				  hdate_get_hebrew_month_string (h->hd_mon, s));
 			return (format_date);
 		}
-		return NULL;
+		else
+		{
+			snprintf (format_date, 500, "%s, %s %s %s",
+				  hdate_get_day_string (h->hd_dw, s),
+				  hdate_get_int_string (h->hd_day),
+				  hdate_get_hebrew_month_string (h->hd_mon, s),
+				  hdate_get_int_string (h->hd_year));
+			return (format_date);
+		}
 	}
 
 	return NULL;
