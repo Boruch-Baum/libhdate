@@ -50,7 +50,7 @@ hdate_get_int_string (int n)
 
 	/* Get the name of the current locale.  */
 #ifdef ENABLE_NLS
-	locale = setlocale (LC_MESSAGES, "");
+	locale = setlocale (LC_MESSAGES, NULL);
 #else
 	locale = NULL
 #endif
@@ -468,7 +468,7 @@ hdate_get_format_date (hdate_struct * h, int s)
 {
 	static char format_date[500];
 	static char temp[500];
-	
+
 	/* you dont realy need it here */
 #ifdef ENABLE_NLS
 	bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
@@ -486,12 +486,12 @@ hdate_get_format_date (hdate_struct * h, int s)
 		}
 		else
 		{
-			snprintf (temp, 500, "%s, %s",
+			snprintf (temp, 500, "%s, %s %s",
 				  hdate_get_day_string (h->hd_dw, s),
-				  hdate_get_int_string (h->hd_day));
-			snprintf (format_date, 500, "%s %s %s",
+				  hdate_get_int_string (h->hd_day),
+				  hdate_get_hebrew_month_string (h->hd_mon, s));
+			snprintf (format_date, 500, "%s %s",
 				  temp,
-				  hdate_get_hebrew_month_string (h->hd_mon, s),
 				  hdate_get_int_string (h->hd_year));
 			return (format_date);
 		}
