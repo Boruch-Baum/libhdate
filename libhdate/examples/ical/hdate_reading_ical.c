@@ -33,9 +33,6 @@ main (int argc, char* argv[])
 {
 	hdate_struct h; 	/* The Hebrew date */
 
-	int day;	/* The Gregorian date for the event in the iCal */
-	int month;
-	int year;
 	int jd;
 	int parasha;
 	char* event_summary;
@@ -60,9 +57,12 @@ main (int argc, char* argv[])
 			end_d = atoi (argv[4]);
 			end_m = atoi (argv[5]);
 			end_y = atoi (argv[6]);
-
-			start_jd = hdate_gdate_to_jd (start_d, start_m, start_y);
-			end_jd = hdate_gdate_to_jd (end_d, end_m, end_y);
+			
+			hdate_gdate (&h, start_d, start_m, start_y);
+			start_jd = h.hd_jd;
+			
+			hdate_gdate (&h, end_d, end_m, end_y);
+			end_jd = h.hd_jd;
 		} 
 	else 
 		{	
@@ -82,8 +82,9 @@ main (int argc, char* argv[])
 	/* Print iCal event */
 	for (jd = start_jd; jd < end_jd; jd++)
 		{
-			hdate_jd_to_gdate (jd, &day, &month, &year);
-			hdate_gdate (&h, day, month, year);
+			/* get today hdate */
+			hdate_jd (&h, jd);
+			
 			/* set diaspora flag to 0, for reading ba harez */
 			parasha =  hdate_get_parasha (&h, 0);
 			
@@ -93,9 +94,9 @@ main (int argc, char* argv[])
 
 					printf ("BEGIN:VEVENT\n");
 					printf ("UID:0\n");
-					printf ("DTSTART;VALUE=DATE:%04d%02d%02d\n", year, month, day);
+					printf ("DTSTART;VALUE=DATE:%04d%02d%02d\n", h.gd_year, h.gd_mon, h.gd_day);
 					printf ("SUMMARY:%s\n", event_summary);
-					printf ("DTEND;VALUE=DATE:%04d%02d%02d\n", year, month, day);
+					printf ("DTEND;VALUE=DATE:%04d%02d%02d\n", h.gd_year, h.gd_mon, h.gd_day);
 					printf ("CATEGORIES:Holidays\n");
 					printf ("END:VEVENT\n");
 				}

@@ -269,7 +269,7 @@ hdate_jd_to_hdate (int jd, int *day, int *month, int *year, int *jd_tishrey1, in
 {
 	int days;
 	int size_of_year;
-	int jd1, jd2;
+	int internal_jd_tishrey1, internal_jd_tishrey1_next_year;
 	
 	/* calculate Gregorian date */
 	hdate_jd_to_gdate (jd, day, month, year);
@@ -277,21 +277,21 @@ hdate_jd_to_hdate (int jd, int *day, int *month, int *year, int *jd_tishrey1, in
 	/* Guess Hebrew year is Gregorian year + 3760 */
 	*year = *year + 3760;
 
-	jd1 = hdate_days_from_3744 (*year) + 1715119;
-	jd2 = hdate_days_from_3744 (*year + 1) + 1715119;
+	internal_jd_tishrey1 = hdate_days_from_3744 (*year) + 1715119;
+	internal_jd_tishrey1_next_year = hdate_days_from_3744 (*year + 1) + 1715119;
 	
 	/* Check if computed year was underestimated */
-	if (jd2 <= jd)
+	if (internal_jd_tishrey1_next_year <= jd)
 	{
 		*year = *year + 1;
-		jd1 = jd2;
-		jd2 = hdate_days_from_3744 (*year + 1) + 1715119;
+		internal_jd_tishrey1 = internal_jd_tishrey1_next_year;
+		internal_jd_tishrey1_next_year = hdate_days_from_3744 (*year + 1) + 1715119;
 	}
 
-	size_of_year = jd2 - jd1;
+	size_of_year = internal_jd_tishrey1_next_year - internal_jd_tishrey1;
 	
 	/* days into this year, first month 0..29 */
-	days = jd - jd1;
+	days = jd - internal_jd_tishrey1;
 	
 	/* last 8 months allways have 236 days */
 	if (days >= (size_of_year - 236)) /* in last 8 months */
@@ -331,8 +331,8 @@ hdate_jd_to_hdate (int jd, int *day, int *month, int *year, int *jd_tishrey1, in
 	/* return the 1 of tishrey julians */
 	if (jd_tishrey1 && jd_tishrey1_next_year)
 	{
-		*jd_tishrey1 = jd1;
-		*jd_tishrey1_next_year = jd2;
+		*jd_tishrey1 = internal_jd_tishrey1;
+		*jd_tishrey1_next_year = internal_jd_tishrey1_next_year;
 	}
 	
 	return;
@@ -443,7 +443,7 @@ hdate_jd (hdate_struct *h, int jd)
 	
 	if (!h) return NULL;
 	
-	hdate_jd_to_gdate (jd, &(h->hd_day), &(h->hd_mon), &(h->hd_year));
+	hdate_jd_to_gdate (jd, &(h->gd_day), &(h->gd_mon), &(h->gd_year));
 	
 	hdate_jd_to_hdate (jd, &(h->hd_day), &(h->hd_mon), &(h->hd_year), &jd_tishrey1, &jd_tishrey1_next_year);
 	

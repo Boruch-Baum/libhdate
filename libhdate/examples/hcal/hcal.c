@@ -33,34 +33,28 @@
 int 
 print_header(int month, int year)
 {
-	hdate_struct h;
-	int h_day1, h_month1, h_year1; /* The Hebrew date */
-	int h_day2, h_month2, h_year2;
-	int jd1, jd2;
+	hdate_struct h1, h2;
 	int j;
 	
-	hdate_gdate (&h, 1, month, year);
-	jd1 = h.hd_jd;
-	jd2 = jd1 + 32;
-	
-	hdate_jd_to_hdate (jd1, &h_day1, &h_month1, &h_year1, NULL, NULL);
-	hdate_jd_to_hdate (jd2, &h_day2, &h_month2, &h_year2, NULL, NULL);
+	/* set dates for begining and end of calendar */
+	hdate_gdate (&h1, 1, month, year);
+	hdate_gdate (&h2, 1, month + 1, year);
 	
 	/* Print Gregorian month and year */
-	printf ("%s %d\n", hdate_get_month_string (h.gd_mon, FALSE), h.gd_year);
+	printf ("%s %d\n", hdate_get_month_string (h1.gd_mon, FALSE), h1.gd_year);
 	
 	/* Print Hebrew month and year */
-	if (h_month1 != h_month2)
+	if (h1.hd_mon != h2.hd_mon)
 		{
-			printf ("%s-", hdate_get_hebrew_month_string (h_month1, FALSE));
+			printf ("%s-", hdate_get_hebrew_month_string (h1.hd_mon, FALSE));
 		}
-	printf ("%s %s\n", hdate_get_hebrew_month_string (h_month2, FALSE), hdate_get_int_string(h_year1));
+	printf ("%s %s\n", hdate_get_hebrew_month_string (h2.hd_mon, FALSE), hdate_get_int_string(h1.hd_year));
 	
-	for (j=0; j<7; j++)
+	for (j=1; j<8; j++)
 		{
-			printf ("%3s", hdate_get_day_string (j + 1, TRUE));
+			printf ("%3s", hdate_get_day_string (j, TRUE));
 						
-			if (j != 6)
+			if (j != 7)
 				printf ("\t");
 		}
 	
@@ -73,7 +67,6 @@ int
 print_calendar(int month, int year)
 {
 	hdate_struct h;
-	int g_day, g_month, g_year; /* The Gregorian date */
 	int jd;
 	int i,j;
 	int holyday_type;
@@ -90,30 +83,29 @@ print_calendar(int month, int year)
 			for (j=0; j<7; j++)
 				{
 					/* Get this day hebrew date */
-					hdate_jd_to_gdate (jd, &g_day, &g_month, &g_year);
-					hdate_gdate (&h, g_day, g_month, g_year);
+					hdate_jd (&h, jd);
 					
 					/* Get this day holyday type ba harez (diaspora flag = 0) */
 					holyday_type = hdate_get_holyday_type (hdate_get_holyday (&h, 0));
 					
-					if (g_month == month)
+					if (h.gd_mon == month)
 					{
 						/* Print a day */
 						if (holyday_type == 0)
 							{
-								printf ("%2d/%3s", g_day, hdate_get_int_string(h.hd_day));
+								printf ("%2d/%3s", h.gd_day, hdate_get_int_string(h.hd_day));
 							}
 						else if (holyday_type == 1)
 							{
-								printf ("%2d-%3s", g_day, hdate_get_int_string(h.hd_day));
+								printf ("%2d-%3s", h.gd_day, hdate_get_int_string(h.hd_day));
 							} 
 						else if (holyday_type == 2)
 							{
-								printf ("%2d+%3s", g_day, hdate_get_int_string(h.hd_day));
+								printf ("%2d+%3s", h.gd_day, hdate_get_int_string(h.hd_day));
 							}
 						else if (holyday_type == 3)
 							{
-								printf ("%2d*%3s", g_day, hdate_get_int_string(h.hd_day));
+								printf ("%2d*%3s", h.gd_day, hdate_get_int_string(h.hd_day));
 							}
 					}
 					if (j != 6)
