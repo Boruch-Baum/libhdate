@@ -29,7 +29,7 @@
 int
 hdate_get_parasha (hdate_struct * h)
 {
-	int join_flags[24][7] =
+	static int join_flags[24][7] =
 	{
 		{1, 1, 1, 1, 0, 1, 1},/* 353 */
 		{1, 1, 1, 1, 0, 1, 0},
