@@ -368,17 +368,7 @@ hdate_set_gdate (hdate_struct *h, int d, int m, int y)
 		m = tm->tm_mon + 1;
 		y = tm->tm_year + 1900;
 	}
-	else
-	{
-		/* sanity checks */
-		if (!(m >= 1 && m <= 12) ||
-		    !((d >= 1)
-		      && ((y >= 3000) && (m == 6) && (d <= 59)
-			  || (d <= 31))) || !(y > 0))
-			return NULL;
-	}
-	/* end of cheking */
-
+	
 	h->gd_day = d;
 	h->gd_mon = m;
 	h->gd_year = y;

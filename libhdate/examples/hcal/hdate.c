@@ -47,6 +47,14 @@ main (int argc, char* argv[])
 			day = atoi (argv[1]);
 			month = atoi (argv[2]);
 			year = atoi (argv[3]);
+			
+			/* FIXME: different sanity check for hebrew and gregorian */
+			if (year < 1 || day < 1 || day > 31 || month < 1 || month > 14) 
+				{
+					/* Print help for user and exit */
+					printf ("USAGE: %s [day month year]\n", argv[0]);
+					exit (0);
+				}
 		} 
 	else if (argc == 1)
 		{
@@ -64,11 +72,21 @@ main (int argc, char* argv[])
 	/* Set the locale, for libhdate to print locale messages */ 
 	setlocale (LC_ALL,"");
 
-	/* Set hebrew date struct */
-	hdate_set_gdate (&h, day, month, year);
+	/* check if input date was hebrew, year > 3000 must be hebrew date */
+	if (year > 3000)
+		{
+			/* Set hebrew date struct */
+			hdate_set_hdate (&h, day, month, year);
+		}
+	else
+		{
+			/* Set hebrew date struct */
+			hdate_set_gdate (&h, day, month, year);
+		}
 	
 	/* Print long erez israeili date */
-	printf ("%s\n",  hdate_get_format_date (&h, FALSE, FALSE));
+	printf ("%d,%d,%d, %s\n",  h.gd_day, h.gd_mon, h.gd_year,
+		hdate_get_format_date (&h, FALSE, FALSE));	
 
 	return 0;
 }

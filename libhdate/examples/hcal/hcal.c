@@ -105,10 +105,29 @@ print_calendar(int month, int year)
 	return 0;
 }
 
+int 
+print_month (int month, int year)
+{
+	hdate_struct h;
+	
+	/* check if hebrew year (year > 3000) */
+	if (year > 3000)
+		hdate_set_hdate (&h, 1, month, year);
+	else
+		hdate_set_gdate (&h, 1, month, year);
+	
+	/* Print calendar header */
+	print_header (h.gd_mon, h.gd_year);
+	print_calendar (h.gd_mon, h.gd_year);
+	
+	printf ("\n");
+	
+	return 0;	
+}
+
 int
 main (int argc, char* argv[])
 {
-	int day;	/* The Gregorian date */
 	int month;
 	int year;
 	hdate_struct h;
@@ -119,10 +138,16 @@ main (int argc, char* argv[])
 			month = atoi (argv[1]);
 			year = atoi (argv[2]);
 		}
-	else if (argc == 1)
+	else if (argc == 2)
 		{
 			month = 0;
-			year = 0;
+			year = atoi (argv[1]);
+		}
+	else if (argc == 1)
+		{
+			hdate_set_gdate (&h, 0, 0, 0); /* get today's year */
+			month = 0;
+			year = h.gd_year;
 		}
 	else
 		{
@@ -133,10 +158,18 @@ main (int argc, char* argv[])
 	
 	/* Set the locale, for libhdate to print locale messages */ 
 	setlocale (LC_ALL,"");
-	hdate_set_gdate (&h, 1, month, year);
-	
-	/* Print calendar header */
-	print_header (h.gd_mon, h.gd_year);
-	print_calendar (h.gd_mon, h.gd_year);
+		
+	/* print all year */
+	if (month == 0)
+	{
+		for (month = 1; month < 13; month++)
+		{
+			print_month (month, year);
+		}
+	}
+	else /* print only this month */
+	{
+		print_month (month, year);
+	}
 	return 0;
 }
