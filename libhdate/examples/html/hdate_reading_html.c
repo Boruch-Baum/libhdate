@@ -28,6 +28,17 @@
 #include <stdlib.h> /* For atoi */
 #include <locale.h> /* For setlocale */
 
+/* some useful time zones
+ * Eilat 29, -34, 2
+ * Haifa 32, -34, 2
+ * Jerusalem 31, -35, 2
+ * Tel Aviv 32, -34, 2
+ */
+/* define Tel Aviv time zone */
+#define tz 2
+#define lat 32.0
+#define lon -34.0
+
 int
 main (int argc, char* argv[])
 {
@@ -36,6 +47,7 @@ main (int argc, char* argv[])
 	int jd;
 	int reading;
 	int year;
+	int sunset, sunrise;
 	
 	/* Get calendar hebrew year */
 	if (argc == 2) 
@@ -43,7 +55,8 @@ main (int argc, char* argv[])
 			year = atoi (argv[1]);
 						
 			hdate_set_hdate (&h, 1, 1, year);
-			jd = h.hd_jd;
+			/* get the julian of first shabat in year */
+			jd = h.hd_jd + (7 - h.hd_dw);
 		} 
 	else 
 		{	
@@ -58,7 +71,7 @@ main (int argc, char* argv[])
 	/* Print start of html format */
 	printf ("<html>\n");
 	printf ("<head>\n");
-    printf ("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
+	printf ("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
 	printf ("<title>לוח שנה</title>\n");
 	printf ("</head>\n");
 	printf ("<body dir=\"rtl\">\n");
@@ -69,23 +82,43 @@ main (int argc, char* argv[])
 	
 	while (h.hd_year == year)
 		{	
-			/* if start of month print header with long month name*/
-			if (h.hd_day == 1)
-				printf ("<h2>%s</h2>\n", hdate_get_hebrew_month_string (h.hd_mon, 0));
-			
-			/* set diaspora flag to 0, for reading ba harez */
 			reading = hdate_get_parasha (&h, 0);
 			
-			if (reading != 0 && h.hd_dw == 7)
+			if (reading != 0)
 				{
 					printf ("%d,%d,%d %s, %s</br>\n", h.gd_day, h.gd_mon, h.gd_year, 
 						hdate_get_format_date (&h, 0, 0),
 						hdate_get_parasha_string (reading, 0));
 				}
+			else
+				{
+					printf ("%d,%d,%d %s</br>\n", h.gd_day, h.gd_mon, h.gd_year, 
+						hdate_get_format_date (&h, 0, 0));
+				}
+
+			/* print sunrise and sunset times of fri and sat. */
+			hdate_set_jd (&h, jd - 1);
+			hdate_get_utc_sun_time (h.gd_day, h.gd_mon, h.gd_year, lat, lon, &sunrise, &sunset);
+			sunrise = sunrise + tz * 60;
+			sunset = sunset + tz * 60;
 			
-			/* get today hdate */
-			jd++;
+			printf ("יום שישי</br>\n");
+			printf ("זריחה %d:%d, שקיעה %d:%d</br>\n", sunrise / 60, sunrise % 60, sunset / 60, sunset % 60);
 			hdate_set_jd (&h, jd);
+				
+			hdate_get_utc_sun_time (h.gd_day, h.gd_mon, h.gd_year, lat, lon, &sunrise, &sunset);
+			sunrise = sunrise + tz * 60;
+			sunset = sunset + tz * 60;
+			
+			printf ("יום שבת</br>\n");
+			printf ("זריחה %d:%d, שקיעה %d:%d</br>\n", sunrise / 60, sunrise % 60, sunset / 60, sunset % 60);
+			
+			/* print a seperator */
+			printf ("------</br>\n");
+			 
+			/* get next week shabats hdate */
+			hdate_set_jd (&h, jd);
+			jd = jd + 7;
 		}
 	
 	/* Print end of html format */
