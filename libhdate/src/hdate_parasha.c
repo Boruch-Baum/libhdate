@@ -66,8 +66,6 @@ hdate_get_parasha (hdate_struct * h)
 	int join_flag_51;
 	
 	int reading;
-
-	int days;
 	int weeks;
 
 	join_flag_22 = join_flags[h->hd_year_type - 1][0];
@@ -77,32 +75,9 @@ hdate_get_parasha (hdate_struct * h)
 	join_flag_39 = join_flags[h->hd_year_type - 1][4];
 	join_flag_42 = join_flags[h->hd_year_type - 1][5];
 	join_flag_51 = join_flags[h->hd_year_type - 1][6];
+
+	weeks = h->hd_weeks - 1;
 	
-	days = 0;
-	if (h->hd_mon == 12)
-	{			/* adar 1 */
-		h->hd_mon = 5;
-	}
-	if (h->hd_mon == 13)
-	{			/* adar 2 */
-		h->hd_mon = 5;
-		days = 30;
-	}
-	days += ((h->hd_mon) * 30 - (h->hd_mon) / 2 + h->hd_day + 1);
-	if (h->hd_size_of_year % 10 > 4 && h->hd_mon > 2)	/* long Heshvan */
-		days++;
-	if (h->hd_size_of_year % 10 < 4 && h->hd_mon > 3)	/* short Kislev */
-		days--;
-	if (h->hd_size_of_year > 365 && h->hd_mon > 5)	/* leap year */
-		days += 30;
-	if (h->hd_new_year_dw == 7)
-	{
-		weeks = (days) / 7;
-	}
-	else
-	{
-		weeks = (days - h->hd_new_year_dw) / 7;
-	}
 	if (weeks == 0)
 	{
 		if (h->hd_new_year_dw == 7)

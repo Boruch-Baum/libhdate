@@ -54,6 +54,12 @@ typedef struct
 	int hd_new_year_dw;
 	/** hd_year_type The number type of year. */
 	int hd_year_type;
+	/** hd_jd The Julian day number */
+	int hd_jd;
+	/** hd_jd The number of days passed since 1 tishrey */
+	int hd_days;
+	/** hd_jd The number of weeks passed since 1 tishrey */
+	int hd_weeks;
 } hdate_struct;
 
 /**

@@ -36,7 +36,7 @@ hdate_get_holyday (hdate_struct * h)
 
         switch (month)
                 {
-                case 0:        // Tishrey
+                case 0:        /* Tishrey */
                         if (day == 1)
                                 return 1;
                         if (day == 2)
@@ -57,29 +57,30 @@ hdate_get_holyday (hdate_struct * h)
                                 return 8;
                         return 0;
                         break;
-                case 1:        // Heshvan
+                case 1:        /* Heshvan */
                         return 0;
                         break;
-                case 2:        // Kislev
+                case 2:        /* Kislev */
                         if ((day > 24) && (day < 32))
                                 return 9;
                         return 0;
                         break;
-                case 3:        //Tevet
+                case 3:        /* Tevet */
                         if (day < 3)
                                 return 9;
-                       /* if ((h->hd_flg < 0) && (day == 3)) Hanukah in a short year
-                                return 9; */
+			/* Hanukah in a short year */
+                        if ((h->hd_size_of_year % 10 == 3) && (day == 3))
+                                return 9;
                         if ((day == 10) && (day_of_week != 7))
                                 return 10;
                         return 0;
                         break;
-                case 4:        // Shvat
-                        if (day == 15)
+                case 4:        /* Shvat */
+                         if (day == 15)
                                 return 11;
                         return 0;
                         break;
-                case 5:        // Adar
+                case 5:        /* Adar */
                         if ((day == 11) && (day_of_week == 5))
                                 return 12;
                         if ((day == 13) && (day_of_week != 7))
@@ -90,14 +91,14 @@ hdate_get_holyday (hdate_struct * h)
                                 return 14;
                         return 0;
                         break;
-                case 6:        // Nisan
+                case 6:        /* Nisan */
                         if (day == 15)
                                 return 15;
                         if ((day > 15) && (day < 22))
                                 return 16;
                         return 0;
                         break;
-                case 7:        // Iyar
+                case 7:        /* Iyar */
                         if (h->hd_year >= 1948)
                                 {
                                         if ((day == 3) && (day_of_week == 5))
@@ -112,21 +113,21 @@ hdate_get_holyday (hdate_struct * h)
                                 return 18;
                         return 0;
                         break;
-                case 8:        // Sivan
+                case 8:        /* Sivan */
                         if (day == 5)
                                 return 19;
                         if (day == 6)
                                 return 20;
                         return 0;
                         break;
-                case 9:        // Tamuz
+                case 9:        /* Tamuz */
                         if ((day == 17) && (day_of_week != 7))
                                 return 21;
                         if ((day == 18) && (day_of_week == 1))
                                 return 21;
                         return 0;
                         break;
-                case 10:       // Av
+                case 10:       /* Av */
                         if ((day == 9) && (day_of_week != 7))
                                 return 22;
                         if ((day == 10) && (day_of_week == 1))
@@ -135,13 +136,13 @@ hdate_get_holyday (hdate_struct * h)
                                 return 23;
                         return 0;
                         break;
-                case 11:       // Elul
+                case 11:       /* Elul */
                         return 0;
                         break;
-                case 12:       // Adar I
+                case 12:       /* Adar I */
                         return 0;
                         break;
-                case 13:       // Adar II
+                case 13:       /* Adar II */
                         if ((day == 11) && (day_of_week == 5))
                                 return 12;
                         if ((day == 13) && (day_of_week != 7))
