@@ -232,7 +232,7 @@ char *
 hdate_get_holyday_string (int holyday, int s)
 {
 	/* holyday strings */
-	static char *holydays[2][25] = {
+	static char *holydays[2][26] = {
 		{
 		 N_("New year I"),
 		 N_("New year II"),
@@ -258,7 +258,8 @@ hdate_get_holyday_string (int holyday, int s)
 		 N_("Nine of Av fast"),
 		 N_("Tu be Av"),
 		 N_("Yom Hashoa"),
-		 N_("Yom Hazicaron")},
+		 N_("Yom Hazicaron"),
+		 N_("Yom Yerushalim")},
 		{
 		 N_("New year I"),
 		 N_("New year II"),
@@ -284,7 +285,8 @@ hdate_get_holyday_string (int holyday, int s)
 		 N_("Nine of Av fast"),
 		 N_("Tu be Av"),
 		 N_("Yom Hashoa"),
-		 N_("Yom Hazicaron")}
+		 N_("Yom Hazicaron"),
+		 N_("Yom Yerushalim")}
 	};
 
 #ifdef ENABLE_NLS
@@ -295,7 +297,7 @@ hdate_get_holyday_string (int holyday, int s)
 	/* make sure s is 0 or 1 */
 	s = s ? 0 : 1;
 
-	if (holyday >= 1 && holyday <= 25)
+	if (holyday >= 1 && holyday <= 26)
 	{
 		return _(holydays[s][holyday - 1]);
 	}
