@@ -417,7 +417,6 @@ hdate_set_hdate (hdate_struct *h, int d, int m, int y)
 	h->hd_year = y;
 	
 	jd = hdate_hdate_to_jd (d, m, y, &jd_tishrey1, &jd_tishrey1_next_year);
-	
 	hdate_jd_to_gdate (jd, &(h->gd_day), &(h->gd_mon), &(h->gd_year));
 	
 	h->hd_dw = (jd + 1) % 7 + 1;
@@ -444,7 +443,6 @@ hdate_set_jd (hdate_struct *h, int jd)
 	if (!h) return NULL;
 	
 	hdate_jd_to_gdate (jd, &(h->gd_day), &(h->gd_mon), &(h->gd_year));
-	
 	hdate_jd_to_hdate (jd, &(h->hd_day), &(h->hd_mon), &(h->hd_year), &jd_tishrey1, &jd_tishrey1_next_year);
 	
 	h->hd_dw = (jd + 1) % 7 + 1;
