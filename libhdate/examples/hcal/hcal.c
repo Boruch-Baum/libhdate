@@ -22,11 +22,6 @@
  * 02111-1307, USA.
  */
 
-/* Change log:
- *
- * Thu, 02 Sep 2004 - Patched by Moshe Wagner, flag support for all dates 
-*/
-
 #include <stdio.h>  /* For printf */
 #include <hdate.h>  /* For hebrew date */
 #include <stdlib.h> /* For atoi */
@@ -75,7 +70,7 @@ print_header(int month, int year)
 }
 
 int 
-print_calendar(int month, int year, int flag)
+print_calendar(int month, int year)
 {
 	hdate_struct h;
 	int g_day, g_month, g_year; /* The Gregorian date */
@@ -103,34 +98,24 @@ print_calendar(int month, int year, int flag)
 					h = *hdate_hdate (g_day, g_month, g_year);
 					
 					/* Get this day holyday type */
-					holyday_type = 0; /* hdate_get_holyday_type(&h); */
-					
-					print_flag = g_month == month;
-					
-					/* flag = -1 print only saterdays, -2 only holydays, -3 only today */
-					print_flag = print_flag && ((flag != -1) || (j == 6));
-					print_flag = print_flag && ((flag != -2) || (holyday_type != 0));
-					print_flag = print_flag && ((flag != -3) || (jd == jd_today));
+					holyday_type = hdate_get_holyday(&h)==0?0:1;
 					
 					/* Print a day */
-					if (print_flag)
+					if (holyday_type == 0)
 						{
-							if (holyday_type == 0)
-								{
-									printf ("%2d/%3s", g_day, hdate_get_int_string(h.hd_day+1));
-								}
-							else if (holyday_type == 1)
-								{
-									printf ("%2d-%3s", g_day, hdate_get_int_string(h.hd_day+1));
-								} 
-							else if (hdate_get_holyday_type(&h) == 2)
-								{
-									printf ("%2d+%3s", g_day, hdate_get_int_string(h.hd_day+1));
-								}
-							else if (holyday_type == 3)
-								{
-									printf ("%2d*%3s", g_day, hdate_get_int_string(h.hd_day+1));
-								}
+							printf ("%2d/%3s", g_day, hdate_get_int_string(h.hd_day+1));
+						}
+					else if (holyday_type == 1)
+						{
+							printf ("%2d-%3s", g_day, hdate_get_int_string(h.hd_day+1));
+						} 
+					else if (holyday_type == 2)
+						{
+							printf ("%2d+%3s", g_day, hdate_get_int_string(h.hd_day+1));
+						}
+					else if (holyday_type == 3)
+						{
+							printf ("%2d*%3s", g_day, hdate_get_int_string(h.hd_day+1));
 						}
 					
 					if (j != 6)
@@ -155,16 +140,7 @@ main (int argc, char* argv[])
 	int flag = 0;
 	
 	/* Get date from user */
-	if (argc == 4)
-		/* Start of patch by Moshe Wagner */
-		{
-			/* Set date from user */  
-			month = atoi (argv[1]);
-			year = atoi (argv[2]);
-			flag = atoi (argv[3]);
-		}
-		/* End of patch by Moshe Wagner */
-	else if (argc == 3) 
+	if (argc == 3) 
 		{                       
 			month = atoi (argv[1]);
 			year = atoi (argv[2]);
@@ -182,7 +158,7 @@ main (int argc, char* argv[])
 	else		
 		{	
 			/* Print help for user and exit */
-			printf ("USAGE: %s [month year] [flag: -1/-2/-3]\n", argv[0]);
+			printf ("USAGE: %s [month year]\n", argv[0]);
 			exit (0);
 		}
 	
@@ -193,6 +169,6 @@ main (int argc, char* argv[])
 	h = *hdate_hdate (1, month, year);
 		
 	print_header (h.gd_mon, h.gd_year);
-	print_calendar (h.gd_mon, h.gd_year, flag);
+	print_calendar (h.gd_mon, h.gd_year);
 	return 0;		
 }
