@@ -19,9 +19,6 @@
 #include "hdate.h"
 #include "support.h"
 
-#define FALSE 0
-#define TRUE  1
-
 /**
  @brief Return number of hebrew parasha.
 

@@ -17,7 +17,6 @@
  */
  
 #include "hdate.h"
-
 #include "support.h"
 
 /**

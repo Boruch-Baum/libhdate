@@ -25,8 +25,7 @@
 #include <stdio.h>
 
 #include "hdate.h"
-
-#define FALSE 0
+#include "support.h"
 
 #define HOUR 1080
 #define DAY  (24*HOUR)

@@ -24,8 +24,6 @@
 #include "hdate.h"
 #include "support.h"
 
-#define FALSE 0
-
 /**
  @brief convert an integer to hebrew string UTF-8 (logical)
  

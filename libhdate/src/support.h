@@ -25,6 +25,18 @@
 #endif
 
 /*
+ * define TRUE/FLASE if not defined
+ */
+#ifndef FALSE
+#define FALSE 0
+#endif
+
+#ifndef TRUE
+#define TRUE -1
+#endif
+
+ 
+/*
  * Standard gettext macros.
  */
 #ifdef ENABLE_NLS
