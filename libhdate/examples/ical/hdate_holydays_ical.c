@@ -84,7 +84,7 @@ main (int argc, char* argv[])
 		{
 			hdate_jd_to_gdate (jd, &day, &month, &year);
 			h = *hdate_hdate (day, month, year);
-			event_summary = holyday = hdate_get_holyday (&h);
+			holyday = hdate_get_holyday (&h);
 			
 			if (holyday != 0)
 				{
