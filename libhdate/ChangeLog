@@ -1,5 +1,11 @@
 libhdate (0.30.0)
 
+  * add es_MX translation by Peled Esti <esti@actcom.co.il>  
+
+   -- Yaacov Zamir <kzamir@wall.co.il>  Tue, 08 March 2005 18:13
+       
+libhdate (0.30.0)
+
   * cpp, python and perl bindings
   * examples for the new libhdate bindings 
 
