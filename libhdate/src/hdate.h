@@ -332,6 +332,117 @@ hdate_get_day_of_year (int day, int month, int year);
 void
 hdate_get_utc_sun_time (int day, int month, int year, double latitude, double longitude, int *sunrise, int *sunset);
 
+/*************************************************************/
+/*************************************************************/
+
+/**
+ @brief get the Gregorian day of the month
+
+ @param h pointer this hdate struct.
+ @return the Gregorian day of the month, 1..31.
+ */
+int
+hdate_get_gday (hdate_struct *h);
+
+/**
+ @brief get the Gregorian month
+
+ @param h pointer this hdate struct.
+ @return the Gregorian month, jan = 1.
+ */
+int
+hdate_get_gmonth (hdate_struct *h);
+
+/**
+ @brief get the Gregorian year
+
+ @param h pointer this hdate struct.
+ @return the Gregorian year.
+ */
+int
+hdate_get_gyear (hdate_struct *h);
+
+/**
+ @brief get the Hebrew day of the month
+
+ @param h pointer this hdate struct.
+ @return the Hebrew day of the month, 1..30.
+ */
+int
+hdate_get_hday (hdate_struct *h);
+
+/**
+ @brief get the Hebrew month
+
+ @param h pointer this hdate struct.
+ @return the Hebrew month, Tishery = 1 .. Adar I =13, Adar II = 14.
+ */
+int
+hdate_get_hmonth (hdate_struct *h);
+
+/**
+ @brief get the Hebrew year
+
+ @param h pointer this hdate struct.
+ @return the Hebrew year.
+ */
+int
+hdate_get_hyear (hdate_struct *h);
+
+/**
+ @brief get the day of the week
+
+ @param h pointer this hdate struct.
+ @return the the day of the week.
+ */
+int
+hdate_get_day_of_the_week (hdate_struct *h);
+
+/**
+ @brief get the size of the hebrew year
+
+ @param h pointer this hdate struct.
+ @return the the size of the hebrew year.
+ */
+int
+hdate_get_size_of_year (hdate_struct *h);
+
+/**
+ @brief get the new year day of the week
+
+ @param h pointer this hdate struct.
+ @return the the new year day of the week.
+ */
+int
+hdate_get_new_year_day_of_the_week (hdate_struct *h);
+
+/**
+ @brief get the Julian day number
+
+ @param h pointer this hdate struct.
+ @return the Julian day number.
+ */
+int
+hdate_get_julian (hdate_struct *h);
+
+/**
+ @brief get the number of days passed since 1 tishrey
+
+ @param h pointer this hdate struct.
+ @return the number of days passed since 1 tishrey.
+ */
+int
+hdate_get_days (hdate_struct *h);
+
+/**
+ @brief get the number of weeks passed since 1 tishrey
+
+ @param h pointer this hdate struct.
+ @return the number of weeks passed since 1 tishrey.
+ */
+int
+hdate_get_weeks (hdate_struct *h);
+
 #ifdef __cplusplus
 }
 #endif
