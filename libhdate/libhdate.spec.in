@@ -1,0 +1,53 @@
+Summary: A library that help use hebrew dates.
+Name: libhdate
+Version: @VERSION@
+Release: 1
+Copyright: GPL
+Group: System Environment/Libraries
+Source: libhdate-%{version}.tar.gz
+
+BuildRoot: /var/tmp/%{name}-buildroot
+
+%description
+LibHdate is a small C,C++ library for Hebrew dates,
+holidays, and reading sequence (parasha). It is using 
+the sorce code from Amos Shapir's "hdate" package fixed and 
+patched by Nadav Har'El. The Torah reading sequence
+is from tables by Zvi Har'El.
+
+Install libhdaye to use Hebrew dates, 
+or build applications that use them.
+
+   Yaacov Zamir <kzamir@walla.co.il>
+
+%prep
+
+%setup
+
+%build
+CFLAGS="$RPM_OPT_FLAGS $CFLAGS" 
+./configure --prefix=%{_prefix}
+
+%__make
+
+%install
+%__make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+%__rm -r $RPM_BUILD_ROOT
+
+%files
+%defattr(-,root,root)
+%{_includedir}/hdate.h
+%{_libdir}/libhdate.*
+%{_libdir}/pkgconfig/*
+%{_prefix}/share/locale/he/LC_MESSAGES/libhdate.mo
+%{_prefix}/doc/hdate/*
+
+%doc README AUTHORS NEWS USE ABOUT-NLS COPYING ChangeLog INSTALL TODO USE
+
+%post
+
+%postun
+
+%changelog
