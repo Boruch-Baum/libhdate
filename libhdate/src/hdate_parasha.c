@@ -56,24 +56,8 @@ hdate_get_parasha (hdate_struct * h)
 		{0, 0, 0, 0, 0, 0, 1},
 		{0, 0, 0, 0, 0, 1, 1}
 	};
-
-	int join_flag_22;
-	int join_flag_27;
-	int join_flag_29;
-	int join_flag_32;
-	int join_flag_39;
-	int join_flag_42;
-	int join_flag_51;
 	
-	int reading = 0;
-
-	join_flag_22 = join_flags[h->hd_year_type - 1][0];
-	join_flag_27 = join_flags[h->hd_year_type - 1][1];
-	join_flag_29 = join_flags[h->hd_year_type - 1][2];
-	join_flag_32 = join_flags[h->hd_year_type - 1][3];
-	join_flag_39 = join_flags[h->hd_year_type - 1][4];
-	join_flag_42 = join_flags[h->hd_year_type - 1][5];
-	join_flag_51 = join_flags[h->hd_year_type - 1][6];
+	int reading;
 	
 	switch (h->hd_weeks)
 	{
@@ -137,7 +121,7 @@ hdate_get_parasha (hdate_struct * h)
 		}
 		
 		/* joining */
-		if (join_flag_22 && (reading >= 22))
+		if (join_flags[h->hd_year_type - 1][0] && (reading >= 22))
 		{
 			if (reading == 22)
 			{
@@ -161,7 +145,7 @@ hdate_get_parasha (hdate_struct * h)
 			reading--;
 		}
 
-		if (join_flag_27 && (reading >= 27))
+		if (join_flags[h->hd_year_type - 1][1] && (reading >= 27))
 		{
 			if (reading == 27)
 			{
@@ -173,7 +157,7 @@ hdate_get_parasha (hdate_struct * h)
 				reading++;
 			}
 		}
-		if (join_flag_29 && (reading >= 29))
+		if (join_flags[h->hd_year_type - 1][2] && (reading >= 29))
 		{
 			if (reading == 29)
 			{
@@ -185,7 +169,7 @@ hdate_get_parasha (hdate_struct * h)
 				reading++;
 			}
 		}
-		if (join_flag_32 && (reading >= 32))
+		if (join_flags[h->hd_year_type - 1][3] && (reading >= 32))
 		{
 			if (reading == 32)
 			{
@@ -197,7 +181,7 @@ hdate_get_parasha (hdate_struct * h)
 				reading++;
 			}
 		}
-		if (join_flag_39 && (reading >= 39))
+		if (join_flags[h->hd_year_type - 1][4] && (reading >= 39))
 		{
 			if (reading == 39)
 			{
@@ -209,7 +193,7 @@ hdate_get_parasha (hdate_struct * h)
 				reading++;
 			}
 		}
-		if (join_flag_42 && (reading >= 42))
+		if (join_flags[h->hd_year_type - 1][5] && (reading >= 42))
 		{
 			if (reading == 42)
 			{
@@ -221,7 +205,7 @@ hdate_get_parasha (hdate_struct * h)
 				reading++;
 			}
 		}
-		if (join_flag_51 && (reading >= 51))
+		if (join_flags[h->hd_year_type - 1][6] && (reading >= 51))
 		{
 			if (reading == 51)
 			{

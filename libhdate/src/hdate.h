@@ -265,6 +265,15 @@ hdate_get_parasha (hdate_struct * h);
 int
 hdate_get_holyday (hdate_struct * h);
 
+/**
+ @brief Return number of hebrew holyday type.
+
+ @param h The hdate_struct of the date to use.
+ @return the number of holyday type, 0-no holyday, 1-regular holyday,
+    2-regel, 3-fast.
+*/
+int
+hdate_get_holyday_type (hdate_struct * h);
 
 #ifdef __cplusplus
 }
