@@ -144,7 +144,7 @@ hdate_jd_to_gdate (int jd, int *day, int *month, int *year);
  @param year Return Year in 4 digits e.g. 2001
  */
 void
-hdate_jd_to_hdate (int jd, int *day, int *month, int *year);
+hdate_jd_to_hdate (int jd, int *day, int *month, int *year, int *jd_tishrey1, int *jd_tishrey1_next_year);
 
 /********************************************************************************/
 /********************************************************************************/

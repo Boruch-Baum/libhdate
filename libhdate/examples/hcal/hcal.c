@@ -43,8 +43,8 @@ print_header(int month, int year)
 	jd1 = h.hd_jd;
 	jd2 = jd1 + 32;
 	
-	hdate_jd_to_hdate (jd1, &h_day1, &h_month1, &h_year1);
-	hdate_jd_to_hdate (jd2, &h_day2, &h_month2, &h_year2);
+	hdate_jd_to_hdate (jd1, &h_day1, &h_month1, &h_year1, NULL, NULL);
+	hdate_jd_to_hdate (jd2, &h_day2, &h_month2, &h_year2, NULL, NULL);
 	
 	/* Print Gregorian month and year */
 	printf ("%s %d\n", hdate_get_month_string (h.gd_mon, FALSE), h.gd_year);

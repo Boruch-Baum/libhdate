@@ -249,11 +249,11 @@ hdate_jd_to_gdate (int jd, int *d, int *m, int *y)
  @param year Return Year in 4 digits e.g. 2001
  */
 void
-hdate_jd_to_hdate (int jd, int *day, int *month, int *year)
+hdate_jd_to_hdate (int jd, int *day, int *month, int *year, int *jd_tishrey1, int *jd_tishrey1_next_year)
 {
 	int days;
 	int size_of_year;
-	int jd_tishrey1, jd_tishrey1_next_year;
+	int jd1, jd2;
 	
 	/* calculate Gregorian date */
 	hdate_jd_to_gdate (jd, day, month, year);
@@ -261,21 +261,21 @@ hdate_jd_to_hdate (int jd, int *day, int *month, int *year)
 	/* Guess Hebrew year is Gregorian year + 3760 */
 	*year = *year + 3760;
 
-	jd_tishrey1 = hdate_days_from_3744 (*year) + 1715119;
-	jd_tishrey1_next_year = hdate_days_from_3744 (*year + 1) + 1715119;
+	jd1 = hdate_days_from_3744 (*year) + 1715119;
+	jd2 = hdate_days_from_3744 (*year + 1) + 1715119;
 	
 	/* Check if computed year was underestimated */
-	if (jd_tishrey1_next_year <= jd)
+	if (jd2 <= jd)
 	{
 		*year = *year + 1;
-		jd_tishrey1 = jd_tishrey1_next_year;
-		jd_tishrey1_next_year = hdate_days_from_3744 (*year + 1) + 1715119;	
+		jd1 = jd2;
+		jd2 = hdate_days_from_3744 (*year + 1) + 1715119;
 	}
 
-	size_of_year = jd_tishrey1_next_year - jd_tishrey1;
+	size_of_year = jd2 - jd1;
 	
 	/* days into this year, first month 0..29 */
-	days = jd - jd_tishrey1;
+	days = jd - jd1;
 	
 	/* last 8 months allways have 236 days */
 	if (days >= (size_of_year - 236)) /* in last 8 months */
@@ -309,7 +309,14 @@ hdate_jd_to_hdate (int jd, int *day, int *month, int *year)
 				*day = days - (*month * 59 + 1) / 2 + 1;
 			}
 			
-		*month = *month + 1;			
+		*month = *month + 1;
+	}
+	
+	/* return the 1 of tishrey julians */
+	if (jd_tishrey1 && jd_tishrey1_next_year)
+	{
+		*jd_tishrey1 = jd1;
+		*jd_tishrey1_next_year = jd2;
 	}
 	
 	return;
@@ -360,10 +367,7 @@ hdate_gdate (int d, int m, int y)
 	h.gd_year = y;
 	
 	jd = hdate_gdate_to_jd (d, m, y);
-	hdate_jd_to_hdate (jd, &(h.hd_day), &(h.hd_mon), &(h.hd_year));
-	
-	jd_tishrey1 = hdate_days_from_3744 (h.hd_year) + 1715119;
-	jd_tishrey1_next_year = hdate_days_from_3744 (h.hd_year + 1) + 1715119;
+	hdate_jd_to_hdate (jd, &(h.hd_day), &(h.hd_mon), &(h.hd_year), &jd_tishrey1, &jd_tishrey1_next_year);
 	
 	h.hd_dw = (jd + 1) % 7 + 1;
 	h.hd_size_of_year = jd_tishrey1_next_year - jd_tishrey1;
@@ -397,7 +401,7 @@ hdate_hdate (int d, int m, int y)
 	jd = hdate_hdate_to_jd (d, m, y, &jd_tishrey1, &jd_tishrey1_next_year);
 	
 	hdate_jd_to_gdate (jd, &(h.gd_day), &(h.gd_mon), &(h.gd_year));
-		
+	
 	h.hd_dw = (jd + 1) % 7 + 1;
 	h.hd_size_of_year = jd_tishrey1_next_year - jd_tishrey1;
 	h.hd_new_year_dw = (jd_tishrey1 + 1) % 7 + 1;
