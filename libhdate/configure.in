@@ -73,6 +73,7 @@ examples/Makefile
 examples/hcal/Makefile
 examples/ical/Makefile
 examples/html/Makefile
+examples/hebcal/Makefile
 ])
 
 dnl ===========================================================================================

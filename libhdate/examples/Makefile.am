@@ -1,1 +1,1 @@
-SUBDIRS = hcal ical html
+SUBDIRS = hcal ical html hebcal
