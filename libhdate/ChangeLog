@@ -1,3 +1,13 @@
+libhdate (0.21.0)
+  
+  * New spec file by Oron Peled
+  * Diaspora holydays/readings
+  * New sunrise sunset functions
+  * New html examples
+  * New configure options to build / not build the examples
+  
+   -- Yaacov Zamir <kzamir@wall.co.il>  Fri, 25 Feb 2005 11:15:18
+
 libhdate (0.17.0)
   
   * API chages.
