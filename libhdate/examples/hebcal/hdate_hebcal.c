@@ -224,8 +224,8 @@ main (int argc, char* argv[])
 			exit (0);
 		}
 	
-	/* Set the locale (FIXME: original hebcal output does not use locale) */ 
-	setlocale (LC_ALL, "");
+	/* Set the locale to C (FIXME: original hebcal output does not use locale) */ 
+	setlocale (LC_ALL, "C");
 	
 	/* get initial date */
 	hdate_set_gdate (&h, 1, 1, year);
