@@ -97,6 +97,7 @@ hdate_get_holyday (hdate_struct * h)
 	
 	holyday = holydays_table[h->hd_mon - 1][h->hd_day - 1];
 	
+	/* if tzom on sat delay one day */
 	/* yom cipur on sat */
 	if ((holyday == 3) && (h->hd_dw == 7 || (h->hd_day == 4 && h->hd_dw !=1)))
 		holyday = 0;
@@ -108,14 +109,14 @@ hdate_get_holyday (hdate_struct * h)
 		holyday = 0;
 	
 	/* Hanukah in a long year */
-    if ((holyday == 9) && (h->hd_size_of_year % 10 != 3) && (h->hd_dw == 3))
+    if ((holyday == 9) && (h->hd_size_of_year % 10 != 3) && (h->hd_day == 3))
 		holyday = 0;
 	
-	/* tanit ester on sat. */
+	/* if tanit ester on sat mov to Thu */
 	if ((holyday == 12) && ((h->hd_dw == 7) || (h->hd_day == 11 && h->hd_dw != 5)))
 		holyday = 0;
 	
-	/* yom ha azmaot on sat or fri */
+	/* yom ha azmaot on sat or fri mov to Thu*/
 	if (holyday == 12)
 	{
 		if (h->hd_year < 1948)
