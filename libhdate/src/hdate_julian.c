@@ -338,6 +338,8 @@ hdate_gdate (hdate_struct *h, int d, int m, int y)
 	int jd;
 	int jd_tishrey1, jd_tishrey1_next_year;
 	
+	if (!h) return NULL;
+	
 	/* check for null dates (kobi) */
 	if ((d == 0) || (m == 0))
 	{
@@ -392,6 +394,8 @@ hdate_hdate (hdate_struct *h, int d, int m, int y)
 	int jd;
 	int jd_tishrey1, jd_tishrey1_next_year;
 	
+	if (!h) return NULL;
+	
 	h->hd_day = d;
 	h->hd_mon = m;
 	h->hd_year = y;
@@ -420,6 +424,8 @@ hdate_struct *
 hdate_jd (hdate_struct *h, int jd)
 {
 	int jd_tishrey1, jd_tishrey1_next_year;
+	
+	if (!h) return NULL;
 	
 	hdate_jd_to_gdate (jd, &(h->hd_day), &(h->hd_mon), &(h->hd_year));
 	
