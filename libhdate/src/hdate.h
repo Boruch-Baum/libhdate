@@ -52,6 +52,8 @@ typedef struct
 	int hd_size_of_year;
 	/** hd_new_year_dw The week day of Hebrew new year. */
 	int hd_new_year_dw;
+	/** hd_year_type The number type of year. */
+	int hd_year_type;
 } hdate_struct;
 
 /**
@@ -73,6 +75,16 @@ hdate_days_from_3744 (int hebrew_year);
 */
 int
 hdate_size_of_hebrew_year (int hebrew_year);
+
+/**
+ @brief Return Hebrew year type based on size and first week day of year.
+
+ @param size_of_year Length of year in days
+ @param new_year_dw First week day of year
+ @return A number for year type (1..24)
+*/
+int
+hdate_get_year_type (int size_of_year, int new_year_dw);
 
 /**
  @brief Compute Julian day from Gregorian day, month and year

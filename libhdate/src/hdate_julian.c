@@ -105,6 +105,34 @@ hdate_size_of_hebrew_year (int hebrew_year)
 }
 
 /**
+ @brief Return Hebrew year type based on size and first week day of year.
+
+ @param size_of_year Length of year in days
+ @param new_year_dw First week day of year
+ @return A number for year type (1..24)
+*/
+int
+hdate_get_year_type (int size_of_year, int new_year_dw)
+{
+	int year_type;
+	int offset;
+	
+	/* 2,3,5,7 -> 1,2,3,4 */
+	year_type = new_year_dw - 1;
+	if (year_type > 2) year_type = year_type - 1;
+	if (year_type > 3) year_type = year_type - 1;	
+	
+	/* 353, 354, 355, 383, 384, 385 -> 0, 1, 2, 3, 4, 5 */
+	offset = size_of_year % 10 - 3;
+	if (size_of_year > 355) offset = offset + 3;
+		
+	/* Combine year_type and offset */
+	year_type = offset * 4 + year_type;
+	
+	return year_type;
+}
+
+/**
  @brief Compute Julian day from Gregorian day, month and year
  Algorithm from 'Julian and Gregorian Day Numbers' by Peter Meyer
 
@@ -316,6 +344,7 @@ hdate_hdate (int d, int m, int y)
 	h.hd_dw = (jd + 1) % 7 + 1;
 	h.hd_size_of_year = hdate_size_of_hebrew_year (h.hd_year);
 	h.hd_new_year_dw = (hdate_hdate_to_jd (1,1,h.hd_year) + 1) % 7 + 1;
+	h.hd_year_type = hdate_get_year_type (h.hd_size_of_year , h.hd_new_year_dw);
 	
 	return (&h);
 }
@@ -343,6 +372,7 @@ hdate_gdate (int d, int m, int y)
 	h.hd_dw = (jd + 1) % 7 + 1;
 	h.hd_size_of_year = hdate_size_of_hebrew_year (h.hd_year);
 	h.hd_new_year_dw = (hdate_hdate_to_jd (1,1,h.hd_year) + 1) % 7 + 1;
+	h.hd_year_type = hdate_get_year_type (h.hd_size_of_year , h.hd_new_year_dw);
 	
 	return (&h);
 }
