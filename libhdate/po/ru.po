@@ -222,12 +222,12 @@ msgstr "Адар 2"
 
 #: src/hdate_strings.c:237 src/hdate_strings.c:268
 msgid "Rosh Hashana I"
-msgstr ""
+msgstr "Рош-а-Шана I"
 
 #. 1
 #: src/hdate_strings.c:238 src/hdate_strings.c:269
 msgid "Rosh Hashana II"
-msgstr ""
+msgstr "Рош-а-Шана II"
 
 #: src/hdate_strings.c:239 src/hdate_strings.c:270
 msgid "Tzom Gedaliah"
@@ -235,23 +235,23 @@ msgstr ""
 
 #: src/hdate_strings.c:240 src/hdate_strings.c:271
 msgid "Yom Kippur"
-msgstr ""
+msgstr "Йом Кипур"
 
 #: src/hdate_strings.c:241 src/hdate_strings.c:272
 msgid "Sukkot"
-msgstr ""
+msgstr "Суккот"
 
 #: src/hdate_strings.c:242 src/hdate_strings.c:273
 msgid "Hol hamoed Sukkot"
-msgstr ""
+msgstr "Суккот"
 
 #: src/hdate_strings.c:243 src/hdate_strings.c:274
 msgid "Hoshana raba"
-msgstr ""
+msgstr "hoшана Раба"
 
 #: src/hdate_strings.c:244 src/hdate_strings.c:275
 msgid "Simchat Torah"
-msgstr ""
+msgstr "Симхат-Тора"
 
 #: src/hdate_strings.c:245 src/hdate_strings.c:276
 msgid "Chanukah"
@@ -259,12 +259,12 @@ msgstr "Ханука"
 
 #: src/hdate_strings.c:246 src/hdate_strings.c:277
 msgid "Asara B'Tevet"
-msgstr "10 Тэвэт"
+msgstr "Десятое Тевета"
 
 #. 10
 #: src/hdate_strings.c:247 src/hdate_strings.c:278
 msgid "Tu B'Shvat"
-msgstr ""
+msgstr "Ту би-Шват"
 
 #: src/hdate_strings.c:248 src/hdate_strings.c:279
 msgid "Ta'anit Esther"
@@ -275,53 +275,55 @@ msgid "Purim"
 msgstr "Пурим"
 
 #: src/hdate_strings.c:250 src/hdate_strings.c:281
+#, fuzzy
 msgid "Shushan Purim"
-msgstr ""
+msgstr "Пурим"
 
 #: src/hdate_strings.c:251 src/hdate_strings.c:282
 msgid "Pesach"
 msgstr "Пэсах"
 
 #: src/hdate_strings.c:252 src/hdate_strings.c:283
+#, fuzzy
 msgid "Hol hamoed Pesach"
-msgstr ""
+msgstr "Песах"
 
 #: src/hdate_strings.c:253 src/hdate_strings.c:284
 msgid "Yom HaAtzma'ut"
-msgstr ""
+msgstr "День Независимости"
 
 #: src/hdate_strings.c:254 src/hdate_strings.c:285
 msgid "Lag B'Omer"
-msgstr ""
+msgstr "Лаг ба-Омер"
 
 #: src/hdate_strings.c:255 src/hdate_strings.c:286
 msgid "Erev Shavuot"
-msgstr ""
+msgstr "Шавуот"
 
 #: src/hdate_strings.c:256 src/hdate_strings.c:287
 msgid "Shavuot"
-msgstr ""
+msgstr "Шавуот"
 
 #. 20
 #: src/hdate_strings.c:257 src/hdate_strings.c:288
 msgid "Tzom Tammuz"
-msgstr ""
+msgstr "17 Тамуза"
 
 #: src/hdate_strings.c:258 src/hdate_strings.c:289
 msgid "Tish'a B'Av"
-msgstr ""
+msgstr "9 Ава"
 
 #: src/hdate_strings.c:259 src/hdate_strings.c:290
 msgid "Tu B'Av"
-msgstr ""
+msgstr "15-ое Ава"
 
 #: src/hdate_strings.c:260 src/hdate_strings.c:291
 msgid "Yom HaShoah"
-msgstr ""
+msgstr "День Холокоста"
 
 #: src/hdate_strings.c:261 src/hdate_strings.c:292
 msgid "Yom HaZikaron"
-msgstr ""
+msgstr "День Памяти"
 
 #. 25
 #: src/hdate_strings.c:262 src/hdate_strings.c:293
@@ -330,19 +332,19 @@ msgstr "День Йерусалима"
 
 #: src/hdate_strings.c:263 src/hdate_strings.c:294
 msgid "Shmini Atzeret"
-msgstr ""
+msgstr "Шмини-Ацерет"
 
 #: src/hdate_strings.c:264 src/hdate_strings.c:295
 msgid "Pesach VII"
-msgstr ""
+msgstr "Песах VII"
 
 #: src/hdate_strings.c:265 src/hdate_strings.c:296
 msgid "Pesach VIII"
-msgstr ""
+msgstr "Песах VIII"
 
 #: src/hdate_strings.c:266 src/hdate_strings.c:297
 msgid "Shavuot II"
-msgstr ""
+msgstr "Шавуот II"
 
 #: src/hdate_strings.c:330 src/hdate_strings.c:393
 msgid "none"
