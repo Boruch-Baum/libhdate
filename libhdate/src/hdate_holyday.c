@@ -129,6 +129,23 @@ hdate_get_holyday (hdate_struct * h, int diaspora)
 	{
 		if (h->gd_year < 1948)
 			holyday = 0;
+		else if (h->gd_year < 2004)
+		{
+			if ((h->hd_day == 3) && (h->hd_dw == 5))
+				holyday = 17;
+			else if ((h->hd_day == 4) && (h->hd_dw == 5))
+				holyday = 17;
+			else if ((h->hd_day == 5) && (h->hd_dw != 6 && h->hd_dw != 7))
+				holyday = 17;
+			else if ((h->hd_day == 2) && (h->hd_dw == 4))
+				holyday = 25;
+			else if ((h->hd_day == 3) && (h->hd_dw == 4))
+				holyday = 25;
+			else if ((h->hd_day == 4) && (h->hd_dw != 5 && h->hd_dw != 6))
+				holyday = 25;
+			else
+				holyday = 0;
+		}
 		else
 		{
 			if ((h->hd_day == 3) && (h->hd_dw == 5))
