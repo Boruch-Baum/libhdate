@@ -348,7 +348,7 @@ hdate_hdate (int d, int m, int y)
 	h.hd_year_type = hdate_get_year_type (h.hd_size_of_year , h.hd_new_year_dw);
 	h.hd_jd = jd;
 	h.hd_days = jd - jd_tishrey1 + 1;
-	h.hd_weeks = ((h.hd_days - 1) + (h.hd_new_year_dw - 1)) % 7 + 1;
+	h.hd_weeks = ((h.hd_days - 1) + (h.hd_new_year_dw - 1)) / 7 + 1;
 	
 	return (&h);
 }
@@ -380,7 +380,7 @@ hdate_gdate (int d, int m, int y)
 	h.hd_year_type = hdate_get_year_type (h.hd_size_of_year , h.hd_new_year_dw);
 	h.hd_jd = jd;
 	h.hd_days = jd - jd_tishrey1 + 1;
-	h.hd_weeks = ((h.hd_days - 1) + (h.hd_new_year_dw - 1)) % 7 + 1;
+	h.hd_weeks = ((h.hd_days - 1) + (h.hd_new_year_dw - 1)) / 7 + 1;
 	
 	return (&h);
 }

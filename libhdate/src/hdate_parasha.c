@@ -122,11 +122,13 @@ hdate_get_parasha (hdate_struct * h)
 			return reading;
 		}
 		break;
-	defaults:
+	default:
 		reading = h->hd_weeks - 3;
 		
+		/* FIXME: do I need this ?
 		if (h->hd_new_year_dw == 7)
 			reading = reading - 1;
+		*/
 		
 		/* no joining */
 		if (reading < 22)

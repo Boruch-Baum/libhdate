@@ -1,3 +1,9 @@
+libhdate (0.16.2)
+  
+  * Syntax error, and weeks calculation bug fixed by Michael Kaminsky.
+
+   -- Yaacov Zamir <kzamir@wall.co.il>  Sun, 20 Feb 2005 06:53:12
+
 libhdate (0.16.1)
 
   * Fix locale bug in int_to_string.
