@@ -117,10 +117,10 @@ hdate_get_holyday (hdate_struct * h, int diaspora)
 	if ((holyday == 12) && ((h->hd_dw == 7) || (h->hd_day == 11 && h->hd_dw != 5)))
 		holyday = 0;
 	
-	/* yom ha azmaot on sat or fri mov to Thu */
+	/* yom ha azmaot and yom ha zicaron */
 	if (holyday == 17)
 	{
-		if (h->hd_year < 1948)
+		if (h->gd_year < 1948)
 			holyday = 0;
 		else
 		{
@@ -145,10 +145,10 @@ hdate_get_holyday (hdate_struct * h, int diaspora)
 		}
 	}
 	
-	/* yom ha shoaa */
+	/* yom ha shoaa, on years after 1958 */
 	if (holyday == 24)
 	{
-		if (h->hd_year < 1958)
+		if (h->gd_year < 1958)
 			holyday = 0;
 		else
 		{
