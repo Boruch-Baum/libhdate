@@ -33,6 +33,8 @@ namespace hdate
 	{
 		
 	public:
+		////////////////////////////////////////
+		////////////////////////////////////////
 		
 		Hdate()
 		{
@@ -43,6 +45,9 @@ namespace hdate
 		{
 			delete_hdate(h);
 		}
+		
+		////////////////////////////////////////
+		////////////////////////////////////////
 		
 		set_gdate (int d, int m, int y)
 		{
@@ -59,18 +64,81 @@ namespace hdate
 			hdate_set_jd (h, jd)
 		}
 		
+		////////////////////////////////////////
+		////////////////////////////////////////
+		
 		char *
 		get_format_date (int diaspora, int s)
 		{
 			return hdate_get_format_date (h, diaspora, s);
 		}
-
+		
+		char *
+		get_day_of_week_string (int s)
+		{
+			return hdate_get_day_string (h->hd_dw, s);
+		}
+		
+		char *
+		get_month_string (int s)
+		{
+			return hdate_get_month_string (h->gd_mon, s);
+		}
+		
+		char *
+		get_hebrew_month_string (int s)
+		{
+			return hdate_get_hebrew_month_string (h->hd_mon, s);
+		}
+		
+		char *
+		get_holyday_string (int diaspora, int s)
+		{
+			int holyday;
+			
+			holyday = hdate_get_holyday (h, diaspora);
+			return hdate_get_holyday_string (holyday, s);
+		}
+		
+		int
+		get_holyday_type (int diaspora);
+		{
+			int holyday;
+			
+			holyday = hdate_get_holyday (h, diaspora);
+			return hdate_get_holyday_type (holyday);
+		}
+		
+		char *
+		get_parasha_string (int diaspora, int s)
+		{
+			int parasha;
+			
+			parasha = hdate_get_parasha (h, diaspora);
+			return hdate_get_parasha_string (parasha, s);
+		}
+		
+		char *
+		get_hebrew_year_string ();
+		
+			return hdate_get_int_string (h->hd_year);
+		}
+		
+		char *
+		get_hebrew_day_string ();
+		
+			return hdate_get_int_string (h->hd_day);
+		}
+		
+		////////////////////////////////////////
+		////////////////////////////////////////
+		
 		int
 		get_parasha (int diaspora)
 		{
 			return hdate_get_parasha (h, diaspora);
 		}
-
+		
 		int
 		get_holyday (int diaspora)
 		{
@@ -148,7 +216,7 @@ namespace hdate
 		{
 			return hdate_get_weeks (h);
 		}
-
+		
 	private:
 		
 		hdate_struct *h;
