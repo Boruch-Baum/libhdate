@@ -155,7 +155,7 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 		}
 		
 		/* joining */
-		if (join_flags[h->hd_year_type - 1][0] && (reading >= 22))
+		if (joining[h->hd_year_type - 1][0] && (reading >= 22))
 		{
 			if (reading == 22)
 			{
@@ -179,7 +179,7 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 			reading--;
 		}
 
-		if (join_flags[h->hd_year_type - 1][1] && (reading >= 27))
+		if (joining[h->hd_year_type - 1][1] && (reading >= 27))
 		{
 			if (reading == 27)
 			{
@@ -191,7 +191,7 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 				reading++;
 			}
 		}
-		if (join_flags[h->hd_year_type - 1][2] && (reading >= 29))
+		if (joining[h->hd_year_type - 1][2] && (reading >= 29))
 		{
 			if (reading == 29)
 			{
@@ -203,7 +203,7 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 				reading++;
 			}
 		}
-		if (join_flags[h->hd_year_type - 1][3] && (reading >= 32))
+		if (joining[h->hd_year_type - 1][3] && (reading >= 32))
 		{
 			if (reading == 32)
 			{
@@ -215,7 +215,7 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 				reading++;
 			}
 		}
-		if (join_flags[h->hd_year_type - 1][4] && (reading >= 39))
+		if (joining[h->hd_year_type - 1][4] && (reading >= 39))
 		{
 			if (reading == 39)
 			{
@@ -227,7 +227,7 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 				reading++;
 			}
 		}
-		if (join_flags[h->hd_year_type - 1][5] && (reading >= 42))
+		if (joining[h->hd_year_type - 1][5] && (reading >= 42))
 		{
 			if (reading == 42)
 			{
@@ -239,7 +239,7 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 				reading++;
 			}
 		}
-		if (join_flags[h->hd_year_type - 1][6] && (reading >= 51))
+		if (joining[h->hd_year_type - 1][6] && (reading >= 51))
 		{
 			if (reading == 51)
 			{

@@ -110,7 +110,7 @@ hdate_get_holyday (hdate_struct * h, int diaspora)
 		holyday = 0;
 	
 	/* Hanukah in a long year */
-    if ((holyday == 9) && (h->hd_size_of_year % 10 != 3) && (h->hd_day == 3))
+	if ((holyday == 9) && (h->hd_size_of_year % 10 != 3) && (h->hd_day == 3))
 		holyday = 0;
 	
 	/* if tanit ester on sat mov to Thu */
@@ -126,9 +126,9 @@ hdate_get_holyday (hdate_struct * h, int diaspora)
 		{
 			if ((h->hd_day == 3) && (h->hd_dw != 5))
 				holyday = 0;
-            if ((h->hd_day == 4) && (h->hd_dw != 5))
-                holyday = 0;
-            if ((h->hd_day == 5) && (h->hd_dw == 6 || h->hd_dw == 7))
+			if ((h->hd_day == 4) && (h->hd_dw != 5))
+				holyday = 0;
+			if ((h->hd_day == 5) && (h->hd_dw == 6 || h->hd_dw == 7))
 				holyday = 0;
 		}
 	}
