@@ -13,13 +13,10 @@ _hdate.so: hdate_wrap.c
 
 hdate_wrap.c: hdate.i
 	swig -python hdate.i
-	
-make-data-local: _hdate.so
-	
 
 install-data-local: _hdate.so
 	$(mkinstalldirs) $(DESTDIR)/$(PY_MODULES_PATH)
-	$(INSTALL_DATA) _hdate.so $(DESTDIR)/$(PY_MODULES_PATH)/_hdate.so
-	$(INSTALL_DATA) hdate.py $(DESTDIR)/$(PY_MODULES_PATH)/hdate.py
+	$(INSTALL_DATA) _hdate.so $(DESTDIR)$(PY_MODULES_PATH)/_hdate.so
+	$(INSTALL_DATA) hdate.py $(DESTDIR)$(PY_MODULES_PATH)/hdate.py
 
 endif
