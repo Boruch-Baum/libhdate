@@ -1,3 +1,5 @@
+EXTRA_DIST = hdate.1
+
 if WITH_HCAL
 
 INCLUDES=-I$(top_srcdir)/src

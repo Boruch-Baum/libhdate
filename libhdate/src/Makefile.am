@@ -1,3 +1,4 @@
+EXTRA_DIST = hdate.h.3 hdate_struct.3
 
 libhdate_la_CFLAGS =\
 	 -Wall\
