@@ -429,7 +429,7 @@ hdate_get_parasha_string (int parasha, int s)
 
 	if (parasha >= 1 && parasha <= 62)
 	{
-		return _(parashaot[s][parasha - 1]);
+		return _(parashaot[s][parasha]);
 	}
 
 	/* if not a valid parasha return NULL */
