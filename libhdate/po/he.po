@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-02-23 00:36+0200\n"
+"POT-Creation-Date: 2005-02-23 22:40+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -198,7 +198,7 @@ msgstr "אייר"
 
 #: src/hdate_strings.c:190 src/hdate_strings.c:194
 msgid "Sivan"
-msgstr "סיוון"
+msgstr "סיון"
 
 #: src/hdate_strings.c:190 src/hdate_strings.c:194
 msgid "Tamuz"
@@ -250,7 +250,7 @@ msgstr "הושענה רבה"
 
 #: src/hdate_strings.c:229 src/hdate_strings.c:255
 msgid "Tora happiness"
-msgstr "שימחת תורה"
+msgstr "שמחת תורה"
 
 #: src/hdate_strings.c:230 src/hdate_strings.c:256
 msgid "Hanuka"
@@ -328,6 +328,7 @@ msgstr "חסר"
 msgid "Bereshit"
 msgstr "בראשית"
 
+#. 1
 #: src/hdate_strings.c:302 src/hdate_strings.c:365
 msgid "Noach"
 msgstr "נוח"
@@ -364,6 +365,7 @@ msgstr "וישב"
 msgid "Miketz"
 msgstr "מקץ"
 
+#. 10
 #: src/hdate_strings.c:311 src/hdate_strings.c:374
 msgid "Vayigash"
 msgstr "ויגש"
@@ -404,6 +406,7 @@ msgstr "תרומה"
 msgid "Tetzave"
 msgstr "תצוה"
 
+#. 20
 #: src/hdate_strings.c:321 src/hdate_strings.c:384
 msgid "Ki-Tisa"
 msgstr "כי תישא"
@@ -440,6 +443,7 @@ msgstr "מצורע"
 msgid "Acharei-Mot"
 msgstr "אחרי מות"
 
+#. 30
 #: src/hdate_strings.c:330 src/hdate_strings.c:393
 msgid "Kedoshim"
 msgstr "קדושים"
@@ -480,6 +484,7 @@ msgstr "כורח"
 msgid "Chukat"
 msgstr "חוקת"
 
+#. 40
 #: src/hdate_strings.c:340 src/hdate_strings.c:403
 msgid "Balak"
 msgstr "בלק"
@@ -520,6 +525,7 @@ msgstr "שופטים"
 msgid "Ki-Tetze"
 msgstr "כי תצוה"
 
+#. 50
 #: src/hdate_strings.c:350 src/hdate_strings.c:413
 msgid "Ki-Tavo"
 msgstr "כי תבוא"
@@ -540,10 +546,12 @@ msgstr "האזינו"
 msgid "Vezot-Habracha"
 msgstr "וזאת הברכה"
 
+#. 55
 #: src/hdate_strings.c:355 src/hdate_strings.c:418
 msgid "Vayakhel Pekudei"
 msgstr "ויקהל פקודי"
 
+#. 56
 #: src/hdate_strings.c:356 src/hdate_strings.c:419
 msgid "Tazri'a Metzora"
 msgstr "תזריע מצורע"
@@ -560,6 +568,7 @@ msgstr "בהר חוקותי"
 msgid "Chukat Balak"
 msgstr "חוקת בלק"
 
+#. 60
 #: src/hdate_strings.c:360 src/hdate_strings.c:423
 msgid "Matot Mase'ei"
 msgstr "מתות משאי"

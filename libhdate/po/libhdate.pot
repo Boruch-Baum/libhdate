@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-02-23 00:36+0200\n"
+"POT-Creation-Date: 2005-02-23 22:40+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -328,6 +328,7 @@ msgstr ""
 msgid "Bereshit"
 msgstr ""
 
+#. 1
 #: src/hdate_strings.c:302 src/hdate_strings.c:365
 msgid "Noach"
 msgstr ""
@@ -364,6 +365,7 @@ msgstr ""
 msgid "Miketz"
 msgstr ""
 
+#. 10
 #: src/hdate_strings.c:311 src/hdate_strings.c:374
 msgid "Vayigash"
 msgstr ""
@@ -404,6 +406,7 @@ msgstr ""
 msgid "Tetzave"
 msgstr ""
 
+#. 20
 #: src/hdate_strings.c:321 src/hdate_strings.c:384
 msgid "Ki-Tisa"
 msgstr ""
@@ -440,6 +443,7 @@ msgstr ""
 msgid "Acharei-Mot"
 msgstr ""
 
+#. 30
 #: src/hdate_strings.c:330 src/hdate_strings.c:393
 msgid "Kedoshim"
 msgstr ""
@@ -480,6 +484,7 @@ msgstr ""
 msgid "Chukat"
 msgstr ""
 
+#. 40
 #: src/hdate_strings.c:340 src/hdate_strings.c:403
 msgid "Balak"
 msgstr ""
@@ -520,6 +525,7 @@ msgstr ""
 msgid "Ki-Tetze"
 msgstr ""
 
+#. 50
 #: src/hdate_strings.c:350 src/hdate_strings.c:413
 msgid "Ki-Tavo"
 msgstr ""
@@ -540,10 +546,12 @@ msgstr ""
 msgid "Vezot-Habracha"
 msgstr ""
 
+#. 55
 #: src/hdate_strings.c:355 src/hdate_strings.c:418
 msgid "Vayakhel Pekudei"
 msgstr ""
 
+#. 56
 #: src/hdate_strings.c:356 src/hdate_strings.c:419
 msgid "Tazri'a Metzora"
 msgstr ""
@@ -560,6 +568,7 @@ msgstr ""
 msgid "Chukat Balak"
 msgstr ""
 
+#. 60
 #: src/hdate_strings.c:360 src/hdate_strings.c:423
 msgid "Matot Mase'ei"
 msgstr ""

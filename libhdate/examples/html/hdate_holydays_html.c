@@ -59,6 +59,7 @@ main (int argc, char* argv[])
 	/* Print start of html format */
 	printf ("<html>\n");
 	printf ("<head>\n");
+	printf ("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
 	printf ("<title>לוח שנה</title>\n");
 	printf ("</head>\n");
 	printf ("<body dir=\"rtl\">\n");

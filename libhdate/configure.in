@@ -2,7 +2,7 @@ AC_INIT(src/hdate.h)
 
 dnl Set release number
 PACKAGE=libhdate
-VERSION=0.17
+VERSION=0.19
 
 AM_INIT_AUTOMAKE($PACKAGE, $VERSION)
 AM_MAINTAINER_MODE
