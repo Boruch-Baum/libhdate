@@ -154,11 +154,7 @@ hdate_get_parasha (hdate_struct * h)
 			reading = 0;
 			return reading;
 		}
-		if ((h->hd_mon == 7) && (h->hd_day > 21))
-		{
-			reading--;
-		}
-		if (h->hd_mon > 7)
+		if (((h->hd_mon == 7) && (h->hd_day > 21)) || (h->hd_mon > 7))
 		{
 			reading--;
 		}
