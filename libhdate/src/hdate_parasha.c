@@ -174,10 +174,10 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 		/* on diaspora, shavot may fall on shabat if next new year is on shabat */
 		if (diaspora && 
 			(h->hd_mon < 13) && 
-			((h->hd_mon > 7) || (h->hd_mon == 7 && h->hd_day >= 18)) && 
+			((h->hd_mon > 8) || (h->hd_mon == 8 && h->hd_day >= 6)) && 
 			((h->hd_new_year_dw + h->hd_size_of_year) % 7) == 0)
 		{
-			if (h->hd_mon == 7 && h->hd_day == 18)
+			if (h->hd_mon == 8 && h->hd_day == 6)
 			{
 				reading = 0;
 				return reading;
