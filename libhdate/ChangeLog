@@ -1,0 +1,7 @@
+libhdate (0.16.1)
+
+  * Fix locale bug in int_to_string.
+  * Add examples directory.
+  * Minor bug fixes.
+
+ -- Yaacov Zamir <kzamir@wall.co.il>  Sat, 19 Feb 2005 20:07:19
