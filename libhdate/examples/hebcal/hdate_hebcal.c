@@ -204,7 +204,6 @@ main (int argc, char* argv[])
 		{
 			/* set initial date */
 			year = atoi (argv[optind]);
-			hdate_set_gdate (&h, 1, 1, year);
 		}
 	
 	/* if you think this is not a valid year */
