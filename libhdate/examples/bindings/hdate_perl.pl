@@ -3,6 +3,15 @@
 # use the hdate perl module
 use hdate;
 
+#
+# !! SOME SWIG VERSIONS WILL CREATE hdatec NAMESPACE !!
+#
+# use hdate; # just hdate
+#
+# $h = hdatec::new_Hdate();
+# print hdatec::Hdate_get_format_date ($h, 0, 0) . "\n"; # use hdatec !
+#
+
 # create a new Hdate object
 $h = hdate::new_Hdate();
 

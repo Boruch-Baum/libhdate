@@ -1,3 +1,5 @@
+EXTRA_DIST = hdate_reading_html.c hdate_holydays_html.c
+
 if WITH_EXAMPLES
 
 INCLUDES=-I$(top_srcdir)/src

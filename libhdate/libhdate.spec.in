@@ -88,8 +88,8 @@ Requires:	%{name} = %{version}
 This package contains %{name} binding to perl
 
 %files perl
-%{_libdir}/perl5/hdate.pm
-%{_libdir}/perl5/auto/hdate/hdate.so
+%{_libdir}/perl5/site_perl/hdate.pm
+%{_libdir}/perl5/site_perl/auto/hdate/hdate.so
 
 %post
 /sbin/ldconfig

@@ -102,6 +102,8 @@ if test "x$have_perl" = "xyes"; then
 	  fi
 fi
 
+dnl FIXME: on fedora PE_MODULES_PATH="/usr/lib/perl5/site_perl"
+
 AM_CONDITIONAL(WITH_PERL, test "x$build_perl" = "xyes")
 
 dnl =======================================================================================

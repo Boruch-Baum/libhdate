@@ -1,3 +1,5 @@
+EXTRA_DIST = hdate_reading_ical.c hdate_holydays_ical.c
+
 if WITH_EXAMPLES
 
 INCLUDES=-I$(top_srcdir)/src

@@ -1,3 +1,5 @@
+EXTRA_DIST = hdate_hebcal.c
+
 if WITH_EXAMPLES
 
 INCLUDES=-I$(top_srcdir)/src
