@@ -1,10 +1,10 @@
 // file : hdate.i
 %module hdate
 %{
-#include "../../src/hdate.h"
+#include "../../src/hdatepp.h"
 %}
 
-%include ../../src/hdate.h
+%include ../../src/hdatepp.h
 
 // on linux do:
 // swig -python hdate.i

@@ -82,7 +82,7 @@ msgstr "פבר"
 
 #: src/hdate_strings.c:161
 msgid "Mar"
-msgstr "מרץ"
+msgstr "מרס"
 
 #: src/hdate_strings.c:161
 msgid "Apr"
@@ -130,7 +130,7 @@ msgstr "פברואר"
 
 #: src/hdate_strings.c:164
 msgid "March"
-msgstr "מרץ"
+msgstr "מרס"
 
 #: src/hdate_strings.c:165
 msgid "April"
