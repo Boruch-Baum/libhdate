@@ -1,3 +1,11 @@
+// hdate_cpp.cpp
+// example file for libhdate.
+//
+
+//
+// compile: g++ -lm -lhdate -o hdate_cpp hdate_cpp.cpp
+//
+
 #include <iostream>
 #include <hdatepp.h>
 
@@ -11,11 +19,10 @@ main (int argc, char* argv[])
 	Hdate h;
 
 	// print gregorian date
-	cout << "Today is : " << h.get_gday () << ",";
-	cout << h.get_gmonth () << ",";
-	cout << h.get_gyear () << "\n";
-
-	// print hebrew date
+	cout << "Today is :\n";
+	cout << h.get_gday () << "," << h.get_gmonth () << "," << h.get_gyear () << "\n";
+	
+	// print hebrew date: 0 - israely holidays, 0 - long format
 	cout << h.get_format_date (0, 0);
 	cout << "\n";
 

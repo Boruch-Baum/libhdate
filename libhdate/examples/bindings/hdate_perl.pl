@@ -16,11 +16,10 @@ use hdate;
 $h = hdate::new_Hdate();
 
 # print gregorian date
-print hdate::Hdate_get_gday($h) . " ";
-print hdate::Hdate_get_gmonth($h) . " ";
-print hdate::Hdate_get_gyear($h) . "\n";
+print "Today is:\n";
+print hdate::Hdate_get_gday($h) . "," . hdate::Hdate_get_gmonth($h) . "," . hdate::Hdate_get_gyear($h) . "\n";
 
-# print hebrew date
+# print hebrew date: 0 - israely holidays, 0 - long format
 print hdate::Hdate_get_format_date ($h, 0, 0) . "\n";
 
 # delete the hdate object
