@@ -65,10 +65,10 @@ hdate_days_from_3744 (int hebrew_year)
 	months = years_from_3744 * 12 + leap_months;	/* Total Number of months */
 
 	/* Time in parts and days */
-	parts = months * MONTH + molad_3744;	/* Molad This year + Molad 3744 corections */
-	days = months * 28 + parts / DAY - 2;	/* 28 days in month + Tikun */
+	parts = months * MONTH + molad_3744;	/* Molad This year + Molad 3744 - corections */
+	days = months * 28 + parts / DAY - 2;	/* 28 days in month + corections */
 
-	/* Time left for round date in tikun */
+	/* Time left for round date in corections */
 	parts_left_in_week = parts % WEEK;	/* 28 % 7 = 0 so only corections counts */
 	parts_left_in_day = parts % DAY;
 	week_day = parts_left_in_week / DAY;
