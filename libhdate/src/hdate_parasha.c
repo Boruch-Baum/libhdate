@@ -44,7 +44,7 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 			{1, 1, 1, 1, 0, 1, 1}, /* 7 */
 			{0, 0, 0, 0, 0, 1, 1}, /* 8 */
 			{0, 0, 0, 0, 0, 0, 0}, /* 9 */
-			{0, 0, 0, 0, 0, 1, 1}, /* 10 */
+			{0, 0, 0, 0, 0, 0, 0}, /* 10 */
 			{0, 0, 0, 0, 0, 0, 0}, /* 11 */
 			{0, 0, 0, 0, 0, 0, 0}, /* 12 */
 			{0, 0, 0, 0, 0, 0, 1}, /* 13 */
@@ -69,6 +69,19 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 	};
 	
 	int reading;
+	
+	
+	/* if simhat tora return vezot habracha */
+	if (h->hd_mon == 1 && h->hd_day == 22)
+	{
+		return 55;
+	}
+	
+	/* if not shabat return none */
+	if (h->hd_dw != 7)
+	{
+		return 0;
+	}
 	
 	/* check for diaspora readings */
 	diaspora = diaspora?1:0;
@@ -126,7 +139,7 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 		
 		/* was simhat tora on shabat ? */
 		if (h->hd_new_year_dw == 7)
-			reading = reading + 1;
+			reading = reading - 1;
 		
 		/* no joining */
 		if (reading < 22)

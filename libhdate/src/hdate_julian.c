@@ -132,8 +132,8 @@ hdate_get_year_type (int size_of_year, int new_year_dw)
 {
 	/* Only 14 combinations of size and week day are posible */
 	static int year_types[24] =
-		{1, 0, 0, 2, 0, 3, 4, 0, 5, 6, 7, 8,
-		0, 9, 10, 0, 11, 0, 0, 0, 12, 0, 13, 14};
+		{1, 0, 0, 2, 0, 3, 4, 0, 5, 0, 6, 7,
+		8, 0, 9, 10, 0, 11, 0, 0, 12, 0, 13, 14};
 	
 	int offset;
 	

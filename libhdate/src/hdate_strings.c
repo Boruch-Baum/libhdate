@@ -415,7 +415,7 @@ hdate_get_parasha_string (int parasha, int s)
 		 N_("Vayelech"),
 		 N_("Ha'azinu"),
 		 N_("Vezot-Habracha"), /* 55 */
-		 N_("Vayakhel Pekudei"),
+		 N_("Vayakhel Pekudei"), /* 56 */
 		 N_("Tazri'a Metzora"),
 		 N_("Acharei-Mot Kedoshim"),
 		 N_("Behar Bechukotai"),
@@ -427,7 +427,7 @@ hdate_get_parasha_string (int parasha, int s)
 	/* make sure s is 0 or 1 */
 	s = s ? 0 : 1;
 
-	if (parasha >= 1 && parasha <= 62)
+	if (parasha >= 0 && parasha <= 62)
 	{
 		return _(parashaot[s][parasha]);
 	}

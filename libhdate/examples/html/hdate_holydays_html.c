@@ -65,6 +65,8 @@ main (int argc, char* argv[])
 		
 	/* Print the html calendar */
 	printf ("<h1>לוח שנה, חגים לשנת %s</h1>\n", hdate_get_int_string (h.hd_year));
+	printf ("<h3>אורכה %d ימים, ראש השנה ביום %s</h3>\n", h.hd_size_of_year, hdate_get_day_string (h.hd_new_year_dw, 0));
+	
 	while (h.hd_year == year)
 		{
 			/* get today hdate */
