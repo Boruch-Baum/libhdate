@@ -122,11 +122,6 @@ hdate_get_int_string (int n)
 char *
 hdate_get_day_string (int day, int s)
 {
-#ifdef ENABLE_NLS
-	bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
-	bind_textdomain_codeset (PACKAGE, "UTF-8");
-#endif
-
 	/* create a static days array */
 	static char *days[2][7] = {
 		{N_("Sun"), N_("Mon"), N_("Tue"), N_("Wed"), N_("Thu"),
@@ -156,11 +151,7 @@ hdate_get_day_string (int day, int s)
 char *
 hdate_get_month_string (int month, int s)
 {
-#ifdef ENABLE_NLS
-	bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
-	bind_textdomain_codeset (PACKAGE, "UTF-8");
-#endif
-
+	
 	static char *months[2][12] = {
 		{N_("Jan"), N_("Feb"), N_("Mar"), N_("Apr"), N_("May"),
 		 N_("Jun"), N_("Jul"), N_("Aug"), N_("Sep"), N_("Oct"),
@@ -192,11 +183,6 @@ hdate_get_month_string (int month, int s)
 char *
 hdate_get_hebrew_month_string (int month, int s)
 {
-#ifdef ENABLE_NLS
-	bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
-	bind_textdomain_codeset (PACKAGE, "UTF-8");
-#endif
-
 	/* FIXME: abbrev of Hebrew months */
 	static char *months[2][14] = {
 		{N_("tishre"), N_("Heshvan"), N_("Kislev"), N_("Tevet"),
@@ -230,10 +216,7 @@ hdate_get_hebrew_month_string (int month, int s)
 char *
 hdate_get_holyday_string (int holyday, int s)
 {
-#ifdef ENABLE_NLS
-	bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
-	bind_textdomain_codeset (PACKAGE, "UTF-8");
-#endif
+	/* holyday strings */
 	static char *holydays[2][23] = {
 		{
 		 N_("New year I"),
@@ -307,11 +290,6 @@ hdate_get_holyday_string (int holyday, int s)
 char *
 hdate_get_parasha_string (int parasha, int s)
 {
-#ifdef ENABLE_NLS
-	bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
-	bind_textdomain_codeset (PACKAGE, "UTF-8");
-#endif
-
 	/* FIXME: abbrev of parasha */
 	static char *parashaot[2][62] = {
 		{
@@ -471,12 +449,6 @@ hdate_get_format_date (hdate_struct * h, int diaspora, int s)
 	static char temp[500];
 	int holyday;
 	
-	/* you dont realy need it here */
-#ifdef ENABLE_NLS
-	bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
-	bind_textdomain_codeset (PACKAGE, "UTF-8");
-#endif
-
 	if (h)
 	{
 		if (s)
