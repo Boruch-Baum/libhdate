@@ -127,7 +127,7 @@ hdate_get_day_string (int day, int s)
 		{N_("Sun"), N_("Mon"), N_("Tue"), N_("Wed"), N_("Thu"),
 		 N_("Fri"), N_("Sat")},
 		{N_("Sunday"), N_("Monday"), N_("Tuesday"), N_("Wednesday"),
-		 N_("Thusday"), N_("Friday"), N_("Saturday")}
+		 N_("Thursday"), N_("Friday"), N_("Saturday")}
 	};
 
 #ifdef ENABLE_NLS
