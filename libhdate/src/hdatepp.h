@@ -28,10 +28,12 @@
 
 namespace hdate 
 {
-	public:
 	
 	class Hdate
 	{
+		
+	public:
+		
 		Hdate()
 		{
 			h = new_hdate();
@@ -148,6 +150,7 @@ namespace hdate
 		}
 
 	private:
+		
 		hdate_struct *h;
 	
 	};
