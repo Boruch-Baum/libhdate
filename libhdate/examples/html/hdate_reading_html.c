@@ -75,7 +75,6 @@ main (int argc, char* argv[])
 			
 			/* set diaspora flag to 0, for reading ba harez */
 			reading = hdate_get_parasha (&h, 0);
-			printf ("%d\n", reading );
 			
 			if (reading != 0 && h.hd_dw == 7)
 				{
