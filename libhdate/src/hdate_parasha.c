@@ -74,7 +74,7 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 	/* if simhat tora return vezot habracha */
 	if (h->hd_mon == 1 && h->hd_day == 22)
 	{
-		return 55;
+		return 54;
 	}
 	
 	/* if not shabat return none */
