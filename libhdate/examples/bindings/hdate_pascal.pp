@@ -33,15 +33,6 @@ begin
  h := THdate.Create;
  try
 	 
-   {  // print gregorian date
-        cout << "Today is : " << h.get_gday () << ",";
-        cout << h.get_gmonth () << ",";
-        cout << h.get_gyear () << "\n";
-
-        // print hebrew date
-        cout << h.get_format_date (0, 0);
-        cout << "\n";}
- 
   // print gregorian date
   write ('Today is : ', h.get_gday, ',');
   write (h.get_gmonth, ',');
