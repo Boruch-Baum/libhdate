@@ -310,9 +310,9 @@ hdate_jd_to_hdate (int jd, int *day, int *month, int *year, int *jd_tishrey1, in
 /**
  @brief days from 1 january
   
- @parm day this day of month
- @parm month this month
- @parm year this year
+ @param day this day of month
+ @param month this month
+ @param year this year
  @return the days from 1 jan
 */
 int
@@ -321,13 +321,13 @@ hdate_get_day_of_year (int day, int month, int year);
 /**
  @brief utc sunrise/set time for a gregorian date
   
- @parm day this day of month
- @parm month this month
- @parm year this year
- @parm longitude longitude to use in calculations
- @parm latitude latitude to use in calculations
- @parm sunrise return the utc sunrise in minutes
- @parm sunset return the utc sunset in minutes
+ @param day this day of month
+ @param month this month
+ @param year this year
+ @param longitude longitude to use in calculations
+ @param latitude latitude to use in calculations
+ @param sunrise return the utc sunrise in minutes
+ @param sunset return the utc sunset in minutes
 */
 void
 hdate_get_utc_sun_time (int day, int month, int year, double latitude, double longitude, int *sunrise, int *sunset);
