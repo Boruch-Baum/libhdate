@@ -25,6 +25,9 @@ AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
 CFLAGS=
 LIBS=-lm
 
+AM_CHECK_PYTHON_HEADERS(,[AC_MSG_ERROR([[could not find Python headers]])])
+
+
 dnl =======================================================================================
 
 dnl gettext
