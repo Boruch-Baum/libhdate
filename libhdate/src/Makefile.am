@@ -19,3 +19,5 @@ libhdate_la_LDFLAGS =
 libhdate_la_LIBADD = 
 
 include_HEADERS = hdate.h
+
+man_MANS = hdate.h.3 hdate_struct.3
