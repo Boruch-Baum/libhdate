@@ -35,7 +35,7 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 	static int join_flags[2][14][7] =
 	{
 		{
-			{1, 1, 1, 1, 0, 1, 1}, /* 1 */
+			{1, 1, 1, 1, 0, 1, 1}, /* 1 be erez israel */
 			{1, 1, 1, 1, 0, 1, 0}, /* 2 */
 			{1, 1, 1, 1, 0, 1, 1}, /* 3 */
 			{1, 1, 1, 0, 0, 1, 0}, /* 4 */
@@ -51,7 +51,7 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 			{0, 0, 0, 0, 0, 1, 1}  /* 14 */
 		},
 		{
-			{1, 1, 1, 1, 0, 1, 1}, /* 1 */
+			{1, 1, 1, 1, 0, 1, 1}, /* 1 in diaspora */
 			{1, 1, 1, 1, 0, 1, 0}, /* 2 */
 			{1, 1, 1, 1, 1, 1, 1}, /* 3 */
 			{1, 1, 1, 1, 0, 1, 0}, /* 4 */
@@ -172,9 +172,6 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 			reading--;
 		}
 		
-		/* on diaspora shavot may fall on shabat (year type= 3,5,8,14) */
-		/* TODO shavot on shabat */
-		
 		if (join_flags[diaspora][h->hd_year_type - 1][1] && (reading >= 27))
 		{
 			if (reading == 27)
@@ -211,6 +208,22 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 				reading++;
 			}
 		}
+		
+		/* on diaspora, shavot may fall on shabat if next new year is on shabat */
+		/* FIXME: ?! naso 36 !? need to calculate parash that falls on shavot this year */
+		if (diaspora && (reading >= 36) && ((h->hd_new_year_dw + h->hd_size_of_year) % 7) == 0)
+		{
+			if (reading == 36)
+			{
+				reading = 0;
+				return reading;
+			}
+			else
+			{
+				reading++;
+			}
+		}
+		
 		if (join_flags[diaspora][h->hd_year_type - 1][4] && (reading >= 39))
 		{
 			if (reading == 39)
