@@ -331,7 +331,7 @@ msgstr "בראשית"
 #. 1
 #: src/hdate_strings.c:302 src/hdate_strings.c:365
 msgid "Noach"
-msgstr "נוח"
+msgstr "נח"
 
 #: src/hdate_strings.c:303 src/hdate_strings.c:366
 msgid "Lech-Lecha"
@@ -351,11 +351,11 @@ msgstr "תולדות"
 
 #: src/hdate_strings.c:307 src/hdate_strings.c:370
 msgid "Vayetze"
-msgstr "ויצוה"
+msgstr "ויצא"
 
 #: src/hdate_strings.c:308 src/hdate_strings.c:371
 msgid "Vayishlach"
-msgstr "וישלך"
+msgstr "וישלח"
 
 #: src/hdate_strings.c:309 src/hdate_strings.c:372
 msgid "Vayeshev"
@@ -372,7 +372,7 @@ msgstr "ויגש"
 
 #: src/hdate_strings.c:312 src/hdate_strings.c:375
 msgid "Vayechi"
-msgstr "ויבי"
+msgstr "ויחי"
 
 #: src/hdate_strings.c:313 src/hdate_strings.c:376
 msgid "Shemot"
@@ -380,11 +380,11 @@ msgstr "שמות"
 
 #: src/hdate_strings.c:314 src/hdate_strings.c:377
 msgid "Vaera"
-msgstr "וירא"
+msgstr "וארא"
 
 #: src/hdate_strings.c:315 src/hdate_strings.c:378
 msgid "Bo"
-msgstr "בו"
+msgstr "בא"
 
 #: src/hdate_strings.c:316 src/hdate_strings.c:379
 msgid "Beshalach"
@@ -404,12 +404,12 @@ msgstr "תרומה"
 
 #: src/hdate_strings.c:320 src/hdate_strings.c:383
 msgid "Tetzave"
-msgstr "תצוה"
+msgstr "תצווה"
 
 #. 20
 #: src/hdate_strings.c:321 src/hdate_strings.c:384
 msgid "Ki-Tisa"
-msgstr "כי תישא"
+msgstr "כי תשא"
 
 #: src/hdate_strings.c:322 src/hdate_strings.c:385
 msgid "Vayakhel"
@@ -425,7 +425,7 @@ msgstr "ויקרא"
 
 #: src/hdate_strings.c:325 src/hdate_strings.c:388
 msgid "Tzav"
-msgstr "תצו"
+msgstr "צו"
 
 #: src/hdate_strings.c:326 src/hdate_strings.c:389
 msgid "Shemini"
@@ -462,7 +462,7 @@ msgstr "בחוקותי"
 
 #: src/hdate_strings.c:334 src/hdate_strings.c:397
 msgid "Bamidbar"
-msgstr "במידבר"
+msgstr "במדבר"
 
 #: src/hdate_strings.c:335 src/hdate_strings.c:398
 msgid "Naso"
@@ -470,7 +470,7 @@ msgstr "נשא"
 
 #: src/hdate_strings.c:336 src/hdate_strings.c:399
 msgid "Beha'alotcha"
-msgstr "בהאלותך"
+msgstr "בהעלותך"
 
 #: src/hdate_strings.c:337 src/hdate_strings.c:400
 msgid "Shelach"
@@ -478,7 +478,7 @@ msgstr "שלך"
 
 #: src/hdate_strings.c:338 src/hdate_strings.c:401
 msgid "Korach"
-msgstr "כורח"
+msgstr "קרח"
 
 #: src/hdate_strings.c:339 src/hdate_strings.c:402
 msgid "Chukat"
@@ -495,7 +495,7 @@ msgstr "פינחס"
 
 #: src/hdate_strings.c:342 src/hdate_strings.c:405
 msgid "Matot"
-msgstr "מתות"
+msgstr "מטות"
 
 #: src/hdate_strings.c:343 src/hdate_strings.c:406
 msgid "Mase'ei"
@@ -523,7 +523,7 @@ msgstr "שופטים"
 
 #: src/hdate_strings.c:349 src/hdate_strings.c:412
 msgid "Ki-Tetze"
-msgstr "כי תצוה"
+msgstr "כי תצא"
 
 #. 50
 #: src/hdate_strings.c:350 src/hdate_strings.c:413
@@ -532,7 +532,7 @@ msgstr "כי תבוא"
 
 #: src/hdate_strings.c:351 src/hdate_strings.c:414
 msgid "Nitzavim"
-msgstr "ניצבים"
+msgstr "נצבים"
 
 #: src/hdate_strings.c:352 src/hdate_strings.c:415
 msgid "Vayelech"
@@ -571,8 +571,8 @@ msgstr "חוקת בלק"
 #. 60
 #: src/hdate_strings.c:360 src/hdate_strings.c:423
 msgid "Matot Mase'ei"
-msgstr "מתות משאי"
+msgstr "מטות משאי"
 
 #: src/hdate_strings.c:361 src/hdate_strings.c:424
 msgid "Nitzavim Vayelech"
-msgstr "ניצבים וילך"
+msgstr "נצבים וילך"
