@@ -23,10 +23,11 @@
  @brief Return number of hebrew holyday.
 
  @param h The hdate_struct of the date to use.
+ @param diaspora if True give diaspora holydays
  @return the number of holyday.
 */
 int
-hdate_get_holyday (hdate_struct * h)
+hdate_get_holyday (hdate_struct * h, int diaspora)
 {
 	int holyday;
 
@@ -133,23 +134,23 @@ hdate_get_holyday (hdate_struct * h)
 	}
 	
 	/* TODO: add holydays that are not in the table: yemey zicaron ... */
-	
-	/* defualt */
-	return 0;
+	/* TODO: what are the holydays in diaspora ? */
+
+	return holyday;
 }
 
 /**
  @brief Return number of hebrew holyday type.
 
- @param h The hdate_struct of the date to use.
+ @param holyday the holyday number
  @return the number of holyday type.
 */
 int
-hdate_get_holyday_type (hdate_struct * h)
+hdate_get_holyday_type (int holyday)
 {
 	int holyday_type;
 	
-	switch (hdate_get_holyday (h))
+	switch (holyday)
 	{
 	case 0: /* regular day */
 		holyday_type = 0;

@@ -84,7 +84,8 @@ main (int argc, char* argv[])
 		{
 			hdate_jd_to_gdate (jd, &day, &month, &year);
 			h = *hdate_hdate (day, month, year);
-			holyday = hdate_get_holyday (&h);
+			/* set diaspora flag to 0, for holydays ba harez */
+			holyday = hdate_get_holyday (&h, 0);
 			
 			if (holyday != 0)
 				{

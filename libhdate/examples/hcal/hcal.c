@@ -108,8 +108,8 @@ print_calendar(int month, int year)
 					hdate_jd_to_gdate (jd, &g_day, &g_month, &g_year);
 					h = *hdate_hdate (g_day, g_month, g_year);
 					
-					/* Get this day holyday type */
-					holyday_type = hdate_get_holyday(&h)==0?0:1;
+					/* Get this day holyday type ba harez (diaspora flag = 0) */
+					holyday_type = hdate_get_holyday_type (hdate_get_holyday (&h, 0));
 					
 					if (g_month == month)
 					{

@@ -23,12 +23,15 @@
  @brief Return number of hebrew parasha.
 
  @param hebdate The hdate_struct of the date to use.
+ @param diaspora if True give diaspora readings
  @return the name of parasha 1. Bereshit etc..
  (55 trow 61 are joined strings e.g. Vayakhel Pekudei)
 */
 int
-hdate_get_parasha (hdate_struct * h)
+hdate_get_parasha (hdate_struct * h, int diaspora)
 {
+	int** joining;
+	
 	static int join_flags[24][7] =
 	{
 		{1, 1, 1, 1, 0, 1, 1},/* 353 */
@@ -40,13 +43,13 @@ hdate_get_parasha (hdate_struct * h)
 		{1, 1, 1, 0, 0, 1, 0},
 		{1, 1, 1, 1, 0, 1, 0},
 		{1, 1, 1, 1, 0, 1, 1},/* 355 */
-		{1, 1, 1, 1, 0, 1, 1},
 		{0, 1, 1, 1, 0, 1, 0},
+		{1, 1, 1, 1, 0, 1, 1},
 		{1, 1, 1, 1, 0, 1, 1},
 		{0, 0, 0, 0, 0, 1, 1},/* 383 */
 		{0, 0, 0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 1, 1},
 		{0, 0, 0, 0, 0, 0, 0},/* 384 */
 		{0, 0, 0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 1},
@@ -57,7 +60,38 @@ hdate_get_parasha (hdate_struct * h)
 		{0, 0, 0, 0, 0, 1, 1}
 	};
 	
+	static int join_flags_diaspora[24][7] =
+	{
+		{1, 1, 1, 1, 0, 1, 1},/* 353 */
+		{1, 1, 1, 1, 0, 1, 0},
+		{1, 1, 1, 1, 1, 1, 0},
+		{1, 1, 1, 1, 0, 1, 0},
+		{1, 1, 1, 1, 0, 1, 1},/* 354 */
+		{1, 1, 1, 1, 1, 1, 1},
+		{1, 1, 1, 1, 0, 1, 0},
+		{1, 1, 1, 1, 0, 1, 0},
+		{1, 1, 1, 1, 1, 1, 1},/* 355 */
+		{0, 1, 1, 1, 0, 1, 0},
+		{1, 1, 1, 1, 0, 1, 1},
+		{1, 1, 1, 1, 0, 1, 1},
+		{0, 0, 0, 0, 1, 1, 1},/* 383 */
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 1, 1},
+		{0, 0, 0, 0, 0, 0, 0},/* 384 */
+		{0, 0, 0, 0, 0, 1, 0},
+		{0, 0, 0, 0, 0, 0, 1},
+		{0, 0, 0, 0, 0, 1, 1},
+		{0, 0, 0, 0, 0, 1, 0},/* 385 */
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 1},
+		{0, 0, 0, 0, 1, 1, 1}
+	};
+	
 	int reading;
+	
+	/* check for diaspora readings */
+	joining = diaspora?join_flags_diaspora:join_flags;
 	
 	switch (h->hd_weeks)
 	{

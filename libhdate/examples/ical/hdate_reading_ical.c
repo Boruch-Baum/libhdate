@@ -84,7 +84,8 @@ main (int argc, char* argv[])
 		{
 			hdate_jd_to_gdate (jd, &day, &month, &year);
 			h = *hdate_hdate (day, month, year);
-			parasha =  hdate_get_parasha (&h);
+			/* set diaspora flag to 0, for reading ba harez */
+			parasha =  hdate_get_parasha (&h, 0);
 			
 			if (parasha != 0)
 				{

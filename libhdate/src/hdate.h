@@ -247,11 +247,12 @@ hdate_get_format_date (hdate_struct * h, int s);
  @brief Return number of hebrew parasha.
 
  @param hebdate The hdate_struct of the date to use.
- @return the number of parasha 1. Bereshit etc..
+ @param diaspora if True give diaspora readings
+ @return the name of parasha 1. Bereshit etc..
  (55 trow 61 are joined strings e.g. Vayakhel Pekudei)
 */
 int
-hdate_get_parasha (hdate_struct * h);
+hdate_get_parasha (hdate_struct * h, int diaspora);
 
 /********************************************************************************/
 /********************************************************************************/
@@ -260,20 +261,20 @@ hdate_get_parasha (hdate_struct * h);
  @brief Return number of hebrew holyday.
 
  @param h The hdate_struct of the date to use.
+ @param diaspora if True give diaspora holydays
  @return the number of holyday.
 */
 int
-hdate_get_holyday (hdate_struct * h);
+hdate_get_holyday (hdate_struct * h, int diaspora);
 
 /**
  @brief Return number of hebrew holyday type.
 
- @param h The hdate_struct of the date to use.
- @return the number of holyday type, 0-no holyday, 1-regular holyday,
-    2-regel, 3-fast.
+ @param holyday the holyday number
+ @return the number of holyday type.
 */
 int
-hdate_get_holyday_type (hdate_struct * h);
+hdate_get_holyday_type (int holyday);
 
 #ifdef __cplusplus
 }
