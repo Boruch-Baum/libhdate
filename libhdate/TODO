@@ -1,3 +1,13 @@
+libhdate (1.2.1)
+  
+  * hcal example to print hebrew months and years
+  * configure.in - prefix for pascal,  version for debian changlog
+  * mono binding usig swig
+  * ask eytan about the freanch 
+  * clean the c code out of the pascal demo file ?
+
+   -- Yaacov Zamir <kzamir@wall.co.il>  Tue, 15 Mar 2005 08:04:32
+  
 libhdate (0.16.3)
   
   * Check date conversion, for more dates.
