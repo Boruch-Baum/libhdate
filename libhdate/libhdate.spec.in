@@ -76,8 +76,8 @@ Requires:	%{name} = %{version}
 This package contains %{name} binding to python
 
 %files python
-%{_libdir}/python2.3/site-packages/_hdate.so
-%{_libdir}/python2.3/site-packages/hdate.py
+%{_libdir}/python2.3/_hdate.so
+%{_libdir}/python2.3/hdate.py
 
 %package perl
 Summary:	Perl binding for %{name}
@@ -88,8 +88,8 @@ Requires:	%{name} = %{version}
 This package contains %{name} binding to perl
 
 %files perl
-%{_libdir}/perl5/5.8.5/i386-linux-thread-multi/hdate.pm
-%{_libdir}/perl5/5.8.5/i386-linux-thread-multi/hdate.so
+%{_libdir}/perl5/hdate.pm
+%{_libdir}/perl5/auto/hdate/hdate.so
 
 %post
 /sbin/ldconfig
