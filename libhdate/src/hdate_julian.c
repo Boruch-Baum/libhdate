@@ -303,7 +303,7 @@ hdate_jd_to_hdate (int jd, int *day, int *month, int *year, int *jd_tishrey1, in
 		*month = *month + 4 + 1;
 		
 		/* if leap */
-		if (size_of_year > 255 && *month <=6)
+		if (size_of_year > 355 && *month <=6)
 			*month = *month + 8;
 	}
 	else /* in 4-5 first months */
