@@ -1,6 +1,7 @@
 libhdate (0.30.0)
 
   * add es_MX translation by Peled Esti <esti@actcom.co.il>  
+  * initial russian translation by Boris Peterberg
 
    -- Yaacov Zamir <kzamir@wall.co.il>  Tue, 08 March 2005 18:13
        

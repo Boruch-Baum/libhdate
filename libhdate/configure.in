@@ -111,7 +111,7 @@ dnl ============================================================================
 dnl gettext
 
 dnl Languages which your application supports
-ALL_LINGUAS="he es_MX"
+ALL_LINGUAS="he es_MX ru"
 AM_GNU_GETTEXT
 AM_GNU_GETTEXT_VERSION(0.10.40)
 
