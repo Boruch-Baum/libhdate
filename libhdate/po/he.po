@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-02-27 21:29-0200\n"
+"POT-Creation-Date: 2005-03-03 12:03+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -598,3 +598,7 @@ msgstr "מטות מסעי"
 #: src/hdate_strings.c:391 src/hdate_strings.c:454
 msgid "Nitzavim-Vayeilech"
 msgstr "נצבים וילך"
+
+#: src/hdate_strings.c:554
+msgid "translator"
+msgstr "יעקב זמיר"

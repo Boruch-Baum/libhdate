@@ -525,3 +525,37 @@ hdate_get_format_date (hdate_struct * h, int diaspora, int s)
 
 	return NULL;
 }
+
+/**
+ @brief Return a static string, with the package name and version
+
+ @return a a static string, with the package name and version
+*/
+char *
+hdate_get_version_string ()
+{
+	static char version[500];
+	
+	/* make a "packge version" string */
+	snprintf (version, 500, "%s %s",
+				  PACKAGE,
+				  VERSION);
+	
+	return (version);
+}
+
+/**
+ @brief Return a static string, with the name of translator
+
+ @return a a static string, with the name of translator
+*/
+char *
+hdate_get_translator_string ()
+{	
+	/* if untranslated return null */
+	if (strcmp (_("translator"), "translator") == 0)
+		return NULL;
+	
+	/* return the translator name */
+	return _("translator");
+}
