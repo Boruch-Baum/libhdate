@@ -280,7 +280,7 @@ hdate_jd_to_hdate (int jd, int *day, int *month, int *year)
 	{
 		days = days - (size_of_year - 236);
 		*month = days * 2 / 59;
-		*day = days - *month * 59 / 2 + 1;
+		*day = days - (*month * 59 + 1) / 2 + 1;
 		
 		*month = *month + 4 + 1;
 		
@@ -294,17 +294,17 @@ hdate_jd_to_hdate (int jd, int *day, int *month, int *year)
 		if (size_of_year % 10 > 4 && days > 58) /* long Heshvan */
 			{
 				*month = (days - 1) * 2 / 59;
-				*day = days - *month * 59 / 2;
+				*day = days - (*month * 59 + 1) / 2;
 			}
 		else if (size_of_year % 10 < 4 && days > 87) /* short kislev */
 			{
 				*month = (days + 1) * 2 / 59;
-				*day = days - *month * 59 / 2 + 2;
+				*day = days - (*month * 59 + 1) / 2 + 2;
 			}
 		else /* regular months */
 			{
 				*month = days * 2 / 59;
-				*day = days - *month * 59 / 2 + 1;
+				*day = days - (*month * 59 + 1) / 2 + 1;
 			}
 			
 		*month = *month + 1;			
