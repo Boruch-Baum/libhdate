@@ -11,7 +11,7 @@ all-am: _hdate.so
 	
 
 _hdate.so: hdate_wrap.cxx
-	g++ -fpic -c hdate_wrap.cxx $(PY_CFLAGS)
+	g++ -fpic -c hdate_wrap.cxx $(PY_CFLAGS) -I$(top_srcdir)/src
 	g++ -shared ../../src/*.o hdate_wrap.o -o _hdate.so
 
 hdate_wrap.cxx: hdate.i

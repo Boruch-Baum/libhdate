@@ -25,7 +25,7 @@ or build applications that use them.
 %setup
 
 %build
-%configure
+%configure --enable-python --enable-perl
 
 %{__make} %{?_smp_mflags}
 
@@ -34,6 +34,8 @@ or build applications that use them.
 
 # Remove duplicate docs (oron)
 rm -rf $RPM_BUILD_ROOT/usr/doc
+# Remove duplicate mans (kobi)
+rm -rf $RPM_BUILD_ROOT/usr/man
 
 %clean
 %__rm -r $RPM_BUILD_ROOT
@@ -43,6 +45,7 @@ rm -rf $RPM_BUILD_ROOT/usr/doc
 %{_libdir}/libhdate.so*
 %{_prefix}/share/locale/he/LC_MESSAGES/libhdate.mo
 %{_bindir}/*
+%{_prefix}/share/man/man1/hdate.1.gz
 
 %doc hdate_README README AUTHORS NEWS USE ABOUT-NLS COPYING ChangeLog INSTALL TODO USE
 
@@ -59,7 +62,34 @@ to build new applications with %{name}
 %{_libdir}/libhdate.a
 %{_libdir}/libhdate.la
 %{_includedir}/hdate.h
+%{_includedir}/hdatepp.h
 %{_libdir}/pkgconfig/*
+%{_prefix}/share/man/man3/hdate.h.3.gz
+%{_prefix}/share/man/man3/hdate_struct.3.gz
+
+%package python
+Summary:	Python binding for %{name}
+Group:		Development/Libraries
+Requires:	%{name} = %{version}
+
+%description python
+This package contains %{name} binding to python
+
+%files python
+%{_libdir}/python2.3/site-packages/_hdate.so
+%{_libdir}/python2.3/site-packages/hdate.py
+
+%package perl
+Summary:	Perl binding for %{name}
+Group:		Development/Libraries
+Requires:	%{name} = %{version}
+
+%description perl
+This package contains %{name} binding to perl
+
+%files perl
+%{_libdir}/perl5/5.8.5/i386-linux-thread-multi/hdate.pm
+%{_libdir}/perl5/5.8.5/i386-linux-thread-multi/hdate.so
 
 %post
 /sbin/ldconfig
@@ -68,6 +98,10 @@ to build new applications with %{name}
 /sbin/ldconfig
 
 %changelog
+* Thu Mar 4 2005 Yaacov Zamir
+  - Add python and perl packages
+  - Add manfiles
+
 * Thu Feb 24 2005 Oron Peled <oron@actcom.co.il>
   - Split to normal runtime and -devel packages (like most
     libraries do)

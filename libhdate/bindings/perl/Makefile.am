@@ -11,7 +11,7 @@ all-am: hdate.so
 	
 
 hdate.so: hdate_wrap.cxx
-	g++ -fpic -c hdate_wrap.cxx $(PE_CFLAGS)
+	g++ -fpic -c hdate_wrap.cxx $(PE_CFLAGS) -I$(top_srcdir)/src
 	g++ -shared ../../src/*.o hdate_wrap.o -o hdate.so
 
 hdate_wrap.cxx: hdate.i
