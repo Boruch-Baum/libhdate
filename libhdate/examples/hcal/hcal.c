@@ -38,7 +38,7 @@ print_header(int month, int year)
 	
 	/* set dates for begining and end of calendar */
 	hdate_set_gdate (&h1, 1, month, year);
-	hdate_set_gdate (&h2, 1, month + 1, year);
+	hdate_set_gdate (&h2, 1, month % 12 + 1, year);
 	
 	/* Print Gregorian month and year */
 	printf ("%s %d\n", hdate_get_month_string (h1.gd_mon, FALSE), h1.gd_year);

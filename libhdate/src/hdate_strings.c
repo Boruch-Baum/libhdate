@@ -288,7 +288,7 @@ hdate_get_holyday_string (int holyday, int s)
  @brief Name of Parasha
 
  @param parasha The Number of Parasha 1-Bereshit
-	(55 trow 61 are joined strings e.g. Vayakhel Pekudei)
+	(55 trow 62 are joined strings e.g. Vayakhel Pekudei)
  @param s A short flag.
 */
 char *
@@ -361,7 +361,7 @@ hdate_get_parasha_string (int parasha, int s)
 		 N_("Nitzavim Vayelech")},
 		{
 		 N_("none"),
-		 N_("Bereshit"),
+		 N_("Bereshit"), /* 1 */
 		 N_("Noach"),
 		 N_("Lech-Lecha"),
 		 N_("Vayera"),
@@ -370,7 +370,7 @@ hdate_get_parasha_string (int parasha, int s)
 		 N_("Vayetze"),
 		 N_("Vayishlach"),
 		 N_("Vayeshev"),
-		 N_("Miketz"),
+		 N_("Miketz"), /* 10 */
 		 N_("Vayigash"),
 		 N_("Vayechi"),
 		 N_("Shemot"),
@@ -380,7 +380,7 @@ hdate_get_parasha_string (int parasha, int s)
 		 N_("Yitro"),
 		 N_("Mishpatim"),
 		 N_("Teruma"),
-		 N_("Tetzave"),
+		 N_("Tetzave"), /* 20 */
 		 N_("Ki-Tisa"),
 		 N_("Vayakhel"),
 		 N_("Pekudei"),
@@ -389,7 +389,7 @@ hdate_get_parasha_string (int parasha, int s)
 		 N_("Shemini"),
 		 N_("Tazri'a"),
 		 N_("Metzora"),
-		 N_("Acharei-Mot"),
+		 N_("Acharei-Mot"), /* 30 */
 		 N_("Kedoshim"),
 		 N_("Emor"),
 		 N_("Behar"),
@@ -399,7 +399,7 @@ hdate_get_parasha_string (int parasha, int s)
 		 N_("Beha'alotcha"),
 		 N_("Shelach"),
 		 N_("Korach"),
-		 N_("Chukat"),
+		 N_("Chukat"), /* 40 */
 		 N_("Balak"),
 		 N_("Pinchas"),
 		 N_("Matot"),
@@ -409,19 +409,19 @@ hdate_get_parasha_string (int parasha, int s)
 		 N_("Ekev"),
 		 N_("Re'e"),
 		 N_("Shoftim"),
-		 N_("Ki-Tetze"),
+		 N_("Ki-Tetze"), /* 50 */
 		 N_("Ki-Tavo"),
 		 N_("Nitzavim"),
 		 N_("Vayelech"),
 		 N_("Ha'azinu"),
-		 N_("Vezot-Habracha"),
+		 N_("Vezot-Habracha"), /* 55 */
 		 N_("Vayakhel Pekudei"),
 		 N_("Tazri'a Metzora"),
 		 N_("Acharei-Mot Kedoshim"),
 		 N_("Behar Bechukotai"),
-		 N_("Chukat Balak"),
+		 N_("Chukat Balak"), /* 60 */
 		 N_("Matot Mase'ei"),
-		 N_("Nitzavim Vayelech")}
+		 N_("Nitzavim Vayelech")} /* 62 */
 	};
 
 	/* make sure s is 0 or 1 */

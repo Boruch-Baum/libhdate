@@ -121,12 +121,12 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 		}
 		break;
 	default:
+		/* simhat tora on week 4 bereshit too */
 		reading = h->hd_weeks - 3;
 		
-		/* FIXME: do I need this ?
+		/* was simhat tora on shabat ? */
 		if (h->hd_new_year_dw == 7)
-			reading = reading - 1;
-		*/
+			reading = reading + 1;
 		
 		/* no joining */
 		if (reading < 22)
@@ -154,11 +154,14 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 			reading = 0;
 			return reading;
 		}
-		if (((h->hd_mon == 7) && (h->hd_day > 21)) || (h->hd_mon > 7))
+		if (((h->hd_mon == 7) && (h->hd_day > 21)) || (h->hd_mon > 7 && h->hd_mon < 13))
 		{
 			reading--;
 		}
-
+		
+		/* on diaspora shavot may fall on shabat (year type= 3,5,8,14) */
+		/* TODO shavot on shabat */
+		
 		if (join_flags[diaspora][h->hd_year_type - 1][1] && (reading >= 27))
 		{
 			if (reading == 27)
