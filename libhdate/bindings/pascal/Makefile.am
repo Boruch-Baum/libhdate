@@ -1,5 +1,5 @@
 
-EXTRA_DIST = pacage.fpc ctypes.pp hdate.pp hdate_obj.pp fpc_README
+EXTRA_DIST = Pacage.fpc ctypes.pp hdate.pp hdate_obj.pp fpc_README
 
 if WITH_PASCAL
 
