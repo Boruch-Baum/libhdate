@@ -38,21 +38,10 @@ print_header(int month, int year)
 	int h_day2, h_month2, h_year2;
 	int jd1, jd2;
 	int j;
-	int m, y;
 	
-	h = *hdate_hdate (1, month, year);
-	jd1 = hdate_gdate_to_jd (h.gd_day, h.gd_mon, h.gd_year) - h.hd_dw + 1;
-	m = h.gd_mon + 1;
-	if (m > 12)
-	{
-		m = 1;
-		y = h.gd_year + 1;
-	}
-	else
-	{
-		y = h.gd_year;
-	}	
-	jd2 = hdate_gdate_to_jd (1, m, y);
+	h = *hdate_gdate (1, month, year);
+	jd1 = h.hd_jd;
+	jd2 = jd1 + 32;
 	
 	hdate_jd_to_hdate (jd1, &h_day1, &h_month1, &h_year1);
 	hdate_jd_to_hdate (jd2, &h_day2, &h_month2, &h_year2);
@@ -85,28 +74,24 @@ print_calendar(int month, int year)
 {
 	hdate_struct h;
 	int g_day, g_month, g_year; /* The Gregorian date */
-	int jd1, jd, jd_today;
+	int jd;
 	int i,j;
 	int holyday_type;
-	int print_flag;
-	
-	/* Find today date */
-	h = *hdate_hdate (0, 0, 0);
-	jd_today = hdate_gdate_to_jd (h.gd_day, h.gd_mon, h.gd_year);
 	
 	/* Find day to start calendar with */
-	h = *hdate_hdate (1, month, year);
-	jd1 = hdate_gdate_to_jd (1, h.gd_mon, h.gd_year) - h.hd_dw;
+	h = *hdate_gdate (1, month, year);
+	
+	/* return print head to sunday */
+	jd = h.hd_jd - h.hd_dw + 1;
 		
 	/* Loop over all days in this month */
-	jd = jd1 + 1;
 	for (i=0; i<6; i++)
 		{
 			for (j=0; j<7; j++)
 				{
 					/* Get this day hebrew date */
 					hdate_jd_to_gdate (jd, &g_day, &g_month, &g_year);
-					h = *hdate_hdate (g_day, g_month, g_year);
+					h = *hdate_gdate (g_day, g_month, g_year);
 					
 					/* Get this day holyday type ba harez (diaspora flag = 0) */
 					holyday_type = hdate_get_holyday_type (hdate_get_holyday (&h, 0));
@@ -139,22 +124,20 @@ print_calendar(int month, int year)
 			printf ("\n");
 		}
 		
-	return 0;	
+	return 0;
 }
 
 int
 main (int argc, char* argv[])
 {
-	hdate_struct h;
-	
 	int day;	/* The Gregorian date */
 	int month;
 	int year;
-	int flag = 0;
+	hdate_struct h;
 	
 	/* Get date from user */
 	if (argc == 3) 
-		{                       
+		{
 			month = atoi (argv[1]);
 			year = atoi (argv[2]);
 		} 
@@ -163,12 +146,7 @@ main (int argc, char* argv[])
 			month = 0;
 			year = 0;
 		}
-	else if (argc == 2 && (flag=atoi (argv[1])) != 0)
-		{
-			month = 0;
-			year = 0;
-		}
-	else		
+	else
 		{	
 			/* Print help for user and exit */
 			printf ("USAGE: %s [month year]\n", argv[0]);
@@ -177,11 +155,10 @@ main (int argc, char* argv[])
 	
 	/* Set the locale, for libhdate to print locale messages */ 
 	setlocale (LC_ALL,"");
-
+	h = *hdate_gdate (1, month, year);
+	
 	/* Print calendar header */
-	h = *hdate_hdate (1, month, year);
-		
 	print_header (h.gd_mon, h.gd_year);
 	print_calendar (h.gd_mon, h.gd_year);
-	return 0;		
+	return 0;
 }

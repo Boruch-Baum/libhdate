@@ -157,7 +157,7 @@ hdate_jd_to_hdate (int jd, int *day, int *month, int *year);
  @param y Year in 4 digits e.g. 2001
  */
 hdate_struct *
-hdate_hdate (int d, int m, int y);
+hdate_gdate (int d, int m, int y);
 
 /**
  @brief compute date structure from the Hebrew date
@@ -167,7 +167,15 @@ hdate_hdate (int d, int m, int y);
  @param y Year in 4 digits e.g. 5731
  */
 hdate_struct *
-hdate_gdate (int d, int m, int y);
+hdate_hdate (int d, int m, int y);
+
+/**
+ @brief compute date structure from the Julian day
+
+ @param jd the julian day number.
+ */
+hdate_struct *
+hdate_jd (int jd);
 
 /********************************************************************************/
 /********************************************************************************/

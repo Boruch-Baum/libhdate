@@ -53,8 +53,6 @@ main (int argc, char* argv[])
 			day = 0;
 			month = 0;
 			year = 0;
-			
-			h = *hdate_hdate (day, month, year);
 		}
 	else		
 		{	
@@ -67,7 +65,7 @@ main (int argc, char* argv[])
 	setlocale (LC_ALL,"");
 
 	/* Set hebrew date struct */
-	h = *hdate_hdate (day, month, year);
+	h = *hdate_gdate (day, month, year);
 	
 	/* Print long date */
 	printf ("%s\n",  hdate_get_format_date (&h, FALSE));

@@ -114,19 +114,21 @@ hdate_size_of_hebrew_year (int hebrew_year)
 int
 hdate_get_year_type (int size_of_year, int new_year_dw)
 {
-	int year_type;
+	/* Only 14 combinations of size and week day are posible */
+	static int year_types[24] =
+		{1, 0, 0, 2, 0, 3, 4, 0, 5, 6, 7, 8,
+		0, 9, 10, 0, 11, 0, 0, 0, 12, 0, 13, 14};
+	
 	int offset;
 	
+	/* convert size and first day to 1..24 number */
 	/* 2,3,5,7 -> 1,2,3,4 */
-	year_type = (new_year_dw + 1) / 2;
-	
 	/* 353, 354, 355, 383, 384, 385 -> 0, 1, 2, 3, 4, 5 */
-	offset = (size_of_year % 10 - 3) + (size_of_year / 10 - 35);
-		
-	/* Combine year_type and offset */
-	year_type = offset * 4 + year_type;
+	offset = (new_year_dw + 1) / 2;
+	offset = offset + 4 * ((size_of_year % 10 - 3) + (size_of_year / 10 - 35));
 	
-	return year_type;
+	/* some combinations are imposible */
+	return year_types[offset - 1];
 }
 
 /**
@@ -324,7 +326,7 @@ hdate_jd_to_hdate (int jd, int *day, int *month, int *year)
  @param y Year in 4 digits e.g. 2001
  */
 hdate_struct *
-hdate_hdate (int d, int m, int y)
+hdate_gdate (int d, int m, int y)
 {
 	static hdate_struct h;
 	int jd;
@@ -382,7 +384,7 @@ hdate_hdate (int d, int m, int y)
  @param y Year in 4 digits e.g. 5731
  */
 hdate_struct *
-hdate_gdate (int d, int m, int y)
+hdate_hdate (int d, int m, int y)
 {
 	static hdate_struct h;
 	int jd;
@@ -405,4 +407,19 @@ hdate_gdate (int d, int m, int y)
 	h.hd_weeks = ((h.hd_days - 1) + (h.hd_new_year_dw - 1)) / 7 + 1;
 	
 	return (&h);
+}
+
+/**
+ @brief compute date structure from julian day
+
+ @param jd the julian day number.
+ */
+hdate_struct *
+hdate_jd (int jd)
+{
+	int day, month, year;
+	
+	hdate_jd_to_gdate (jd, &day, &month, &year);
+	
+	return (hdate_gdate (day, month, year));
 }

@@ -118,7 +118,7 @@ hdate_get_holyday (hdate_struct * h, int diaspora)
 		holyday = 0;
 	
 	/* yom ha azmaot on sat or fri mov to Thu */
-	if (holyday == 12)
+	if (holyday == 17)
 	{
 		if (h->hd_year < 1948)
 			holyday = 0;
