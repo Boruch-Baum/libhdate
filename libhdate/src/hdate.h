@@ -470,15 +470,15 @@ delete_hdate (hdate_struct *h);
 /**
  @brief Return a static string, with the package name and version
 
- @return a a static string, with the package name and version
+ @return a static string, with the package name and version
 */
 char *
 hdate_get_version_string ();
 
 /**
- @brief Return a static string, with the name of translator
+ @brief name of translator
 
- @return a a static string, with the name of translator
+ @return a static string with name of translator, or NULL if none.
 */
 char *
 hdate_get_translator_string ();

@@ -442,6 +442,20 @@ namespace hdate
 			return sunset + tz * 60;
 		}
 		
+		////////////////////////////////////////
+		////////////////////////////////////////
+		
+		/**
+		 @brief name of translator
+		
+		 @return a static string with name of translator, or NULL if none
+		*/
+		char *
+		get_translator_string ()
+		{
+			return hdate_get_translator_string ();
+		}
+		
 	private:
 		
 		hdate_struct *h;
