@@ -157,7 +157,7 @@ hdate_hdate_to_jd (int day, int month, int year)
 	}
 
 	/* Calculate days since 1,1,3744 */
-	day += hdate_days_from_3744 (year) + (59 * (month - 1) + 1) / 2;	/* regular months */
+	day = hdate_days_from_3744 (year) + (59 * (month - 1) + 1) / 2 + day;
 
 	/* Special cases for this year */
 	if (length_of_year % 10 > 4 && month > 2)	/* long Heshvan */
@@ -282,6 +282,7 @@ hdate_hdate (int d, int m, int y)
 {
 	static hdate_struct h;
 	int jd;
+	
 	/* check for null dates (kobi) */
 	if ((d == 0) || (m == 0))
 	{
@@ -308,13 +309,11 @@ hdate_hdate (int d, int m, int y)
 	h.gd_day = d;
 	h.gd_mon = m;
 	h.gd_year = y;
-	jd = hdate_gdate_to_jd (d, m, y);
-	h.hd_dw = (jd + 1) % 7 + 1;
-	hdate_jd_to_hdate (jd, &d, &m, &y);
-	h.hd_day = d;
-	h.hd_mon = m;
-	h.hd_year = y;
 	
+	jd = hdate_gdate_to_jd (d, m, y);
+	hdate_jd_to_hdate (jd, &(h.hd_day), &(h.hd_mon), &(h.hd_year));
+		
+	h.hd_dw = (jd + 1) % 7 + 1;
 	h.hd_size_of_year = hdate_size_of_hebrew_year (h.hd_year);
 	h.hd_new_year_dw = (hdate_hdate_to_jd (1,1,h.hd_year) + 1) % 7 + 1;
 	
@@ -333,16 +332,15 @@ hdate_gdate (int d, int m, int y)
 {
 	static hdate_struct h;
 	int jd;
+	
 	h.hd_day = d;
 	h.hd_mon = m;
 	h.hd_year = y;
-	jd = hdate_hdate_to_jd (d, m, y);
-	h.hd_dw = (jd + 1) % 7 + 1;
-	hdate_jd_to_gdate (jd, &d, &m, &y);
-	h.gd_day = d;
-	h.gd_mon = m;
-	h.gd_year = y;
 	
+	jd = hdate_hdate_to_jd (d, m, y);
+	hdate_jd_to_gdate (jd, &(h.gd_day), &(h.gd_mon), &(h.gd_year));
+		
+	h.hd_dw = (jd + 1) % 7 + 1;
 	h.hd_size_of_year = hdate_size_of_hebrew_year (h.hd_year);
 	h.hd_new_year_dw = (hdate_hdate_to_jd (1,1,h.hd_year) + 1) % 7 + 1;
 	

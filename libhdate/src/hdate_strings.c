@@ -254,8 +254,6 @@ hdate_get_holyday_string (int holyday, int s)
 		 N_("Erev Shvoot"),
 		 N_("Shvoot"),
 		 N_("Seventeen of Tamuz fast"),
-		 N_("Seventeen of Tamuz fast"),
-		 N_("Nine of Av fast"),
 		 N_("Nine of Av fast"),
 		 N_("Tu be Av")},
 		{
@@ -280,8 +278,6 @@ hdate_get_holyday_string (int holyday, int s)
 		 N_("Erev Shvoot"),
 		 N_("Shvoot"),
 		 N_("Seventeen of Tamuz fast"),
-		 N_("Seventeen of Tamuz fast"),
-		 N_("Nine of Av fast"),
 		 N_("Nine of Av fast"),
 		 N_("Tu be Av")}
 	};
