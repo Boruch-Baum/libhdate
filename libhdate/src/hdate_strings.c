@@ -467,7 +467,8 @@ char *
 hdate_get_format_date (hdate_struct * h, int s)
 {
 	static char format_date[500];
-
+	static char temp[500];
+	
 	/* you dont realy need it here */
 #ifdef ENABLE_NLS
 	bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
@@ -485,9 +486,11 @@ hdate_get_format_date (hdate_struct * h, int s)
 		}
 		else
 		{
-			snprintf (format_date, 500, "%s, %s %s %s",
+			snprintf (temp, 500, "%s, %s",
 				  hdate_get_day_string (h->hd_dw, s),
-				  hdate_get_int_string (h->hd_day),
+				  hdate_get_int_string (h->hd_day));
+			snprintf (format_date, 500, "%s %s %s",
+				  temp,
 				  hdate_get_hebrew_month_string (h->hd_mon, s),
 				  hdate_get_int_string (h->hd_year));
 			return (format_date);
