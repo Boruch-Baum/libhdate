@@ -96,7 +96,7 @@ hdate_get_utc_sun_time (int day, int month, int year, double latitude, double lo
 	latitude = M_PI * latitude / 180.0;
 	
 	/* the sun real time diff from noon at sunset/rise in radians */
-	ha = acos ((cos (sunrise_angle) - sin (latitude) * sin (decl)) / (cos (latitude) * cos (decl)));
+	ha = acos (cos (sunrise_angle) / (cos (latitude) * cos (decl)) - tan (latitude) * tan (decl));
 	
 	/* we use minutes, ratio is 1440min/2pi */
 	ha = 720.0 * ha / M_PI;
