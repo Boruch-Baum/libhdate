@@ -1,7 +1,7 @@
 .\" .UC 4
 .TH "HDATE" "1" "2 Mar 2005" "Yaacov Zamir" "libhdate"
 .SH "NAME"
-hdate, hcal \- Hebrew date and calendar
+hdate \- Hebrew date and calendar
 .PP 
 example programs for libhdate, a library that help use hebrew dates.
 .PP 
@@ -12,10 +12,12 @@ patched by Nadav Har'El. The Torah reading sequence
 is from tables by Zvi Har'El.
 .SH "SYNOPSIS"
 .B hdate
-[ day month year ]
-.PP 
-.B hcal
-[ [ month ] year ]
+[-sShdr]
+.PP
+[-L longitude -l latitude]
+[-z timezone]
+.PP
+[[[day] month] year]
 .SH "DESCRIPTION"
 .I Hdate
 translates the specified date to the Hebrew calendar.
@@ -27,15 +29,37 @@ If the year is greater than 3000,
 takes the given date as a Hebrew date, and translates it
 back to the common calendar.
 Months are numbered with Tishrey being 1 and Elul 12; Adar I and Adar II are months 13 and 14.
-.PP 
-.I Hcal
-prints a calendar with both common and Hebrew dates for the
-specified month, or the whole year if no month is specified.
-If no arguments are given, it prints the current month.
-Major holidays are marked by a `*', other holidays by a `+', 
-fast days by a `\-'.
-
+.PP
+.I -s 
+: Print sunrise/sunset times.
+.PP
+.I -S 
+: Print using short format.
+.PP
+.I -h 
+: Print holidays.
+.PP
+.I -r 
+: Print weekly reading on saturday.
+.PP
+.I -d 
+: Use diaspora reading and holidays.
+.PP
+.I -l 
+xx : Set the latitude for solar calculations to
+.PP
+xx degrees.  Negative values are south.
+.PP
+.I -L 
+xx : Set the longitude for solar calculations to
+.PP
+xx degrees.  *Negative values are EAST*.
+.PP
+.I -z 
+: Use specified timezone.
+.PP
+( default location for sunrise/set is Tel Aviv ).
 .SH "SEE ALSO"
-date(1), cal(1), hebcal(1), remind(1), hdate.h(3), hdate_struct(3)
+date(1), cal(1), hcal(1), hebcal(1), remind(1), hdate.h(3), hdate_struct(3)
 .SH "AUTHOR"
 Yaacov Zamir 2005, text copied from Amos Shapir's hdate man file.
