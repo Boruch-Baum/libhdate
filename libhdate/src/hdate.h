@@ -34,15 +34,15 @@ extern "C"
 */
 typedef struct
 {
-	/** The in the hebrew month (1..31). */
+	/** The number of day in the hebrew month (1..31). */
 	int hd_day;
 	/** The number of the hebrew month 1..14 (1 - tishre, 13 - adar 1, 14 - adar 2). */
 	int hd_mon;
 	/** The number of the hebrew year. */
 	int hd_year;
-	/** gd_mon The number of the month 1..12 (1 - jan). */
+	/** gd_day The number of the day in the month. (1..31) */
 	int gd_day;
-	/** gd_day The number of the day in the month. (1..31)*/
+	/** gd_mon The number of the month 1..12 (1 - jan). */
 	int gd_mon;
 	/** gd_year; The number of the year. */
 	int gd_year;
@@ -131,7 +131,7 @@ hdate_hdate_to_jd (int day, int month, int year);
  @param y Return Year in 4 digits e.g. 2001
  */
 void
-hdate_jd_to_gdate (int jd, int *d, int *m, int *y);
+hdate_jd_to_gdate (int jd, int *day, int *month, int *year);
 
 /**
  @brief Converting from the Julian day to the Hebrew day
@@ -251,7 +251,7 @@ hdate_get_format_date (hdate_struct * h, int s);
  (55 trow 61 are joined strings e.g. Vayakhel Pekudei)
 */
 int
-hdate_get_parasha (hdate_struct * hebdate);
+hdate_get_parasha (hdate_struct * h);
 
 /********************************************************************************/
 /********************************************************************************/
