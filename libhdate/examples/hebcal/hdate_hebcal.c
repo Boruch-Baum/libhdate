@@ -112,18 +112,20 @@ main (int argc, char* argv[])
 		}
 	}
 	
+	argc -= optind;
+	
 	/* Get calendar hebrew year */
-	if (argc == 1) 
+	if (argc == 0) 
 		{
 			/* set initial date */
 			hdate_set_gdate (&h, 0, 0, 0);
 			year = h.gd_year;
 			hdate_set_gdate (&h, 1, 1, year);
 		}
-	else if (argc == 2) 
+	else if (argc == 1) 
 		{
 			/* set initial date */
-			year = atoi (argv[1]);
+			year = atoi (argv[optind]);
 			hdate_set_gdate (&h, 1, 1, year);
 		}
 	else 
