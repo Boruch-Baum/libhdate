@@ -46,13 +46,13 @@ typedef struct
 	int gd_mon;
 	/** The number of the year. */
 	int gd_year;
-	/** hd_dw The day of the week 1..7 (1 - sunday). */
+	/** The day of the week 1..7 (1 - sunday). */
 	int hd_dw;
 	/** The length of the year in days. */
 	int hd_size_of_year;
 	/** The week day of Hebrew new year. */
 	int hd_new_year_dw;
-	/** hd_year_type The number type of year. */
+	/** The number type of year. */
 	int hd_year_type;
 	/** The Julian day number */
 	int hd_jd;
@@ -241,22 +241,6 @@ hdate_days_from_3744 (int hebrew_year);
 /**
  @brief Return Hebrew year type based on size and first week day of year.
  
- year type | year length | Tishery 1 day of week
- | 1       | 353         | 2 
- | 2       | 353         | 7 
- | 3       | 354         | 3 
- | 4       | 354         | 5 
- | 5       | 355         | 2 
- | 6       | 355         | 5 
- | 7       | 355         | 7 
- | 8       | 383         | 2 
- | 9       | 383         | 5 
- |10       | 383         | 7 
- |11       | 384         | 3 
- |12       | 385         | 2 
- |13       | 385         | 5 
- |14       | 385         | 7 
- 
  @param size_of_year Length of year in days
  @param new_year_dw First week day of year
  @return the number for year type (1..14)
@@ -285,6 +269,8 @@ hdate_gdate_to_jd (int day, int month, int year);
  @param day Day of month 1..31
  @param month Month 1..14 (13 - Adar 1, 14 - Adar 2)
  @param year Hebrew year in 4 digits e.g. 5753
+ @param jd_tishrey1 return the julian number of 1 Tishrey this year
+ @param jd_tishrey1 return the julian number of 1 Tishrey next year
  @return the julian day number
  */
 int
@@ -312,6 +298,8 @@ hdate_jd_to_gdate (int jd, int *day, int *month, int *year);
  @param day return Day of month 1..31
  @param month return Month 1..14 (13 - Adar 1, 14 - Adar 2)
  @param year return Year in 4 digits e.g. 2001
+ @param jd_tishrey1 return the julian number of 1 Tishrey this year
+ @param jd_tishrey1 return the julian number of 1 Tishrey next year
  */
 void
 hdate_jd_to_hdate (int jd, int *day, int *month, int *year, int *jd_tishrey1, int *jd_tishrey1_next_year);
