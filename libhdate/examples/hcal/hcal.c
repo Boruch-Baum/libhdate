@@ -152,7 +152,7 @@ main (int argc, char* argv[])
 	else
 		{
 			/* Print help for user and exit */
-			printf ("USAGE: %s [month year]\n", argv[0]);
+			printf ("USAGE: %s [[month] year]\n", argv[0]);
 			exit (0);
 		}
 	
