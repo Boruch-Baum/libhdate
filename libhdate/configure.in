@@ -22,8 +22,8 @@ AC_C_CONST
 
 AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
 
-CFLAGS =
-LIBS = -lm
+CFLAGS=
+LIBS=-lm
 
 dnl =======================================================================================
 
