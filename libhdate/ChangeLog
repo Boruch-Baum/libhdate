@@ -1,3 +1,10 @@
+libhdate (0.30.0)
+
+  * cpp, python and perl bindings
+  * examples for the new libhdate bindings 
+
+   -- Yaacov Zamir <kzamir@wall.co.il>  Fri, 04 March 2005 15:19:29
+
 libhdate (0.22.0)
 
   * Michael Kaminsky's patch to Shavot II on diaspora reading.
