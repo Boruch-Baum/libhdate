@@ -82,19 +82,22 @@ print_hebrew_date (hdate_struct *h)
 {
 	char number_suffix[3];
 	
-	switch (h->hd_day % 10)
+	switch (h->hd_day)
 		{
 			case  1:
+			case 21:
 				number_suffix[0] = 's';
 				number_suffix[1] = 't';
 				number_suffix[2] = 0;
 				break;
 			case  2:
+			case 22:
 				number_suffix[0] = 'n';
 				number_suffix[1] = 'd';
 				number_suffix[2] = 0;
 				break;
 			case  3:
+			case 23:
 				number_suffix[0] = 'r';
 				number_suffix[1] = 'd';
 				number_suffix[2] = 0;
