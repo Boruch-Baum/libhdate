@@ -147,20 +147,6 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 			return reading;
 		}
 		
-		/* joining */
-		if (join_flags[diaspora][h->hd_year_type - 1][0] && (reading >= 22))
-		{
-			if (reading == 22)
-			{
-				reading = 55;
-				return reading;
-			}
-			else
-			{
-				reading++;
-			}
-		}
-
 		/* pesach */
 		if ((h->hd_mon == 7) && (h->hd_day > 14) && (h->hd_day < 22))
 		{
@@ -188,7 +174,19 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 			}
 		}
 		
-		/* rest of joining */
+		/* joining */
+		if (join_flags[diaspora][h->hd_year_type - 1][0] && (reading >= 22))
+		{
+			if (reading == 22)
+			{
+				reading = 55;
+				return reading;
+			}
+			else
+			{
+				reading++;
+			}
+		}
 		if (join_flags[diaspora][h->hd_year_type - 1][1] && (reading >= 27))
 		{
 			if (reading == 27)
