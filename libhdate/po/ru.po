@@ -239,7 +239,7 @@ msgstr "Йом Кипур"
 
 #: src/hdate_strings.c:241 src/hdate_strings.c:272
 msgid "Sukkot"
-msgstr "Суккот"
+msgstr "Суккот I"
 
 #: src/hdate_strings.c:242 src/hdate_strings.c:273
 msgid "Hol hamoed Sukkot"
@@ -275,16 +275,14 @@ msgid "Purim"
 msgstr "Пурим"
 
 #: src/hdate_strings.c:250 src/hdate_strings.c:281
-#, fuzzy
 msgid "Shushan Purim"
-msgstr "Пурим"
+msgstr "Ш. Пурим"
 
 #: src/hdate_strings.c:251 src/hdate_strings.c:282
 msgid "Pesach"
-msgstr "Пэсах"
+msgstr "Пэсах I"
 
 #: src/hdate_strings.c:252 src/hdate_strings.c:283
-#, fuzzy
 msgid "Hol hamoed Pesach"
 msgstr "Песах"
 
