@@ -51,17 +51,17 @@ namespace hdate
 		
 		set_gdate (int d, int m, int y)
 		{
-			hdate_set_gdate (h, d, m, y)
+			hdate_set_gdate (h, d, m, y);
 		}
 		
 		set_hdate (int d, int m, int y)
 		{
-			hdate_set_hdate (h, d, m, y)
+			hdate_set_hdate (h, d, m, y);
 		}
 		
 		set_jd (int jd)
 		{
-			hdate_set_jd (h, jd)
+			hdate_set_jd (h, jd);
 		}
 		
 		////////////////////////////////////////
@@ -101,7 +101,7 @@ namespace hdate
 		}
 		
 		int
-		get_holyday_type (int diaspora);
+		get_holyday_type (int diaspora)
 		{
 			int holyday;
 			
@@ -119,14 +119,14 @@ namespace hdate
 		}
 		
 		char *
-		get_hebrew_year_string ();
-		
+		get_hebrew_year_string ()
+		{
 			return hdate_get_int_string (h->hd_year);
 		}
 		
 		char *
-		get_hebrew_day_string ();
-		
+		get_hebrew_day_string ()
+		{
 			return hdate_get_int_string (h->hd_day);
 		}
 		
@@ -148,7 +148,7 @@ namespace hdate
 		int
 		get_gday ()
 		{
-			return hdate_get_gday (h)
+			return hdate_get_gday (h);
 		}
 		
 		int
