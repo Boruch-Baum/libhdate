@@ -41,7 +41,7 @@ print_header(int month, int year)
 	
 	h = *hdate_hdate (1, month, year);
 	jd1 = hdate_gdate_to_jd (h.gd_day, h.gd_mon, h.gd_year) - h.hd_dw + 1;
-	jd2 = jd1 + 41;
+	jd2 = hdate_gdate_to_jd (1, h.gd_mon + 1, h.gd_year);
 	
 	hdate_jd_to_hdate (jd1, &h_day1, &h_month1, &h_year1);
 	hdate_jd_to_hdate (jd2, &h_day2, &h_month2, &h_year2);
@@ -58,7 +58,7 @@ print_header(int month, int year)
 	
 	for (j=0; j<7; j++)
 		{
-			printf ("%3s", hdate_get_day_string (j, TRUE));
+			printf ("%3s", hdate_get_day_string (j + 1, TRUE));
 						
 			if (j != 6)
 				printf ("\t");
@@ -100,24 +100,26 @@ print_calendar(int month, int year)
 					/* Get this day holyday type */
 					holyday_type = hdate_get_holyday(&h)==0?0:1;
 					
-					/* Print a day */
-					if (holyday_type == 0)
-						{
-							printf ("%2d/%3s", g_day, hdate_get_int_string(h.hd_day+1));
-						}
-					else if (holyday_type == 1)
-						{
-							printf ("%2d-%3s", g_day, hdate_get_int_string(h.hd_day+1));
-						} 
-					else if (holyday_type == 2)
-						{
-							printf ("%2d+%3s", g_day, hdate_get_int_string(h.hd_day+1));
-						}
-					else if (holyday_type == 3)
-						{
-							printf ("%2d*%3s", g_day, hdate_get_int_string(h.hd_day+1));
-						}
-					
+					if (g_month == month)
+					{
+						/* Print a day */
+						if (holyday_type == 0)
+							{
+								printf ("%2d/%3s", g_day, hdate_get_int_string(h.hd_day+1));
+							}
+						else if (holyday_type == 1)
+							{
+								printf ("%2d-%3s", g_day, hdate_get_int_string(h.hd_day+1));
+							} 
+						else if (holyday_type == 2)
+							{
+								printf ("%2d+%3s", g_day, hdate_get_int_string(h.hd_day+1));
+							}
+						else if (holyday_type == 3)
+							{
+								printf ("%2d*%3s", g_day, hdate_get_int_string(h.hd_day+1));
+							}
+					}
 					if (j != 6)
 						printf ("\t");
 					
