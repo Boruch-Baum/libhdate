@@ -61,9 +61,9 @@ hdate_get_holyday (hdate_struct * h, int diaspora)
 		{	/* Nisan */
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 			0, 0, 0, 0, 15, 16, 16, 16, 16, 16,
-			16, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+			16, 0, 0, 0, 0, 24, 24, 24, 0, 0},
 		{	/* Iyar */
-			0, 0, 17, 17, 17, 0, 0, 0, 0, 0,
+			0, 17, 17, 17, 17, 17, 0, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 0, 18, 0, 0,
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 		{	/* Sivan */
@@ -124,16 +124,43 @@ hdate_get_holyday (hdate_struct * h, int diaspora)
 			holyday = 0;
 		else
 		{
-			if ((h->hd_day == 3) && (h->hd_dw != 5))
-				holyday = 0;
-			if ((h->hd_day == 4) && (h->hd_dw != 5))
-				holyday = 0;
-			if ((h->hd_day == 5) && (h->hd_dw == 6 || h->hd_dw == 7))
+			if ((h->hd_day == 3) && (h->hd_dw == 5))
+				holyday = 17;
+			else if ((h->hd_day == 4) && (h->hd_dw == 5))
+				holyday = 17;
+			else if ((h->hd_day == 6) && (h->hd_dw == 3))
+				holyday = 17;
+			else if ((h->hd_day == 5) && (h->hd_dw != 6 && h->hd_dw != 7 && h->hd_dw != 2))
+				holyday = 17;
+			else if ((h->hd_day == 2) && (h->hd_dw == 4))
+				holyday = 25;
+			else if ((h->hd_day == 3) && (h->hd_dw == 4))
+				holyday = 25;
+			else if ((h->hd_day == 5) && (h->hd_dw == 2))
+				holyday = 25;
+			else if ((h->hd_day == 4) && (h->hd_dw != 5 && h->hd_dw != 6 && h->hd_dw != 1))
+				holyday = 25;
+			else
 				holyday = 0;
 		}
 	}
 	
-	/* TODO: add holydays that are not in the table: yemey zicaron ... */
+	/* yom ha shoaa */
+	if (holyday == 24)
+	{
+		if (h->hd_year < 1958)
+			holyday = 0;
+		else
+		{
+			if ((h->hd_day == 26) && (h->hd_dw != 5))
+				holyday = 0;
+			if ((h->hd_day == 28) && (h->hd_dw != 2))
+				holyday = 0;
+			if ((h->hd_day == 27) && (h->hd_dw == 6 || h->hd_dw == 1))
+				holyday = 0;
+		}
+	}
+	
 	/* TODO: what are the holydays in diaspora ? */
 
 	return holyday;

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-02-19 17:06-0200\n"
+"POT-Creation-Date: 2005-02-23 00:36+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,546 +16,554 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/hdate_strings.c:132
+#: src/hdate_strings.c:127
 msgid "Sun"
 msgstr ""
 
-#: src/hdate_strings.c:132
+#: src/hdate_strings.c:127
 msgid "Mon"
 msgstr ""
 
-#: src/hdate_strings.c:132
+#: src/hdate_strings.c:127
 msgid "Tue"
 msgstr ""
 
-#: src/hdate_strings.c:132
+#: src/hdate_strings.c:127
 msgid "Wed"
 msgstr ""
 
-#: src/hdate_strings.c:132
+#: src/hdate_strings.c:127
 msgid "Thu"
 msgstr ""
 
-#: src/hdate_strings.c:133
+#: src/hdate_strings.c:128
 msgid "Fri"
 msgstr ""
 
-#: src/hdate_strings.c:133
+#: src/hdate_strings.c:128
 msgid "Sat"
 msgstr ""
 
-#: src/hdate_strings.c:134
+#: src/hdate_strings.c:129
 msgid "Sunday"
 msgstr ""
 
-#: src/hdate_strings.c:134
+#: src/hdate_strings.c:129
 msgid "Monday"
 msgstr ""
 
-#: src/hdate_strings.c:134
+#: src/hdate_strings.c:129
 msgid "Tuesday"
 msgstr ""
 
-#: src/hdate_strings.c:134
+#: src/hdate_strings.c:129
 msgid "Wednesday"
 msgstr ""
 
-#: src/hdate_strings.c:135
+#: src/hdate_strings.c:130
 msgid "Thusday"
 msgstr ""
 
-#: src/hdate_strings.c:135
+#: src/hdate_strings.c:130
 msgid "Friday"
 msgstr ""
 
-#: src/hdate_strings.c:135
+#: src/hdate_strings.c:130
 msgid "Saturday"
 msgstr ""
 
-#: src/hdate_strings.c:165
+#: src/hdate_strings.c:156
 msgid "Jan"
 msgstr ""
 
-#: src/hdate_strings.c:165
+#: src/hdate_strings.c:156
 msgid "Feb"
 msgstr ""
 
-#: src/hdate_strings.c:165
+#: src/hdate_strings.c:156
 msgid "Mar"
 msgstr ""
 
-#: src/hdate_strings.c:165
+#: src/hdate_strings.c:156
 msgid "Apr"
 msgstr ""
 
-#: src/hdate_strings.c:165 src/hdate_strings.c:169
+#: src/hdate_strings.c:156 src/hdate_strings.c:160
 msgid "May"
 msgstr ""
 
-#: src/hdate_strings.c:166
+#: src/hdate_strings.c:157
 msgid "Jun"
 msgstr ""
 
-#: src/hdate_strings.c:166
+#: src/hdate_strings.c:157
 msgid "Jul"
 msgstr ""
 
-#: src/hdate_strings.c:166
+#: src/hdate_strings.c:157
 msgid "Aug"
 msgstr ""
 
-#: src/hdate_strings.c:166
+#: src/hdate_strings.c:157
 msgid "Sep"
 msgstr ""
 
-#: src/hdate_strings.c:166
+#: src/hdate_strings.c:157
 msgid "Oct"
 msgstr ""
 
-#: src/hdate_strings.c:167
+#: src/hdate_strings.c:158
 msgid "Nov"
 msgstr ""
 
-#: src/hdate_strings.c:167
+#: src/hdate_strings.c:158
 msgid "Dec"
 msgstr ""
 
-#: src/hdate_strings.c:168
+#: src/hdate_strings.c:159
 msgid "January"
 msgstr ""
 
-#: src/hdate_strings.c:168
+#: src/hdate_strings.c:159
 msgid "February"
 msgstr ""
 
-#: src/hdate_strings.c:168
+#: src/hdate_strings.c:159
 msgid "March"
 msgstr ""
 
-#: src/hdate_strings.c:169
+#: src/hdate_strings.c:160
 msgid "April"
 msgstr ""
 
-#: src/hdate_strings.c:169
+#: src/hdate_strings.c:160
 msgid "June"
 msgstr ""
 
-#: src/hdate_strings.c:170
+#: src/hdate_strings.c:161
 msgid "July"
 msgstr ""
 
-#: src/hdate_strings.c:170
+#: src/hdate_strings.c:161
 msgid "August"
 msgstr ""
 
-#: src/hdate_strings.c:170
+#: src/hdate_strings.c:161
 msgid "September"
 msgstr ""
 
-#: src/hdate_strings.c:171
+#: src/hdate_strings.c:162
 msgid "October"
 msgstr ""
 
-#: src/hdate_strings.c:171
+#: src/hdate_strings.c:162
 msgid "November"
 msgstr ""
 
-#: src/hdate_strings.c:171
+#: src/hdate_strings.c:162
 msgid "December"
 msgstr ""
 
-#: src/hdate_strings.c:202 src/hdate_strings.c:206
+#: src/hdate_strings.c:188 src/hdate_strings.c:192
 msgid "tishre"
 msgstr ""
 
-#: src/hdate_strings.c:202 src/hdate_strings.c:206
+#: src/hdate_strings.c:188 src/hdate_strings.c:192
 msgid "Heshvan"
 msgstr ""
 
-#: src/hdate_strings.c:202 src/hdate_strings.c:206
+#: src/hdate_strings.c:188 src/hdate_strings.c:192
 msgid "Kislev"
 msgstr ""
 
-#: src/hdate_strings.c:202 src/hdate_strings.c:206
+#: src/hdate_strings.c:188 src/hdate_strings.c:192
 msgid "Tevet"
 msgstr ""
 
-#: src/hdate_strings.c:203 src/hdate_strings.c:207
+#: src/hdate_strings.c:189 src/hdate_strings.c:193
 msgid "Shvat"
 msgstr ""
 
-#: src/hdate_strings.c:203 src/hdate_strings.c:207
+#: src/hdate_strings.c:189 src/hdate_strings.c:193
 msgid "Adar"
 msgstr ""
 
-#: src/hdate_strings.c:203 src/hdate_strings.c:207
+#: src/hdate_strings.c:189 src/hdate_strings.c:193
 msgid "Nisan"
 msgstr ""
 
-#: src/hdate_strings.c:203 src/hdate_strings.c:207
+#: src/hdate_strings.c:189 src/hdate_strings.c:193
 msgid "Iyar"
 msgstr ""
 
-#: src/hdate_strings.c:204 src/hdate_strings.c:208
+#: src/hdate_strings.c:190 src/hdate_strings.c:194
 msgid "Sivan"
 msgstr ""
 
-#: src/hdate_strings.c:204 src/hdate_strings.c:208
+#: src/hdate_strings.c:190 src/hdate_strings.c:194
 msgid "Tamuz"
 msgstr ""
 
-#: src/hdate_strings.c:204 src/hdate_strings.c:208
+#: src/hdate_strings.c:190 src/hdate_strings.c:194
 msgid "Av"
 msgstr ""
 
-#: src/hdate_strings.c:204 src/hdate_strings.c:208
+#: src/hdate_strings.c:190 src/hdate_strings.c:194
 msgid "Elul"
 msgstr ""
 
-#: src/hdate_strings.c:204 src/hdate_strings.c:208
+#: src/hdate_strings.c:190 src/hdate_strings.c:194
 msgid "Adar I"
 msgstr ""
 
-#: src/hdate_strings.c:205 src/hdate_strings.c:209
+#: src/hdate_strings.c:191 src/hdate_strings.c:195
 msgid "Adar II"
 msgstr ""
 
-#: src/hdate_strings.c:239 src/hdate_strings.c:263
+#: src/hdate_strings.c:222 src/hdate_strings.c:248
 msgid "New year I"
 msgstr ""
 
-#: src/hdate_strings.c:240 src/hdate_strings.c:264
+#: src/hdate_strings.c:223 src/hdate_strings.c:249
 msgid "New year II"
 msgstr ""
 
-#: src/hdate_strings.c:241 src/hdate_strings.c:265
+#: src/hdate_strings.c:224 src/hdate_strings.c:250
 msgid "Gdalya fast"
 msgstr ""
 
-#: src/hdate_strings.c:242 src/hdate_strings.c:266
+#: src/hdate_strings.c:225 src/hdate_strings.c:251
 msgid "Day of Cipurim"
 msgstr ""
 
-#: src/hdate_strings.c:243 src/hdate_strings.c:267
+#: src/hdate_strings.c:226 src/hdate_strings.c:252
 msgid "Sukot"
 msgstr ""
 
-#: src/hdate_strings.c:244 src/hdate_strings.c:268
+#: src/hdate_strings.c:227 src/hdate_strings.c:253
 msgid "Hol hamoed Sukot"
 msgstr ""
 
-#: src/hdate_strings.c:245 src/hdate_strings.c:269
+#: src/hdate_strings.c:228 src/hdate_strings.c:254
 msgid "Hoshana raba"
 msgstr ""
 
-#: src/hdate_strings.c:246 src/hdate_strings.c:270
+#: src/hdate_strings.c:229 src/hdate_strings.c:255
 msgid "Tora happiness"
 msgstr ""
 
-#: src/hdate_strings.c:247 src/hdate_strings.c:271
+#: src/hdate_strings.c:230 src/hdate_strings.c:256
 msgid "Hanuka"
 msgstr ""
 
-#: src/hdate_strings.c:248 src/hdate_strings.c:272
+#: src/hdate_strings.c:231 src/hdate_strings.c:257
 msgid "Ten of Tevet"
 msgstr ""
 
-#: src/hdate_strings.c:249 src/hdate_strings.c:273
+#: src/hdate_strings.c:232 src/hdate_strings.c:258
 msgid "Tu be Shvat"
 msgstr ""
 
-#: src/hdate_strings.c:250 src/hdate_strings.c:274
+#: src/hdate_strings.c:233 src/hdate_strings.c:259
 msgid "Ester fast"
 msgstr ""
 
-#: src/hdate_strings.c:251 src/hdate_strings.c:275
+#: src/hdate_strings.c:234 src/hdate_strings.c:260
 msgid "Purim"
 msgstr ""
 
-#: src/hdate_strings.c:252 src/hdate_strings.c:276
+#: src/hdate_strings.c:235 src/hdate_strings.c:261
 msgid "Shushan purim"
 msgstr ""
 
-#: src/hdate_strings.c:253 src/hdate_strings.c:277
+#: src/hdate_strings.c:236 src/hdate_strings.c:262
 msgid "Pesach"
 msgstr ""
 
-#: src/hdate_strings.c:254 src/hdate_strings.c:278
+#: src/hdate_strings.c:237 src/hdate_strings.c:263
 msgid "Hol hamoed Pesach"
 msgstr ""
 
-#: src/hdate_strings.c:255 src/hdate_strings.c:279
+#: src/hdate_strings.c:238 src/hdate_strings.c:264
 msgid "Independence Day"
 msgstr ""
 
-#: src/hdate_strings.c:256 src/hdate_strings.c:280
+#: src/hdate_strings.c:239 src/hdate_strings.c:265
 msgid "Lag ba omer"
 msgstr ""
 
-#: src/hdate_strings.c:257 src/hdate_strings.c:281
+#: src/hdate_strings.c:240 src/hdate_strings.c:266
 msgid "Erev Shvoot"
 msgstr ""
 
-#: src/hdate_strings.c:258 src/hdate_strings.c:282
+#: src/hdate_strings.c:241 src/hdate_strings.c:267
 msgid "Shvoot"
 msgstr ""
 
-#: src/hdate_strings.c:259 src/hdate_strings.c:283
+#: src/hdate_strings.c:242 src/hdate_strings.c:268
 msgid "Seventeen of Tamuz fast"
 msgstr ""
 
-#: src/hdate_strings.c:260 src/hdate_strings.c:284
+#: src/hdate_strings.c:243 src/hdate_strings.c:269
 msgid "Nine of Av fast"
 msgstr ""
 
-#: src/hdate_strings.c:261 src/hdate_strings.c:285
+#: src/hdate_strings.c:244 src/hdate_strings.c:270
 msgid "Tu be Av"
 msgstr ""
 
-#: src/hdate_strings.c:318 src/hdate_strings.c:381
+#: src/hdate_strings.c:245 src/hdate_strings.c:271
+msgid "Yom Hashoa"
+msgstr ""
+
+#: src/hdate_strings.c:246 src/hdate_strings.c:272
+msgid "Yom Hazicaron"
+msgstr ""
+
+#: src/hdate_strings.c:300 src/hdate_strings.c:363
 msgid "none"
 msgstr ""
 
-#: src/hdate_strings.c:319 src/hdate_strings.c:382
+#: src/hdate_strings.c:301 src/hdate_strings.c:364
 msgid "Bereshit"
 msgstr ""
 
-#: src/hdate_strings.c:320 src/hdate_strings.c:383
+#: src/hdate_strings.c:302 src/hdate_strings.c:365
 msgid "Noach"
 msgstr ""
 
-#: src/hdate_strings.c:321 src/hdate_strings.c:384
+#: src/hdate_strings.c:303 src/hdate_strings.c:366
 msgid "Lech-Lecha"
 msgstr ""
 
-#: src/hdate_strings.c:322 src/hdate_strings.c:385
+#: src/hdate_strings.c:304 src/hdate_strings.c:367
 msgid "Vayera"
 msgstr ""
 
-#: src/hdate_strings.c:323 src/hdate_strings.c:386
+#: src/hdate_strings.c:305 src/hdate_strings.c:368
 msgid "Chayei-Sarah"
 msgstr ""
 
-#: src/hdate_strings.c:324 src/hdate_strings.c:387
+#: src/hdate_strings.c:306 src/hdate_strings.c:369
 msgid "Toldot"
 msgstr ""
 
-#: src/hdate_strings.c:325 src/hdate_strings.c:388
+#: src/hdate_strings.c:307 src/hdate_strings.c:370
 msgid "Vayetze"
 msgstr ""
 
-#: src/hdate_strings.c:326 src/hdate_strings.c:389
+#: src/hdate_strings.c:308 src/hdate_strings.c:371
 msgid "Vayishlach"
 msgstr ""
 
-#: src/hdate_strings.c:327 src/hdate_strings.c:390
+#: src/hdate_strings.c:309 src/hdate_strings.c:372
 msgid "Vayeshev"
 msgstr ""
 
-#: src/hdate_strings.c:328 src/hdate_strings.c:391
+#: src/hdate_strings.c:310 src/hdate_strings.c:373
 msgid "Miketz"
 msgstr ""
 
-#: src/hdate_strings.c:329 src/hdate_strings.c:392
+#: src/hdate_strings.c:311 src/hdate_strings.c:374
 msgid "Vayigash"
 msgstr ""
 
-#: src/hdate_strings.c:330 src/hdate_strings.c:393
+#: src/hdate_strings.c:312 src/hdate_strings.c:375
 msgid "Vayechi"
 msgstr ""
 
-#: src/hdate_strings.c:331 src/hdate_strings.c:394
+#: src/hdate_strings.c:313 src/hdate_strings.c:376
 msgid "Shemot"
 msgstr ""
 
-#: src/hdate_strings.c:332 src/hdate_strings.c:395
+#: src/hdate_strings.c:314 src/hdate_strings.c:377
 msgid "Vaera"
 msgstr ""
 
-#: src/hdate_strings.c:333 src/hdate_strings.c:396
+#: src/hdate_strings.c:315 src/hdate_strings.c:378
 msgid "Bo"
 msgstr ""
 
-#: src/hdate_strings.c:334 src/hdate_strings.c:397
+#: src/hdate_strings.c:316 src/hdate_strings.c:379
 msgid "Beshalach"
 msgstr ""
 
-#: src/hdate_strings.c:335 src/hdate_strings.c:398
+#: src/hdate_strings.c:317 src/hdate_strings.c:380
 msgid "Yitro"
 msgstr ""
 
-#: src/hdate_strings.c:336 src/hdate_strings.c:399
+#: src/hdate_strings.c:318 src/hdate_strings.c:381
 msgid "Mishpatim"
 msgstr ""
 
-#: src/hdate_strings.c:337 src/hdate_strings.c:400
+#: src/hdate_strings.c:319 src/hdate_strings.c:382
 msgid "Teruma"
 msgstr ""
 
-#: src/hdate_strings.c:338 src/hdate_strings.c:401
+#: src/hdate_strings.c:320 src/hdate_strings.c:383
 msgid "Tetzave"
 msgstr ""
 
-#: src/hdate_strings.c:339 src/hdate_strings.c:402
+#: src/hdate_strings.c:321 src/hdate_strings.c:384
 msgid "Ki-Tisa"
 msgstr ""
 
-#: src/hdate_strings.c:340 src/hdate_strings.c:403
+#: src/hdate_strings.c:322 src/hdate_strings.c:385
 msgid "Vayakhel"
 msgstr ""
 
-#: src/hdate_strings.c:341 src/hdate_strings.c:404
+#: src/hdate_strings.c:323 src/hdate_strings.c:386
 msgid "Pekudei"
 msgstr ""
 
-#: src/hdate_strings.c:342 src/hdate_strings.c:405
+#: src/hdate_strings.c:324 src/hdate_strings.c:387
 msgid "Vayikra"
 msgstr ""
 
-#: src/hdate_strings.c:343 src/hdate_strings.c:406
+#: src/hdate_strings.c:325 src/hdate_strings.c:388
 msgid "Tzav"
 msgstr ""
 
-#: src/hdate_strings.c:344 src/hdate_strings.c:407
+#: src/hdate_strings.c:326 src/hdate_strings.c:389
 msgid "Shemini"
 msgstr ""
 
-#: src/hdate_strings.c:345 src/hdate_strings.c:408
+#: src/hdate_strings.c:327 src/hdate_strings.c:390
 msgid "Tazri'a"
 msgstr ""
 
-#: src/hdate_strings.c:346 src/hdate_strings.c:409
+#: src/hdate_strings.c:328 src/hdate_strings.c:391
 msgid "Metzora"
 msgstr ""
 
-#: src/hdate_strings.c:347 src/hdate_strings.c:410
+#: src/hdate_strings.c:329 src/hdate_strings.c:392
 msgid "Acharei-Mot"
 msgstr ""
 
-#: src/hdate_strings.c:348 src/hdate_strings.c:411
+#: src/hdate_strings.c:330 src/hdate_strings.c:393
 msgid "Kedoshim"
 msgstr ""
 
-#: src/hdate_strings.c:349 src/hdate_strings.c:412
+#: src/hdate_strings.c:331 src/hdate_strings.c:394
 msgid "Emor"
 msgstr ""
 
-#: src/hdate_strings.c:350 src/hdate_strings.c:413
+#: src/hdate_strings.c:332 src/hdate_strings.c:395
 msgid "Behar"
 msgstr ""
 
-#: src/hdate_strings.c:351 src/hdate_strings.c:414
+#: src/hdate_strings.c:333 src/hdate_strings.c:396
 msgid "Bechukotai"
 msgstr ""
 
-#: src/hdate_strings.c:352 src/hdate_strings.c:415
+#: src/hdate_strings.c:334 src/hdate_strings.c:397
 msgid "Bamidbar"
 msgstr ""
 
-#: src/hdate_strings.c:353 src/hdate_strings.c:416
+#: src/hdate_strings.c:335 src/hdate_strings.c:398
 msgid "Naso"
 msgstr ""
 
-#: src/hdate_strings.c:354 src/hdate_strings.c:417
+#: src/hdate_strings.c:336 src/hdate_strings.c:399
 msgid "Beha'alotcha"
 msgstr ""
 
-#: src/hdate_strings.c:355 src/hdate_strings.c:418
+#: src/hdate_strings.c:337 src/hdate_strings.c:400
 msgid "Shelach"
 msgstr ""
 
-#: src/hdate_strings.c:356 src/hdate_strings.c:419
+#: src/hdate_strings.c:338 src/hdate_strings.c:401
 msgid "Korach"
 msgstr ""
 
-#: src/hdate_strings.c:357 src/hdate_strings.c:420
+#: src/hdate_strings.c:339 src/hdate_strings.c:402
 msgid "Chukat"
 msgstr ""
 
-#: src/hdate_strings.c:358 src/hdate_strings.c:421
+#: src/hdate_strings.c:340 src/hdate_strings.c:403
 msgid "Balak"
 msgstr ""
 
-#: src/hdate_strings.c:359 src/hdate_strings.c:422
+#: src/hdate_strings.c:341 src/hdate_strings.c:404
 msgid "Pinchas"
 msgstr ""
 
-#: src/hdate_strings.c:360 src/hdate_strings.c:423
+#: src/hdate_strings.c:342 src/hdate_strings.c:405
 msgid "Matot"
 msgstr ""
 
-#: src/hdate_strings.c:361 src/hdate_strings.c:424
+#: src/hdate_strings.c:343 src/hdate_strings.c:406
 msgid "Mase'ei"
 msgstr ""
 
-#: src/hdate_strings.c:362 src/hdate_strings.c:425
+#: src/hdate_strings.c:344 src/hdate_strings.c:407
 msgid "Devarim"
 msgstr ""
 
-#: src/hdate_strings.c:363 src/hdate_strings.c:426
+#: src/hdate_strings.c:345 src/hdate_strings.c:408
 msgid "Vaetchanan"
 msgstr ""
 
-#: src/hdate_strings.c:364 src/hdate_strings.c:427
+#: src/hdate_strings.c:346 src/hdate_strings.c:409
 msgid "Ekev"
 msgstr ""
 
-#: src/hdate_strings.c:365 src/hdate_strings.c:428
+#: src/hdate_strings.c:347 src/hdate_strings.c:410
 msgid "Re'e"
 msgstr ""
 
-#: src/hdate_strings.c:366 src/hdate_strings.c:429
+#: src/hdate_strings.c:348 src/hdate_strings.c:411
 msgid "Shoftim"
 msgstr ""
 
-#: src/hdate_strings.c:367 src/hdate_strings.c:430
+#: src/hdate_strings.c:349 src/hdate_strings.c:412
 msgid "Ki-Tetze"
 msgstr ""
 
-#: src/hdate_strings.c:368 src/hdate_strings.c:431
+#: src/hdate_strings.c:350 src/hdate_strings.c:413
 msgid "Ki-Tavo"
 msgstr ""
 
-#: src/hdate_strings.c:369 src/hdate_strings.c:432
+#: src/hdate_strings.c:351 src/hdate_strings.c:414
 msgid "Nitzavim"
 msgstr ""
 
-#: src/hdate_strings.c:370 src/hdate_strings.c:433
+#: src/hdate_strings.c:352 src/hdate_strings.c:415
 msgid "Vayelech"
 msgstr ""
 
-#: src/hdate_strings.c:371 src/hdate_strings.c:434
+#: src/hdate_strings.c:353 src/hdate_strings.c:416
 msgid "Ha'azinu"
 msgstr ""
 
-#: src/hdate_strings.c:372 src/hdate_strings.c:435
+#: src/hdate_strings.c:354 src/hdate_strings.c:417
 msgid "Vezot-Habracha"
 msgstr ""
 
-#: src/hdate_strings.c:373 src/hdate_strings.c:436
+#: src/hdate_strings.c:355 src/hdate_strings.c:418
 msgid "Vayakhel Pekudei"
 msgstr ""
 
-#: src/hdate_strings.c:374 src/hdate_strings.c:437
+#: src/hdate_strings.c:356 src/hdate_strings.c:419
 msgid "Tazri'a Metzora"
 msgstr ""
 
-#: src/hdate_strings.c:375 src/hdate_strings.c:438
+#: src/hdate_strings.c:357 src/hdate_strings.c:420
 msgid "Acharei-Mot Kedoshim"
 msgstr ""
 
-#: src/hdate_strings.c:376 src/hdate_strings.c:439
+#: src/hdate_strings.c:358 src/hdate_strings.c:421
 msgid "Behar Bechukotai"
 msgstr ""
 
-#: src/hdate_strings.c:377 src/hdate_strings.c:440
+#: src/hdate_strings.c:359 src/hdate_strings.c:422
 msgid "Chukat Balak"
 msgstr ""
 
-#: src/hdate_strings.c:378 src/hdate_strings.c:441
+#: src/hdate_strings.c:360 src/hdate_strings.c:423
 msgid "Matot Mase'ei"
 msgstr ""
 
-#: src/hdate_strings.c:379 src/hdate_strings.c:442
+#: src/hdate_strings.c:361 src/hdate_strings.c:424
 msgid "Nitzavim Vayelech"
 msgstr ""

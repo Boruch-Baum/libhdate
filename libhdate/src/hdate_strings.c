@@ -217,7 +217,7 @@ char *
 hdate_get_holyday_string (int holyday, int s)
 {
 	/* holyday strings */
-	static char *holydays[2][23] = {
+	static char *holydays[2][25] = {
 		{
 		 N_("New year I"),
 		 N_("New year II"),
@@ -241,7 +241,9 @@ hdate_get_holyday_string (int holyday, int s)
 		 N_("Shvoot"),
 		 N_("Seventeen of Tamuz fast"),
 		 N_("Nine of Av fast"),
-		 N_("Tu be Av")},
+		 N_("Tu be Av"),
+		 N_("Yom Hashoa"),
+		 N_("Yom Hazicaron")},
 		{
 		 N_("New year I"),
 		 N_("New year II"),
@@ -265,13 +267,15 @@ hdate_get_holyday_string (int holyday, int s)
 		 N_("Shvoot"),
 		 N_("Seventeen of Tamuz fast"),
 		 N_("Nine of Av fast"),
-		 N_("Tu be Av")}
+		 N_("Tu be Av"),
+		 N_("Yom Hashoa"),
+		 N_("Yom Hazicaron")}
 	};
 
 	/* make sure s is 0 or 1 */
 	s = s ? 0 : 1;
 
-	if (holyday >= 1 && holyday <= 23)
+	if (holyday >= 1 && holyday <= 25)
 	{
 		return _(holydays[s][holyday - 1]);
 	}
