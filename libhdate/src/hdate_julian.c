@@ -118,13 +118,10 @@ hdate_get_year_type (int size_of_year, int new_year_dw)
 	int offset;
 	
 	/* 2,3,5,7 -> 1,2,3,4 */
-	year_type = new_year_dw - 1;
-	if (year_type > 2) year_type = year_type - 1;
-	if (year_type > 3) year_type = year_type - 1;	
+	year_type = (new_year_dw + 1) / 2;
 	
 	/* 353, 354, 355, 383, 384, 385 -> 0, 1, 2, 3, 4, 5 */
-	offset = size_of_year % 10 - 3;
-	if (size_of_year > 355) offset = offset + 3;
+	offset = (size_of_year % 10 - 3) + (size_of_year / 10 - 35);
 		
 	/* Combine year_type and offset */
 	year_type = offset * 4 + year_type;
