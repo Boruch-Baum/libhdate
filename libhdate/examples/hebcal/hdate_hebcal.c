@@ -283,7 +283,7 @@ main (int argc, char* argv[])
 				sunset = sunset + tz * 60 - 20; /* -20 for shabat */
 				
 				/* print candel lighting time */
-				printf ("Candle lighting:  %d:%d\n", sunset / 60, sunset % 60);
+				printf ("Candle lighting:  %d:%d\n", sunset / 60 - 12, sunset % 60);
 			}
 			
 			if (havdala)
@@ -296,7 +296,7 @@ main (int argc, char* argv[])
 				sunset = sunset + tz * 60 + 72; /* -72 for havdala */
 				
 				/* print havdala time */
-				printf ("Havdalah (72 min): %d:%d\n", sunset / 60, sunset % 60);
+				printf ("Havdalah (72 min): %d:%d\n", sunset / 60 - 12, sunset % 60);
 			}
 			
 			/* move to next day */
