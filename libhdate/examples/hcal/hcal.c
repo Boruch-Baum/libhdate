@@ -38,16 +38,27 @@ print_header(int month, int year)
 	int h_day2, h_month2, h_year2;
 	int jd1, jd2;
 	int j;
+	int m, y;
 	
 	h = *hdate_hdate (1, month, year);
 	jd1 = hdate_gdate_to_jd (h.gd_day, h.gd_mon, h.gd_year) - h.hd_dw + 1;
-	jd2 = hdate_gdate_to_jd (1, h.gd_mon + 1, h.gd_year);
+	m = h.gd_mon + 1;
+	if (m > 12)
+	{
+		m = 1;
+		y = h.gd_year + 1;
+	}
+	else
+	{
+		y = h.gd_year;
+	}	
+	jd2 = hdate_gdate_to_jd (1, m, y);
 	
 	hdate_jd_to_hdate (jd1, &h_day1, &h_month1, &h_year1);
 	hdate_jd_to_hdate (jd2, &h_day2, &h_month2, &h_year2);
 	
 	/* Print Gregorian month and year */
-	printf ("%s %d\n", hdate_get_month_string (h.gd_mon-1, FALSE), h.gd_year);
+	printf ("%s %d\n", hdate_get_month_string (h.gd_mon, FALSE), h.gd_year);
 	
 	/* Print Hebrew month and year */
 	if (h_month1 != h_month2)
@@ -88,7 +99,7 @@ print_calendar(int month, int year)
 	jd1 = hdate_gdate_to_jd (1, h.gd_mon, h.gd_year) - h.hd_dw;
 		
 	/* Loop over all days in this month */
-	jd=jd1;
+	jd = jd1 + 1;
 	for (i=0; i<6; i++)
 		{
 			for (j=0; j<7; j++)
@@ -105,19 +116,19 @@ print_calendar(int month, int year)
 						/* Print a day */
 						if (holyday_type == 0)
 							{
-								printf ("%2d/%3s", g_day, hdate_get_int_string(h.hd_day+1));
+								printf ("%2d/%3s", g_day, hdate_get_int_string(h.hd_day));
 							}
 						else if (holyday_type == 1)
 							{
-								printf ("%2d-%3s", g_day, hdate_get_int_string(h.hd_day+1));
+								printf ("%2d-%3s", g_day, hdate_get_int_string(h.hd_day));
 							} 
 						else if (holyday_type == 2)
 							{
-								printf ("%2d+%3s", g_day, hdate_get_int_string(h.hd_day+1));
+								printf ("%2d+%3s", g_day, hdate_get_int_string(h.hd_day));
 							}
 						else if (holyday_type == 3)
 							{
-								printf ("%2d*%3s", g_day, hdate_get_int_string(h.hd_day+1));
+								printf ("%2d*%3s", g_day, hdate_get_int_string(h.hd_day));
 							}
 					}
 					if (j != 6)
