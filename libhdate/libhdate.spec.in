@@ -43,8 +43,7 @@ CFLAGS="$RPM_OPT_FLAGS $CFLAGS"
 %{_libdir}/pkgconfig/*
 %{_prefix}/share/locale/he/LC_MESSAGES/libhdate.mo
 %{_prefix}/doc/hdate/*
-%{_bindir}/hcal
-%{_bindir}/hdate
+%{_bindir}/*
 
 %doc hdate_README README AUTHORS NEWS USE ABOUT-NLS COPYING ChangeLog INSTALL TODO USE
 
