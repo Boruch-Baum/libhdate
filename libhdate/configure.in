@@ -2,7 +2,7 @@ AC_INIT(src/hdate.h)
 
 dnl Set release number
 PACKAGE=libhdate
-VERSION=0.22.0
+VERSION=0.30.0
 
 AM_INIT_AUTOMAKE($PACKAGE, $VERSION)
 AM_MAINTAINER_MODE
@@ -61,6 +61,34 @@ AM_CONDITIONAL(WITH_PYTHON, test "x$build_python" = "xyes")
 
 dnl =======================================================================================
 
+build_perl=no
+
+AC_ARG_ENABLE(perl, [  --enable-perl	build perl binding [default=no]], build_perl="$enableval", build_perl=no)
+
+AC_CHECK_PROG(have_perl, "python", yes, no)
+
+if test "x$have_perl" = "xyes"; then
+	  PE_PREFIX=`(perl -e 'use Config; print $Config{archlib};')`
+	  AC_MSG_CHECKING(for $PE_PREFIX/CORE/perl.h)
+	  if test -f $PE_PREFIX/CORE/perl.h; then
+		  AC_MSG_RESULT(yes)
+		  PE_CFLAGS="-I$PE_PREFIX/CORE"
+		  PE_MODULES_PATH="$PE_PREFIX"
+		  AC_SUBST([PE_CFLAGS])
+		  AC_SUBST([PE_MODULES_PATH])
+		  if test "x$have_swig" = "xno"; then
+			build_perl=no
+		  fi
+	  else
+		  AC_MSG_RESULT(no)
+		  build_perl=no
+	  fi
+fi
+
+AM_CONDITIONAL(WITH_PERL, test "x$build_perl" = "xyes")
+
+dnl =======================================================================================
+
 dnl gettext
 
 dnl Languages which your application supports
@@ -109,6 +137,7 @@ examples/html/Makefile
 examples/hebcal/Makefile
 bindings/Makefile
 bindings/python/Makefile
+bindings/perl/Makefile
 ])
 
 dnl ===========================================================================================
@@ -120,8 +149,11 @@ $PACKAGE-$VERSION
 	
 	have swig			${have_swig}
 	have python			${have_python}
+	have perl			${have_perl}
 	
 	build hcal			${build_hcal}
 	build examples			${build_examples}
+	
 	build python binding		${build_python}
+	build perl binding		${build_perl}
 "

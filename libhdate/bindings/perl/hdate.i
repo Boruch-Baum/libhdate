@@ -7,6 +7,6 @@
 %include ../../src/hdatepp.h
 
 // on linux do:
-// swig -python hdate.i
-// g++ -fpic -c hdate_wrap.cxx -I/usr/include/python2.3
+// swig -perl hdate.i
+// g++ -fpic -c hdate_wrap.cxx -I/usr/lib/perl5/5.8.6/i686-linux/CORE/
 // g++ -shared ../../src/*.o hdate_wrap.o -o _hdate.so

@@ -1,11 +1,11 @@
 
-EXTRA_DIST = foo.i
+EXTRA_DIST = hdate.i
 
 if WITH_PYTHON
 
 DEPS= $(top_builddir)/src/libhdate.la
 
-CLEANFILES = *.o *.c *.so *wrap* *.py
+CLEANFILES = *.o *.cxx *.so *wrap* *.py
 
 all-am: _hdate.so
 	
