@@ -46,8 +46,8 @@ if test "x$have_python" = "xyes"; then
 		  AC_MSG_RESULT(yes)
 		  PY_CFLAGS="-I$PY_PREFIX/include/python$PY_VERSION"
 		  PY_MODULES_PATH="$PY_PREFIX/lib/python$PY_VERSION/site-packages"
-		  AC_SUBST(PY_CFLAGS)
-		  AC_SUBST(PY_MODULES_PATH)
+		  AC_SUBST([PY_CFLAGS])
+		  AC_SUBST([PY_MODULES_PATH])
 		  if test "x$have_swig" = "xno"; then
 			build_python=no
 		  fi
