@@ -21,6 +21,8 @@
 
 /**
  @brief Return number of hebrew parasha.
+ 
+ @author Yaacov Zamir 2003-2005, Reading tables by Zvi Har'El
 
  @param hebdate The hdate_struct of the date to use.
  @param diaspora if True give diaspora readings

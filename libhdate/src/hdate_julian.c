@@ -333,9 +333,8 @@ hdate_jd_to_hdate (int jd, int *day, int *month, int *year, int *jd_tishrey1, in
  @param y Year in 4 digits e.g. 2001
  */
 hdate_struct *
-hdate_gdate (int d, int m, int y)
+hdate_gdate (hdate_struct *h, int d, int m, int y)
 {
-	static hdate_struct h;
 	int jd;
 	int jd_tishrey1, jd_tishrey1_next_year;
 	
@@ -362,22 +361,22 @@ hdate_gdate (int d, int m, int y)
 	}
 	/* end of cheking */
 
-	h.gd_day = d;
-	h.gd_mon = m;
-	h.gd_year = y;
+	h->gd_day = d;
+	h->gd_mon = m;
+	h->gd_year = y;
 	
 	jd = hdate_gdate_to_jd (d, m, y);
-	hdate_jd_to_hdate (jd, &(h.hd_day), &(h.hd_mon), &(h.hd_year), &jd_tishrey1, &jd_tishrey1_next_year);
+	hdate_jd_to_hdate (jd, &(h->hd_day), &(h->hd_mon), &(h->hd_year), &jd_tishrey1, &jd_tishrey1_next_year);
 	
-	h.hd_dw = (jd + 1) % 7 + 1;
-	h.hd_size_of_year = jd_tishrey1_next_year - jd_tishrey1;
-	h.hd_new_year_dw = (jd_tishrey1 + 1) % 7 + 1;
-	h.hd_year_type = hdate_get_year_type (h.hd_size_of_year , h.hd_new_year_dw);
-	h.hd_jd = jd;
-	h.hd_days = jd - jd_tishrey1 + 1;
-	h.hd_weeks = ((h.hd_days - 1) + (h.hd_new_year_dw - 1)) / 7 + 1;
+	h->hd_dw = (jd + 1) % 7 + 1;
+	h->hd_size_of_year = jd_tishrey1_next_year - jd_tishrey1;
+	h->hd_new_year_dw = (jd_tishrey1 + 1) % 7 + 1;
+	h->hd_year_type = hdate_get_year_type (h->hd_size_of_year , h->hd_new_year_dw);
+	h->hd_jd = jd;
+	h->hd_days = jd - jd_tishrey1 + 1;
+	h->hd_weeks = ((h->hd_days - 1) + (h->hd_new_year_dw - 1)) / 7 + 1;
 	
-	return (&h);
+	return (h);
 }
 
 /**
@@ -388,29 +387,28 @@ hdate_gdate (int d, int m, int y)
  @param y Year in 4 digits e.g. 5731
  */
 hdate_struct *
-hdate_hdate (int d, int m, int y)
+hdate_hdate (hdate_struct *h, int d, int m, int y)
 {
-	static hdate_struct h;
 	int jd;
 	int jd_tishrey1, jd_tishrey1_next_year;
 	
-	h.hd_day = d;
-	h.hd_mon = m;
-	h.hd_year = y;
+	h->hd_day = d;
+	h->hd_mon = m;
+	h->hd_year = y;
 	
 	jd = hdate_hdate_to_jd (d, m, y, &jd_tishrey1, &jd_tishrey1_next_year);
 	
-	hdate_jd_to_gdate (jd, &(h.gd_day), &(h.gd_mon), &(h.gd_year));
+	hdate_jd_to_gdate (jd, &(h->gd_day), &(h->gd_mon), &(h->gd_year));
 	
-	h.hd_dw = (jd + 1) % 7 + 1;
-	h.hd_size_of_year = jd_tishrey1_next_year - jd_tishrey1;
-	h.hd_new_year_dw = (jd_tishrey1 + 1) % 7 + 1;
-	h.hd_year_type = hdate_get_year_type (h.hd_size_of_year , h.hd_new_year_dw);
-	h.hd_jd = jd;
-	h.hd_days = jd - jd_tishrey1 + 1;
-	h.hd_weeks = ((h.hd_days - 1) + (h.hd_new_year_dw - 1)) / 7 + 1;
+	h->hd_dw = (jd + 1) % 7 + 1;
+	h->hd_size_of_year = jd_tishrey1_next_year - jd_tishrey1;
+	h->hd_new_year_dw = (jd_tishrey1 + 1) % 7 + 1;
+	h->hd_year_type = hdate_get_year_type (h->hd_size_of_year , h->hd_new_year_dw);
+	h->hd_jd = jd;
+	h->hd_days = jd - jd_tishrey1 + 1;
+	h->hd_weeks = ((h->hd_days - 1) + (h->hd_new_year_dw - 1)) / 7 + 1;
 	
-	return (&h);
+	return (h);
 }
 
 /**
@@ -419,11 +417,21 @@ hdate_hdate (int d, int m, int y)
  @param jd the julian day number.
  */
 hdate_struct *
-hdate_jd (int jd)
+hdate_jd (hdate_struct *h, int jd)
 {
-	int day, month, year;
+	int jd_tishrey1, jd_tishrey1_next_year;
 	
-	hdate_jd_to_gdate (jd, &day, &month, &year);
+	hdate_jd_to_gdate (jd, &(h->hd_day), &(h->hd_mon), &(h->hd_year));
 	
-	return (hdate_gdate (day, month, year));
+	hdate_jd_to_hdate (jd, &(h->hd_day), &(h->hd_mon), &(h->hd_year), &jd_tishrey1, &jd_tishrey1_next_year);
+	
+	h->hd_dw = (jd + 1) % 7 + 1;
+	h->hd_size_of_year = jd_tishrey1_next_year - jd_tishrey1;
+	h->hd_new_year_dw = (jd_tishrey1 + 1) % 7 + 1;
+	h->hd_year_type = hdate_get_year_type (h->hd_size_of_year , h->hd_new_year_dw);
+	h->hd_jd = jd;
+	h->hd_days = jd - jd_tishrey1 + 1;
+	h->hd_weeks = ((h->hd_days - 1) + (h->hd_new_year_dw - 1)) / 7 + 1;
+	
+	return (h);
 }

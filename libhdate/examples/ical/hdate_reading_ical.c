@@ -83,7 +83,7 @@ main (int argc, char* argv[])
 	for (jd = start_jd; jd < end_jd; jd++)
 		{
 			hdate_jd_to_gdate (jd, &day, &month, &year);
-			h = *hdate_gdate (day, month, year);
+			hdate_gdate (&h, day, month, year);
 			/* set diaspora flag to 0, for reading ba harez */
 			parasha =  hdate_get_parasha (&h, 0);
 			

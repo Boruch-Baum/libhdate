@@ -39,7 +39,7 @@ print_header(int month, int year)
 	int jd1, jd2;
 	int j;
 	
-	h = *hdate_gdate (1, month, year);
+	hdate_gdate (&h, 1, month, year);
 	jd1 = h.hd_jd;
 	jd2 = jd1 + 32;
 	
@@ -79,7 +79,7 @@ print_calendar(int month, int year)
 	int holyday_type;
 	
 	/* Find day to start calendar with */
-	h = *hdate_gdate (1, month, year);
+	hdate_gdate (&h, 1, month, year);
 	
 	/* return print head to sunday */
 	jd = h.hd_jd - h.hd_dw + 1;
@@ -91,7 +91,7 @@ print_calendar(int month, int year)
 				{
 					/* Get this day hebrew date */
 					hdate_jd_to_gdate (jd, &g_day, &g_month, &g_year);
-					h = *hdate_gdate (g_day, g_month, g_year);
+					hdate_gdate (&h, g_day, g_month, g_year);
 					
 					/* Get this day holyday type ba harez (diaspora flag = 0) */
 					holyday_type = hdate_get_holyday_type (hdate_get_holyday (&h, 0));
@@ -155,7 +155,7 @@ main (int argc, char* argv[])
 	
 	/* Set the locale, for libhdate to print locale messages */ 
 	setlocale (LC_ALL,"");
-	h = *hdate_gdate (1, month, year);
+	hdate_gdate (&h, 1, month, year);
 	
 	/* Print calendar header */
 	print_header (h.gd_mon, h.gd_year);
