@@ -15,7 +15,7 @@ libhdate_la_SOURCES = \
 	hdate.h\
 	support.h
 
-libhdate_la_LDFLAGS = 
+libhdate_la_LDFLAGS = -version-info $(VERSION_INFO)
 
 libhdate_la_LIBADD = 
 
