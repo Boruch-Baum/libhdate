@@ -25,7 +25,7 @@ or build applications that use them.
 %setup
 
 %build
-%configure --enable-python --enable-perl
+%configure --enable-python --enable-perl --enable-package
 
 %{__make} %{?_smp_mflags}
 

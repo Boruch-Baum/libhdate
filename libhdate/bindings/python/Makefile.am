@@ -18,7 +18,7 @@ hdate_wrap.cxx: hdate.i
 	swig -python -c++ hdate.i
 
 install-data-local: _hdate.so
-	$(mkinstalldirs) $(DESTDIR)/$(PY_MODULES_PATH)
+	$(mkinstalldirs) $(DESTDIR)$(PY_MODULES_PATH)
 	$(INSTALL_DATA) _hdate.so $(DESTDIR)$(PY_MODULES_PATH)/_hdate.so
 	$(INSTALL_DATA) hdate.py $(DESTDIR)$(PY_MODULES_PATH)/hdate.py
 
