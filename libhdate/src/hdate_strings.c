@@ -130,6 +130,11 @@ hdate_get_day_string (int day, int s)
 		 N_("Thusday"), N_("Friday"), N_("Saturday")}
 	};
 
+#ifdef ENABLE_NLS
+	bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
+	bind_textdomain_codeset (PACKAGE, "UTF-8");
+#endif
+	
 	/* make sure s is 0 or 1 */
 	s = s ? 0 : 1;
 
@@ -162,6 +167,11 @@ hdate_get_month_string (int month, int s)
 		 N_("October"), N_("November"), N_("December")}
 	};
 
+#ifdef ENABLE_NLS
+	bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
+	bind_textdomain_codeset (PACKAGE, "UTF-8");
+#endif
+	
 	/* make sure s is 0 or 1 */
 	s = s ? 0 : 1;
 
@@ -195,6 +205,11 @@ hdate_get_hebrew_month_string (int month, int s)
 		 N_("Adar II")}
 	};
 
+#ifdef ENABLE_NLS
+	bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
+	bind_textdomain_codeset (PACKAGE, "UTF-8");
+#endif
+	
 	/* make sure s is 0 or 1 */
 	s = s ? 0 : 1;
 
@@ -272,6 +287,11 @@ hdate_get_holyday_string (int holyday, int s)
 		 N_("Yom Hazicaron")}
 	};
 
+#ifdef ENABLE_NLS
+	bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
+	bind_textdomain_codeset (PACKAGE, "UTF-8");
+#endif
+	
 	/* make sure s is 0 or 1 */
 	s = s ? 0 : 1;
 
@@ -424,6 +444,11 @@ hdate_get_parasha_string (int parasha, int s)
 		 N_("Nitzavim Vayelech")} /* 62 */
 	};
 
+#ifdef ENABLE_NLS
+	bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
+	bind_textdomain_codeset (PACKAGE, "UTF-8");
+#endif
+	
 	/* make sure s is 0 or 1 */
 	s = s ? 0 : 1;
 
