@@ -17,9 +17,10 @@
    Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 	 
 History:
+     13/3/2005 -  Bug Fixed Added {$PACKRECORDS C}
   10-11/3/2005 -  Initial Translation of version 0.31.0
  }
-{$MODE FPC}
+{$MODE FPC}{$PACKRECORDS C}
 
 unit hdate;
 
