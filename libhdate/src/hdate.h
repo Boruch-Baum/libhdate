@@ -84,10 +84,26 @@ hdate_size_of_hebrew_year (int hebrew_year);
 
 /**
  @brief Return Hebrew year type based on size and first week day of year.
-
+ 
+ year type | year length | Tishery 1 day of week
+ | 1       | 353         | 2 
+ | 2       | 353         | 7 
+ | 3       | 354         | 3 
+ | 4       | 354         | 5 
+ | 5       | 355         | 2 
+ | 6       | 355         | 5 
+ | 7       | 355         | 7 
+ | 8       | 383         | 2 
+ | 9       | 383         | 5 
+ |10       | 383         | 7 
+ |11       | 384         | 3 
+ |12       | 385         | 2 
+ |13       | 385         | 5 
+ |14       | 385         | 7 
+ 
  @param size_of_year Length of year in days
  @param new_year_dw First week day of year
- @return A number for year type (1..24)
+ @return A number for year type (1..14)
 */
 int
 hdate_get_year_type (int size_of_year, int new_year_dw);
