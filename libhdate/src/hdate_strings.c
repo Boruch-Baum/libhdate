@@ -159,13 +159,13 @@ hdate_get_month_string (int month, int s)
 #endif
 
 	static char *months[2][12] = {
+		{N_("Jan"), N_("Feb"), N_("Mar"), N_("Apr"), N_("May"),
+		 N_("Jun"), N_("Jul"), N_("Aug"), N_("Sep"), N_("Oct"),
+		 N_("Nov"), N_("Dec")},
 		{N_("January"), N_("February"), N_("March"),
 		 N_("April"), N_("May"), N_("June"),
 		 N_("July"), N_("August"), N_("September"),
-		 N_("October"), N_("November"), N_("December")},
-		{N_("Jan"), N_("Feb"), N_("Mar"), N_("Apr"), N_("May"),
-		 N_("Jun"), N_("Jul"), N_("Aug"), N_("Sep"), N_("Oct"),
-		 N_("Nov"), N_("Dec")}
+		 N_("October"), N_("November"), N_("December")}
 	};
 
 	/* make sure s is 0 or 1 */
