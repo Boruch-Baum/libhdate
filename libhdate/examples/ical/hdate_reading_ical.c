@@ -37,7 +37,7 @@ main (int argc, char* argv[])
 	int parasha;
 	char* event_summary;
 
-	int  start_jd;	/* The Julian day number to start iCal calendar from */
+	int start_jd;	/* The Julian day number to start iCal calendar from */
 	int end_jd;	/* The Julian day number to end iCal calendar with */
 
 	int start_d ;
@@ -58,10 +58,10 @@ main (int argc, char* argv[])
 			end_m = atoi (argv[5]);
 			end_y = atoi (argv[6]);
 			
-			hdate_gdate (&h, start_d, start_m, start_y);
+			hdate_set_gdate (&h, start_d, start_m, start_y);
 			start_jd = h.hd_jd;
 			
-			hdate_gdate (&h, end_d, end_m, end_y);
+			hdate_set_gdate (&h, end_d, end_m, end_y);
 			end_jd = h.hd_jd;
 		} 
 	else 
@@ -83,7 +83,7 @@ main (int argc, char* argv[])
 	for (jd = start_jd; jd < end_jd; jd++)
 		{
 			/* get today hdate */
-			hdate_jd (&h, jd);
+			hdate_set_jd (&h, jd);
 			
 			/* set diaspora flag to 0, for reading ba harez */
 			parasha =  hdate_get_parasha (&h, 0);

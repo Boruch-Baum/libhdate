@@ -65,10 +65,10 @@ main (int argc, char* argv[])
 	setlocale (LC_ALL,"");
 
 	/* Set hebrew date struct */
-	hdate_gdate (&h, day, month, year);
+	hdate_set_gdate (&h, day, month, year);
 	
-	/* Print long date */
-	printf ("%s\n",  hdate_get_format_date (&h, FALSE));
+	/* Print long erez israeili date */
+	printf ("%s\n",  hdate_get_format_date (&h, FALSE, FALSE));
 
 	return 0;
 }

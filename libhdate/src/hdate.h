@@ -40,30 +40,195 @@ typedef struct
 	int hd_mon;
 	/** The number of the hebrew year. */
 	int hd_year;
-	/** gd_day The number of the day in the month. (1..31) */
+	/** The number of the day in the month. (1..31) */
 	int gd_day;
-	/** gd_mon The number of the month 1..12 (1 - jan). */
+	/** The number of the month 1..12 (1 - jan). */
 	int gd_mon;
-	/** gd_year; The number of the year. */
+	/** The number of the year. */
 	int gd_year;
 	/** hd_dw The day of the week 1..7 (1 - sunday). */
 	int hd_dw;
-	/** hd_size_of_year The length of the year in days. */
+	/** The length of the year in days. */
 	int hd_size_of_year;
-	/** hd_new_year_dw The week day of Hebrew new year. */
+	/** The week day of Hebrew new year. */
 	int hd_new_year_dw;
 	/** hd_year_type The number type of year. */
 	int hd_year_type;
-	/** hd_jd The Julian day number */
+	/** The Julian day number */
 	int hd_jd;
-	/** hd_jd The number of days passed since 1 tishrey */
+	/** The number of days passed since 1 tishrey */
 	int hd_days;
-	/** hd_jd The number of weeks passed since 1 tishrey */
+	/** The number of weeks passed since 1 tishrey */
 	int hd_weeks;
 } hdate_struct;
 
+/********************************************************************************/
+/********************************************************************************/
+
 /**
- @brief Days since bet (?) Tishrey 3744
+ @brief compute date structure from the Gregorian date
+
+ @param h pointer this hdate struct.
+ @param d Day of month 1..31
+ @param m Month 1..12 ,  if m or d is 0 return current date.
+ @param y Year in 4 digits e.g. 2001
+ @return pointer to this hdate struct
+ */
+hdate_struct *
+hdate_set_gdate (hdate_struct *h, int d, int m, int y);
+
+/**
+ @brief compute date structure from the Hebrew date
+
+ @param h pointer this hdate struct.
+ @param d Day of month 1..31
+ @param m Month 1..14 ,  if m or d is 0 return current date.
+ @param y Year in 4 digits e.g. 5731
+ @return pointer to this hdate struct
+ */
+hdate_struct *
+hdate_set_hdate (hdate_struct *h, int d, int m, int y);
+
+/**
+ @brief compute date structure from the Julian day
+
+ @param h pointer this hdate struct.
+ @param jd the julian day number.
+ @return pointer to this hdate struct
+ */
+hdate_struct *
+hdate_set_jd (hdate_struct *h, int jd);
+
+/*************************************************************/
+/*************************************************************/
+
+/**
+ @brief get formated hebrew date.
+
+ return the short ( e.g. "1 Tishrey" ) or 
+ long (e.g. "Tuesday 18 Tishrey 5763 Hol hamoed Sukot" ) formated date.
+
+ @param h pointer this hdate struct.
+ @param diaspora if true give diaspora holydays.
+ @param s short flag.
+ @return a static string of foramted date
+*/
+char *
+hdate_get_format_date (hdate_struct * h, int diaspora, int s);
+
+/**
+ @brief get the number of hebrew parasha.
+
+ @param h pointer this hdate struct.
+ @param diaspora if true give diaspora readings
+ @return the number of parasha 1. Bereshit etc..
+   (55 trow 61 are joined strings e.g. Vayakhel Pekudei)
+*/
+int
+hdate_get_parasha (hdate_struct * h, int diaspora);
+
+/**
+ @brief get the number of hebrew holyday.
+
+ @param h pointer this hdate struct.
+ @param diaspora if true give diaspora holydays
+ @return the number of holyday.
+*/
+int
+hdate_get_holyday (hdate_struct * h, int diaspora);
+
+/*************************************************************/
+/*************************************************************/
+
+/**
+ @brief convert an integer to hebrew string. 
+ 
+ @param n The int to convert
+ @return a static string of the hebrew number UTF-8 (logical)
+ @attention ( 0 < n < 10000)
+*/
+char *
+hdate_get_int_string (int n);
+
+/**
+ @brief get name of week day.
+
+ @param day The number of the day 1..7 (1 - sun).
+ @param s short flag 
+   true - returns a short string: sun, false returns: sunday.
+ @return a static string of the day of the week
+*/
+char *
+hdate_get_day_string (int day, int s);
+
+/**
+ @brief name of month.
+
+ @param month the number of the month 1..12 (1 - jan).
+ @param s short flag.
+ @return a static string of month name
+*/
+char *
+hdate_get_month_string (int month, int s);
+
+/**
+ @brief name of hebrew month.
+
+ @param month the number of the month 1..14 
+   (1 - tishre, 13 - adar 1, 14 - adar 2).
+ @param s short flag.
+ @return a static string of month name
+*/
+char *
+hdate_get_hebrew_month_string (int month, int s);
+
+/**
+ @brief name of hebrew holyday.
+
+ @param holyday the holyday number.
+ @param s short flag.
+ @return a static string of holyday name
+*/
+char *
+hdate_get_holyday_string (int holyday, int s);
+
+/**
+ @brief name of parasha
+
+ @param parasha the number of parasha 1-Bereshit
+   (55 trow 61 are joined strings e.g. Vayakhel Pekudei)
+ @param s short flag.
+ @return a static string of parasha name
+*/
+char *
+hdate_get_parasha_string (int parasha, int s);
+
+/*************************************************************/
+/*************************************************************/
+
+/**
+ @brief get the hebrew holyday type.
+
+ @param holyday the holyday number.
+ @return the number of holyday type.
+*/
+int
+hdate_get_holyday_type (int holyday);
+
+/**
+ @brief size of hebrew year in days.
+ 
+ @param hebrew_year the hebrew year.
+ @return size of Hebrew year
+*/
+int
+hdate_get_size_of_hebrew_year (int hebrew_year);
+
+/*************************************************************/
+/*************************************************************/
+
+/**
+ @brief Days since Tishrey 3744
  
  @author Amos Shapir 1984 (rev. 1985, 1992) Yaacov Zamir 2003-2005 
  
@@ -72,15 +237,6 @@ typedef struct
 */
 int
 hdate_days_from_3744 (int hebrew_year);
-
-/**
- @brief Size of Hebrew year in days
- 
- @param hebrew_year The Hebrew year
- @return Size of Hebrew year
-*/
-int
-hdate_size_of_hebrew_year (int hebrew_year);
 
 /**
  @brief Return Hebrew year type based on size and first week day of year.
@@ -103,21 +259,20 @@ hdate_size_of_hebrew_year (int hebrew_year);
  
  @param size_of_year Length of year in days
  @param new_year_dw First week day of year
- @return A number for year type (1..14)
+ @return the number for year type (1..14)
 */
 int
 hdate_get_year_type (int size_of_year, int new_year_dw);
 
 /**
- @brief Compute Julian day from Gregorian day, month and year
- Algorithm from 'Julian and Gregorian Day Numbers' by Peter Meyer
+ @brief Compute Julian day from Gregorian date
 
- @author Yaacov Zamir ( algorithm from Henry F. Fliegel and Thomas C. Van Flandern ,1968)
+ @author Yaacov Zamir (algorithm from Henry F. Fliegel and Thomas C. Van Flandern ,1968)
 
  @param day Day of month 1..31
  @param month Month 1..12
  @param year Year in 4 digits e.g. 2001
- @return The julian day number
+ @return the julian day number
  */
 int
 hdate_gdate_to_jd (int day, int month, int year);
@@ -130,21 +285,20 @@ hdate_gdate_to_jd (int day, int month, int year);
  @param day Day of month 1..31
  @param month Month 1..14 (13 - Adar 1, 14 - Adar 2)
  @param year Hebrew year in 4 digits e.g. 5753
- @return The julian day number
+ @return the julian day number
  */
 int
 hdate_hdate_to_jd (int day, int month, int year, int *jd_tishrey1, int *jd_tishrey1_next_year);
 
 /**
- @brief Converting from the Julian day to the Gregorian day
- Algorithm from 'Julian and Gregorian Day Numbers' by Peter Meyer 
-
- @author Yaacov Zamir ( Algorithm, Henry F. Fliegel and Thomas C. Van Flandern ,1968)
+ @brief Converting from the Julian day to the Gregorian date
+ 
+ @author Yaacov Zamir (Algorithm, Henry F. Fliegel and Thomas C. Van Flandern ,1968)
 
  @param jd Julian day
- @param d Return Day of month 1..31
- @param m Return Month 1..12
- @param y Return Year in 4 digits e.g. 2001
+ @param d return Day of month 1..31
+ @param m return Month 1..12
+ @param y return Year in 4 digits e.g. 2001
  */
 void
 hdate_jd_to_gdate (int jd, int *day, int *month, int *year);
@@ -155,150 +309,12 @@ hdate_jd_to_gdate (int jd, int *day, int *month, int *year);
  @author Yaacov Zamir 2005
 
  @param jd Julian day
- @param day Return Day of month 1..31
- @param month Return Month 1..14 (13 - Adar 1, 14 - Adar 2)
- @param year Return Year in 4 digits e.g. 2001
+ @param day return Day of month 1..31
+ @param month return Month 1..14 (13 - Adar 1, 14 - Adar 2)
+ @param year return Year in 4 digits e.g. 2001
  */
 void
 hdate_jd_to_hdate (int jd, int *day, int *month, int *year, int *jd_tishrey1, int *jd_tishrey1_next_year);
-
-/********************************************************************************/
-/********************************************************************************/
-
-/**
- @brief compute date structure from the Gregorian date
-
- @param d Day of month 1..31
- @param m Month 1..12 ,  if m or d is 0 return current date.
- @param y Year in 4 digits e.g. 2001
- */
-hdate_struct *
-hdate_gdate (hdate_struct *h, int d, int m, int y);
-
-/**
- @brief compute date structure from the Hebrew date
-
- @param d Day of month 1..31
- @param m Month 1..14 ,  if m or d is 0 return current date.
- @param y Year in 4 digits e.g. 5731
- */
-hdate_struct *
-hdate_hdate (hdate_struct *h, int d, int m, int y);
-
-/**
- @brief compute date structure from the Julian day
-
- @param jd the julian day number.
- */
-hdate_struct *
-hdate_jd (hdate_struct *h, int jd);
-
-/********************************************************************************/
-/********************************************************************************/
-
-/**
- @brief convert an integer to hebrew string UTF-8 (logical)
- 
- @param n The int to convert
-
- @attention ( 0 < n < 10000)
-*/
-char *
-hdate_get_int_string (int n);
-
-/**
- @brief Return a static string, with name of wek day.
-
- @param day The number of the day 0..6 (0 - sun).
- @param s A short flag (true - returns a short string: sun, .., false returns: sunday, .. ).
-*/
-char *
-hdate_get_day_string (int day, int s);
-
-/**
- @brief Return a static string, with name of month.
-
- @param month The number of the month 1..12 (1 - jan).
- @param s A short flag.
-*/
-char *
-hdate_get_month_string (int month, int s);
-
-/**
- @brief Return a static string, with name of hebrew month.
-
- @param month The number of the month 1..14 (1 - tishre, 13 - adar 1, 14 - adar 2).
- @param s A short flag.
-*/
-char *
-hdate_get_hebrew_month_string (int month, int s);
-
-/**
- @brief Name of hebrew holyday.
-
- @param holyday The holyday number.
- @param s A short flag.
-*/
-char *
-hdate_get_holyday_string (int holyday, int s);
-
-/**
- @brief Name of Parasha
-
- @param parasha The Number of Parasha 1-Bereshit
-	(55 trow 61 are joined strings e.g. Vayakhel Pekudei)
- @param s A short flag.
-*/
-char *
-hdate_get_parasha_string (int parasha, int s);
-
-/**
- @brief Return a static string, with the hebrew date.
-
- return the short ( e.g. "1 Tishrey" ) or 
- long (e.g. "Tuesday 18 Tishrey 5763 Hol hamoed Sukot" ) formated date.
-
- @param h The hdate_struct of the date to print.
- @param s A short flag (true - returns a short string, false returns a long string. ).
-*/
-char *
-hdate_get_format_date (hdate_struct * h, int s);
-
-/********************************************************************************/
-/********************************************************************************/
-
-/**
- @brief Return number of hebrew parasha.
-
- @param hebdate The hdate_struct of the date to use.
- @param diaspora if True give diaspora readings
- @return the name of parasha 1. Bereshit etc..
- (55 trow 61 are joined strings e.g. Vayakhel Pekudei)
-*/
-int
-hdate_get_parasha (hdate_struct * h, int diaspora);
-
-/********************************************************************************/
-/********************************************************************************/
-
-/**
- @brief Return number of hebrew holyday.
-
- @param h The hdate_struct of the date to use.
- @param diaspora if True give diaspora holydays
- @return the number of holyday.
-*/
-int
-hdate_get_holyday (hdate_struct * h, int diaspora);
-
-/**
- @brief Return number of hebrew holyday type.
-
- @param holyday the holyday number
- @return the number of holyday type.
-*/
-int
-hdate_get_holyday_type (int holyday);
 
 #ifdef __cplusplus
 }

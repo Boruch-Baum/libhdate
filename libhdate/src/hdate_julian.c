@@ -98,7 +98,7 @@ hdate_days_from_3744 (int hebrew_year)
  @return Size of Hebrew year
 */
 int
-hdate_size_of_hebrew_year (int hebrew_year)
+hdate_get_size_of_hebrew_year (int hebrew_year)
 {
 	return hdate_days_from_3744 (hebrew_year + 1) -
 		hdate_days_from_3744 (hebrew_year);
@@ -349,7 +349,7 @@ hdate_jd_to_hdate (int jd, int *day, int *month, int *year, int *jd_tishrey1, in
  @param y Year in 4 digits e.g. 2001
  */
 hdate_struct *
-hdate_gdate (hdate_struct *h, int d, int m, int y)
+hdate_set_gdate (hdate_struct *h, int d, int m, int y)
 {
 	int jd;
 	int jd_tishrey1, jd_tishrey1_next_year;
@@ -405,7 +405,7 @@ hdate_gdate (hdate_struct *h, int d, int m, int y)
  @param y Year in 4 digits e.g. 5731
  */
 hdate_struct *
-hdate_hdate (hdate_struct *h, int d, int m, int y)
+hdate_set_hdate (hdate_struct *h, int d, int m, int y)
 {
 	int jd;
 	int jd_tishrey1, jd_tishrey1_next_year;
@@ -437,7 +437,7 @@ hdate_hdate (hdate_struct *h, int d, int m, int y)
  @param jd the julian day number.
  */
 hdate_struct *
-hdate_jd (hdate_struct *h, int jd)
+hdate_set_jd (hdate_struct *h, int jd)
 {
 	int jd_tishrey1, jd_tishrey1_next_year;
 	

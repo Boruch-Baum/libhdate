@@ -1,8 +1,15 @@
+libhdate (0.17.0)
+  
+  * API chages.
+  * base struct change.
+
+   -- Yaacov Zamir <kzamir@wall.co.il>  Mon, 22 Feb 2005 19:34:22
+   
 libhdate (0.16.3)
   
   * Try to fix date conversion bug, thanks Michael Kaminsky.
 
-   -- Yaacov Zamir <kzamir@wall.co.il>  Mon, 21 Feb 2005 09:93:12
+   -- Yaacov Zamir <kzamir@wall.co.il>  Mon, 21 Feb 2005 09:03:12
 
 libhdate (0.16.2)
   

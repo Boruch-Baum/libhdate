@@ -461,14 +461,16 @@ hdate_get_parasha_string (int parasha, int s)
  long (e.g. "Tuesday 18 Tishrey 5763 Hol hamoed Sukot" ) formated date.
 
  @param h The hdate_struct of the date to print.
+ @param diaspora if true give diaspora holydays
  @param s A short flag (true - returns a short string, false returns a long string. ).
 */
 char *
-hdate_get_format_date (hdate_struct * h, int s)
+hdate_get_format_date (hdate_struct * h, int diaspora, int s)
 {
 	static char format_date[500];
 	static char temp[500];
-
+	int holyday;
+	
 	/* you dont realy need it here */
 #ifdef ENABLE_NLS
 	bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
@@ -493,7 +495,20 @@ hdate_get_format_date (hdate_struct * h, int s)
 			snprintf (format_date, 500, "%s %s",
 				  temp,
 				  hdate_get_int_string (h->hd_year));
-			return (format_date);
+			
+			/* if holyday print it */
+			holyday = hdate_get_holyday (h, diaspora);
+			
+			if (holyday != 0)
+			{
+				snprintf (temp, 500, "%s, %s",
+				  format_date,
+				  hdate_get_holyday_string (holyday, 0));
+				
+				return (temp);
+			}
+			else
+				return (format_date);
 		}
 	}
 

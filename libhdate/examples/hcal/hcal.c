@@ -37,8 +37,8 @@ print_header(int month, int year)
 	int j;
 	
 	/* set dates for begining and end of calendar */
-	hdate_gdate (&h1, 1, month, year);
-	hdate_gdate (&h2, 1, month + 1, year);
+	hdate_set_gdate (&h1, 1, month, year);
+	hdate_set_gdate (&h2, 1, month + 1, year);
 	
 	/* Print Gregorian month and year */
 	printf ("%s %d\n", hdate_get_month_string (h1.gd_mon, FALSE), h1.gd_year);
@@ -72,7 +72,7 @@ print_calendar(int month, int year)
 	int holyday_type;
 	
 	/* Find day to start calendar with */
-	hdate_gdate (&h, 1, month, year);
+	hdate_set_gdate (&h, 1, month, year);
 	
 	/* return print head to sunday */
 	jd = h.hd_jd - h.hd_dw + 1;
@@ -83,7 +83,7 @@ print_calendar(int month, int year)
 			for (j=0; j<7; j++)
 				{
 					/* Get this day hebrew date */
-					hdate_jd (&h, jd);
+					hdate_set_jd (&h, jd);
 					
 					/* Get this day holyday type ba harez (diaspora flag = 0) */
 					holyday_type = hdate_get_holyday_type (hdate_get_holyday (&h, 0));
@@ -147,7 +147,7 @@ main (int argc, char* argv[])
 	
 	/* Set the locale, for libhdate to print locale messages */ 
 	setlocale (LC_ALL,"");
-	hdate_gdate (&h, 1, month, year);
+	hdate_set_gdate (&h, 1, month, year);
 	
 	/* Print calendar header */
 	print_header (h.gd_mon, h.gd_year);
