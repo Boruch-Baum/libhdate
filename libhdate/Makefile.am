@@ -3,7 +3,7 @@
 ## If you don't want it to overwrite it,
 ## 	Please disable it in the Anjuta project configuration
 
-SUBDIRS = intl po src examples bindings
+SUBDIRS = intl po src examples bindings debian
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libhdate.pc
