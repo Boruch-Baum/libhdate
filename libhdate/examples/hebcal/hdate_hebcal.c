@@ -141,7 +141,7 @@ main (int argc, char* argv[])
 	/* start the loop */
 	jd = h.hd_jd;
 	
-	/* Print start of html format */
+	/* Print the hebcal output */
 	while (h.gd_year == year)
 		{
 			/* get todays events */
@@ -168,23 +168,23 @@ main (int argc, char* argv[])
 				{
 					case  1:
 						number_suffix[0] = 's';
-						number_suffix[0] = 't';
-						number_suffix[0] = 0;
+						number_suffix[1] = 't';
+						number_suffix[2] = 0;
 						break;
 					case  2:
 						number_suffix[0] = 'n';
-						number_suffix[0] = 'd';
-						number_suffix[0] = 0;
+						number_suffix[1] = 'd';
+						number_suffix[2] = 0;
 						break;
 					case  3:
 						number_suffix[0] = 'r';
-						number_suffix[0] = 'd';
-						number_suffix[0] = 0;
+						number_suffix[1] = 'd';
+						number_suffix[2] = 0;
 						break;
 					default:
 						number_suffix[0] = 't';
-						number_suffix[0] = 'h';
-						number_suffix[0] = 0;
+						number_suffix[1] = 'h';
+						number_suffix[2] = 0;
 						break;
 				}
 				
