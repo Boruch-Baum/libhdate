@@ -1,17 +1,3 @@
-This library of functions are using the sorce code from
-Amos Shapir's "hdate" package fixed and patched by Nadav Har'El.
-Below is the original package's README
-
-LibHdate is a small C,C++ library for Hebrew dates,
-holidays, and reading sequence (parasha). It is using 
-the sorce code from Amos Shapir's "hdate" package fixed and 
-patched by Nadav Har'El. The Torah reading sequence
-is from tables by Zvi Har'El.
-
-15 Adar II 5763 Shusan Purim
-kobi zamir <kzamir@walla.co.il>
--------------------------------------
-
 
 This is Amos Shapir's "hdate" package fixed and patched by Nadav Har'El.
 Below is the original package's README - see NEWS for what changed.
