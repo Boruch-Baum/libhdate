@@ -1,5 +1,11 @@
 libhdate (0.22.0)
 
+  * Michael Kaminsky's patch to Shavot II on diaspora reading.
+
+   -- Yaacov Zamir <kzamir@wall.co.il>  Mon, 28 Feb 2005 08:12:31
+
+libhdate (0.22.0)
+
   * New hebcal examples
 
    -- Yaacov Zamir <kzamir@wall.co.il>  Fri, 25 Feb 2005 11:15:18
