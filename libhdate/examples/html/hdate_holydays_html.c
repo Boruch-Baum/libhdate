@@ -70,9 +70,6 @@ main (int argc, char* argv[])
 	
 	while (h.hd_year == year)
 		{
-			/* get today hdate */
-			hdate_set_jd (&h, jd);
-			
 			/* if start of month print header with long month name*/
 			if (h.hd_day == 1)
 				printf ("<h2>%s</h2>\n", hdate_get_hebrew_month_string (h.hd_mon, 0));
@@ -85,7 +82,9 @@ main (int argc, char* argv[])
 					printf ("%d,%d,%d %s</br>\n", h.gd_day, h.gd_mon, h.gd_year, hdate_get_format_date (&h, 0, 0));
 				}
 			
+			/* get today hdate */
 			jd++;
+			hdate_set_jd (&h, jd);
 		}
 	
 	/* Print end of html format */

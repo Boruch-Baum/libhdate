@@ -68,10 +68,7 @@ main (int argc, char* argv[])
 	printf ("<h3>אורכה %d ימים, ראש השנה ביום %s</h3>\n", h.hd_size_of_year, hdate_get_day_string (h.hd_new_year_dw, 0));
 	
 	while (h.hd_year == year)
-		{
-			/* get today hdate */
-			hdate_set_jd (&h, jd);
-			
+		{	
 			/* if start of month print header with long month name*/
 			if (h.hd_day == 1)
 				printf ("<h2>%s</h2>\n", hdate_get_hebrew_month_string (h.hd_mon, 0));
@@ -86,7 +83,9 @@ main (int argc, char* argv[])
 						hdate_get_parasha_string (reading, 0));
 				}
 			
+			/* get today hdate */
 			jd++;
+			hdate_set_jd (&h, jd);
 		}
 	
 	/* Print end of html format */
