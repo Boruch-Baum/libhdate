@@ -43,9 +43,9 @@ rm -rf $RPM_BUILD_ROOT/usr/man
 %files
 %defattr(-,root,root)
 %{_libdir}/libhdate.so*
-%{_prefix}/share/locale/he/LC_MESSAGES/libhdate.mo
+%{_prefix}/share/locale/*
 %{_bindir}/*
-%{_prefix}/share/man/man1/hdate.1.gz
+%{_prefix}/share/man/man1/*
 
 %doc hdate_README README AUTHORS NEWS USE ABOUT-NLS COPYING ChangeLog INSTALL TODO USE
 
