@@ -91,6 +91,17 @@ This package contains %{name} binding to perl
 %{_libdir}/perl5/site_perl/hdate.pm
 %{_libdir}/perl5/site_perl/auto/hdate/hdate.so
 
+%package pascal
+Summary:	free pascal binding for %{name}
+Group:		Development/Libraries
+Requires:	%{name} = %{version}
+
+%description pascal
+This package contains %{name} binding to free pascal
+
+%files pascal
+%{_libdir}/fpc/1.9.4/units/linux/hdate/*
+
 %post
 /sbin/ldconfig
 
