@@ -10,6 +10,7 @@ libhdate_la_SOURCES = \
 	hdate_julian.c\
 	hdate_holyday.c\
 	hdate_parasha.c\
+	hdate_sun_time.c\
 	hdate.h\
 	support.h
 
