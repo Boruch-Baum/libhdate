@@ -1,3 +1,16 @@
+libhdate (1.0.0)
+
+  * first major reales number.
+  * start to number the shared library.
+  * stable api.
+  * updated utility programs hdate/hcal.
+  * added man files for library and utility programs.
+  * python and perl bindings.
+  * ru, fr, he, es translations, thanks to Peled Esti and Boris Peterberg.
+  * added debian dir and RH spec file for easy packing, thanks to Oron Peled.
+
+    -- Yaacov Zamir <kzamir@wall.co.il>  Tue, 08 March 2005 18:13
+    
 libhdate (0.30.0)
 
   * add es_MX translation by Peled Esti <esti@actcom.co.il>  
