@@ -171,7 +171,24 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 		{
 			reading--;
 		}
+		/* on diaspora, shavot may fall on shabat if next new year is on shabat */
+		if (diaspora && 
+			(h->hd_mon < 13) && 
+			((h->hd_mon > 7) || (h->hd_mon == 7 && h->hd_day >= 18)) && 
+			((h->hd_new_year_dw + h->hd_size_of_year) % 7) == 0)
+		{
+			if (h->hd_mon == 7 && h->hd_day == 18)
+			{
+				reading = 0;
+				return reading;
+			}
+			else
+			{
+				reading++;
+			}
+		}
 		
+		/* rest of joining */
 		if (join_flags[diaspora][h->hd_year_type - 1][1] && (reading >= 27))
 		{
 			if (reading == 27)
@@ -201,21 +218,6 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 			if (reading == 32)
 			{
 				reading = 58;
-				return reading;
-			}
-			else
-			{
-				reading++;
-			}
-		}
-		
-		/* on diaspora, shavot may fall on shabat if next new year is on shabat */
-		/* FIXME: ?! naso 36 !? need to calculate parash that falls on shavot this year */
-		if (diaspora && (reading >= 36) && ((h->hd_new_year_dw + h->hd_size_of_year) % 7) == 0)
-		{
-			if (reading == 36)
-			{
-				reading = 0;
 				return reading;
 			}
 			else
