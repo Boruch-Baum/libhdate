@@ -231,7 +231,7 @@ hdate_get_holyday_string (int holyday, int s)
 	bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
 	bind_textdomain_codeset (PACKAGE, "UTF-8");
 #endif
-	static char *holydays[2][25] = {
+	static char *holydays[2][23] = {
 		{
 		 N_("New year I"),
 		 N_("New year II"),
@@ -285,7 +285,7 @@ hdate_get_holyday_string (int holyday, int s)
 	/* make sure s is 0 or 1 */
 	s = s ? 0 : 1;
 
-	if (holyday >= 1 && holyday <= 25)
+	if (holyday >= 1 && holyday <= 23)
 	{
 		return _(holydays[s][holyday - 1]);
 	}
