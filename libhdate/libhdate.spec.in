@@ -1,21 +1,21 @@
-Summary: A library that help use hebrew dates.
-Name: libhdate
-Version: @VERSION@
-Release: 1
-Copyright: GPL
-Group: System Environment/Libraries
-Source: libhdate-%{version}.tar.gz
+Summary:	A library that help use hebrew dates.
+Name:		libhdate
+Version:	@VERSION@
+Release:	1
+License:	GPL
+Group:		System Environment/Libraries
+Source:		libhdate-%{version}.tar.gz
 
 BuildRoot: /var/tmp/%{name}-buildroot
 
 %description
 LibHdate is a small C,C++ library for Hebrew dates,
 holidays, and reading sequence (parasha). It is using 
-the sorce code from Amos Shapir's "hdate" package fixed and 
+the source code from Amos Shapir's "hdate" package fixed and 
 patched by Nadav Har'El. The Torah reading sequence
 is from tables by Zvi Har'El.
 
-Install libhdaye to use Hebrew dates, 
+Install libhdate to use Hebrew dates, 
 or build applications that use them.
 
    Yaacov Zamir <kzamir@walla.co.il>
@@ -25,30 +25,56 @@ or build applications that use them.
 %setup
 
 %build
-CFLAGS="$RPM_OPT_FLAGS $CFLAGS" 
-./configure --prefix=%{_prefix}
+%configure
 
-%__make
+%{__make} %{?_smp_mflags}
 
 %install
 %__make DESTDIR=$RPM_BUILD_ROOT install
+
+# Remove duplicate docs (oron)
+rm -rf $RPM_BUILD_ROOT/usr/doc
 
 %clean
 %__rm -r $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-%{_includedir}/hdate.h
-%{_libdir}/libhdate.*
-%{_libdir}/pkgconfig/*
+%{_libdir}/libhdate.so*
 %{_prefix}/share/locale/he/LC_MESSAGES/libhdate.mo
-%{_prefix}/doc/hdate/*
 %{_bindir}/*
 
 %doc hdate_README README AUTHORS NEWS USE ABOUT-NLS COPYING ChangeLog INSTALL TODO USE
 
+%package devel
+Summary:	Development files for %{name}
+Group:		Development/Libraries
+Requires:	%{name} = %{version}
+
+%description devel
+This package contains headers and support files required
+to build new applications with %{name}
+
+%files devel
+%{_libdir}/libhdate.a
+%{_libdir}/libhdate.la
+%{_includedir}/hdate.h
+%{_libdir}/pkgconfig/*
+
 %post
+/sbin/ldconfig
 
 %postun
+/sbin/ldconfig
 
 %changelog
+* Thu Feb 24 2005 Oron Peled <oron@actcom.co.il>
+  - Split to normal runtime and -devel packages (like most
+    libraries do)
+  - Run ldconfig in post install/uninstall
+  - Remove duplicate documentation in /usr/doc (bad location
+    anyway)
+  - Run configure macro, so all dirs get their default values
+  - Use smp_mflags macro for build
+  - Change tagname from Copyright (deprecated) to License
+  - Format header tags and spell correction in description
