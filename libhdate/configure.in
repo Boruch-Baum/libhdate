@@ -34,7 +34,7 @@ dnl ============================================================================
 
 build_python=no
 
-AC_ARG_ENABLE(python, [  --disable-python     build python binding [default=no]], build_python="$enableval", build_python=no)
+AC_ARG_ENABLE(python, [  --enable-python	build python binding [default=no]], build_python="$enableval", build_python=no)
 
 AC_CHECK_PROG(have_python, "python", yes, no)
 
@@ -78,13 +78,13 @@ dnl ============================================================================
 
 build_examples=no
 
-AC_ARG_ENABLE(examples, [  --disable-examples     build examples [default=no]], build_examples="$enableval", build_examples=no)
+AC_ARG_ENABLE(examples, [  --enable-examples	build examples [default=no]], build_examples="$enableval", build_examples=no)
 
 AM_CONDITIONAL(WITH_EXAMPLES, test "x$build_examples" = "xyes")
 
 build_hcal=yes
 
-AC_ARG_ENABLE(hcal, [  --disable-hcal     build hcal/hdate [default=yes]], build_hcal="$enableval", build_hcal=yes)
+AC_ARG_ENABLE(hcal, [  --disable-hcal	build hcal/hdate [default=yes]], build_hcal="$enableval", build_hcal=yes)
 
 AM_CONDITIONAL(WITH_HCAL, test "x$build_hcal" = "xyes")
 

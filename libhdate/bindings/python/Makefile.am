@@ -1,6 +1,7 @@
-if WITH_PYTHON
 
 EXTRA_DIST = foo.i
+
+if WITH_PYTHON
 
 DEPS= $(top_builddir)/src/libhdate.la
 
@@ -9,11 +10,11 @@ CLEANFILES = *.o *.c *.so *wrap* *.py
 all-am: _hdate.so
 	
 
-_hdate.so: hdate_wrap.c
-	g++ -fpic -c hdate_wrap.c $(PY_CFLAGS)
+_hdate.so: hdate_wrap.cxx
+	g++ -fpic -c hdate_wrap.cxx $(PY_CFLAGS)
 	g++ -shared ../../src/*.o hdate_wrap.o -o _hdate.so
 
-hdate_wrap.c: hdate.i
+hdate_wrap.cxx: hdate.i
 	swig -python -c++ hdate.i
 
 install-data-local: _hdate.so
