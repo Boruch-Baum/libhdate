@@ -23,6 +23,7 @@
 
 #include <time.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "hdate.h"
 #include "support.h"
@@ -623,5 +624,11 @@ delete_hdate (hdate_struct *h)
 {
 	/* if h exist delete it */
 	if (h)
+	{
 		free (h);
+		h = NULL;
+	}
+
+	return h;
 }
+
