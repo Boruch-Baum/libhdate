@@ -22,7 +22,6 @@
  * 02111-1307, USA.
  */
 
-
 #include <stdio.h>  /* For printf */
 #include <hdate.h>  /* For hebrew date */
 #include <stdlib.h> /* For atoi */
@@ -34,6 +33,7 @@
  * Jerusalem 31, -35, 2
  * Tel Aviv 32, -34, 2
  */
+
 /* define Tel Aviv time zone */
 #define tz 2
 #define lat 32.0
@@ -51,15 +51,16 @@ main (int argc, char* argv[])
 	
 	/* Get calendar hebrew year */
 	if (argc == 2) 
-		{                
+		{
 			year = atoi (argv[1]);
-						
 			hdate_set_hdate (&h, 1, 1, year);
+			
 			/* get the julian of first shabat in year */
 			jd = h.hd_jd + (7 - h.hd_dw);
-		} 
+			hdate_set_jd (&h, jd);
+		}
 	else 
-		{	
+		{
 			/* Print help for user and exit */
 			printf ("USAGE: %s year\n", argv[0]);
 			exit (0);
@@ -75,14 +76,14 @@ main (int argc, char* argv[])
 	printf ("<title>לוח שנה</title>\n");
 	printf ("</head>\n");
 	printf ("<body dir=\"rtl\">\n");
-		
+	
 	/* Print the html calendar */
 	printf ("<h1>לוח שנה, קריאות בתורה לשנת %s</h1>\n", hdate_get_int_string (h.hd_year));
 	printf ("<h3>אורכה %d ימים, ראש השנה ביום %s</h3>\n", h.hd_size_of_year, hdate_get_day_string (h.hd_new_year_dw, 0));
 	printf ("<h4>זמני הזריחות והשקיעות לפי שעון חורף, אזור המרכז</h4>\n");
 	
 	while (h.hd_year == year)
-		{	
+		{
 			reading = hdate_get_parasha (&h, 0);
 			
 			if (reading != 0)
@@ -105,8 +106,8 @@ main (int argc, char* argv[])
 			
 			printf ("יום שישי</br>\n");
 			printf ("זריחה %d:%d, שקיעה %d:%d</br>\n", sunrise / 60, sunrise % 60, sunset / 60, sunset % 60);
+			
 			hdate_set_jd (&h, jd);
-				
 			hdate_get_utc_sun_time (h.gd_day, h.gd_mon, h.gd_year, lat, lon, &sunrise, &sunset);
 			sunrise = sunrise + tz * 60;
 			sunset = sunset + tz * 60;
@@ -116,7 +117,7 @@ main (int argc, char* argv[])
 			
 			/* print a seperator */
 			printf ("------</br>\n");
-			 
+			
 			/* get next week shabats hdate */
 			hdate_set_jd (&h, jd);
 			jd = jd + 7;
