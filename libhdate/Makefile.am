@@ -21,4 +21,4 @@ libhdatedoc_DATA = \
 	USE\
 	ABOUT-NLS
 
-EXTRA_DIST = autogen.sh $(libhdatedoc_DATA) libhdate.pc.in libhdate.spec libhdate.spec.in
+EXTRA_DIST = $(libhdatedoc_DATA) libhdate.pc.in libhdate.spec libhdate.spec.in

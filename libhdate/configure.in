@@ -1,20 +1,33 @@
-dnl Process this file with autoconf to produce a configure script.
+AC_INIT(src/hdate.h)
 
-AC_INIT(configure.in)
-AM_INIT_AUTOMAKE(libhdate, 0.14.1)
-AM_CONFIG_HEADER(config.h)
+dnl Set release number
+PACKAGE=libhdate
+VERSION=0.14
 
+AM_INIT_AUTOMAKE($PACKAGE, $VERSION)
+AM_MAINTAINER_MODE
+
+dnl Checks for programs.
 AC_ISC_POSIX
-AC_SUBST(CFLAGS,$CFLAGS)
 AC_PROG_CC
-AM_PROG_CC_STDC
-AC_HEADER_STDC
+AC_PROG_INSTALL
+AC_PROG_LN_S
+AC_PROG_MAKE_SET
+AC_STDC_HEADERS
 AM_PROG_LIBTOOL
 
+AM_MAINTAINER_MODE
+
+AC_C_CONST
+
+AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
+
+CFLAGS =
+LIBS = -lm
+
+dnl =======================================================================================
+
 dnl gettext
-GETTEXT_PACKAGE=libhdate
-AC_SUBST(GETTEXT_PACKAGE)
-AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$GETTEXT_PACKAGE", [libhdate])
 
 dnl Languages which your application supports
 ALL_LINGUAS="he"
@@ -28,16 +41,20 @@ else
   AC_DEFINE_UNQUOTED(PACKAGE_LOCALE_DIR, "${prefix}/${DATADIRNAME}/locale")
 fi
 
+dnl =======================================================================================
 
-dnl Set PACKAGE SOURCE DIR in config.h.
-packagesrcdir=`cd $srcdir && pwd`
+build_examples=yes
 
-dnl Set PACKAGE PREFIX
-if test "x${prefix}" = "xNONE"; then
-  packageprefix=${ac_default_prefix}
-else
-  packageprefix=${prefix}
-fi
+AC_ARG_ENABLE(examples, [  --disable-examples     build examples [default=yes]], build_examples="$enableval", build_examples=yes)
+
+AM_CONDITIONAL(WITH_EXAMPLES, test "x$build_examples" = "xyes")
+
+dnl =======================================================================================
+
+AC_SUBST(CFLAGS)
+AC_SUBST(LIBS)
+
+dnl =======================================================================================
 
 AC_OUTPUT([
 Makefile
@@ -50,3 +67,13 @@ examples/Makefile
 examples/hcal/Makefile
 examples/ical/Makefile
 ])
+
+dnl ===========================================================================================
+echo "
+$PACKAGE-$VERSION
+
+	prefix:                         ${prefix}
+	compiler:                       ${CC}
+	
+	build examples			${build_examples}
+"

@@ -20,10 +20,6 @@
  * macros.
  */
 
-#ifdef HAVE_CONFIG_H
-#  include <config.h>
-#endif
-
 /*
  * define TRUE/FLASE if not defined
  */
@@ -35,7 +31,6 @@
 #define TRUE -1
 #endif
 
- 
 /*
  * Standard gettext macros.
  */
