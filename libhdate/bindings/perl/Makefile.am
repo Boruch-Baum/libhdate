@@ -15,7 +15,7 @@ hdate.so: hdate_wrap.cxx
 	g++ -shared ../../src/*.o hdate_wrap.o -o hdate.so
 
 hdate_wrap.cxx: hdate.i
-	swig -perl5 -c++ hdate.i
+	swig -perl -c++ hdate.i
 
 install-data-local: hdate.so
 	$(mkinstalldirs) $(DESTDIR)$(PE_MODULES_PATH)

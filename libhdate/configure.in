@@ -65,14 +65,15 @@ build_perl=no
 
 AC_ARG_ENABLE(perl, [  --enable-perl	build perl binding [default=no]], build_perl="$enableval", build_perl=no)
 
-AC_CHECK_PROG(have_perl, "python", yes, no)
+AC_CHECK_PROG(have_perl, "perl", yes, no)
 
 if test "x$have_perl" = "xyes"; then
 	  PE_PREFIX=`(perl -e 'use Config; print $Config{archlib};')`
 	  AC_MSG_CHECKING(for $PE_PREFIX/CORE/perl.h)
 	  if test -f $PE_PREFIX/CORE/perl.h; then
 		  AC_MSG_RESULT(yes)
-		  PE_CFLAGS="-I$PE_PREFIX/CORE"
+		  PE_CFLAGS="-I$PE_PREFIX/CORE "
+		  PE_CFLAGS=$PE_CFLAGS`(perl -e 'use Config; print $Config{ccflags};')`
 		  PE_MODULES_PATH="$PE_PREFIX"
 		  AC_SUBST([PE_CFLAGS])
 		  AC_SUBST([PE_MODULES_PATH])
