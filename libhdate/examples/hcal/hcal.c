@@ -53,7 +53,7 @@ print_header(int month, int year)
 	for (j=1; j<8; j++)
 		{
 			printf ("%3s", hdate_get_day_string (j, TRUE));
-						
+			
 			if (j != 7)
 				printf ("\t");
 		}
@@ -69,6 +69,7 @@ print_calendar(int month, int year)
 	hdate_struct h;
 	int jd;
 	int i,j;
+	char type_char[] = {'/', '-', '+', '*'};
 	int holyday_type;
 	
 	/* Find day to start calendar with */
@@ -91,22 +92,7 @@ print_calendar(int month, int year)
 					if (h.gd_mon == month)
 					{
 						/* Print a day */
-						if (holyday_type == 0)
-							{
-								printf ("%2d/%3s", h.gd_day, hdate_get_int_string(h.hd_day));
-							}
-						else if (holyday_type == 1)
-							{
-								printf ("%2d-%3s", h.gd_day, hdate_get_int_string(h.hd_day));
-							} 
-						else if (holyday_type == 2)
-							{
-								printf ("%2d+%3s", h.gd_day, hdate_get_int_string(h.hd_day));
-							}
-						else if (holyday_type == 3)
-							{
-								printf ("%2d*%3s", h.gd_day, hdate_get_int_string(h.hd_day));
-							}
+						printf ("%2d%c%3s", h.gd_day, type_char[holyday_type], hdate_get_int_string(h.hd_day));
 					}
 					if (j != 6)
 						printf ("\t");
@@ -132,14 +118,14 @@ main (int argc, char* argv[])
 		{
 			month = atoi (argv[1]);
 			year = atoi (argv[2]);
-		} 
+		}
 	else if (argc == 1)
 		{
 			month = 0;
 			year = 0;
 		}
 	else
-		{	
+		{
 			/* Print help for user and exit */
 			printf ("USAGE: %s [month year]\n", argv[0]);
 			exit (0);
