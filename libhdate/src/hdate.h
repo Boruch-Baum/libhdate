@@ -443,6 +443,25 @@ hdate_get_days (hdate_struct *h);
 int
 hdate_get_weeks (hdate_struct *h);
 
+/*************************************************************/
+/*************************************************************/
+
+/**
+ @brief creat a new hdate struct object, must be deleted using delete_hdate.
+
+ @return a new hdate object
+ */
+hdate_struct *
+new_hdate ();
+
+/**
+ @brief delete an hdate struct object.
+
+ @param h pointer this hdate struct.
+ */
+hdate_struct *
+delete_hdate (hdate_struct *h);
+
 #ifdef __cplusplus
 }
 #endif

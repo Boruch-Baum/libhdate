@@ -592,3 +592,36 @@ hdate_get_weeks (hdate_struct *h)
 {
 	return h->hd_weeks;
 }
+
+/********************************************************************************/
+/********************************************************************************/
+
+/**
+ @brief creat a new hdate struct object, must be deleted using delete_hdate.
+
+ @return a new hdate object
+ */
+hdate_struct *
+new_hdate ()
+{
+	/* allocate memory for a new hdate object */
+	hdate_struct *h = (hdate_struct *) malloc (sizeof (hdate_struct));
+	
+	/* get todays date */
+	hdate_set_gdate (h, 0, 0, 0);
+	
+	return h;
+}
+
+/**
+ @brief delete an hdate struct object.
+
+ @param h pointer this hdate struct.
+ */
+hdate_struct *
+delete_hdate (hdate_struct *h)
+{
+	/* if h exist delete it */
+	if (h)
+		free (h);
+}
