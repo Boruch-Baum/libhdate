@@ -309,7 +309,7 @@ hdate_struct *
 hdate_hdate (int d, int m, int y)
 {
 	static hdate_struct h;
-	int jd;
+	int jd, jd_tishrey1;
 	
 	/* check for null dates (kobi) */
 	if ((d == 0) || (m == 0))

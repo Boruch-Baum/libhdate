@@ -65,8 +65,7 @@ hdate_get_parasha (hdate_struct * h)
 	int join_flag_42;
 	int join_flag_51;
 	
-	int reading;
-	int weeks;
+	int reading = 0;
 
 	join_flag_22 = join_flags[h->hd_year_type - 1][0];
 	join_flag_27 = join_flags[h->hd_year_type - 1][1];
@@ -75,11 +74,10 @@ hdate_get_parasha (hdate_struct * h)
 	join_flag_39 = join_flags[h->hd_year_type - 1][4];
 	join_flag_42 = join_flags[h->hd_year_type - 1][5];
 	join_flag_51 = join_flags[h->hd_year_type - 1][6];
-
-	weeks = h->hd_weeks - 1;
 	
-	if (weeks == 0)
+	switch (h->hd_weeks)
 	{
+	case  1:
 		if (h->hd_new_year_dw == 7)
 		{
 			reading = 0;
@@ -90,14 +88,13 @@ hdate_get_parasha (hdate_struct * h)
 			reading = 52;
 			return reading;
 		}
-		else if (h->hd_new_year_dw == 5)
+		else /* if (h->hd_new_year_dw == 5) */
 		{
 			reading = 53;
 			return reading;
 		}
-	}
-	if (weeks == 1)
-	{
+		break;
+	case  2:
 		if (h->hd_new_year_dw == 5)
 		{
 			reading = 0;
@@ -108,14 +105,12 @@ hdate_get_parasha (hdate_struct * h)
 			reading = 53;
 			return reading;
 		}
-	}
-	if (weeks == 2)
-	{
+		break;
+	case  3:
 		reading = 0;
 		return reading;
-	}
-	if (weeks == 3)
-	{
+		break;
+	case  4:
 		if (h->hd_new_year_dw == 7)
 		{
 			reading = 54;
@@ -126,20 +121,19 @@ hdate_get_parasha (hdate_struct * h)
 			reading = 1;
 			return reading;
 		}
-	}
-	if (weeks > 3)
-	{
-		reading = weeks - 1;
+		break;
+	defaults:
+		reading = h->hd_weeks - 3;
+		
 		if (h->hd_new_year_dw == 7)
-			reading = reading - 2;
-		if (h->hd_new_year_dw == 5)
 			reading = reading - 1;
-		if ((h->hd_new_year_dw == 2) || (h->hd_new_year_dw == 3))
-			reading = reading - 1;
+		
+		/* no joining */
 		if (reading < 22)
 		{
 			return reading;
 		}
+		
 		/* joining */
 		if (join_flag_22 && (reading >= 22))
 		{
@@ -155,16 +149,16 @@ hdate_get_parasha (hdate_struct * h)
 		}
 
 		/* pesach */
-		if ((h->hd_mon == 6) && (h->hd_day > 13) && (h->hd_day < 21))
+		if ((h->hd_mon == 7) && (h->hd_day > 14) && (h->hd_day < 22))
 		{
 			reading = 0;
 			return reading;
 		}
-		if ((h->hd_mon == 6) && (h->hd_day > 20))
+		if ((h->hd_mon == 7) && (h->hd_day > 21))
 		{
 			reading--;
 		}
-		if (h->hd_mon > 6)
+		if (h->hd_mon > 7)
 		{
 			reading--;
 		}
@@ -241,6 +235,7 @@ hdate_get_parasha (hdate_struct * h)
 				reading++;
 			}
 		}
+		break;
 	}
 
 	return reading;
