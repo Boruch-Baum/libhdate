@@ -91,46 +91,38 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 	case  1:
 		if (h->hd_new_year_dw == 7)
 		{
-			reading = 0;
-			return reading;
+			return 0;
 		}
 		else if ((h->hd_new_year_dw == 2) || (h->hd_new_year_dw == 3))
 		{
-			reading = 52;
-			return reading;
+			return 52;
 		}
 		else /* if (h->hd_new_year_dw == 5) */
 		{
-			reading = 53;
-			return reading;
+			return 53;
 		}
 		break;
 	case  2:
 		if (h->hd_new_year_dw == 5)
 		{
-			reading = 0;
-			return reading;
+			return 0;
 		}
 		else
 		{
-			reading = 53;
-			return reading;
+			return 53;
 		}
 		break;
 	case  3:
-		reading = 0;
-		return reading;
+		return 0;
 		break;
 	case  4:
 		if (h->hd_new_year_dw == 7)
 		{
-			reading = 54;
-			return reading;
+			return 54;
 		}
 		else
 		{
-			reading = 1;
-			return reading;
+			return 1;
 		}
 		break;
 	default:
@@ -150,8 +142,7 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 		/* pesach */
 		if ((h->hd_mon == 7) && (h->hd_day > 14) && (h->hd_day < 22))
 		{
-			reading = 0;
-			return reading;
+			return 0;
 		}
 		if (((h->hd_mon == 7) && (h->hd_day > 21)) || (h->hd_mon > 7 && h->hd_mon < 13))
 		{
@@ -160,17 +151,16 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 		/* on diaspora, shavot may fall on shabat if next new year is on shabat */
 		if (diaspora && 
 			(h->hd_mon < 13) && 
-			((h->hd_mon > 8) || (h->hd_mon == 8 && h->hd_day >= 6)) && 
+			((h->hd_mon > 9) || (h->hd_mon == 9 && h->hd_day >= 7)) && 
 			((h->hd_new_year_dw + h->hd_size_of_year) % 7) == 0)
 		{
-			if (h->hd_mon == 8 && h->hd_day == 6)
+			if (h->hd_mon == 9 && h->hd_day == 7)
 			{
-				reading = 0;
-				return reading;
+				return 0;
 			}
 			else
 			{
-				reading++;
+				reading--;
 			}
 		}
 		
@@ -179,8 +169,7 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 		{
 			if (reading == 22)
 			{
-				reading = 55;
-				return reading;
+				return 55;
 			}
 			else
 			{
@@ -191,8 +180,7 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 		{
 			if (reading == 27)
 			{
-				reading = 56;
-				return reading;
+				return 56;
 			}
 			else
 			{
@@ -203,8 +191,7 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 		{
 			if (reading == 29)
 			{
-				reading = 57;
-				return reading;
+				return 57;
 			}
 			else
 			{
@@ -215,8 +202,7 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 		{
 			if (reading == 32)
 			{
-				reading = 58;
-				return reading;
+				return 58;
 			}
 			else
 			{
@@ -228,8 +214,7 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 		{
 			if (reading == 39)
 			{
-				reading = 59;
-				return reading;
+				return 59;
 			}
 			else
 			{
@@ -240,8 +225,7 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 		{
 			if (reading == 42)
 			{
-				reading = 60;
-				return reading;
+				return 60;
 			}
 			else
 			{
@@ -252,8 +236,7 @@ hdate_get_parasha (hdate_struct * h, int diaspora)
 		{
 			if (reading == 51)
 			{
-				reading = 61;
-				return reading;
+				return 61;
 			}
 			else
 			{

@@ -234,7 +234,7 @@ hdate_get_holyday_string (int holyday, int s)
 	/* holyday strings */
 	static char *holydays[2][26] = {
 		{
-		 N_("Rosh Hashana I"),
+		 N_("Rosh Hashana I"), /* 1 */
 		 N_("Rosh Hashana II"),
 		 N_("Tzom Gedaliah"),
 		 N_("Yom Kippur"),
@@ -243,7 +243,7 @@ hdate_get_holyday_string (int holyday, int s)
 		 N_("Hoshana raba"),
 		 N_("Simchat Torah"),
 		 N_("Chanukah"),
-		 N_("Asara B'Tevet"),
+		 N_("Asara B'Tevet"), /* 10 */
 		 N_("Tu B'Shvat"),
 		 N_("Ta'anit Esther"),
 		 N_("Purim"),
@@ -253,13 +253,13 @@ hdate_get_holyday_string (int holyday, int s)
 		 N_("Yom HaAtzma'ut"),
 		 N_("Lag B'Omer"),
 		 N_("Erev Shavuot"),
-		 N_("Shavuot"),
+		 N_("Shavuot"), /* 20 */
 		 N_("Tzom Tammuz"),
 		 N_("Tish'a B'Av"),
 		 N_("Tu B'Av"),
 		 N_("Yom HaShoah"),
-		 N_("Yom HaZikaron"),
-		 N_("Yom Yerushalayim")},
+		 N_("Yom HaZikaron"), /* 25 */
+		 N_("Yom Yerushalayim")}, 
 		{
 		 N_("Rosh Hashana I"),
 		 N_("Rosh Hashana II"),

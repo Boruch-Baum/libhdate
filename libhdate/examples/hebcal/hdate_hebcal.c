@@ -39,11 +39,12 @@
 int
 print_help (char *program)
 {
-	printf ("hebcal style program for testing of libhdate library.\n");
+	printf ("hebcal clone program for testing of libhdate library.\n\n");
 	printf ("USAGE: %s [-cdDehirsx]\n", program);
 	printf ("   [-L longitude -l latitude]\n");
-        printf ("   [-z timezone]\n");
-        printf ("   [ year ]\n");
+	printf ("   [-m havdalah_minutes_past_sundown ]\n");
+	printf ("   [-z timezone]\n");
+	printf ("   [ year ]\n");
 	printf ("OPTIONS:\n");
 	printf ("   -c : Print candlelighting times.\n");
 	printf ("   -d : print the hebrew date for the entire date range.\n");
@@ -56,6 +57,7 @@ print_help (char *program)
 	printf ("   -L xx : Set the longitude for solar calculations to\n");
 	printf ("              xx degrees.  *Negative values are EAST*.\n");
 	printf ("        The -l and -L switches must both be used, or not at all.\n");
+	printf ("   -m mins : Set havdalah to occur this many minutes after sundown\n");
 	printf ("   -r : Tab delineated format.\n");
 	printf ("   -s : Add weekly sedrot on saturday.\n");
 	printf ("   -x : Suppress Rosh Chodesh.\n");
@@ -145,10 +147,11 @@ main (int argc, char* argv[])
 	int opt_x=0; /* -x option do not show new month day */
 	double lat = 32.0; /* -l option default to Tel aviv latitude */
 	double lon = -34.0; /* -L option default to Tel aviv longitude */
+	int havdala_minutes = 72; /* -m option havdalah_minutes_past_sundown */
 	int tz = 2; /* -z option default to Tel aviv time zone */
 	
 	/* command line parsing */
-	while((c=getopt(argc, argv, "cdDehirsxl:L:z:"))!=EOF){
+	while((c=getopt(argc, argv, "cdDehirsxl:L:m:z:"))!=EOF){
 		switch(c){
 		case 'c':
 			opt_c=1;
@@ -185,6 +188,10 @@ main (int argc, char* argv[])
 			if (optarg)
 				lon = (double) atof (optarg);
 			break;
+		case 'm':
+			if (optarg)
+				havdala_minutes = atoi (optarg);
+			break;
 		case 'z':
 			if (optarg)
 				tz = atoi (optarg);
@@ -196,7 +203,7 @@ main (int argc, char* argv[])
 		}
 	}
 	
-	/* Get calendar hebrew year */
+	/* Get calendar gregorian year */
 	if (argc == optind) 
 		{
 			/* set initial date */
@@ -275,7 +282,7 @@ main (int argc, char* argv[])
 				printf ("%s\n", hdate_get_holyday_string (holyday, 0));
 			}
 			
-			/* print times */
+			/* print candle lighting times */
 			if (candle_lighting)
 			{
 				/* print the gregorian date */
@@ -296,10 +303,12 @@ main (int argc, char* argv[])
 				
 				/* get times */
 				hdate_get_utc_sun_time (h.gd_day, h.gd_mon, h.gd_year, lat, lon, &sunrise, &sunset);
-				sunset = sunset + tz * 60 + 72; /* -72 for havdala */
+				/* havdala_minutes for havdala */
+				sunset = sunset + tz * 60 + havdala_minutes;
 				
 				/* print havdala time */
-				printf ("Havdalah (72 min): %d:%d\n", sunset / 60 - 12, sunset % 60);
+				printf ("Havdalah (%d min): %d:%d\n", havdala_minutes, 
+					sunset / 60 - 12, sunset % 60);
 			}
 			
 			/* move to next day */
