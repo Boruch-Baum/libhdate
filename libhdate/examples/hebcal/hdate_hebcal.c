@@ -35,6 +35,85 @@
  * Tel Aviv 32, -34, 2
  */
 
+/* print help */
+int
+print_help (char *program)
+{
+	printf ("hebcal style program for testing of libhdate library.\n");
+	printf ("USAGE: %s [-cdDehirsx]\n", program);
+	printf ("   [-L longitude -l latitude]\n");
+        printf ("   [-z timezone]\n");
+        printf ("   [ year ]\n");
+	printf ("OPTIONS:\n");
+	printf ("   -c : Print candlelighting times.\n");
+	printf ("   -d : print the hebrew date for the entire date range.\n");
+	printf ("   -D : print the hebrew date for dates with some event.\n");
+	printf ("   -e : Ouput \"european\" dates -- DD.MM.YYYY format.\n");
+	printf ("   -h : Suppress default holidays.\n");
+	printf ("   -i : Use Israeli sedra scheme.\n");
+	printf ("   -l xx : Set the latitude for solar calculations to\n");
+	printf ("              xx degrees.  Negative values are south.\n");
+	printf ("   -L xx : Set the longitude for solar calculations to\n");
+	printf ("              xx degrees.  *Negative values are EAST*.\n");
+	printf ("        The -l and -L switches must both be used, or not at all.\n");
+	printf ("   -r : Tab delineated format.\n");
+	printf ("   -s : Add weekly sedrot on saturday.\n");
+	printf ("   -x : Suppress Rosh Chodesh.\n");
+	printf ("   -z : Use specified timezone,\n");
+}
+
+/* hebcal style printing */
+
+/* gregorian date */
+int
+print_gregorian_date (hdate_struct *h, int opt_e, char separator)
+{
+	if (opt_e)
+		printf ("%d.%d.%d%c", 
+			h->gd_day, h->gd_mon, h->gd_year, separator); 
+	else
+		printf ("%d/%d/%d%c", 
+			h->gd_mon, h->gd_day, h->gd_year, separator); 
+}
+
+/* hebrew date */
+int
+print_hebrew_date (hdate_struct *h)
+{
+	char number_suffix[3];
+	
+	switch (h->hd_day % 10)
+		{
+			case  1:
+				number_suffix[0] = 's';
+				number_suffix[1] = 't';
+				number_suffix[2] = 0;
+				break;
+			case  2:
+				number_suffix[0] = 'n';
+				number_suffix[1] = 'd';
+				number_suffix[2] = 0;
+				break;
+			case  3:
+				number_suffix[0] = 'r';
+				number_suffix[1] = 'd';
+				number_suffix[2] = 0;
+				break;
+			default:
+				number_suffix[0] = 't';
+				number_suffix[1] = 'h';
+				number_suffix[2] = 0;
+				break;
+		}
+		
+		printf ("%d%s of %s, %d\n", 
+				h->hd_day,
+				number_suffix,
+				hdate_get_hebrew_month_string (h->hd_mon, 0),
+				h->hd_year); 
+}
+
+/* main program */
 int
 main (int argc, char* argv[])
 {
@@ -46,27 +125,26 @@ main (int argc, char* argv[])
 	int candle_lighting;
 	int havdala;
 	int event;
-	int year;
+	int year = 0;
 	int sunset, sunrise;
-	char number_suffix[3];
 	char c;
 	
-	/* command line options */
+	/* hebcal style command line options */
 	char *progname=argv[0];
 	int opt_c=0; /* -c option candle lighting times */
 	int opt_d=0; /* -d option hebrew date for evrey day */
-	int opt_D=0; /* -d option hebrew date for event day */
+	int opt_D=0; /* -D option hebrew date for event day */
 	int opt_e=0; /* -e option use normal date format */
 	int opt_h=0; /* -h option do not show holydays */
 	int opt_i=0; /* -i option do not use diaspora reading and holyday */
-	int opt_r=0; /* -r option use tab as a delimiter */
-	char sep = ' '; /* default separator is space */
+	char separator = ' '; /* -r option default separator is space */
 	int opt_s=0; /* -s option show parasha */
 	int opt_x=0; /* -x option do not show new month day */
-	double lon = -34.0; /* default to Tel aviv longitude */
-	double lat = 32.0; /* default to Tel aviv latitude */
-	int tz = 0; /* default to Tel aviv time zone */
+	double lat = 32.0; /* -l option default to Tel aviv latitude */
+	double lon = -34.0; /* -L option default to Tel aviv longitude */
+	int tz = 2; /* -z option default to Tel aviv time zone */
 	
+	/* command line parsing */
 	while((c=getopt(argc, argv, "cdDehirsxl:L:z:"))!=EOF){
 		switch(c){
 		case 'c':
@@ -88,8 +166,7 @@ main (int argc, char* argv[])
 			opt_i=1;
 			break;
 		case 'r':
-			opt_r=1;
-			char sep = '\t'; /* separator is tab */
+			separator = '\t'; /* separator is tab */
 			break;
 		case 's':
 			opt_s=1;
@@ -109,44 +186,40 @@ main (int argc, char* argv[])
 			if (optarg)
 				tz = atoi (optarg);
 			break;
+		default:
+			print_help (argv[0]);
+			exit (0);
+			break;
 		}
 	}
 	
-	argc -= optind;
-	
 	/* Get calendar hebrew year */
-	if (argc == 0) 
+	if (argc == optind) 
 		{
 			/* set initial date */
 			hdate_set_gdate (&h, 0, 0, 0);
 			year = h.gd_year;
-			hdate_set_gdate (&h, 1, 1, year);
 		}
-	else if (argc == 1) 
+	else if (argc == (optind + 1)) 
 		{
 			/* set initial date */
 			year = atoi (argv[optind]);
 			hdate_set_gdate (&h, 1, 1, year);
-			
-			/* if you think this is not a valid year */
-			if (year == 0)
-			{
-				/* Print help for user and exit */
-				printf ("USAGE: %s [-cdDehirsx] [-l latitude -L longitude -z time zone] [year]\n", argv[0]);
-				exit (0);
-			}
 		}
-	else 
+	
+	/* if you think this is not a valid year */
+	if (year <= 0)
 		{
 			/* Print help for user and exit */
-			printf ("USAGE: %s [-cdDehirsx] [-l latitude -L longitude -z time zone] [year]\n", argv[0]);
+			print_help (argv[0]);
 			exit (0);
 		}
 	
-	/* Set the locale to C*/ 
+	/* Set the locale to C (hebcal output does not use locale) */ 
 	setlocale (LC_ALL,"C");
 	
-	/* start the loop */
+	/* get initial date */
+	hdate_set_gdate (&h, 1, 1, year);
 	jd = h.hd_jd;
 	
 	/* Print the hebcal output */
@@ -164,55 +237,17 @@ main (int argc, char* argv[])
 			if (opt_d || (opt_D && event))
 			{
 				/* print the gregorian date */
-				if (opt_e)
-					printf ("%d.%d.%d%c", 
-						h.gd_day, h.gd_mon, h.gd_year, sep); 
-				else
-					printf ("%d/%d/%d%c", 
-						h.gd_mon, h.gd_day, h.gd_year, sep); 
+				print_gregorian_date (&h, opt_e, separator);
 				
 				/* print hebrew date */
-				switch (h.hd_day % 10)
-				{
-					case  1:
-						number_suffix[0] = 's';
-						number_suffix[1] = 't';
-						number_suffix[2] = 0;
-						break;
-					case  2:
-						number_suffix[0] = 'n';
-						number_suffix[1] = 'd';
-						number_suffix[2] = 0;
-						break;
-					case  3:
-						number_suffix[0] = 'r';
-						number_suffix[1] = 'd';
-						number_suffix[2] = 0;
-						break;
-					default:
-						number_suffix[0] = 't';
-						number_suffix[1] = 'h';
-						number_suffix[2] = 0;
-						break;
-				}
-				
-				printf ("%d%s of %s, %d\n", 
-						h.hd_day,
-						number_suffix,
-						hdate_get_hebrew_month_string (h.hd_mon, 0),
-						h.hd_year); 
+				print_hebrew_date (&h);
 			}
 			
 			/* print parasha */
 			if (reading)
 			{
 				/* print the gregorian date */
-				if (opt_e)
-					printf ("%d.%d.%d%c", 
-						h.gd_day, h.gd_mon, h.gd_year, sep); 
-				else
-					printf ("%d/%d/%d%c", 
-						h.gd_mon, h.gd_day, h.gd_year, sep); 
+				print_gregorian_date (&h, opt_e, separator);
 				
 				/* print parash */
 				printf ("Parashat %s\n", hdate_get_parasha_string (reading, 0));
@@ -222,12 +257,7 @@ main (int argc, char* argv[])
 			if (rosh_hodesh)
 			{
 				/* print the gregorian date */
-				if (opt_e)
-					printf ("%d.%d.%d%c", 
-						h.gd_day, h.gd_mon, h.gd_year, sep); 
-				else
-					printf ("%d/%d/%d%c", 
-						h.gd_mon, h.gd_day, h.gd_year, sep); 
+				print_gregorian_date (&h, opt_e, separator);
 				
 				/* print rosh hodesh */
 				printf ("Rosh Chodesh %s\n", hdate_get_hebrew_month_string (h.hd_mon, 0));
@@ -237,12 +267,7 @@ main (int argc, char* argv[])
 			if (holyday)
 			{
 				/* print the gregorian date */
-				if (opt_e)
-					printf ("%d.%d.%d%c", 
-						h.gd_day, h.gd_mon, h.gd_year, sep); 
-				else
-					printf ("%d/%d/%d%c", 
-						h.gd_mon, h.gd_day, h.gd_year, sep); 
+				print_gregorian_date (&h, opt_e, separator);
 				
 				/* print holyday */
 				printf ("%s\n", hdate_get_holyday_string (holyday, 0));
@@ -252,34 +277,26 @@ main (int argc, char* argv[])
 			if (candle_lighting)
 			{
 				/* print the gregorian date */
-				if (opt_e)
-					printf ("%d.%d.%d%c", 
-						h.gd_day, h.gd_mon, h.gd_year, sep); 
-				else
-					printf ("%d/%d/%d%c", 
-						h.gd_mon, h.gd_day, h.gd_year, sep); 
+				print_gregorian_date (&h, opt_e, separator);
 				
+				/* get times */
 				hdate_get_utc_sun_time (h.gd_day, h.gd_mon, h.gd_year, lat, lon, &sunrise, &sunset);
 				sunset = sunset + tz * 60 - 20; /* -20 for shabat */
 				
-				/* print parash */
+				/* print candel lighting time */
 				printf ("Candle lighting:  %d:%d\n", sunset / 60, sunset % 60);
 			}
 			
 			if (havdala)
 			{
 				/* print the gregorian date */
-				if (opt_e)
-					printf ("%d.%d.%d%c", 
-						h.gd_day, h.gd_mon, h.gd_year, sep); 
-				else
-					printf ("%d/%d/%d%c", 
-						h.gd_mon, h.gd_day, h.gd_year, sep); 
+				print_gregorian_date (&h, opt_e, separator);
 				
+				/* get times */
 				hdate_get_utc_sun_time (h.gd_day, h.gd_mon, h.gd_year, lat, lon, &sunrise, &sunset);
 				sunset = sunset + tz * 60 + 72; /* -72 for havdala */
 				
-				/* print parash */
+				/* print havdala time */
 				printf ("Havdalah (72 min): %d:%d\n", sunset / 60, sunset % 60);
 			}
 			

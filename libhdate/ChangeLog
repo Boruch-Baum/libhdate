@@ -1,3 +1,9 @@
+libhdate (0.22.0)
+
+  * New hebcal examples
+
+   -- Yaacov Zamir <kzamir@wall.co.il>  Fri, 25 Feb 2005 11:15:18
+   
 libhdate (0.21.0)
   
   * New spec file by Oron Peled
