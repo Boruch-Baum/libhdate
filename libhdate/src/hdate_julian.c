@@ -291,7 +291,7 @@ hdate_jd_to_hdate (int jd, int *day, int *month, int *year)
 	else /* in 4-5 first months */
 	{
 		/* Special cases for this year */
-		if (size_of_year % 10 > 4 && days >= 59) /* long Heshvan */
+		if (size_of_year % 10 > 4 && days > 58) /* long Heshvan */
 			{
 				*month = (days - 1) * 2 / 59;
 				*day = days - *month * 59 / 2;

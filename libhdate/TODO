@@ -1,0 +1,7 @@
+libhdate (0.16.3)
+  
+  * Check date conversion, for more dates.
+  * More checks for Holyday function.
+  * More checks for Parasha function.
+
+   -- Yaacov Zamir <kzamir@wall.co.il>  Mon, 21 Feb 2005 09:93:12

@@ -1,3 +1,9 @@
+libhdate (0.16.3)
+  
+  * Try to fix date conversion bug, thanks Michael Kaminsky.
+
+   -- Yaacov Zamir <kzamir@wall.co.il>  Mon, 21 Feb 2005 09:93:12
+
 libhdate (0.16.2)
   
   * Syntax error, and weeks calculation bug fixed by Michael Kaminsky.
