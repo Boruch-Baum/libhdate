@@ -142,6 +142,14 @@ main (int argc, char* argv[])
 		{
 			month = 0;
 			year = atoi (argv[1]);
+			
+			/* Check for valid years */
+			if (year < 1)
+			{
+				/* Print help for user and exit */
+				printf ("USAGE: %s [[month] year]\n", argv[0]);
+				exit (0);
+			}
 		}
 	else if (argc == 1)
 		{
