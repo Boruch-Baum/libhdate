@@ -127,6 +127,14 @@ main (int argc, char* argv[])
 			/* set initial date */
 			year = atoi (argv[optind]);
 			hdate_set_gdate (&h, 1, 1, year);
+			
+			/* if you think this is not a valid year */
+			if (year == 0)
+			{
+				/* Print help for user and exit */
+				printf ("USAGE: %s [-cdDehirsx] [-l latitude -L longitude -z time zone] [year]\n", argv[0]);
+				exit (0);
+			}
 		}
 	else 
 		{
