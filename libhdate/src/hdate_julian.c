@@ -162,13 +162,11 @@ hdate_gdate_to_jd (int day, int month, int year)
  @return The julian day number
  */
 int
-hdate_hdate_to_jd (int day, int month, int year)
+hdate_hdate_to_jd (int day, int month, int year, int *jd_tishrey1, int *jd_tishrey1_next_year)
 {
 	int length_of_year;
 	int jd;
-
-	/* length of year */
-	length_of_year = hdate_size_of_hebrew_year (year);
+	int days_from_3744;
 
 	/* Adjust for leap year */
 	if (month == 13)
@@ -182,8 +180,12 @@ hdate_hdate_to_jd (int day, int month, int year)
 	}
 
 	/* Calculate days since 1,1,3744 */
-	day = hdate_days_from_3744 (year) + (59 * (month - 1) + 1) / 2 + day;
+	days_from_3744 = hdate_days_from_3744 (year);
+	day = days_from_3744 + (59 * (month - 1) + 1) / 2 + day;
 
+	/* length of year */
+	length_of_year = hdate_days_from_3744 (year + 1) - days_from_3744;
+	
 	/* Special cases for this year */
 	if (length_of_year % 10 > 4 && month > 2)	/* long Heshvan */
 		day++;
@@ -195,6 +197,13 @@ hdate_hdate_to_jd (int day, int month, int year)
 	/* adjust to julian */
 	jd = day + 1715118;
 
+	/* return the 1 of tishrey julians */
+	if (jd_tishrey1 && jd_tishrey1_next_year)
+	{
+		*jd_tishrey1 = days_from_3744 + 1715119;
+		*jd_tishrey1_next_year = *jd_tishrey1 + length_of_year;
+	}
+	
 	return jd;
 }
 
@@ -230,7 +239,7 @@ hdate_jd_to_gdate (int jd, int *d, int *m, int *y)
 /**
  @brief Converting from the Julian day to the Hebrew day
  
- @author Yaacov Zamir 2005
+ @author Amos Shapir 1984 (rev. 1985, 1992) Yaacov Zamir 2003-2005
 
  @param jd Julian day
  @param day Return Day of month 1..31
@@ -240,55 +249,67 @@ hdate_jd_to_gdate (int jd, int *d, int *m, int *y)
 void
 hdate_jd_to_hdate (int jd, int *day, int *month, int *year)
 {
-	int julian;
-
+	int days;
+	int size_of_year;
+	int jd_tishrey1, jd_tishrey1_next_year;
+	
 	/* calculate Gregorian date */
 	hdate_jd_to_gdate (jd, day, month, year);
 
 	/* Guess Hebrew year is Gregorian year + 3760 */
-	*year = *year + 3760 + 1;
+	*year = *year + 3760;
 
-	/* Check if computed year was overestimated */
-	julian = hdate_hdate_to_jd (1, 1, *year);
-	while (julian > jd)
+	jd_tishrey1 = hdate_days_from_3744 (*year) + 1715119;
+	jd_tishrey1_next_year = hdate_days_from_3744 (*year + 1) + 1715119;
+	
+	/* Check if computed year was underestimated */
+	if (jd_tishrey1_next_year <= jd)
 	{
-		*year = *year - 1;
-		julian = hdate_hdate_to_jd (1, 1, *year);
+		*year = *year + 1;
+		jd_tishrey1 = jd_tishrey1_next_year;
+		jd_tishrey1_next_year = hdate_days_from_3744 (*year + 1) + 1715119;	
 	}
 
-	/* days into this year */
-	*day = jd - julian;
-
-	/* Guess month is days in year / 28 */
-	*month = *day / 28 + 1;
-
-	/* Check for leap year */
-	if (hdate_size_of_hebrew_year (*year) > 365)
+	size_of_year = jd_tishrey1_next_year - jd_tishrey1;
+	
+	/* days into this year, first month 0..29 */
+	days = jd - jd_tishrey1;
+	
+	/* last 8 months allways have 236 days */
+	if (days >= (size_of_year - 236)) /* in last 8 months */
 	{
-		if (*month == 6)
-			*month = 14;
-		if (*month > 6)
-			*month = *month - 1;
-		if (*month == 6)
-			*month = 14;
+		days = days - (size_of_year - 236);
+		*month = days * 2 / 59;
+		*day = days - *month * 59 / 2 + 1;
+		
+		*month = *month + 4 + 1;
+		
+		/* if leap */
+		if (size_of_year > 255 && *month <=5)
+			*month = *month + 8;
 	}
-
-	/* Check if computed month was overestimated */
-	julian = hdate_hdate_to_jd (1, *month, *year);
-	while (julian > jd)
+	else /* in 4-5 first months */
 	{
-		/* Check for leap year */
-		if (*month == 13)
-			*month = 5;
-		else
-			*month = *month - 1;
-
-		julian = hdate_hdate_to_jd (1, *month, *year);
+		/* Special cases for this year */
+		if (size_of_year % 10 > 4 && days >= 59) /* long Heshvan */
+			{
+				*month = (days - 1) * 2 / 59;
+				*day = days - *month * 59 / 2;
+			}
+		else if (size_of_year % 10 < 4 && days > 87) /* short kislev */
+			{
+				*month = (days + 1) * 2 / 59;
+				*day = days - *month * 59 / 2 + 2;
+			}
+		else /* regular months */
+			{
+				*month = days * 2 / 59;
+				*day = days - *month * 59 / 2 + 1;
+			}
+			
+		*month = *month + 1;			
 	}
-
-	/* Get the day */
-	*day = jd - julian + 1;
-
+	
 	return;
 }
 
@@ -306,7 +327,8 @@ hdate_struct *
 hdate_hdate (int d, int m, int y)
 {
 	static hdate_struct h;
-	int jd, jd_tishrey1;
+	int jd;
+	int jd_tishrey1, jd_tishrey1_next_year;
 	
 	/* check for null dates (kobi) */
 	if ((d == 0) || (m == 0))
@@ -337,10 +359,12 @@ hdate_hdate (int d, int m, int y)
 	
 	jd = hdate_gdate_to_jd (d, m, y);
 	hdate_jd_to_hdate (jd, &(h.hd_day), &(h.hd_mon), &(h.hd_year));
-	jd_tishrey1 = hdate_hdate_to_jd (1,1,h.hd_year);
+	
+	jd_tishrey1 = hdate_days_from_3744 (h.hd_year) + 1715119;
+	jd_tishrey1_next_year = hdate_days_from_3744 (h.hd_year + 1) + 1715119;
 	
 	h.hd_dw = (jd + 1) % 7 + 1;
-	h.hd_size_of_year = hdate_size_of_hebrew_year (h.hd_year);
+	h.hd_size_of_year = jd_tishrey1_next_year - jd_tishrey1;
 	h.hd_new_year_dw = (jd_tishrey1 + 1) % 7 + 1;
 	h.hd_year_type = hdate_get_year_type (h.hd_size_of_year , h.hd_new_year_dw);
 	h.hd_jd = jd;
@@ -361,18 +385,19 @@ hdate_struct *
 hdate_gdate (int d, int m, int y)
 {
 	static hdate_struct h;
-	int jd, jd_tishrey1;
+	int jd;
+	int jd_tishrey1, jd_tishrey1_next_year;
 	
 	h.hd_day = d;
 	h.hd_mon = m;
 	h.hd_year = y;
 	
-	jd = hdate_hdate_to_jd (d, m, y);
-	jd_tishrey1 = hdate_hdate_to_jd (1,1,h.hd_year);
+	jd = hdate_hdate_to_jd (d, m, y, &jd_tishrey1, &jd_tishrey1_next_year);
+	
 	hdate_jd_to_gdate (jd, &(h.gd_day), &(h.gd_mon), &(h.gd_year));
 		
 	h.hd_dw = (jd + 1) % 7 + 1;
-	h.hd_size_of_year = hdate_size_of_hebrew_year (h.hd_year);
+	h.hd_size_of_year = jd_tishrey1_next_year - jd_tishrey1;
 	h.hd_new_year_dw = (jd_tishrey1 + 1) % 7 + 1;
 	h.hd_year_type = hdate_get_year_type (h.hd_size_of_year , h.hd_new_year_dw);
 	h.hd_jd = jd;

@@ -116,7 +116,7 @@ hdate_get_holyday (hdate_struct * h)
 	if ((holyday == 12) && ((h->hd_dw == 7) || (h->hd_day == 11 && h->hd_dw != 5)))
 		holyday = 0;
 	
-	/* yom ha azmaot on sat or fri mov to Thu*/
+	/* yom ha azmaot on sat or fri mov to Thu */
 	if (holyday == 12)
 	{
 		if (h->hd_year < 1948)

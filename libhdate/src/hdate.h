@@ -117,7 +117,7 @@ hdate_gdate_to_jd (int day, int month, int year);
  @return The julian day number
  */
 int
-hdate_hdate_to_jd (int day, int month, int year);
+hdate_hdate_to_jd (int day, int month, int year, int *jd_tishrey1, int *jd_tishrey1_next_year);
 
 /**
  @brief Converting from the Julian day to the Gregorian day
