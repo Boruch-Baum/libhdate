@@ -40,12 +40,17 @@ dnl ============================================================================
 
 build_pascal=no
 
-AC_CHECK_PROG(have_free_pascal, "fpc", yes, no)
+AC_CHECK_PROG(have_pascal, "fpc", yes, no)
 
 AC_ARG_ENABLE(pascal, [  --enable-pascal	build pascal binding [default=no]], build_pascal="$enableval", build_pascal=no)
 
-if test "x$have_free_pascal" = "xno"; then
+if test "x$have_pascal" = "xno"; then
 	build_pascal=no
+else
+	PA_VERSION=`fpc -iV`
+	PA_TOS=`fpc -iTO`
+	PA_MODULES_PATH="/usr/lib/fpc/$PA_VERSION/units/$PA_TOS"
+	AC_SUBST([PA_MODULES_PATH])
 fi
 
 AM_CONDITIONAL(WITH_PASCAL, test "x$build_pascal" = "xyes")
@@ -192,7 +197,7 @@ $PACKAGE-$VERSION
 	compiler:			${CC}
 	
 	have swig			${have_swig}
-	have free pascal    		${have_free_pascal}
+	have free pascal    		${have_pascal}
 	have python			${have_python}
 	have perl			${have_perl}
 	
@@ -202,6 +207,8 @@ $PACKAGE-$VERSION
 	build python binding		${build_python}
 	build perl binding		${build_perl}
 	puild pascal binding		${build_pascal}
+	
 	perl site lib path:		$PE_MODULES_PATH
 	python site lib path:		$PY_MODULES_PATH
+	pascal site lib path:		$PA_MODULES_PATH
 "
