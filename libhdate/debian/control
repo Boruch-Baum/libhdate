@@ -1,7 +1,7 @@
 Source: libhdate
 Priority: optional
 Maintainer: Yaacov Zamir <kzamir@wall.co.il>
-Build-Depends: debhelper (>= 4.0.0)
+Build-Depends: libhdate-dev swig debhelper (>= 4.0.0)
 Standards-Version: 3.6.1
 
 Package: libhdate-dev
@@ -47,7 +47,7 @@ Description: A library that help use hebrew dates.
 Package: libhdate-pascal
 Section: libdev
 Architecture: any
-Depends: libhdate0 (= ${Source-Version}) ${perl:Depends}
+Depends: libhdate0 (= ${Source-Version}) fp-compiler (>= 2.0.0)
 Description: A library that help use hebrew dates.
  LibHdate is a small C,C++ library for Hebrew dates,
  holidays, and reading sequence (parasha). It is using 

@@ -48,8 +48,9 @@ if test "x$have_pascal" = "xno"; then
 	build_pascal=no
 else
 	PA_VERSION=`fpc -iV`
+	PA_TPR=`fpc -iTP`
 	PA_TOS=`fpc -iTO`
-	PA_MODULES_PATH="/usr/lib/fpc/$PA_VERSION/units/$PA_TOS"
+	PA_MODULES_PATH="/usr/lib/fpc/$PA_VERSION/units/$PA_TPR-$PA_TOS"
 	AC_SUBST([PA_MODULES_PATH])
 fi
 
