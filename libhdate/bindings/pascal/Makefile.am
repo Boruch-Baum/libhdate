@@ -1,5 +1,5 @@
 
-EXTRA_DIST = Package.fpc ctypes.pp hdate.pp hdate_obj.pp fpc_README
+EXTRA_DIST = Package.fpc hdate.pp hdate_class.pp fpc_README changelog
 
 if WITH_PASCAL
 
@@ -7,25 +7,20 @@ DEPS= $(top_builddir)/src/libhdate.la
 
 CLEANFILES = *.o *.ppu
 
-all-am: ctypes.o hdate.o hdate_obj.o
-
-ctypes.o: ctypes.pp
-	fpc ctypes.pp
+all-am: hdate.o hdate_class.o
 
 hdate.o: hdate.pp ctypes.o
 	fpc hdate.pp
 
-hdate_obj.o: hdate_obj.pp hdate.o
+hdate_class.o: hdate_class.pp hdate.o hcal.o
 	fpc hdate_obj.pp
 
-install-data-local:hdate_obj.o hdate.o ctypes.o Package.fpc
+install-data-local:hdate_class.o hdate.o Package.fpc
 	$(mkinstalldirs) $(DESTDIR)$(PA_MODULES_PATH)/hdate
 	$(INSTALL_DATA) hdate.o $(DESTDIR)$(PA_MODULES_PATH)/hdate/hdate.o
-	$(INSTALL_DATA) hdate_obj.o $(DESTDIR)$(PA_MODULES_PATH)/hdate/hdate_obj.o
-	$(INSTALL_DATA) ctypes.o $(DESTDIR)$(PA_MODULES_PATH)/hdate/ctypes.o
+	$(INSTALL_DATA) hdate_obj.o $(DESTDIR)$(PA_MODULES_PATH)/hdate/hdate_class.o
 	$(INSTALL_DATA) hdate.ppu $(DESTDIR)$(PA_MODULES_PATH)/hdate/hdate.ppu
-	$(INSTALL_DATA) hdate_obj.ppu $(DESTDIR)$(PA_MODULES_PATH)/hdate/hdate_obj.ppu
-	$(INSTALL_DATA) ctypes.ppu $(DESTDIR)$(PA_MODULES_PATH)/hdate/ctypes.ppu
+	$(INSTALL_DATA) hdate_obj.ppu $(DESTDIR)$(PA_MODULES_PATH)/hdate/hdate_class.ppu
 	$(INSTALL_DATA) fpc_README $(DESTDIR)$(PA_MODULES_PATH)/hdate/fpc_README
 	$(INSTALL_DATA) Package.fpc $(DESTDIR)$(PA_MODULES_PATH)/hdate/Package.fpc
 endif

@@ -24,20 +24,19 @@ History:
   11/03/2005 - Initial translation.
 }
 
-uses hdate_obj, hdate;
+uses hdate_class, hdate;
 
 var
- h : THdate;
+ h : THdateClass;
 
 begin
- h := THdate.Create;
+ h := THdateClass.Create;
  try
 	 
   // print gregorian date
-  write ('Today is : ', h.get_gday, ',');
-  write (h.get_gmonth, ',');
-  writeln (h.get_gyear ());
- 
+  write ('Today is : ', h.GregDay, ',');
+  write (h.GregMonth, ',');
+  writeln (h.GregYear)
   // print hebrew date
   writeln (h.get_format_date (0, 0));
  

@@ -1,0 +1,13 @@
+27/05/2005
+	- Created a Changelog.
+
+19-21/05/2005
+	- hdate_class.pp was created.
+	- Made changes for Free Pascal 2 support on with the units.
+
+13/03/2005
+	- Bug fix in hdate.pp - Added {$PACKRECORDS C}
+
+10-11/03/2005 
+	- hdate.pp was created.
+	- hdate_obj.pp was created.

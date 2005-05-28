@@ -1,4 +1,4 @@
-{  libhdate
+(*  libhdate
    Copyright  2004-2005  Yaacov Zamir <kzamir@walla.co.il>
 	 Copyright  2005       Ido Kanner   <idokan@gmail.com>
    
@@ -19,7 +19,7 @@
 History:
      13/3/2005 -  Bug Fixed Added {$PACKRECORDS C}
   10-11/3/2005 -  Initial Translation of version 0.31.0
- }
+*)
 {$MODE FPC}{$PACKRECORDS C}
 
 unit hdate;
