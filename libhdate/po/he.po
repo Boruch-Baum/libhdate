@@ -498,7 +498,7 @@ msgstr "בהעלותך"
 
 #: src/hdate_strings.c:367 src/hdate_strings.c:430
 msgid "Sh'lach"
-msgstr "שלך"
+msgstr "שלח"
 
 #: src/hdate_strings.c:368 src/hdate_strings.c:431
 msgid "Korach"
