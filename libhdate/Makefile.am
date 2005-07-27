@@ -8,7 +8,7 @@ SUBDIRS = intl po src examples bindings debian
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libhdate.pc
 
-libhdatedocdir = ${prefix}/doc/hdate
+libhdatedocdir = ${prefix}/doc/libhdate0
 libhdatedoc_DATA = \
 	README\
 	hdate_README\

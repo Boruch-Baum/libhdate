@@ -47,15 +47,19 @@ hdate_get_int_string (int n)
 	};
 
 	char *locale;
+	char *language;
 
 	/* Get the name of the current locale.  */
 #ifdef ENABLE_NLS
 	locale = setlocale (LC_MESSAGES, NULL);
+	language = getenv("LANGUAGE");
 #else
-	locale = NULL
+	locale = NULL;
+	language = NULL;
 #endif
 
-	if ((!locale) || (locale[0] != 'h') || (locale[1] != 'e'))
+	if (! ((locale && (locale[0] == 'h') && (locale[1] == 'e')) ||
+	       (language && (language[0] == 'h') && (language[1] == 'e'))) )
 	{
 		/* not hebrew locale return the number in decimal form */
 		snprintf (h_number, 100, "%d", n);

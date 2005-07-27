@@ -20,3 +20,6 @@ hdate_holydays_html_DEPENDENCIES = $(DEPS)
 hdate_holydays_html_LDADD = $(ldadd)
 
 endif
+
+libhdatedocdir = ${prefix}/doc/libhdate0/examples/html
+libhdatedoc_DATA = hdate_holydays_html.c hdate_reading_html.c

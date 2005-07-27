@@ -20,3 +20,6 @@ hdate_holydays_ical_DEPENDENCIES = $(DEPS)
 hdate_holydays_ical_LDADD = $(ldadd)
 
 endif
+
+libhdatedocdir = ${prefix}/doc/libhdate0/examples/ical
+libhdatedoc_DATA = hdate_holydays_ical.c hdate_reading_ical.c

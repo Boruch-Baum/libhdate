@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-03-10 21:53+0200\n"
+"POT-Creation-Date: 2005-07-27 19:20+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,591 +16,591 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/hdate_strings.c:127
+#: src/hdate_strings.c:131
 msgid "Sun"
 msgstr "א"
 
-#: src/hdate_strings.c:127
+#: src/hdate_strings.c:131
 msgid "Mon"
 msgstr "ב"
 
-#: src/hdate_strings.c:127
+#: src/hdate_strings.c:131
 msgid "Tue"
 msgstr "ג"
 
-#: src/hdate_strings.c:127
+#: src/hdate_strings.c:131
 msgid "Wed"
 msgstr "ד"
 
-#: src/hdate_strings.c:127
+#: src/hdate_strings.c:131
 msgid "Thu"
 msgstr "ה"
 
-#: src/hdate_strings.c:128
+#: src/hdate_strings.c:132
 msgid "Fri"
 msgstr "ו"
 
-#: src/hdate_strings.c:128
+#: src/hdate_strings.c:132
 msgid "Sat"
 msgstr "ש"
 
-#: src/hdate_strings.c:129
+#: src/hdate_strings.c:133
 msgid "Sunday"
 msgstr "ראשון"
 
-#: src/hdate_strings.c:129
+#: src/hdate_strings.c:133
 msgid "Monday"
 msgstr "שני"
 
-#: src/hdate_strings.c:129
+#: src/hdate_strings.c:133
 msgid "Tuesday"
 msgstr "שלישי"
 
-#: src/hdate_strings.c:129
+#: src/hdate_strings.c:133
 msgid "Wednesday"
 msgstr "רביעי"
 
-#: src/hdate_strings.c:130
+#: src/hdate_strings.c:134
 msgid "Thursday"
 msgstr "חמישי"
 
-#: src/hdate_strings.c:130
+#: src/hdate_strings.c:134
 msgid "Friday"
 msgstr "שישי"
 
-#: src/hdate_strings.c:130
+#: src/hdate_strings.c:134
 msgid "Saturday"
 msgstr "שבת"
 
-#: src/hdate_strings.c:161
+#: src/hdate_strings.c:165
 msgid "Jan"
 msgstr "ינו"
 
-#: src/hdate_strings.c:161
+#: src/hdate_strings.c:165
 msgid "Feb"
 msgstr "פבר"
 
-#: src/hdate_strings.c:161
+#: src/hdate_strings.c:165
 msgid "Mar"
 msgstr "מרץ"
 
-#: src/hdate_strings.c:161
+#: src/hdate_strings.c:165
 msgid "Apr"
 msgstr "אפר"
 
-#: src/hdate_strings.c:161 src/hdate_strings.c:165
+#: src/hdate_strings.c:165 src/hdate_strings.c:169
 msgid "May"
 msgstr "מאי"
 
-#: src/hdate_strings.c:162
+#: src/hdate_strings.c:166
 msgid "Jun"
 msgstr "יוני"
 
-#: src/hdate_strings.c:162
+#: src/hdate_strings.c:166
 msgid "Jul"
 msgstr "יולי"
 
-#: src/hdate_strings.c:162
+#: src/hdate_strings.c:166
 msgid "Aug"
 msgstr "אוג"
 
-#: src/hdate_strings.c:162
+#: src/hdate_strings.c:166
 msgid "Sep"
 msgstr "ספט"
 
-#: src/hdate_strings.c:162
+#: src/hdate_strings.c:166
 msgid "Oct"
 msgstr "אוקט"
 
-#: src/hdate_strings.c:163
+#: src/hdate_strings.c:167
 msgid "Nov"
 msgstr "נוב"
 
-#: src/hdate_strings.c:163
+#: src/hdate_strings.c:167
 msgid "Dec"
 msgstr "דצמ"
 
-#: src/hdate_strings.c:164
+#: src/hdate_strings.c:168
 msgid "January"
 msgstr "ינואר"
 
-#: src/hdate_strings.c:164
+#: src/hdate_strings.c:168
 msgid "February"
 msgstr "פברואר"
 
-#: src/hdate_strings.c:164
+#: src/hdate_strings.c:168
 msgid "March"
 msgstr "מרץ"
 
-#: src/hdate_strings.c:165
+#: src/hdate_strings.c:169
 msgid "April"
 msgstr "אפריל"
 
-#: src/hdate_strings.c:165
+#: src/hdate_strings.c:169
 msgid "June"
 msgstr "יוני"
 
-#: src/hdate_strings.c:166
+#: src/hdate_strings.c:170
 msgid "July"
 msgstr "יולי"
 
-#: src/hdate_strings.c:166
+#: src/hdate_strings.c:170
 msgid "August"
 msgstr "אוגוסט"
 
-#: src/hdate_strings.c:166
+#: src/hdate_strings.c:170
 msgid "September"
 msgstr "ספטמבר"
 
-#: src/hdate_strings.c:167
+#: src/hdate_strings.c:171
 msgid "October"
 msgstr "אוקטובר"
 
-#: src/hdate_strings.c:167
+#: src/hdate_strings.c:171
 msgid "November"
 msgstr "נובמבר"
 
-#: src/hdate_strings.c:167
+#: src/hdate_strings.c:171
 msgid "December"
 msgstr "דצמבר"
 
-#: src/hdate_strings.c:198 src/hdate_strings.c:202
+#: src/hdate_strings.c:202 src/hdate_strings.c:206
 msgid "Tishrei"
 msgstr "תשרי"
 
-#: src/hdate_strings.c:198 src/hdate_strings.c:202
+#: src/hdate_strings.c:202 src/hdate_strings.c:206
 msgid "Cheshvan"
 msgstr "חשון"
 
-#: src/hdate_strings.c:198 src/hdate_strings.c:202
+#: src/hdate_strings.c:202 src/hdate_strings.c:206
 msgid "Kislev"
 msgstr "כיסלו"
 
-#: src/hdate_strings.c:198 src/hdate_strings.c:202
+#: src/hdate_strings.c:202 src/hdate_strings.c:206
 msgid "Tevet"
 msgstr "טבת"
 
-#: src/hdate_strings.c:199 src/hdate_strings.c:203
+#: src/hdate_strings.c:203 src/hdate_strings.c:207
 msgid "Sh'vat"
 msgstr "שבט"
 
-#: src/hdate_strings.c:199 src/hdate_strings.c:203
+#: src/hdate_strings.c:203 src/hdate_strings.c:207
 msgid "Adar"
 msgstr "אדר"
 
-#: src/hdate_strings.c:199 src/hdate_strings.c:203
+#: src/hdate_strings.c:203 src/hdate_strings.c:207
 msgid "Nisan"
 msgstr "ניסן"
 
-#: src/hdate_strings.c:199 src/hdate_strings.c:203
+#: src/hdate_strings.c:203 src/hdate_strings.c:207
 msgid "Iyyar"
 msgstr "אייר"
 
-#: src/hdate_strings.c:200 src/hdate_strings.c:204
+#: src/hdate_strings.c:204 src/hdate_strings.c:208
 msgid "Sivan"
 msgstr "סיון"
 
-#: src/hdate_strings.c:200 src/hdate_strings.c:204
+#: src/hdate_strings.c:204 src/hdate_strings.c:208
 msgid "Tamuz"
 msgstr "תמוז"
 
-#: src/hdate_strings.c:200 src/hdate_strings.c:204
+#: src/hdate_strings.c:204 src/hdate_strings.c:208
 msgid "Av"
 msgstr "אב"
 
-#: src/hdate_strings.c:200 src/hdate_strings.c:204
+#: src/hdate_strings.c:204 src/hdate_strings.c:208
 msgid "Elul"
 msgstr "אלול"
 
-#: src/hdate_strings.c:200 src/hdate_strings.c:204
+#: src/hdate_strings.c:204 src/hdate_strings.c:208
 msgid "Adar I"
 msgstr "אדר א"
 
-#: src/hdate_strings.c:201 src/hdate_strings.c:205
+#: src/hdate_strings.c:205 src/hdate_strings.c:209
 msgid "Adar II"
 msgstr "אדר ב"
 
-#: src/hdate_strings.c:237 src/hdate_strings.c:268
+#: src/hdate_strings.c:241 src/hdate_strings.c:272
 msgid "Rosh Hashana I"
 msgstr "א ראש השנה"
 
 #. 1
-#: src/hdate_strings.c:238 src/hdate_strings.c:269
+#: src/hdate_strings.c:242 src/hdate_strings.c:273
 msgid "Rosh Hashana II"
 msgstr "ב ראש השנה"
 
-#: src/hdate_strings.c:239 src/hdate_strings.c:270
+#: src/hdate_strings.c:243 src/hdate_strings.c:274
 msgid "Tzom Gedaliah"
 msgstr "צום גדליה"
 
-#: src/hdate_strings.c:240 src/hdate_strings.c:271
+#: src/hdate_strings.c:244 src/hdate_strings.c:275
 msgid "Yom Kippur"
 msgstr "יום כיפור"
 
-#: src/hdate_strings.c:241 src/hdate_strings.c:272
+#: src/hdate_strings.c:245 src/hdate_strings.c:276
 msgid "Sukkot"
 msgstr "סוכות"
 
-#: src/hdate_strings.c:242 src/hdate_strings.c:273
+#: src/hdate_strings.c:246 src/hdate_strings.c:277
 msgid "Hol hamoed Sukkot"
 msgstr "חול המועד סוכות"
 
-#: src/hdate_strings.c:243 src/hdate_strings.c:274
+#: src/hdate_strings.c:247 src/hdate_strings.c:278
 msgid "Hoshana raba"
 msgstr "הושענה רבה"
 
-#: src/hdate_strings.c:244 src/hdate_strings.c:275
+#: src/hdate_strings.c:248 src/hdate_strings.c:279
 msgid "Simchat Torah"
 msgstr "שמחת תורה"
 
-#: src/hdate_strings.c:245 src/hdate_strings.c:276
+#: src/hdate_strings.c:249 src/hdate_strings.c:280
 msgid "Chanukah"
 msgstr "חנוכה"
 
-#: src/hdate_strings.c:246 src/hdate_strings.c:277
+#: src/hdate_strings.c:250 src/hdate_strings.c:281
 msgid "Asara B'Tevet"
 msgstr "עשרה בטבת"
 
 #. 10
-#: src/hdate_strings.c:247 src/hdate_strings.c:278
+#: src/hdate_strings.c:251 src/hdate_strings.c:282
 msgid "Tu B'Shvat"
 msgstr "טו בשבט"
 
-#: src/hdate_strings.c:248 src/hdate_strings.c:279
+#: src/hdate_strings.c:252 src/hdate_strings.c:283
 msgid "Ta'anit Esther"
 msgstr "תענית אסתר"
 
-#: src/hdate_strings.c:249 src/hdate_strings.c:280
+#: src/hdate_strings.c:253 src/hdate_strings.c:284
 msgid "Purim"
 msgstr "פורים"
 
-#: src/hdate_strings.c:250 src/hdate_strings.c:281
+#: src/hdate_strings.c:254 src/hdate_strings.c:285
 msgid "Shushan Purim"
 msgstr "שושן פורים"
 
-#: src/hdate_strings.c:251 src/hdate_strings.c:282
+#: src/hdate_strings.c:255 src/hdate_strings.c:286
 msgid "Pesach"
 msgstr "פסח"
 
-#: src/hdate_strings.c:252 src/hdate_strings.c:283
+#: src/hdate_strings.c:256 src/hdate_strings.c:287
 msgid "Hol hamoed Pesach"
 msgstr "חול המועד פסח"
 
-#: src/hdate_strings.c:253 src/hdate_strings.c:284
+#: src/hdate_strings.c:257 src/hdate_strings.c:288
 msgid "Yom HaAtzma'ut"
 msgstr "יום העצמאות"
 
-#: src/hdate_strings.c:254 src/hdate_strings.c:285
+#: src/hdate_strings.c:258 src/hdate_strings.c:289
 msgid "Lag B'Omer"
 msgstr "לג בעומר"
 
-#: src/hdate_strings.c:255 src/hdate_strings.c:286
+#: src/hdate_strings.c:259 src/hdate_strings.c:290
 msgid "Erev Shavuot"
 msgstr "ערב שבועות"
 
-#: src/hdate_strings.c:256 src/hdate_strings.c:287
+#: src/hdate_strings.c:260 src/hdate_strings.c:291
 msgid "Shavuot"
 msgstr "שבועות"
 
 #. 20
-#: src/hdate_strings.c:257 src/hdate_strings.c:288
+#: src/hdate_strings.c:261 src/hdate_strings.c:292
 msgid "Tzom Tammuz"
 msgstr "יז תמוז"
 
-#: src/hdate_strings.c:258 src/hdate_strings.c:289
+#: src/hdate_strings.c:262 src/hdate_strings.c:293
 msgid "Tish'a B'Av"
 msgstr "תשעה באב"
 
-#: src/hdate_strings.c:259 src/hdate_strings.c:290
+#: src/hdate_strings.c:263 src/hdate_strings.c:294
 msgid "Tu B'Av"
 msgstr "טו באב"
 
-#: src/hdate_strings.c:260 src/hdate_strings.c:291
+#: src/hdate_strings.c:264 src/hdate_strings.c:295
 msgid "Yom HaShoah"
 msgstr "יום השואה"
 
-#: src/hdate_strings.c:261 src/hdate_strings.c:292
+#: src/hdate_strings.c:265 src/hdate_strings.c:296
 msgid "Yom HaZikaron"
 msgstr "יום הזיכרון"
 
 #. 25
-#: src/hdate_strings.c:262 src/hdate_strings.c:293
+#: src/hdate_strings.c:266 src/hdate_strings.c:297
 msgid "Yom Yerushalayim"
 msgstr "יום ירושלים"
 
-#: src/hdate_strings.c:263 src/hdate_strings.c:294
+#: src/hdate_strings.c:267 src/hdate_strings.c:298
 msgid "Shmini Atzeret"
 msgstr "שמיני עצרת"
 
-#: src/hdate_strings.c:264 src/hdate_strings.c:295
+#: src/hdate_strings.c:268 src/hdate_strings.c:299
 msgid "Pesach VII"
 msgstr "שביעי של פסח"
 
-#: src/hdate_strings.c:265 src/hdate_strings.c:296
+#: src/hdate_strings.c:269 src/hdate_strings.c:300
 msgid "Pesach VIII"
 msgstr "שמיני של פסח"
 
-#: src/hdate_strings.c:266 src/hdate_strings.c:297
+#: src/hdate_strings.c:270 src/hdate_strings.c:301
 msgid "Shavuot II"
 msgstr "שני של שבועות"
 
-#: src/hdate_strings.c:330 src/hdate_strings.c:393
+#: src/hdate_strings.c:334 src/hdate_strings.c:397
 msgid "none"
 msgstr "חסר"
 
-#: src/hdate_strings.c:331 src/hdate_strings.c:394
+#: src/hdate_strings.c:335 src/hdate_strings.c:398
 msgid "Bereshit"
 msgstr "בראשית"
 
 #. 1
-#: src/hdate_strings.c:332 src/hdate_strings.c:395
+#: src/hdate_strings.c:336 src/hdate_strings.c:399
 msgid "Noach"
 msgstr "נח"
 
-#: src/hdate_strings.c:333 src/hdate_strings.c:396
+#: src/hdate_strings.c:337 src/hdate_strings.c:400
 msgid "Lech-Lecha"
 msgstr "לך לך"
 
-#: src/hdate_strings.c:334 src/hdate_strings.c:397
+#: src/hdate_strings.c:338 src/hdate_strings.c:401
 msgid "Vayera"
 msgstr "וירא"
 
-#: src/hdate_strings.c:335 src/hdate_strings.c:398
+#: src/hdate_strings.c:339 src/hdate_strings.c:402
 msgid "Chayei Sara"
 msgstr "חיי שרה"
 
-#: src/hdate_strings.c:336 src/hdate_strings.c:399
+#: src/hdate_strings.c:340 src/hdate_strings.c:403
 msgid "Toldot"
 msgstr "תולדות"
 
-#: src/hdate_strings.c:337 src/hdate_strings.c:400
+#: src/hdate_strings.c:341 src/hdate_strings.c:404
 msgid "Vayetzei"
 msgstr "ויצא"
 
-#: src/hdate_strings.c:338 src/hdate_strings.c:401
+#: src/hdate_strings.c:342 src/hdate_strings.c:405
 msgid "Vayishlach"
 msgstr "וישלח"
 
-#: src/hdate_strings.c:339 src/hdate_strings.c:402
+#: src/hdate_strings.c:343 src/hdate_strings.c:406
 msgid "Vayeshev"
 msgstr "וישב"
 
-#: src/hdate_strings.c:340 src/hdate_strings.c:403
+#: src/hdate_strings.c:344 src/hdate_strings.c:407
 msgid "Miketz"
 msgstr "מקץ"
 
 #. 10
-#: src/hdate_strings.c:341 src/hdate_strings.c:404
+#: src/hdate_strings.c:345 src/hdate_strings.c:408
 msgid "Vayigash"
 msgstr "ויגש"
 
-#: src/hdate_strings.c:342 src/hdate_strings.c:405
+#: src/hdate_strings.c:346 src/hdate_strings.c:409
 msgid "Vayechi"
 msgstr "ויחי"
 
-#: src/hdate_strings.c:343 src/hdate_strings.c:406
+#: src/hdate_strings.c:347 src/hdate_strings.c:410
 msgid "Shemot"
 msgstr "שמות"
 
-#: src/hdate_strings.c:344 src/hdate_strings.c:407
+#: src/hdate_strings.c:348 src/hdate_strings.c:411
 msgid "Vaera"
 msgstr "וארא"
 
-#: src/hdate_strings.c:345 src/hdate_strings.c:408
+#: src/hdate_strings.c:349 src/hdate_strings.c:412
 msgid "Bo"
 msgstr "בא"
 
-#: src/hdate_strings.c:346 src/hdate_strings.c:409
+#: src/hdate_strings.c:350 src/hdate_strings.c:413
 msgid "Beshalach"
 msgstr "בשלח"
 
-#: src/hdate_strings.c:347 src/hdate_strings.c:410
+#: src/hdate_strings.c:351 src/hdate_strings.c:414
 msgid "Yitro"
 msgstr "יתרו"
 
-#: src/hdate_strings.c:348 src/hdate_strings.c:411
+#: src/hdate_strings.c:352 src/hdate_strings.c:415
 msgid "Mishpatim"
 msgstr "משפטים"
 
-#: src/hdate_strings.c:349 src/hdate_strings.c:412
+#: src/hdate_strings.c:353 src/hdate_strings.c:416
 msgid "Terumah"
 msgstr "תרומה"
 
-#: src/hdate_strings.c:350 src/hdate_strings.c:413
+#: src/hdate_strings.c:354 src/hdate_strings.c:417
 msgid "Tetzaveh"
 msgstr "תצווה"
 
 #. 20
-#: src/hdate_strings.c:351 src/hdate_strings.c:414
+#: src/hdate_strings.c:355 src/hdate_strings.c:418
 msgid "Ki Tisa"
 msgstr "כי תשא"
 
-#: src/hdate_strings.c:352 src/hdate_strings.c:415
+#: src/hdate_strings.c:356 src/hdate_strings.c:419
 msgid "Vayakhel"
 msgstr "ויקהל"
 
-#: src/hdate_strings.c:353 src/hdate_strings.c:416
+#: src/hdate_strings.c:357 src/hdate_strings.c:420
 msgid "Pekudei"
 msgstr "פקודי"
 
-#: src/hdate_strings.c:354 src/hdate_strings.c:417
+#: src/hdate_strings.c:358 src/hdate_strings.c:421
 msgid "Vayikra"
 msgstr "ויקרא"
 
-#: src/hdate_strings.c:355 src/hdate_strings.c:418
+#: src/hdate_strings.c:359 src/hdate_strings.c:422
 msgid "Tzav"
 msgstr "צו"
 
-#: src/hdate_strings.c:356 src/hdate_strings.c:419
+#: src/hdate_strings.c:360 src/hdate_strings.c:423
 msgid "Shmini"
 msgstr "שמיני"
 
-#: src/hdate_strings.c:357 src/hdate_strings.c:420
+#: src/hdate_strings.c:361 src/hdate_strings.c:424
 msgid "Tazria"
 msgstr "תזריע"
 
-#: src/hdate_strings.c:358 src/hdate_strings.c:421
+#: src/hdate_strings.c:362 src/hdate_strings.c:425
 msgid "Metzora"
 msgstr "מצורע"
 
-#: src/hdate_strings.c:359 src/hdate_strings.c:422
+#: src/hdate_strings.c:363 src/hdate_strings.c:426
 msgid "Achrei Mot"
 msgstr "אחרי מות"
 
-#: src/hdate_strings.c:360 src/hdate_strings.c:423
+#: src/hdate_strings.c:364 src/hdate_strings.c:427
 msgid "Kedoshim"
 msgstr "קדושים"
 
 #. 30
-#: src/hdate_strings.c:361 src/hdate_strings.c:424
+#: src/hdate_strings.c:365 src/hdate_strings.c:428
 msgid "Emor"
 msgstr "אמור"
 
-#: src/hdate_strings.c:362 src/hdate_strings.c:425
+#: src/hdate_strings.c:366 src/hdate_strings.c:429
 msgid "Behar"
 msgstr "בהר"
 
-#: src/hdate_strings.c:363 src/hdate_strings.c:426
+#: src/hdate_strings.c:367 src/hdate_strings.c:430
 msgid "Bechukotai"
 msgstr "בחוקותי"
 
-#: src/hdate_strings.c:364 src/hdate_strings.c:427
+#: src/hdate_strings.c:368 src/hdate_strings.c:431
 msgid "Bamidbar"
 msgstr "במדבר"
 
-#: src/hdate_strings.c:365 src/hdate_strings.c:428
+#: src/hdate_strings.c:369 src/hdate_strings.c:432
 msgid "Nasso"
 msgstr "נשא"
 
-#: src/hdate_strings.c:366 src/hdate_strings.c:429
+#: src/hdate_strings.c:370 src/hdate_strings.c:433
 msgid "Beha'alotcha"
 msgstr "בהעלותך"
 
-#: src/hdate_strings.c:367 src/hdate_strings.c:430
+#: src/hdate_strings.c:371 src/hdate_strings.c:434
 msgid "Sh'lach"
 msgstr "שלח"
 
-#: src/hdate_strings.c:368 src/hdate_strings.c:431
+#: src/hdate_strings.c:372 src/hdate_strings.c:435
 msgid "Korach"
 msgstr "קרח"
 
-#: src/hdate_strings.c:369 src/hdate_strings.c:432
+#: src/hdate_strings.c:373 src/hdate_strings.c:436
 msgid "Chukat"
 msgstr "חוקת"
 
-#: src/hdate_strings.c:370 src/hdate_strings.c:433
+#: src/hdate_strings.c:374 src/hdate_strings.c:437
 msgid "Balak"
 msgstr "בלק"
 
 #. 40
-#: src/hdate_strings.c:371 src/hdate_strings.c:434
+#: src/hdate_strings.c:375 src/hdate_strings.c:438
 msgid "Pinchas"
 msgstr "פינחס"
 
-#: src/hdate_strings.c:372 src/hdate_strings.c:435
+#: src/hdate_strings.c:376 src/hdate_strings.c:439
 msgid "Matot"
 msgstr "מטות"
 
-#: src/hdate_strings.c:373 src/hdate_strings.c:436
+#: src/hdate_strings.c:377 src/hdate_strings.c:440
 msgid "Masei"
 msgstr "מסעי"
 
-#: src/hdate_strings.c:374 src/hdate_strings.c:437
+#: src/hdate_strings.c:378 src/hdate_strings.c:441
 msgid "Devarim"
 msgstr "דברים"
 
-#: src/hdate_strings.c:375 src/hdate_strings.c:438
+#: src/hdate_strings.c:379 src/hdate_strings.c:442
 msgid "Vaetchanan"
 msgstr "ואתחנן"
 
-#: src/hdate_strings.c:376 src/hdate_strings.c:439
+#: src/hdate_strings.c:380 src/hdate_strings.c:443
 msgid "Eikev"
 msgstr "עקב"
 
-#: src/hdate_strings.c:377 src/hdate_strings.c:440
+#: src/hdate_strings.c:381 src/hdate_strings.c:444
 msgid "Re'eh"
 msgstr "ראה"
 
-#: src/hdate_strings.c:378 src/hdate_strings.c:441
+#: src/hdate_strings.c:382 src/hdate_strings.c:445
 msgid "Shoftim"
 msgstr "שופטים"
 
-#: src/hdate_strings.c:379 src/hdate_strings.c:442
+#: src/hdate_strings.c:383 src/hdate_strings.c:446
 msgid "Ki Teitzei"
 msgstr "כי תצא"
 
-#: src/hdate_strings.c:380 src/hdate_strings.c:443
+#: src/hdate_strings.c:384 src/hdate_strings.c:447
 msgid "Ki Tavo"
 msgstr "כי תבוא"
 
 #. 50
-#: src/hdate_strings.c:381 src/hdate_strings.c:444
+#: src/hdate_strings.c:385 src/hdate_strings.c:448
 msgid "Nitzavim"
 msgstr "נצבים"
 
-#: src/hdate_strings.c:382 src/hdate_strings.c:445
+#: src/hdate_strings.c:386 src/hdate_strings.c:449
 msgid "Vayeilech"
 msgstr "וילך"
 
-#: src/hdate_strings.c:383 src/hdate_strings.c:446
+#: src/hdate_strings.c:387 src/hdate_strings.c:450
 msgid "Ha'Azinu"
 msgstr "האזינו"
 
-#: src/hdate_strings.c:384 src/hdate_strings.c:447
+#: src/hdate_strings.c:388 src/hdate_strings.c:451
 msgid "Vezot Habracha"
 msgstr "וזאת הברכה"
 
 #. 54
-#: src/hdate_strings.c:385 src/hdate_strings.c:448
+#: src/hdate_strings.c:389 src/hdate_strings.c:452
 msgid "Vayakhel-Pekudei"
 msgstr "ויקהל פקודי"
 
-#: src/hdate_strings.c:386 src/hdate_strings.c:449
+#: src/hdate_strings.c:390 src/hdate_strings.c:453
 msgid "Tazria-Metzora"
 msgstr "תזריע מצורע"
 
-#: src/hdate_strings.c:387 src/hdate_strings.c:450
+#: src/hdate_strings.c:391 src/hdate_strings.c:454
 msgid "Achrei Mot-Kedoshim"
 msgstr "אחרי מות קדושים"
 
-#: src/hdate_strings.c:388 src/hdate_strings.c:451
+#: src/hdate_strings.c:392 src/hdate_strings.c:455
 msgid "Behar-Bechukotai"
 msgstr "בהר בחוקותי"
 
-#: src/hdate_strings.c:389 src/hdate_strings.c:452
+#: src/hdate_strings.c:393 src/hdate_strings.c:456
 msgid "Chukat-Balak"
 msgstr "חוקת בלק"
 
-#: src/hdate_strings.c:390 src/hdate_strings.c:453
+#: src/hdate_strings.c:394 src/hdate_strings.c:457
 msgid "Matot-Masei"
 msgstr "מטות מסעי"
 
-#: src/hdate_strings.c:391 src/hdate_strings.c:454
+#: src/hdate_strings.c:395 src/hdate_strings.c:458
 msgid "Nitzavim-Vayeilech"
 msgstr "נצבים וילך"
 
 #. if untranslated return null
 #. return the translator name
-#: src/hdate_strings.c:556 src/hdate_strings.c:560
+#: src/hdate_strings.c:560 src/hdate_strings.c:564
 msgid "translator"
 msgstr "יעקב זמיר"

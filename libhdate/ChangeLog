@@ -1,3 +1,11 @@
+libhdate (1.3.0)
+
+  * Add examples to the doc directory
+  * doc directory is now /usr/doc/libhdate0 and no /usr/doc/hdate
+  * make int_to_string aware of LANGUAGE system variable, make it more gettext compatible
+
+    -- Yaacov Zamir <kzamir@wall.co.il>  Wed, 27 Jul 2005 18:13
+
 libhdate (1.0.1)
 
   * first major reales number.
