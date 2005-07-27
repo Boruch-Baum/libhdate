@@ -3,4 +3,4 @@ usr/lib/lib*.a
 usr/lib/lib*.so
 usr/lib/pkgconfig/*
 usr/lib/*.la
-usr/doc/libhdate0/examples/*
+usr/share/doc/libhdate0/examples/*

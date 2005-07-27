@@ -23,5 +23,5 @@ man_MANS = hdate.1 hcal.1
 
 endif
 
-libhdatedocdir = ${prefix}/doc/libhdate0/examples/hcal
+libhdatedocdir = ${prefix}/share/doc/libhdate0/examples/hcal
 libhdatedoc_DATA = hcal.c hdate.c
