@@ -1,3 +1,9 @@
+libhdate (1.3.0-0.2) unstable; urgency=low
+
+  * Add free-pascal bindings to the deb package.
+  
+ -- Kobi Zamir <kzamir@wall.co.il>  Sat, 30 Jul 2005 22:30:29 -0200
+
 libhdate (1.3.0-0.1) unstable; urgency=low
 
   * New Release.
