@@ -30,7 +30,7 @@
  (55 trow 61 are joined strings e.g. Vayakhel Pekudei)
 */
 int
-hdate_get_parasha (hdate_struct * h, int diaspora)
+hdate_get_parasha (hdate_struct const * h, int diaspora)
 {
 	static int join_flags[2][14][7] =
 	{

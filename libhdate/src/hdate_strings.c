@@ -486,7 +486,7 @@ hdate_get_parasha_string (int parasha, int s)
  @param s A short flag (true - returns a short string, false returns a long string. ).
 */
 char *
-hdate_get_format_date (hdate_struct * h, int diaspora, int s)
+hdate_get_format_date (hdate_struct const * h, int diaspora, int s)
 {
 	static char format_date[500];
 	static char temp[500];

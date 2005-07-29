@@ -350,7 +350,7 @@ hdate_jd_to_hdate (int jd, int *day, int *month, int *year, int *jd_tishrey1, in
  @param y Year in 4 digits e.g. 2001
  */
 hdate_struct *
-hdate_set_gdate (hdate_struct *h, int d, int m, int y)
+hdate_set_gdate (hdate_struct * h, int d, int m, int y)
 {
 	int jd;
 	int jd_tishrey1, jd_tishrey1_next_year;
@@ -396,7 +396,7 @@ hdate_set_gdate (hdate_struct *h, int d, int m, int y)
  @param y Year in 4 digits e.g. 5731
  */
 hdate_struct *
-hdate_set_hdate (hdate_struct *h, int d, int m, int y)
+hdate_set_hdate (hdate_struct * h, int d, int m, int y)
 {
 	int jd;
 	int jd_tishrey1, jd_tishrey1_next_year;
@@ -427,7 +427,7 @@ hdate_set_hdate (hdate_struct *h, int d, int m, int y)
  @param jd the julian day number.
  */
 hdate_struct *
-hdate_set_jd (hdate_struct *h, int jd)
+hdate_set_jd (hdate_struct * h, int jd)
 {
 	int jd_tishrey1, jd_tishrey1_next_year;
 	
@@ -457,7 +457,7 @@ hdate_set_jd (hdate_struct *h, int jd)
  @return the Gregorian day of the month, 1..31.
  */
 int
-hdate_get_gday (hdate_struct *h)
+hdate_get_gday (hdate_struct const * h)
 {
 	return h->gd_day;
 }
@@ -469,7 +469,7 @@ hdate_get_gday (hdate_struct *h)
  @return the Gregorian month, jan = 1.
  */
 int
-hdate_get_gmonth (hdate_struct *h)
+hdate_get_gmonth (hdate_struct const * h)
 {
 	return h->gd_mon;
 }
@@ -481,7 +481,7 @@ hdate_get_gmonth (hdate_struct *h)
  @return the Gregorian year.
  */
 int
-hdate_get_gyear (hdate_struct *h)
+hdate_get_gyear (hdate_struct const * h)
 {
 	return h->gd_year;
 }
@@ -493,7 +493,7 @@ hdate_get_gyear (hdate_struct *h)
  @return the Hebrew day of the month, 1..30.
  */
 int
-hdate_get_hday (hdate_struct *h)
+hdate_get_hday (hdate_struct const * h)
 {
 	return h->hd_day;
 }
@@ -505,7 +505,7 @@ hdate_get_hday (hdate_struct *h)
  @return the Hebrew month, Tishery = 1 .. Adar I =13, Adar II = 14.
  */
 int
-hdate_get_hmonth (hdate_struct *h)
+hdate_get_hmonth (hdate_struct const * h)
 {
 	return h->hd_mon;
 }
@@ -517,7 +517,7 @@ hdate_get_hmonth (hdate_struct *h)
  @return the Hebrew year.
  */
 int
-hdate_get_hyear (hdate_struct *h)
+hdate_get_hyear (hdate_struct const * h)
 {
 	return h->hd_year;
 }
@@ -529,7 +529,7 @@ hdate_get_hyear (hdate_struct *h)
  @return the the day of the week.
  */
 int
-hdate_get_day_of_the_week (hdate_struct *h)
+hdate_get_day_of_the_week (hdate_struct const * h)
 {
 	return h->hd_dw;
 }
@@ -541,7 +541,7 @@ hdate_get_day_of_the_week (hdate_struct *h)
  @return the the size of the hebrew year.
  */
 int
-hdate_get_size_of_year (hdate_struct *h)
+hdate_get_size_of_year (hdate_struct const * h)
 {
 	return h->hd_size_of_year;
 }
@@ -553,7 +553,7 @@ hdate_get_size_of_year (hdate_struct *h)
  @return the the new year day of the week.
  */
 int
-hdate_get_new_year_day_of_the_week (hdate_struct *h)
+hdate_get_new_year_day_of_the_week (hdate_struct const * h)
 {
 	return h->hd_new_year_dw;
 }
@@ -565,7 +565,7 @@ hdate_get_new_year_day_of_the_week (hdate_struct *h)
  @return the Julian day number.
  */
 int
-hdate_get_julian (hdate_struct *h)
+hdate_get_julian (hdate_struct const * h)
 {
 	return h->hd_jd;
 }
@@ -577,7 +577,7 @@ hdate_get_julian (hdate_struct *h)
  @return the number of days passed since 1 tishrey.
  */
 int
-hdate_get_days (hdate_struct *h)
+hdate_get_days (hdate_struct const * h)
 {
 	return h->hd_days;
 }
@@ -589,7 +589,7 @@ hdate_get_days (hdate_struct *h)
  @return the number of weeks passed since 1 tishrey.
  */
 int
-hdate_get_weeks (hdate_struct *h)
+hdate_get_weeks (hdate_struct const * h)
 {
 	return h->hd_weeks;
 }

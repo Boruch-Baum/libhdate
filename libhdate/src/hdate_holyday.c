@@ -27,7 +27,7 @@
  @return the number of holyday.
 */
 int
-hdate_get_holyday (hdate_struct * h, int diaspora)
+hdate_get_holyday (hdate_struct const * h, int diaspora)
 {
 	int holyday;
 
