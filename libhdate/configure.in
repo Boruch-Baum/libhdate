@@ -187,7 +187,6 @@ bindings/Makefile
 bindings/python/Makefile
 bindings/perl/Makefile
 bindings/pascal/Makefile
-debian/Makefile
 ])
 
 dnl ===========================================================================================

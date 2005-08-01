@@ -12,10 +12,10 @@ patched by Nadav Har'El. The Torah reading sequence
 is from tables by Zvi Har'El.
 .SH "SYNOPSIS"
 .B hdate
-[-sShdr]
+[\-sShdr]
 .PP
-[-L longitude -l latitude]
-[-z timezone]
+[\-L longitude \-l latitude]
+[\-z timezone]
 .PP
 [[[day] month] year]
 .SH "DESCRIPTION"
@@ -30,32 +30,32 @@ takes the given date as a Hebrew date, and translates it
 back to the common calendar.
 Months are numbered with Tishrey being 1 and Elul 12; Adar I and Adar II are months 13 and 14.
 .PP
-.I -s 
+.I \-s 
 : Print sunrise/sunset times.
 .PP
-.I -S 
+.I \-S 
 : Print using short format.
 .PP
-.I -h 
+.I \-h 
 : Print holidays.
 .PP
-.I -r 
+.I \-r 
 : Print weekly reading on saturday.
 .PP
-.I -d 
+.I \-d 
 : Use diaspora reading and holidays.
 .PP
-.I -l 
+.I \-l 
 xx : Set the latitude for solar calculations to
 .PP
 xx degrees.  Negative values are south.
 .PP
-.I -L 
+.I \-L 
 xx : Set the longitude for solar calculations to
 .PP
 xx degrees.  *Negative values are EAST*.
 .PP
-.I -z 
+.I \-z 
 : Use specified timezone.
 .PP
 ( default location for sunrise/set is Tel Aviv ).

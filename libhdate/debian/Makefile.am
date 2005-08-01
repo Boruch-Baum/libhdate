@@ -1,1 +1,0 @@
-EXTRA_DIST = changelog control compat copyright docs rules libhdate0.dirs libhdate-dev.dirs libhdate-perl.dirs libhdate-python.dirs libhdate-pascal.dirs libhdate0.files libhdate-dev.files libhdate-perl.files libhdate-python.files libhdate-pascal.files
