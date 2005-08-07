@@ -36,7 +36,7 @@ hdate_get_holyday (hdate_struct const * h, int diaspora)
 	{
 		{	/* Tishrey */
 			1, 2, 3, 3, 0, 0, 0, 0, 0, 4,
-			0, 0, 0, 0, 5, 6, 6, 6, 6, 6,
+			0, 0, 0, 0, 5, 31, 6, 6, 6, 6,
 			7, 27, 8, 0, 0, 0, 0, 0, 0, 0},
 		{	/* Heshvan */
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -60,7 +60,7 @@ hdate_get_holyday (hdate_struct const * h, int diaspora)
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 		{	/* Nisan */
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 15, 16, 16, 16, 16, 16,
+			0, 0, 0, 0, 15, 32, 16, 16, 16, 16,
 			28, 29, 0, 0, 0, 24, 24, 24, 0, 0},
 		{	/* Iyar */
 			0, 17, 17, 17, 17, 17, 0, 0, 0, 0,
@@ -191,7 +191,13 @@ hdate_get_holyday (hdate_struct const * h, int diaspora)
 	if (holyday == 8 && !diaspora)
 		holyday = 0;
 	
-	/* FIXME: no diff to sukkut and pesach I in diaspora ? */
+	/* sukkot II holiday only in diaspora */
+        if (holyday == 31 && !diaspora)
+                holyday = 6;
+
+	/* pesach II holiday only in diaspora */
+        if (holyday == 32 && !diaspora)
+                holyday = 16;
 	
 	/* shavot II holiday only in diaspora */
 	if (holyday == 30 && !diaspora)
