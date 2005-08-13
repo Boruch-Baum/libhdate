@@ -608,6 +608,10 @@ new_hdate ()
 	/* allocate memory for a new hdate object */
 	hdate_struct *h = (hdate_struct *) malloc (sizeof (hdate_struct));
 	
+	/* check for out of memory */
+	if (!h)
+		return NULL;
+	
 	/* get todays date */
 	hdate_set_gdate (h, 0, 0, 0);
 	
