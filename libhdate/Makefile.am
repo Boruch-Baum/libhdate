@@ -8,7 +8,7 @@ SUBDIRS = intl po src examples bindings
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libhdate.pc
 
-libhdatedocdir = ${prefix}/share/doc/libhdate0
+libhdatedocdir = ${prefix}/share/doc/libhdate
 libhdatedoc_DATA = \
 	README\
 	hdate_README\
