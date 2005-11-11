@@ -55,7 +55,16 @@ namespace hdate
 		 */
 		Hdate()
 		{
+			/* default is this day */
 			h = new_hdate();
+			
+			/* default is in israel */
+			diaspora = HDATA_ISRAEL_FLAG;
+			
+			/* default localeconv is Tel-Aviv winter time */
+			latitude = 32.0;
+			longitude = -34.0;
+			tz = 2;
 		}
 		
 		/**
@@ -115,12 +124,11 @@ namespace hdate
 		 return the short ( e.g. "1 Tishrey" ) or 
 		 long (e.g. "Tuesday 18 Tishrey 5763 Hol hamoed Sukot" ) formated date.
 		
-		 @param diaspora if true give diaspora holydays.
 		 @param s short flag.
 		 @return a static string of foramted date
 		*/
 		char *
-		get_format_date (int diaspora, int s)
+		get_format_date (int s)
 		{
 			return hdate_get_format_date (h, diaspora, s);
 		}
@@ -172,7 +180,7 @@ namespace hdate
 		 @return a static string of hebrew holiday name
 		*/
 		char *
-		get_holyday_string (int diaspora, int s)
+		get_holyday_string (int s)
 		{
 			int holyday;
 			
@@ -187,7 +195,7 @@ namespace hdate
 			(1- regular holyday, 2- three regels, 3- tzom, 0- no holiday)
 		*/
 		int
-		get_holyday_type (int diaspora)
+		get_holyday_type ()
 		{
 			int holyday;
 			
@@ -198,13 +206,12 @@ namespace hdate
 		/**
 		 @brief get name hebrew parasha.
 		
-		 @param diaspora if true give diaspora parashot.
 		 @param s short flag 
 		   true - returns a short string.
 		 @return a static string of hebrew parash name
 		*/
 		char *
-		get_parasha_string (int diaspora, int s)
+		get_parasha_string (int s)
 		{
 			int parasha;
 			
@@ -239,24 +246,21 @@ namespace hdate
 		
 		/**
 		 @brief get parash number
-		
-		 @param diaspora if true give diaspora parashot.
-		 @return the hebrew parasha number
+
+		@return the hebrew parasha number
 		*/
 		int
-		get_parasha (int diaspora)
+		get_parasha ()
 		{
 			return hdate_get_parasha (h, diaspora);
 		}
 		
 		/**
 		 @brief get holiday number
-		
-		 @param diaspora if true give diaspora holidays.
 		 @return the hebrew holiday number
 		*/
 		int
-		get_holyday (int diaspora)
+		get_holyday ()
 		{
 			return hdate_get_holyday (h, diaspora);
 		}
@@ -397,17 +401,29 @@ namespace hdate
 		////////////////////////////////////////
 		
 		/**
+		 @brief set location
+		
+		 @param in_longitude longitude to use in calculations
+			degrees, negative values are east
+		 @param in_latitude latitude to use in calculations
+			degrees, negative values are south
+		 @param in_tz time zone
+		 */
+		void
+		set_location (double in_latitude, double in_longitude, int in_tz)
+		{
+			latitude = in_latitude;
+			longitude = in_longitude;
+			tz = in_tz;
+		}
+		
+		/**
 		 @brief sunrise time
 		
-		 @param longitude longitude to use in calculations
-			degrees, negative values are east
-		 @param latitude latitude to use in calculations
-			degrees, negative values are south
-		 @param tz time zone
 		 @return sunrise in minutes after midnight (00:00)
 		 */
 		int
-		get_sunrise (double latitude, double longitude, int tz)
+		get_sunrise ()
 		{
 			int sunrise;
 			int sunset;
@@ -422,15 +438,10 @@ namespace hdate
 		/**
 		 @brief sunset time
 		
-		 @param longitude longitude to use in calculations
-			degrees, negative values are east
-		 @param latitude latitude to use in calculations
-			degrees, negative values are south
-		 @param tz time zone
 		 @return sunset in minutes after midnight (00:00)
 		 */
 		int
-		get_sunset (double latitude, double longitude, int tz)
+		get_sunset ()
 		{
 			int sunrise;
 			int sunset;
@@ -456,8 +467,30 @@ namespace hdate
 			return hdate_get_translator_string ();
 		}
 		
+		/**
+		 @brief set this hdate object to use diaspora holidays and dates
+		*/
+		void
+		set_diaspora ()
+		{
+			diaspora = HDATA_DIASPORA_FLAG;
+		}
+		
+		/**
+		 @brief set this hdate object to use israel holidays and dates
+		*/
+		void
+		set_israel ()
+		{
+			diaspora = HDATA_ISRAEL_FLAG;
+		}
+		
 	private:
 		
+		int diaspora;
+		double latitude;
+		double longitude;
+		int tz;
 		hdate_struct *h;
 	
 	};

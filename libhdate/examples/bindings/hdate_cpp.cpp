@@ -22,8 +22,8 @@ main (int argc, char* argv[])
 	cout << "Today is :\n";
 	cout << h.get_gday () << "," << h.get_gmonth () << "," << h.get_gyear () << "\n";
 	
-	// print hebrew date: 0 - israely holidays, 0 - long format
-	cout << h.get_format_date (0, 0);
+	// print hebrew date: 0 - long format
+	cout << h.get_format_date (0);
 	cout << "\n";
 
 	return 0;

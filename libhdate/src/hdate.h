@@ -29,6 +29,26 @@ extern "C"
 {
 #endif
 
+/** @def HDATA_DIASPORA_FLAG
+  @brief use diaspora dates and holydays flag
+*/
+#define HDATA_DIASPORA_FLAG -1
+	
+/** @def HDATA_ISRAEL_FLAG
+  @brief use israel dates and holydays flag
+*/
+#define HDATA_ISRAEL_FLAG 0
+	
+/** @def HDATA_SHORT_FLAG
+  @brief use short strings flag
+*/
+#define HDATA_SHORT_FLAG -1
+	
+/** @def HDATA_LONG_FLAG
+  @brief use long strings flag
+*/
+#define HDATA_LONG_FLAG 0
+
 /** Base structore for hebrew dates
 
 */
@@ -62,15 +82,16 @@ typedef struct
 	int hd_weeks;
 } hdate_struct;
 
-/********************************************************************************/
-/********************************************************************************/
+/*************************************************************/
+/*************************************************************/
 
 /**
  @brief compute date structure from the Gregorian date
 
  @param h pointer this hdate struct.
  @param d Day of month 1..31
- @param m Month 1..12 ,  if m or d is 0 return current date.
+ @param m Month 1..12
+	if m or d is 0 return current date.
  @param y Year in 4 digits e.g. 2001
  @return pointer to this hdate struct
  */
@@ -82,7 +103,8 @@ hdate_set_gdate (hdate_struct *h, int d, int m, int y);
 
  @param h pointer this hdate struct.
  @param d Day of month 1..31
- @param m Month 1..14 ,  if m or d is 0 return current date.
+ @param m Month 1..14 ,(13 - Adar 1, 14 - Adar 2)
+ 	if m or d is 0 return current date.
  @param y Year in 4 digits e.g. 5731
  @return pointer to this hdate struct
  */
@@ -270,7 +292,7 @@ hdate_gdate_to_jd (int day, int month, int year);
  @param month Month 1..14 (13 - Adar 1, 14 - Adar 2)
  @param year Hebrew year in 4 digits e.g. 5753
  @param jd_tishrey1 return the julian number of 1 Tishrey this year
- @param jd_tishrey1 return the julian number of 1 Tishrey next year
+ @param jd_tishrey1_next_year return the julian number of 1 Tishrey next year
  @return the julian day number
  */
 int
@@ -282,9 +304,9 @@ hdate_hdate_to_jd (int day, int month, int year, int *jd_tishrey1, int *jd_tishr
  @author Yaacov Zamir (Algorithm, Henry F. Fliegel and Thomas C. Van Flandern ,1968)
 
  @param jd Julian day
- @param d return Day of month 1..31
- @param m return Month 1..12
- @param y return Year in 4 digits e.g. 2001
+ @param day return Day of month 1..31
+ @param month return Month 1..12
+ @param year return Year in 4 digits e.g. 2001
  */
 void
 hdate_jd_to_gdate (int jd, int *day, int *month, int *year);
@@ -299,7 +321,7 @@ hdate_jd_to_gdate (int jd, int *day, int *month, int *year);
  @param month return Month 1..14 (13 - Adar 1, 14 - Adar 2)
  @param year return Year in 4 digits e.g. 2001
  @param jd_tishrey1 return the julian number of 1 Tishrey this year
- @param jd_tishrey1 return the julian number of 1 Tishrey next year
+ @param jd_tishrey1_next_year return the julian number of 1 Tishrey next year
  */
 void
 hdate_jd_to_hdate (int jd, int *day, int *month, int *year, int *jd_tishrey1, int *jd_tishrey1_next_year);

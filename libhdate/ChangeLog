@@ -2,6 +2,9 @@ libhdate (1.4.0)
 
   * Michael Kaminsky - libhdate now reports the 2nd day of yom
     tov on Sukkot and Peseach as Yom Tov and not Chol Hamoed.
+  * Cange C++ API - insert the location and diaspora flag as
+    part of the hdate object.
+  * Docomentation - separate the c and the cpp docs, more readable.
 
   -- Yaacov Zamir <kzamir@wall.co.il>  Mon, 8 Aug 2005 22:13
   
