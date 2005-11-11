@@ -5,6 +5,7 @@ libhdate (1.4.0)
   * Cange C++ API - insert the location and diaspora flag as
     part of the hdate object.
   * Docomentation - separate the c and the cpp docs, more readable.
+  * hdate example can now export iCal formated output.
 
   -- Yaacov Zamir <kzamir@wall.co.il>  Mon, 8 Aug 2005 22:13
   
