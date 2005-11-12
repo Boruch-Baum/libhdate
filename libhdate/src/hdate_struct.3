@@ -1,112 +1,102 @@
-.\" .ad l
-.\" .nh
-.TH "hdate_struct" "3" "2 Mar 2005" "Yaacov Zamir" "libhdate"
-.SH "NAME"
-hdate_struct \- base struct for libhdate, a library that help use hebrew dates.
-.PP 
-LibHdate is a small C,C++ library for Hebrew dates,
-holidays, and reading sequence (parasha). It is using 
-the source code from Amos Shapir's "hdate" package fixed and 
-patched by Nadav Har'El. The Torah reading sequence
-is from tables by Zvi Har'El.
-
-.SH "SYNOPSIS"
-.br 
-.PP 
+.TH "hdate_struct" 3 "11 Nov 2005" "Version 1.4" "libhdate C language" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+hdate_struct \- 
+.SH SYNOPSIS
+.br
+.PP
 \fC#include <hdate.h>\fP
-.PP 
+.PP
 .SS "Data Fields"
 
 .in +1c
-.ti \-1c
+.ti -1c
 .RI "int \fBhd_day\fP"
-.br 
-.ti \-1c
+.br
+.ti -1c
 .RI "int \fBhd_mon\fP"
-.br 
-.ti \-1c
+.br
+.ti -1c
 .RI "int \fBhd_year\fP"
-.br 
-.ti \-1c
+.br
+.ti -1c
 .RI "int \fBgd_day\fP"
-.br 
-.ti \-1c
+.br
+.ti -1c
 .RI "int \fBgd_mon\fP"
-.br 
-.ti \-1c
+.br
+.ti -1c
 .RI "int \fBgd_year\fP"
-.br 
-.ti \-1c
+.br
+.ti -1c
 .RI "int \fBhd_dw\fP"
-.br 
-.ti \-1c
+.br
+.ti -1c
 .RI "int \fBhd_size_of_year\fP"
-.br 
-.ti \-1c
+.br
+.ti -1c
 .RI "int \fBhd_new_year_dw\fP"
-.br 
-.ti \-1c
+.br
+.ti -1c
 .RI "int \fBhd_year_type\fP"
-.br 
-.ti \-1c
+.br
+.ti -1c
 .RI "int \fBhd_jd\fP"
-.br 
-.ti \-1c
+.br
+.ti -1c
 .RI "int \fBhd_days\fP"
-.br 
-.ti \-1c
+.br
+.ti -1c
 .RI "int \fBhd_weeks\fP"
-.br 
-.in \-1c
+.br
+.in -1c
 .SH "Detailed Description"
 .PP 
 Base structore for hebrew dates 
-.PP 
+.PP
 .SH "Field Documentation"
 .PP 
 .SS "int \fBhdate_struct::hd_day\fP"
-.PP 
+.PP
 The number of day in the hebrew month (1..31). 
 .SS "int \fBhdate_struct::hd_mon\fP"
-.PP 
-The number of the hebrew month 1..14 (1 \- tishre, 13 \- adar 1, 14 \- adar 2). 
+.PP
+The number of the hebrew month 1..14 (1 - tishre, 13 - adar 1, 14 - adar 2). 
 .SS "int \fBhdate_struct::hd_year\fP"
-.PP 
+.PP
 The number of the hebrew year. 
 .SS "int \fBhdate_struct::gd_day\fP"
-.PP 
+.PP
 The number of the day in the month. (1..31) 
 .SS "int \fBhdate_struct::gd_mon\fP"
-.PP 
-The number of the month 1..12 (1 \- jan). 
+.PP
+The number of the month 1..12 (1 - jan). 
 .SS "int \fBhdate_struct::gd_year\fP"
-.PP 
+.PP
 The number of the year. 
 .SS "int \fBhdate_struct::hd_dw\fP"
-.PP 
-The day of the week 1..7 (1 \- sunday). 
+.PP
+The day of the week 1..7 (1 - sunday). 
 .SS "int \fBhdate_struct::hd_size_of_year\fP"
-.PP 
+.PP
 The length of the year in days. 
 .SS "int \fBhdate_struct::hd_new_year_dw\fP"
-.PP 
+.PP
 The week day of Hebrew new year. 
 .SS "int \fBhdate_struct::hd_year_type\fP"
-.PP 
+.PP
 The number type of year. 
 .SS "int \fBhdate_struct::hd_jd\fP"
-.PP 
+.PP
 The Julian day number 
 .SS "int \fBhdate_struct::hd_days\fP"
-.PP 
+.PP
 The number of days passed since 1 tishrey 
 .SS "int \fBhdate_struct::hd_weeks\fP"
-.PP 
+.PP
 The number of weeks passed since 1 tishrey 
 
-.SH "SEE ALSO"
-hdate.h(3), hcal(1), hdate(1) 
 .SH "Author"
 .PP 
-2005 Yaacov Zmair
-Generated automatically by Doxygen for libhdate from the source code.
+Generated automatically by Doxygen for libhdate C language from the source code.
