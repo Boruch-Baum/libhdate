@@ -32,6 +32,9 @@
 #define FALSE 0
 #define TRUE -1
 
+/* FIXME: global var - ugly ! */
+int iCal_uid_counter = 0;
+
 /* some useful time zones
  * Eilat 29, -34, 2
  * Haifa 32, -34, 2
@@ -211,7 +214,7 @@ print_day (hdate_struct * h,
 		print_ical_header ();
 
 		printf ("BEGIN:VEVENT\n");
-		printf ("UID:0\n");
+		printf ("UID:%d\n", ++iCal_uid_counter);
 		printf ("DTSTART;VALUE=DATE:%04d%02d%02d\n", h->gd_year,
 			h->gd_mon, h->gd_day);
 		printf ("SUMMARY:");
