@@ -25,7 +25,7 @@ or build applications that use them.
 %setup
 
 %build
-%configure --enable-python --enable-perl --enable-pascal --with-perl-sitelib-dir=/usr/lib/perl5/site_perl --with-python-sitelib-dir=/usr/lib/python2.3
+%configure --enable-python --enable-perl --enable-pascal --with-perl-sitelib-dir=/usr/lib/perl5/site_perl --with-python-sitelib-dir=/usr/lib/python@PY_VERSION@
 
 %{__make} %{?_smp_mflags}
 
@@ -46,6 +46,16 @@ rm -rf $RPM_BUILD_ROOT/usr/man
 %{_prefix}/share/locale/*
 %{_bindir}/*
 %{_prefix}/share/man/man1/*
+%{_prefix}/share/doc/libhdate/README
+%{_prefix}/share/doc/libhdate/hdate_README
+%{_prefix}/share/doc/libhdate/COPYING
+%{_prefix}/share/doc/libhdate/AUTHORS
+%{_prefix}/share/doc/libhdate/ChangeLog
+%{_prefix}/share/doc/libhdate/INSTALL
+%{_prefix}/share/doc/libhdate/NEWS
+%{_prefix}/share/doc/libhdate/TODO
+%{_prefix}/share/doc/libhdate/USE
+%{_prefix}/share/doc/libhdate/ABOUT-NLS
 
 %doc hdate_README README AUTHORS NEWS USE ABOUT-NLS COPYING ChangeLog INSTALL TODO USE
 
@@ -66,6 +76,7 @@ to build new applications with %{name}
 %{_libdir}/pkgconfig/*
 %{_prefix}/share/man/man3/hdate.h.3.gz
 %{_prefix}/share/man/man3/hdate_struct.3.gz
+%{_prefix}/share/doc/libhdate/examples/*
 
 %package python
 Summary:	Python binding for %{name}
@@ -76,8 +87,8 @@ Requires:	%{name} = %{version}
 This package contains %{name} binding to python
 
 %files python
-%{_libdir}/python2.3/_hdate.so
-%{_libdir}/python2.3/hdate.py
+%{_libdir}/python@PY_VERSION@/_hdate.so
+%{_libdir}/python@PY_VERSION@/hdate.py
 
 %package perl
 Summary:	Perl binding for %{name}
@@ -100,7 +111,7 @@ Requires:	%{name} = %{version}
 This package contains %{name} binding to free pascal
 
 %files pascal
-%{_libdir}/fpc/1.9.4/units/linux/hdate/*
+%{_libdir}/fpc/@PA_VERSION@/units/linux/hdate/*
 
 %post
 /sbin/ldconfig

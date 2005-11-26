@@ -17,10 +17,11 @@
    Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 	 
 History:
-     13/3/2005 -  Bug Fixed Added {$PACKRECORDS C}
-  10-11/3/2005 -  Initial Translation of version 0.31.0
+     25/11/2005 - Added some constants and fixed comments according the orginal API file
+     13/03/2005 - Bug Fixed Added {$PACKRECORDS C}
+  10-11/03/2005 - Initial Translation of version 0.31.0
 *)
-{$MODE FPC}{$PACKRECORDS C}
+{$MODE OBJFPC}{$PACKRECORDS C}
 
 unit hdate;
 
@@ -29,6 +30,27 @@ uses cTypes;
 
 const
   LIBHDATE_LIBRARY_NAME = 'hdate';
+
+(** @def HDATA_DIASPORA_FLAG
+  @brief use diaspora dates and holydays flag
+*)
+  HDATA_DIASPORA_FLAG = -1;
+
+(** @def HDATA_ISRAEL_FLAG
+  @brief use israel dates and holydays flag
+*)
+  HDATA_ISRAEL_FLAG   = 0;
+
+(** @def HDATA_SHORT_FLAG
+  @brief use short strings flag
+*)
+  HDATA_SHORT_FLAG    = -1;
+
+(** @def HDATA_LONG_FLAG
+  @brief use long strings flag
+*)
+  HDATA_LONG_FLAG     = 0;
+
 
 { Base structore for hebrew dates }
 
@@ -57,7 +79,7 @@ type
 
  @param h pointer this hdate struct.
  @param d Day of month 1..31
- @param m Month 1..12 ,  if m or d is 0 return current date.
+ @param m Month 1..12 
  @param y Year in 4 digits e.g. 2001
  @return pointer to this hdate struct
  *)
@@ -70,7 +92,7 @@ type
 
  @param h pointer this hdate struct.
  @param d Day of month 1..31
- @param m Month 1..14 ,  if m or d is 0 return current date.
+ @param m Month 1..14 , (13 - Adar 1, 14 - Adar 2)
  @param y Year in 4 digits e.g. 5731
  @return pointer to this hdate struct
  *)
@@ -259,7 +281,7 @@ function hdate_get_year_type (size_of_year, new_year_dw : cInt) : cInt;
  @param month Month 1..14 (13 - Adar 1, 14 - Adar 2)
  @param year Hebrew year in 4 digits e.g. 5753
  @param jd_tishrey1 return the julian number of 1 Tishrey this year
- @param jd_tishrey1 return the julian number of 1 Tishrey next year
+ @param jd_tishrey1_next_year return the julian number of 1 Tishrey next year
  @return the julian day number
  *)
  function hdate_hdate_to_jd (day, month, year : cInt; jd_tishrey1, jd_tishrey1_next_year : pcInt) : cInt;
@@ -271,9 +293,9 @@ function hdate_get_year_type (size_of_year, new_year_dw : cInt) : cInt;
  @author Yaacov Zamir (Algorithm, Henry F. Fliegel and Thomas C. Van Flandern ,1968)
 
  @param jd Julian day
- @param d return Day of month 1..31
- @param m return Month 1..12
- @param y return Year in 4 digits e.g. 2001
+ @param day return Day of month 1..31
+ @param month return Month 1..12
+ @param year return Year in 4 digits e.g. 2001
  *)
  procedure hdate_jd_to_gdate (jd : cInt; day, month, year : pcInt);
      cdecl external LIBHDATE_LIBRARY_NAME name 'hdate_jd_to_gdate';
@@ -288,7 +310,7 @@ function hdate_get_year_type (size_of_year, new_year_dw : cInt) : cInt;
  @param month return Month 1..14 (13 - Adar 1, 14 - Adar 2)
  @param year return Year in 4 digits e.g. 2001
  @param jd_tishrey1 return the julian number of 1 Tishrey this year
- @param jd_tishrey1 return the julian number of 1 Tishrey next year
+ @param jd_tishrey1_next_year return the julian number of 1 Tishrey next year
  *)
 procedure hdate_jd_to_hdate (jd : cInt; day, month, year, jd_tishrey1, jd_tishrey1_next_year : pcInt);
      cdecl external LIBHDATE_LIBRARY_NAME name 'hdate_jd_to_hdate';

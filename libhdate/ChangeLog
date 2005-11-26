@@ -1,3 +1,11 @@
+libhdate (1.4.2)
+
+  * Ido Kanner <idokan@gmail.com> - Update free pascal bindings.
+  * Update address of Free Software Foundatio in COPYING file.
+  * make the spec.in file more configurable.
+
+  -- Yaacov Zamir <kzamir@wall.co.il>  Fri, 25 Nov 2005 12:13
+  
 libhdate (1.4.0)
 
   * Michael Kaminsky - libhdate now reports the 2nd day of yom

@@ -22,7 +22,7 @@ History:
     19-21/05/2005 - Initial creation
  }
 {$IFDEF FPC}
-  {$MODE OBJFPC}
+  {$MODE OBJFPC} {$H+}
 {$ELSE}
   {$Warning 'This code was tested with Free Pascal Only.'}
 {$ENDIF}
@@ -66,7 +66,7 @@ History:
 	   constructor Create  (hDateRec : Phdate_struct);           virtual; overload;
 	   destructor Destroy;                                       override;
      
-     procedure Assign    (Source : THdateClass);                virtual;
+     procedure Assign    (Source : THdateClass);               virtual;
    
      function get_format_date              (s : LongInt)                                 : String;
      function get_day_of_week_string       (s : LongInt)                                 : String;
@@ -116,6 +116,7 @@ begin
  hdate_set_gdate (Fh, ADay, AMonth, AYear);
 
  hdate_set_hdate (fh, hdate_get_hday (fh), hdate_get_hmonth (fh), hdate_get_hyear (fh));
+ 
  fHebrewDay  := StrPas (hdate_get_int_string (fh^.hd_day));
  fHebrewYear := StrPas (hdate_get_int_string (fh^.hd_year));
  
@@ -125,6 +126,7 @@ end;
 
 constructor THdateClass.Create;
 begin
+ fh         := nil;
  fh         := new_hdate;
  fToDestroy := True;
  InitValue; 
@@ -142,15 +144,13 @@ begin
  if fToDestroy then
    delete_hdate (fh);
   
- fh := nil;
-  
- inherited;  
+ inherited;
 end;
 
 procedure THdateClass.SetHebDay (Value : LongInt);
 begin
- hdate_set_hdate (Fh, Value, GetHebMonth, GetHebYear);
- fHebrewDay := StrPas (hdate_get_int_string (fh^.hd_day));
+  hdate_set_hdate (Fh, Value, GetHebMonth, GetHebYear);
+  fHebrewDay := StrPas (hdate_get_int_string (fh^.hd_day));
 end;
 
 procedure THdateClass.SetGregDay (Value : LongInt);
@@ -176,7 +176,7 @@ end;
 
 procedure THdateClass.SetHebYear (Value : LongInt);
 begin
- hdate_set_hdate (Fh, GetHebDay, GetGregMonth, Value);
+ hdate_set_hdate (fh, GetHebDay, GetGregMonth, Value);
  fHebrewYear := StrPas (hdate_get_int_string (fh^.hd_year));
 end;
 
@@ -267,7 +267,7 @@ end;
 
 function THdateClass.get_holyday_string (s : LongInt) : String;
 begin
-  Result  := StrPas (hdate_get_holyday_string (fHolyday, s));
+  Result := StrPas (hdate_get_holyday_string (fHolyday, s));
 end;
 
 function THdateClass.get_parasha_string (s : LongInt) : String;
