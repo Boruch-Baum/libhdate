@@ -37,11 +37,10 @@ major=2
 # awk '{if (match($$0,/\.so\.[0-9]+$$/)) print substr($$0,RSTART+4)}'`
 
 config.status: configure
-	dh_testdir
+	dh_testdir -s
 	# Add here commands to configure the package.
-	### free pascal-2 is not in sarge :(
 	CFLAGS="$(CFLAGS)" ./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --enable-perl --enable-python  --enable-pascal --with-perl-sitelib-dir=/usr/lib/perl5 --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info
-	#CFLAGS="$(CFLAGS)" ./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --enable-perl --enable-python --with-perl-sitelib-dir=/usr/lib/perl5 --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info
+	# --enable-examples
 
 build: build-stamp
 build-stamp:  config.status
@@ -53,8 +52,10 @@ build-stamp:  config.status
 	touch build-stamp
 
 clean:
-	dh_testdir
-	dh_testroot
+	dh_testdir -s
+
+	dh_testroot -s
+
 	rm -f build-stamp 
 
 	# Add here commands to clean up after the build process.
@@ -67,13 +68,13 @@ ifneq "$(wildcard /usr/share/misc/config.guess)" ""
 endif
 
 
-	dh_clean 
+	dh_clean -s config.log
 
 install: build
-	dh_testdir
-	dh_testroot
-	dh_clean -k 
-	dh_installdirs
+	dh_testdir -s
+	dh_testroot -s
+	dh_clean -k -s
+	dh_installdirs -s
 
 	# Add here commands to install the package into debian/tmp
 	$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
@@ -85,35 +86,27 @@ binary-indep: build install
 
 # Build architecture-dependent files here.
 binary-arch: build install
-	dh_testdir
-	dh_testroot
-	dh_installchangelogs ChangeLog
-	dh_installdocs
-#	dh_installexamples
-	dh_movefiles
-	dh_install
-#	dh_installmenu
-#	dh_installdebconf	
-#	dh_installlogrotate
-#	dh_installemacsen
-#	dh_installpam
-#	dh_installmime
-#	dh_installinit
-#	dh_installcron
-#	dh_installinfo
-	dh_installman
-	dh_link
-	dh_strip
-	dh_compress
-	dh_fixperms
-	dh_perl
-	dh_python
-#	dh_makeshlibs
-	dh_installdeb
-	dh_shlibdeps
-	dh_gencontrol
-	dh_md5sums
-	dh_builddeb
+	dh_testdir -s
+	dh_testroot -s
+	dh_installchangelogs ChangeLog -s
+
+	dh_installdocs -s
+	dh_installexamples -s -XMakefile -X.libs -X.o #don't copy all the files in the example dir
+	dh_movefiles -s
+	dh_install -s
+	dh_installman -s
+	dh_link -s
+	dh_strip -s
+	dh_compress -s
+	dh_fixperms -s
+	dh_perl -s
+	dh_python -s
+	dh_makeshlibs -s
+	dh_installdeb -s
+	dh_shlibdeps -s
+	dh_gencontrol -s
+	dh_md5sums -s
+	dh_builddeb -s
 
 binary: binary-indep binary-arch
 .PHONY: build clean binary-indep binary-arch binary install 
