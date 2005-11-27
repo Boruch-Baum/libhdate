@@ -69,6 +69,7 @@ This package contains headers and support files required
 to build new applications with %{name}
 
 %files devel
+%defattr(-,root,root)
 %{_libdir}/libhdate.a
 %{_libdir}/libhdate.la
 %{_includedir}/hdate.h
@@ -87,6 +88,7 @@ Requires:	%{name} = %{version}
 This package contains %{name} binding to python
 
 %files python
+%defattr(-,root,root)
 %{_libdir}/python@PY_VERSION@/_hdate.so
 %{_libdir}/python@PY_VERSION@/hdate.py
 
@@ -99,6 +101,7 @@ Requires:	%{name} = %{version}
 This package contains %{name} binding to perl
 
 %files perl
+%defattr(-,root,root)
 %{_libdir}/perl5/site_perl/hdate.pm
 %{_libdir}/perl5/site_perl/auto/hdate/hdate.so
 
@@ -111,6 +114,7 @@ Requires:	%{name} = %{version}
 This package contains %{name} binding to free pascal
 
 %files pascal
+%defattr(-,root,root)
 %{_libdir}/fpc/@PA_VERSION@/units/linux/hdate/*
 
 %post
@@ -120,6 +124,9 @@ This package contains %{name} binding to free pascal
 /sbin/ldconfig
 
 %changelog
+* Fri Nov 25 2005 Oron Peled <oron@actcom.co.il>
+  - Fix ownership of -devel packages.
+
 * Thu Mar 4 2005 Yaacov Zamir
   - Add python and perl packages
   - Add manfiles
