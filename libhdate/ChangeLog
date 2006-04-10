@@ -1,3 +1,10 @@
+libhdate (1.4.3)
+
+  * Fix header of spanish po file.
+  * Daniel Nylander: Swedish translation.
+
+  -- Yaacov Zamir <kzamir@wall.co.il>  Mon, 10 Apr 2006 12:13
+  
 libhdate (1.4.2)
 
   * Ido Kanner <idokan@gmail.com> - Update free pascal bindings.
