@@ -21,5 +21,5 @@ hdate_holydays_ical_LDADD = $(ldadd)
 
 endif
 
-libhdatedocdir = ${prefix}/share/doc/libhdate0/examples/ical
+libhdatedocdir = ${prefix}/share/doc/libhdate/examples/ical
 libhdatedoc_DATA = hdate_holydays_ical.c hdate_reading_ical.c

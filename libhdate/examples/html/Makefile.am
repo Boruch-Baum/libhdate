@@ -21,5 +21,5 @@ hdate_holydays_html_LDADD = $(ldadd)
 
 endif
 
-libhdatedocdir = ${prefix}/share/doc/libhdate0/examples/html
+libhdatedocdir = ${prefix}/share/doc/libhdate/examples/html
 libhdatedoc_DATA = hdate_holydays_html.c hdate_reading_html.c
