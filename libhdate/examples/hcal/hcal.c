@@ -51,7 +51,7 @@ print_help (char *program)
 int
 print_css ()
 {
-	printf ("\
+	printf ("\n\
 body {\n\
   direction: rtl;\n\
 }\n\
@@ -110,7 +110,7 @@ td.holiday {\
 td.out_of_month {\n\
 	color: #dddddd;\n\
 	border: solid #dddddd;\n\
-}\n");
+}\n\n");
 
 	return 0;
 }
