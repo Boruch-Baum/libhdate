@@ -12,6 +12,8 @@ patched by Nadav Har'El. The Torah reading sequence
 is from tables by Zvi Har'El.
 .SH "SYNOPSIS"
 .B hcal
+[\-h]
+.PP
 [ [ month ] year ]
 .SH "DESCRIPTION"
 .I Hcal
@@ -26,6 +28,10 @@ If the year is greater than 3000,
 takes the given date as a Hebrew date, and translates it
 back to the common calendar.
 Months are numbered with Tishrey being 1 and Elul 12; Adar I and Adar II are months 13 and 14.
+.PP
+.I \-h 
+: Print output in html format.
+.PP
 .SH "SEE ALSO"
 date(1), cal(1), hdate(1), hebcal(1), remind(1), hdate.h(3), hdate_struct(3)
 .SH "AUTHOR"

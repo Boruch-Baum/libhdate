@@ -76,7 +76,14 @@ print_help (char *program)
 	printf ("      Haifa : 32, -34, 2\n");
 	printf ("      Jerusalem : 31, -35, 2\n");
 	printf ("      Tel Aviv : 32, -34, 2\n");
-
+	printf ("      Ashdod : 31, -34, 2");
+	printf ("      Beer Sheva : 31, -34, 2");
+	printf ("      Tiberias : 32, -35, 2");
+	printf ("      London : 51, 0, 0");
+	printf ("      Paris : 48, -2, 1");
+	printf ("      New York : 40, 74, -5");
+	printf ("      Moscow : 55, -37, 3");
+	
 	return 0;
 }
 
