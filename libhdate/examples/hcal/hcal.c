@@ -121,7 +121,7 @@ div.hday {\n\
 	\n\
 }\n\
 \n\
-td.holiday_name {\n\
+div.holiday_name {\n\
 	\n\
 }\n\
 \n\
@@ -174,13 +174,13 @@ print_html_header (int opt_i)
 int
 print_html_footer ()
 {
-	printf ("<p>\n\
+	printf ("<!-- <p>\n\
 <a href=\"http://validator.w3.org/check/referer\">\n<img \
-src=\"http://www.w3.org/Icons/valid-xhtml10\"\n\
-alt=\"Valid XHTML 1.0!\" height=\"31\" width=\"88\" />\n</a>\n");
+src=\"http://www.w3.org/Icons/valid-html401\"\n\
+alt=\"Valid HTML 4.01!\" height=\"31\" width=\"88\" />\n</a>\n");
 	printf ("<a href=\"http://jigsaw.w3.org/css-validator\">\n\
 <img src=\"http://www.w3.org/Icons/valid-css\" alt=\"Valid CSS!\">\n\
-</a>\n</p>\n");
+</a>\n</p> -->\n");
 
 	printf ("</body>\n</html>\n");
 
