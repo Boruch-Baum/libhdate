@@ -38,22 +38,41 @@ print_help (char *program)
 {
 	printf ("hcal - example program for libhdate\n\n");
 
-	printf ("USAGE: %s [-h] ", program);
+	printf ("USAGE: %s [-hid] ", program);
 	printf ("   [[month] year]\n");
 
 	printf ("OPTIONS:\n");
 	printf ("   -h : Print html format.\n");
+	printf ("   -d : Use diaspora reading and holidays.\n");
+	printf ("   -i : Use external css file \"./hcal.css\".\n");
 
 	return 0;
 }
 
 /* print html css part */
 int
-print_css ()
+print_css (int opt_i)
 {
-	printf ("\n\
+	if (opt_i)
+	{
+		printf ("\n\t@import \"hcal.css\";\n");
+	}
+	else
+	{
+		printf ("\n\
 body {\n\
   direction: rtl;\n\
+}\n\
+\n\
+img { \n\
+    margin:0;\n\
+    padding: 0;\n\
+    vertical-align: middle;\n\
+    border: 0;\n\
+}\n\
+\n\
+p {\n\
+  \n\
 }\n\
 \n\
 table {\n\
@@ -85,6 +104,10 @@ div.gyear {\n\
 	font-weight: bold;\n\
 }\n\
 \n\
+div.gday {\n\
+	\n\
+}\n\
+\n\
 div.hmonth {\n\
 	font-size: 16pt;\n\
 }\n\
@@ -94,40 +117,50 @@ div.hyear {\n\
 	font-weight: bold;\n\
 }\n\
 \n\
+div.hday {\n\
+	\n\
+}\n\
+\n\
+td.holiday_name {\n\
+	\n\
+}\n\
+\n\
 td.sat {\n\
 	border: solid #777777;\n\
 }\n\
 \n\
 td.regular {\n\
 	border: solid #aaaaaa;\n\
-}\
-\
-td.holiday {\
+}\n\
+\n\
+td.holiday {\n\
 	color: #990000;\n\
-	border: solid #888888;\
+	border: solid #888888;\n\
 }\n\
 \n\
 td.out_of_month {\n\
 	color: #dddddd;\n\
 	border: solid #dddddd;\n\
-}\n\n");
+}\n");
+	}
 
 	return 0;
 }
 
 /* print html header */
 int
-print_html_header ()
+print_html_header (int opt_i)
 {
 	printf ("\
-<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">\n\
+<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"\n\
+   \"http://www.w3.org/TR/html4/strict.dtd\">\n\
 <html>\n\
 <head>\n\
 <meta name=\"generator\" content=\"hcal (libhdate)\">\n\
 <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n\
 <style type=\"text/css\" media=\"all\">");
 
-	print_css ();
+	print_css (opt_i);
 
 	printf ("\
 </style>\n\
@@ -141,14 +174,22 @@ print_html_header ()
 int
 print_html_footer ()
 {
-	printf ("\n</body>\n</html>\n");
+	printf ("<p>\n\
+<a href=\"http://validator.w3.org/check/referer\">\n<img \
+src=\"http://www.w3.org/Icons/valid-xhtml10\"\n\
+alt=\"Valid XHTML 1.0!\" height=\"31\" width=\"88\" />\n</a>\n");
+	printf ("<a href=\"http://jigsaw.w3.org/css-validator\">\n\
+<img src=\"http://www.w3.org/Icons/valid-css\" alt=\"Valid CSS!\">\n\
+</a>\n</p>\n");
+
+	printf ("</body>\n</html>\n");
 
 	return 0;
 }
 
 /* print year and month part */
 int
-print_header (int month, int year, int opt_h, int opt_s)
+print_header (int month, int year, int opt_h, int opt_d)
 {
 	hdate_struct h1, h2;
 	int j;
@@ -236,7 +277,7 @@ print_header (int month, int year, int opt_h, int opt_s)
 
 /* print month table */
 int
-print_calendar (int month, int year, int opt_h, int opt_s)
+print_calendar (int month, int year, int opt_h, int opt_d)
 {
 	hdate_struct h;
 	int jd;
@@ -267,37 +308,33 @@ print_calendar (int month, int year, int opt_h, int opt_s)
 			 * 0) */
 			holyday_type =
 				hdate_get_holyday_type (hdate_get_holyday
-							(&h, FALSE));
+							(&h, opt_d));
 
 			if (opt_h)
 			{
 				if (h.gd_mon != month)
 				{
-					printf ("<td class=\"out_of_month\">");
+					printf ("<td class=\"out_of_month\">\n");
 				}
 				else if (j == 6)
 				{
-					printf ("<td class=\"sat\">");
+					printf ("<td class=\"sat\">\n");
 				}
 				else if (holyday_type)
 				{
-					printf ("<td class=\"holiday\">");
+					printf ("<td class=\"holiday\">\n");
 				}
 				else
 				{
-					printf ("<td class=\"regular\">");
+					printf ("<td class=\"regular\">\n");
 				}
 
 				/* Print a day */
-				printf ("%2d<br\>\n%3s", h.gd_day,
-					hdate_get_int_string (h.hd_day));
+				printf ("<div class=\"gday\">%2d</div>\n<div class=\"hday\">%3s</div>\n", h.gd_day, hdate_get_int_string (h.hd_day));
 
 				if (holyday_type)
 				{
-					printf ("<br\>\n%s",
-						hdate_get_holyday_string
-						(hdate_get_holyday (&h, FALSE),
-						 FALSE));
+					printf ("<div class=\"holiday_name\">%s</div>\n", hdate_get_holyday_string (hdate_get_holyday (&h, opt_d), FALSE));
 				}
 
 				printf ("</td>\n");
@@ -320,7 +357,7 @@ print_calendar (int month, int year, int opt_h, int opt_s)
 
 		if (opt_h)
 		{
-			printf ("\n</tr>\n");
+			printf ("</tr>\n");
 		}
 		else
 		{
@@ -330,7 +367,7 @@ print_calendar (int month, int year, int opt_h, int opt_s)
 
 	if (opt_h)
 	{
-		printf ("</table>\n</div>\n");
+		printf ("</table>\n</div>");
 	}
 
 	return 0;
@@ -338,7 +375,7 @@ print_calendar (int month, int year, int opt_h, int opt_s)
 
 /* print month header and month table */
 int
-print_month (int month, int year, int opt_h, int opt_s)
+print_month (int month, int year, int opt_h, int opt_d)
 {
 	hdate_struct h;
 
@@ -349,8 +386,8 @@ print_month (int month, int year, int opt_h, int opt_s)
 		hdate_set_gdate (&h, 1, month, year);
 
 	/* Print calendar header */
-	print_header (h.gd_mon, h.gd_year, opt_h, opt_s);
-	print_calendar (h.gd_mon, h.gd_year, opt_h, opt_s);
+	print_header (h.gd_mon, h.gd_year, opt_h, opt_d);
+	print_calendar (h.gd_mon, h.gd_year, opt_h, opt_d);
 
 	printf ("\n");
 
@@ -367,8 +404,9 @@ main (int argc, char *argv[])
 	/* user opts */
 	char c;
 	int opt_h = 0;		/* -h html format flag */
-	int opt_s = 0;		/* -s Short format flag */
-
+	int opt_d = 0;		/* -d Diaspora holidays */
+	int opt_i = 0; 		/* -i External css file */
+	
 	/* hdate struct */
 	hdate_struct h;
 
@@ -376,15 +414,18 @@ main (int argc, char *argv[])
 	setlocale (LC_ALL, "");
 
 	/* command line parsing */
-	while ((c = getopt (argc, argv, "sh")) != EOF)
+	while ((c = getopt (argc, argv, "shdi")) != EOF)
 	{
 		switch (c)
 		{
-		case 's':
-			opt_s = 1;
-			break;
 		case 'h':
 			opt_h = 1;
+			break;
+		case 'd':
+			opt_d = 1;
+			break;
+		case 'i':
+			opt_i = 1;
 			break;
 		default:
 			print_help (argv[0]);
@@ -427,19 +468,19 @@ main (int argc, char *argv[])
 
 	/* if html print html header */
 	if (opt_h)
-		print_html_header ();
+		print_html_header (opt_i);
 
 	/* print all year */
 	if (month == 0)
 	{
 		for (month = 1; month < 13; month++)
 		{
-			print_month (month, year, opt_h, opt_s);
+			print_month (month, year, opt_h, opt_d);
 		}
 	}
 	else			/* print only this month */
 	{
-		print_month (month, year, opt_h, opt_s);
+		print_month (month, year, opt_h, opt_d);
 	}
 
 	/* if html print html header */

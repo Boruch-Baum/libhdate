@@ -350,7 +350,7 @@ msgstr "סוכות שני"
 
 #: src/hdate_strings.c:272 src/hdate_strings.c:305
 msgid "Pesach II"
-msgstr "שמיני של פסח"
+msgstr "שני של פסח"
 
 #: src/hdate_strings.c:338 src/hdate_strings.c:401
 msgid "none"
