@@ -1,3 +1,12 @@
+libhdate (1.4.7)
+
+  * Fix pesach II in hebrew po file.
+  * hcal utility export strict html 4.01.
+  * hcal utility can export diaspora holidays
+  * Update hcal utility man file.
+
+  -- Yaacov Zamir <kzamir@wall.co.il>  Tue, 18 Apr 2006 12:13
+
 libhdate (1.4.3)
 
   * Fix header of spanish po file.

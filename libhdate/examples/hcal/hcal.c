@@ -230,7 +230,7 @@ print_header (int month, int year, int opt_h, int opt_d)
 
 	if (opt_h)
 	{
-		printf ("</div>\n");
+		printf ("\n</div>\n");
 
 		printf ("<div class=\"hyear\">\n");
 	}
