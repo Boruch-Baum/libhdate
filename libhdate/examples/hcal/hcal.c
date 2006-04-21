@@ -56,6 +56,7 @@ print_css (int opt_i)
 	if (opt_i)
 	{
 		printf ("\n\t@import \"hcal.css\";\n");
+
 	}
 	else
 	{
@@ -158,13 +159,24 @@ print_html_header (int opt_i)
 <head>\n\
 <meta name=\"generator\" content=\"hcal (libhdate)\">\n\
 <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n\
-<style type=\"text/css\" media=\"all\">");
+<style title=\"Normal\" type=\"text/css\" media=\"all\">");
 
 	print_css (opt_i);
 
+	printf ("</style>\n");
+
+	/* some alternative css styles */
+	printf ("<link rel=\"alternate stylesheet\" title=\"High contrast\" \
+type=\"text/css\" media=\"screen\" href=\"high_contrast.css\">");
+	printf ("</style>\n\
+<link rel=\"alternate stylesheet\" title=\"Colorful\" \
+type=\"text/css\" media=\"screen\" href=\"colorful.css\">");
+	printf ("</style>\n\
+<link rel=\"alternate stylesheet\" title=\"Print\" \
+type=\"text/css\" media=\"all\" href=\"print.css\">");
+
 	printf ("\
-</style>\n\
-<title>Hebrew Calendat</title>\n\
+<title>Hebrew Calendar</title>\n\
 </head>\n\
 <body>\n");
 
@@ -405,8 +417,8 @@ main (int argc, char *argv[])
 	char c;
 	int opt_h = 0;		/* -h html format flag */
 	int opt_d = 0;		/* -d Diaspora holidays */
-	int opt_i = 0; 		/* -i External css file */
-	
+	int opt_i = 0;		/* -i External css file */
+
 	/* hdate struct */
 	hdate_struct h;
 
