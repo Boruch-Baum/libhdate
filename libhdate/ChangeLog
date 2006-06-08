@@ -1,3 +1,18 @@
+libhdate (1.4.8)
+
+  * Fix help printing bug: Add new line at the end of hdate help text.
+  * Add two new functios to the time of day section:
+      hdate_get_utc_sun_time_full - gets the time of first light,
+      talit, sunris, sunset, first stars and three stars.
+      hdate_get_utc_sun_time_deg - gets the time the sun is on
+      some known altitude.
+  * Add Times of day to hdate command line tool.
+     supported times: first-light, talit, sunrise, mid-day, sunset, first-stars
+     and three-stars
+  * Add new oprions in hdate command line tool to it's man page
+	
+  -- Yaacov Zamir <kzamir@wall.co.il>  Tue, 8 Jun 2006 12:13
+  
 libhdate (1.4.7)
 
   * Fix pesach II in hebrew po file.

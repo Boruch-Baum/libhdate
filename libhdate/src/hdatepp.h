@@ -453,6 +453,114 @@ namespace hdate
 			return sunset + tz * 60;
 		}
 		
+		/**
+		 @brief first light time
+		
+		 @return first light in minutes after midnight (00:00)
+		 */
+		int
+		get_first_light ()
+		{
+			int sunrise;
+			int sunset;
+			
+			hdate_get_utc_sun_time_deg (h->gd_day, h->gd_mon, h->gd_year, 
+				latitude, longitude, 106.01,
+				&sunrise, &sunset);
+			
+			return sunrise + tz * 60;
+		}
+		
+		/**
+		 @brief talit time
+		
+		 @return talit time in minutes after midnight (00:00)
+		 */
+		int
+		get_talit ()
+		{
+			int sunrise;
+			int sunset;
+			
+			hdate_get_utc_sun_time_deg (h->gd_day, h->gd_mon, h->gd_year, 
+				latitude, longitude, 101.0,
+				&sunrise, &sunset);
+			
+			return sunrise + tz * 60;
+		}
+		
+		/**
+		 @brief first stars time
+		
+		 @return first stars in minutes after midnight (00:00)
+		 */
+		int
+		get_first_stars ()
+		{
+			int sunrise;
+			int sunset;
+			
+			hdate_get_utc_sun_time_deg (h->gd_day, h->gd_mon, h->gd_year, 
+				latitude, longitude, 96.0,
+				&sunrise, &sunset);
+			
+			return sunset + tz * 60;
+		}
+		
+		/**
+		 @brief three stars time
+		
+		 @return three stars in minutes after midnight (00:00)
+		 */
+		int
+		get_three_stars ()
+		{
+			int sunrise;
+			int sunset;
+			
+			hdate_get_utc_sun_time_deg (h->gd_day, h->gd_mon, h->gd_year, 
+				latitude, longitude, 98.5,
+				&sunrise, &sunset);
+			
+			return sunset + tz * 60;
+		}
+		
+		/**
+		 @brief sun light hour time
+		
+		 @return sun light hour in minutes
+		 */
+		int
+		get_sun_hour ()
+		{
+			int sunrise;
+			int sunset;
+			
+			hdate_get_utc_sun_time (h->gd_day, h->gd_mon, h->gd_year, 
+				latitude, longitude,
+				&sunrise, &sunset);
+			
+			return (sunset - sunrise) / 12;
+		}
+		
+		/**
+		 @brief midday hour time
+		
+		 @return midday hour in minutes
+		 */
+		int
+		get_midday ()
+		{
+			int sunrise;
+			int sunset;
+			
+			hdate_get_utc_sun_time (h->gd_day, h->gd_mon, h->gd_year, 
+				latitude, longitude,
+				&sunrise, &sunset);
+			
+			return (sunset + sunrise) / 2;
+		}
+		
 		////////////////////////////////////////
 		////////////////////////////////////////
 		

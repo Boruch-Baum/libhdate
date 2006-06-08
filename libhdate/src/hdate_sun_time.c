@@ -55,24 +55,25 @@ hdate_get_day_of_year (int day, int month, int year)
 }
 
 /**
- @brief utc sunrise/set time for a gregorian date
+ @brief utc sun times for altitude at a gregorian date
   
  @parm day this day of month
  @parm month this month
  @parm year this year
  @parm longitude longitude to use in calculations
  @parm latitude latitude to use in calculations
+ @parm deg degrees of sun's altitude (0 -  Zenith .. 90 - Horizon)
  @parm sunrise return the utc sunrise in minutes
  @parm sunset return the utc sunset in minutes
 */
 void
-hdate_get_utc_sun_time (int day, int month, int year, double latitude, double longitude, int *sunrise, int *sunset)
+hdate_get_utc_sun_time_deg (int day, int month, int year, double latitude, double longitude, double deg, int *sunrise, int *sunset)
 {
 	double gama; /* location of sun in yearly cycle in radians */
 	double eqtime; /* diffference betwen sun noon and clock noon */
 	double decl; /* sun declanation */
 	double ha; /* solar hour engle */
-	double sunrise_angle = M_PI * 90.833 / 180.0; /* sun angle at sunrise/set */
+	double sunrise_angle = M_PI * deg / 180.0; /* sun angle at sunrise/set */
 	
 	int day_of_year;
 	
@@ -104,6 +105,65 @@ hdate_get_utc_sun_time (int day, int month, int year, double latitude, double lo
 	/* get sunset/rise times in utc wall clock in minutes from 00:00 time */
 	*sunrise = (int)(720.0 + 4.0 * longitude - ha - eqtime);
 	*sunset = (int)(720.0 + 4.0 * longitude + ha - eqtime);
+	
+	return;
+}
+
+/**
+ @brief utc sunrise/set time for a gregorian date
+  
+ @parm day this day of month
+ @parm month this month
+ @parm year this year
+ @parm longitude longitude to use in calculations
+ @parm latitude latitude to use in calculations
+ @parm sunrise return the utc sunrise in minutes
+ @parm sunset return the utc sunset in minutes
+*/
+void
+hdate_get_utc_sun_time (int day, int month, int year, double latitude, double longitude, int *sunrise, int *sunset)
+{
+	hdate_get_utc_sun_time_deg (day, month, year, latitude, longitude, 90.833, sunrise, sunset);
+	
+	return;
+}
+
+/**
+ @brief utc sunrise/set time for a gregorian date
+  
+ @parm day this day of month
+ @parm month this month
+ @parm year this year
+ @parm longitude longitude to use in calculations
+ @parm latitude latitude to use in calculations
+ @parm sun_hour return the length of shaa zaminit in minutes
+ @parm first_light return the utc alut ha-shachar in minutes
+ @parm talit return the utc tphilin and talit in minutes
+ @parm sunrise return the utc sunrise in minutes
+ @parm midday return the utc midday in minutes
+ @parm sunset return the utc sunset in minutes
+ @parm first_stars return the utc tzeit hacochavim in minutes
+ @parm three_stars return the utc shlosha cochavim in minutes
+*/
+void
+hdate_get_utc_sun_time_full (int day, int month, int year, double latitude, double longitude, 
+	int *sun_hour, int *first_light, int *talit, int *sunrise,
+	int *midday, int *sunset, int *first_stars, int *three_stars)
+{
+	int place_holder;
+	
+	/* sunset and rise time */
+	hdate_get_utc_sun_time_deg (day, month, year, latitude, longitude, 90.833, sunrise, sunset);
+	
+	/* shaa zmanit by gara, 1/12 of light time */
+	*sun_hour = (*sunset - *sunrise) / 12;
+	*midday = (*sunset + *sunrise) / 2;
+	
+	/* get times of the different sun angles */
+	hdate_get_utc_sun_time_deg (day, month, year, latitude, longitude, 106.01, first_light, &place_holder);
+	hdate_get_utc_sun_time_deg (day, month, year, latitude, longitude, 101.0, talit, &place_holder);
+	hdate_get_utc_sun_time_deg (day, month, year, latitude, longitude, 96.0, &place_holder, first_stars);
+	hdate_get_utc_sun_time_deg (day, month, year, latitude, longitude, 98.5, &place_holder, three_stars);
 	
 	return;
 }

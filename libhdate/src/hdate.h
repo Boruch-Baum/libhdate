@@ -341,6 +341,22 @@ int
 hdate_get_day_of_year (int day, int month, int year);
 
 /**
+ @brief utc sun times for altitude at a gregorian date
+  
+ @parm day this day of month
+ @parm month this month
+ @parm year this year
+ @parm longitude longitude to use in calculations
+ @parm latitude latitude to use in calculations
+ @parm deg degrees of sun's altitude (0 -  Zenith .. 90 - Horizon)
+ @parm sunrise return the utc sunrise in minutes
+ @parm sunset return the utc sunset in minutes
+*/
+void
+hdate_get_utc_sun_time_deg (int day, int month, int year, 
+	double latitude, double longitude, double deg, int *sunrise, int *sunset);
+
+/**
  @brief utc sunrise/set time for a gregorian date
   
  @param day this day of month
@@ -354,7 +370,30 @@ hdate_get_day_of_year (int day, int month, int year);
  @param sunset return the utc sunset in minutes after midnight (00:00)
 */
 void
-hdate_get_utc_sun_time (int day, int month, int year, double latitude, double longitude, int *sunrise, int *sunset);
+hdate_get_utc_sun_time (int day, int month, int year, 
+	double latitude, double longitude, int *sunrise, int *sunset);
+
+/**
+ @brief utc sunrise/set time for a gregorian date
+  
+ @parm day this day of month
+ @parm month this month
+ @parm year this year
+ @parm longitude longitude to use in calculations
+ @parm latitude latitude to use in calculations
+ @parm sun_hour return the length of shaa zaminit in minutes
+ @parm first_light return the utc alut ha-shachar in minutes
+ @parm talit return the utc tphilin and talit in minutes
+ @parm sunrise return the utc sunrise in minutes
+ @parm midday return the utc midday in minutes
+ @parm sunset return the utc sunset in minutes
+ @parm first_stars return the utc tzeit hacochavim in minutes
+ @parm three_stars return the utc shlosha cochavim in minutes
+*/
+void
+hdate_get_utc_sun_time_full (int day, int month, int year, double latitude, double longitude, 
+	int *sun_hour, int *first_light, int *talit, int *sunrise,
+	int *midday, int *sunset, int *first_stars, int *three_stars);
 
 /*************************************************************/
 /*************************************************************/
