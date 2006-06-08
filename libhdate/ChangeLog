@@ -9,6 +9,8 @@ libhdate (1.4.8)
   * Add Times of day to hdate command line tool.
      supported times: first-light, talit, sunrise, mid-day, sunset, first-stars
      and three-stars
+  * Add Times of Shabat enter/leave to hdate command line tool.
+     Shabat starts 20 min before sunset, and leave at three stars.
   * Add new oprions in hdate command line tool to it's man page
 	
   -- Yaacov Zamir <kzamir@wall.co.il>  Tue, 8 Jun 2006 12:13

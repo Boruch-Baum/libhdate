@@ -55,7 +55,9 @@ print_help (char *program)
 
 	printf ("OPTIONS:\n");
 	printf ("   -s : Print sunrise/sunset times.\n");
-/*	printf ("   -c : Print Shabat enter/leave times.\n"); */
+	printf ("   -c : Print Shabat enter/leave times.\n");
+	printf ("        Shabat starts 20 min before sunset,\n");
+	printf ("        and exits when three stars are out.\n");
 	printf ("   -t : Print day times -\n");
 	printf ("        first light, talit, sunrise, midday, sunset,\n");
 	printf ("        first stars, three stars.\n");
@@ -227,9 +229,48 @@ print_reading (hdate_struct * h, int opt_d, int opt_S, int opt_i)
 	if (reading)
 	{
 		/* print parash */
-		printf ("%s", hdate_get_parasha_string (reading, opt_S));
+		printf ("%s ", hdate_get_parasha_string (reading, opt_S));
 	}
 
+	return 0;
+}
+
+/* print one day - reading */
+int
+print_candales (hdate_struct * h, double lat, double lon, int tz, int opt_i)
+{
+	int sun_hour, first_light, talit, sunrise;
+	int midday, sunset, first_stars, three_stars;
+	
+	/* check for friday - print knisat shabat */
+	if (h->hd_dw == 6)
+	{	
+		/* get times */
+		hdate_get_utc_sun_time_full (h->gd_day, h->gd_mon, h->gd_year, lat, lon,
+					&sun_hour, &first_light, &talit, &sunrise,
+					&midday, &sunset, &first_stars, &three_stars);
+	
+		/* FIXME - knisar shabat 20 minutes before shkiaa ? */
+		sunset = sunset + tz * 60 - 20;
+	
+		/* print sunset/rise times */
+		printf ("(%d:%d)", three_stars / 60, three_stars % 60);
+	}
+	
+	/* check for saturday - print motzay shabat */
+	else if (h->hd_dw == 7)
+	{	
+		/* get times */
+		hdate_get_utc_sun_time_full (h->gd_day, h->gd_mon, h->gd_year, lat, lon,
+					&sun_hour, &first_light, &talit, &sunrise,
+					&midday, &sunset, &first_stars, &three_stars);
+	
+		three_stars = three_stars + tz * 60;
+	
+		/* print motzay shabat */
+		printf ("(%d:%d)", three_stars / 60, three_stars % 60);
+	}
+	
 	return 0;
 }
 
@@ -267,7 +308,7 @@ print_day (hdate_struct * h,
 	/* check for iCal format */
 	if (opt_i &&
 	    (((opt_h && hdate_get_holyday (h, opt_d)) ||
-	      (opt_r && hdate_get_parasha (h, opt_d))) || opt_s || opt_t))
+	      ((opt_r && hdate_get_parasha (h, opt_d)) || opt_c)) || opt_s || opt_t))
 		printf ("\\, ");
 
 	if (opt_s || opt_t)
@@ -278,20 +319,20 @@ print_day (hdate_struct * h,
 			print_sunrise (h, lat, lon, tz, opt_i);
 		
 		if (!opt_i && ((opt_h && hdate_get_holyday (h, opt_d)) ||
-			       (opt_r && hdate_get_parasha (h, opt_d))))
+			       ((opt_r && hdate_get_parasha (h, opt_d)) || opt_c)))
 			printf (", ");
 		if (opt_i && ((opt_h && hdate_get_holyday (h, opt_d)) ||
-			      (opt_r && hdate_get_parasha (h, opt_d))))
+			      ((opt_r  && hdate_get_parasha (h, opt_d)) || opt_c)))
 			printf ("\\, ");
 	}
 	if (opt_h)
 	{
 		print_holiday (h, opt_d, opt_S, opt_i);
 
-		if (!opt_i && (opt_r && hdate_get_parasha (h, opt_d)
+		if (!opt_i && ((opt_r && hdate_get_parasha (h, opt_d) || opt_c)
 			       && hdate_get_holyday (h, opt_d)))
 			printf (", ");
-		if (opt_i && (opt_r && hdate_get_parasha (h, opt_d)
+		if (opt_i && ((opt_r && hdate_get_parasha (h, opt_d) || opt_c)
 			      && hdate_get_holyday (h, opt_d)))
 			printf ("\\, ");
 	}
@@ -301,7 +342,7 @@ print_day (hdate_struct * h,
 	}
 	if (opt_c)
 	{
-		/* print_candales (h, opt_d, opt_S, opt_i); */
+		print_candales (h, lat, lon, tz, opt_i);
 	}
 
 	if (opt_r || opt_h || opt_s || opt_t || opt_i || opt_c)
