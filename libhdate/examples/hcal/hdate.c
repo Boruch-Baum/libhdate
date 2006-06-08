@@ -246,15 +246,14 @@ print_candales (hdate_struct * h, double lat, double lon, int tz, int opt_i)
 	if (h->hd_dw == 6)
 	{	
 		/* get times */
-		hdate_get_utc_sun_time_full (h->gd_day, h->gd_mon, h->gd_year, lat, lon,
-					&sun_hour, &first_light, &talit, &sunrise,
-					&midday, &sunset, &first_stars, &three_stars);
-	
+		hdate_get_utc_sun_time (h->gd_day, h->gd_mon, h->gd_year, lat, lon,
+				&sunrise, &sunset);
+		
 		/* FIXME - knisar shabat 20 minutes before shkiaa ? */
 		sunset = sunset + tz * 60 - 20;
 	
 		/* print sunset/rise times */
-		printf ("(%d:%d)", three_stars / 60, three_stars % 60);
+		printf ("(%d:%d)", sunset / 60, sunset % 60);
 	}
 	
 	/* check for saturday - print motzay shabat */
