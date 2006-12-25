@@ -292,7 +292,9 @@ print_day (hdate_struct * h,
 	/* check for iCal format */
 	if (opt_i)
 	{
-		print_ical_header ();
+		/* FIXME: older versions of mozilla calendar and evulotion 
+		   needed this hack */
+		/* print_ical_header (); */
 
 		printf ("BEGIN:VEVENT\n");
 		printf ("UID:%d\n", ++iCal_uid_counter);
@@ -357,8 +359,9 @@ print_day (hdate_struct * h,
 			h->gd_mon, h->gd_day);
 		printf ("CATEGORIES:Holidays\n");
 		printf ("END:VEVENT\n");
-
-		print_ical_footer ();
+		/* FIXME: older versions of mozilla calendar and evulotion 
+		   needed this hack */
+		/* print_ical_footer (); */
 	}
 
 	return 0;
@@ -607,9 +610,15 @@ main (int argc, char *argv[])
 		/* set date for today */
 		hdate_set_gdate (&h, 0, 0, 0);
 		
+		if (opt_i)
+			print_ical_header ();
+		
 		print_day (&h, opt_d, opt_S, lat, lon, tz, opt_s, opt_h,
 			   opt_r, opt_R, opt_H, opt_i, opt_c, opt_t);
-
+		
+		if (opt_i)
+			print_ical_footer ();
+		
 		exit (0);
 	}
 	else if (argc == (optind + 1))	/*only year */
@@ -624,17 +633,29 @@ main (int argc, char *argv[])
 		}
 		if (year > 3000)	/* hebrew year */
 		{
+			if (opt_i)
+				print_ical_header ();
+			
 			print_hebrew_year (opt_d, opt_S, lat, lon, tz, opt_s,
 					   opt_h, opt_r, opt_R, opt_H, opt_i, opt_c, opt_t,
 					   year);
-
+			
+			if (opt_i)
+				print_ical_footer ();
+			
 			exit (0);
 		}
 		else
 		{
+			if (opt_i)
+				print_ical_header ();
+			
 			print_year (opt_d, opt_S, lat, lon, tz, opt_s, opt_h,
 				    opt_r, opt_R, opt_H, opt_i, opt_c, opt_t, year);
-
+			
+			if (opt_i)
+				print_ical_footer ();
+			
 			exit (0);
 		}
 	}
@@ -651,17 +672,29 @@ main (int argc, char *argv[])
 		}
 		if (year > 3000)	/* hebrew year */
 		{
+			if (opt_i)
+				print_ical_header ();
+			
 			print_hebrew_month (opt_d, opt_S, lat, lon, tz, opt_s,
 					    opt_h, opt_r, opt_R, opt_H, opt_i, opt_c, opt_t,
 					    month, year);
-
+			
+			if (opt_i)
+				print_ical_footer ();
+			
 			exit (0);
 		}
 		else
 		{
+			if (opt_i)
+				print_ical_header ();
+			
 			print_month (opt_d, opt_S, lat, lon, tz, opt_s, opt_h,
 				     opt_r, opt_R, opt_H, opt_i, opt_c, opt_t, month, year);
-
+			
+			if (opt_i)
+				print_ical_footer ();
+			
 			exit (0);
 		}
 	}
@@ -687,10 +720,16 @@ main (int argc, char *argv[])
 		{
 			hdate_set_gdate (&h, day, month, year);
 		}
-
+		
+		if (opt_i)
+				print_ical_header ();
+		
 		print_day (&h, opt_d, opt_S, lat, lon, tz, opt_s, opt_h,
 			   opt_r, opt_R, opt_H, opt_i, opt_c, opt_t);
-
+		
+		if (opt_i)
+				print_ical_footer ();
+		
 		exit (0);
 	}
 	else
