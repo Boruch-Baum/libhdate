@@ -1,3 +1,9 @@
+libhdate (1.4.9)
+
+  * Fix endianess bug in big endian machins (/examples/hcal/hcal.c and hdate.c)
+	
+  -- Yaacov Zamir <kzamir@wall.co.il>  Saturday, 7 April 2007 22:00
+
 libhdate (1.4.8)
 
   * Fix help printing bug: Add new line at the end of hdate help text.

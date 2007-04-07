@@ -132,7 +132,7 @@ main (int argc, char* argv[])
 	int event;
 	int year = 0;
 	int sunset, sunrise;
-	char c;
+	int c;
 	
 	/* hebcal style command line options */
 	char *progname=argv[0];
@@ -151,7 +151,7 @@ main (int argc, char* argv[])
 	int tz = 2; /* -z option default to Tel aviv time zone */
 	
 	/* command line parsing */
-	while((c=getopt(argc, argv, "cdDehirsxl:L:m:z:"))!=EOF){
+	while((c = getopt(argc, argv, "cdDehirsxl:L:m:z:"))!= -1){
 		switch(c){
 		case 'c':
 			opt_c=1;

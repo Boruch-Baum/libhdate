@@ -414,7 +414,7 @@ main (int argc, char *argv[])
 	int year;
 
 	/* user opts */
-	char c;
+	int c;
 	int opt_h = 0;		/* -h html format flag */
 	int opt_d = 0;		/* -d Diaspora holidays */
 	int opt_i = 0;		/* -i External css file */
@@ -426,7 +426,7 @@ main (int argc, char *argv[])
 	setlocale (LC_ALL, "");
 
 	/* command line parsing */
-	while ((c = getopt (argc, argv, "shdi")) != EOF)
+	while ((c = getopt (argc, argv, "shdi")) != -1)
 	{
 		switch (c)
 		{

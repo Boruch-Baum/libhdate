@@ -526,7 +526,7 @@ int
 main (int argc, char *argv[])
 {
 	hdate_struct h;		/* The Hebrew date */
-	char c;
+	int c;
 
 	int day;		/* The Gregorian date */
 	int month;
@@ -553,7 +553,7 @@ main (int argc, char *argv[])
 	setlocale (LC_ALL, "");
 
 	/* command line parsing */
-	while ((c = getopt (argc, argv, "sctShHrRdil:L:z:")) != EOF)
+	while ((c = getopt (argc, argv, "sctShHrRdil:L:z:")) != -1)
 	{
 		switch (c)
 		{
