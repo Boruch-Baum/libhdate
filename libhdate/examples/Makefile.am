@@ -1,1 +1,1 @@
-SUBDIRS = hcal hebcal bindings
+SUBDIRS = hcal bindings

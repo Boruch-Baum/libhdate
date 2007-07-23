@@ -152,14 +152,6 @@ fi
 
 dnl =======================================================================================
 
-build_examples=no
-
-AC_ARG_ENABLE(examples, [  --enable-examples	build examples [default=no]], build_examples="$enableval", build_examples=no)
-
-AM_CONDITIONAL(WITH_EXAMPLES, test "x$build_examples" = "xyes")
-
-dnl =======================================================================================
-
 build_hcal=yes
 
 AC_ARG_ENABLE(hcal, [  --disable-hcal	build hcal/hdate [default=yes]], build_hcal="$enableval", build_hcal=yes)
@@ -182,9 +174,6 @@ po/Makefile.in
 src/Makefile
 examples/Makefile
 examples/hcal/Makefile
-examples/ical/Makefile
-examples/html/Makefile
-examples/hebcal/Makefile
 examples/bindings/Makefile
 bindings/Makefile
 bindings/python/Makefile
@@ -205,7 +194,6 @@ $PACKAGE-$VERSION
 	have perl			${have_perl}
 	
 	build hcal			${build_hcal}
-	build examples			${build_examples}
 	
 	build python binding		${build_python}
 	build perl binding		${build_perl}
