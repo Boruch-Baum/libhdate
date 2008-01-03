@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-SUBDIRS = po src examples bindings
+SUBDIRS = po docs src examples bindings
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libhdate.pc
