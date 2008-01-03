@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-SUBDIRS = intl po src examples bindings
+SUBDIRS = po src examples bindings
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libhdate.pc
@@ -17,3 +17,5 @@ libhdatedoc_DATA = \
 	ABOUT-NLS 
 
 EXTRA_DIST = $(libhdatedoc_DATA) libhdate.pc.in
+
+ACLOCAL_AMFLAGS = -I m4
