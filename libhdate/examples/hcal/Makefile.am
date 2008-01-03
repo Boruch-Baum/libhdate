@@ -1,5 +1,3 @@
-EXTRA_DIST = hdate.1 hcal.1
-
 if WITH_HCAL
 
 INCLUDES=-I$(top_srcdir)/src
@@ -18,8 +16,6 @@ hcal_SOURCES = hcal.c
 hcal_LDFLAGS =
 hcal_DEPENDENCIES = $(DEPS)
 hcal_LDADD = $(ldadd)
-
-man_MANS = hdate.1 hcal.1
 
 endif
 
