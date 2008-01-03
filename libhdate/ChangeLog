@@ -1,11 +1,19 @@
 libhdate (1.4.10)
 
-  * Add Amos Shapir to the Authors file and updating Amos's email
-  * Fix Kislev Hebrew translation (thanks: Ariel Galola)
-  * Python, Perl, Pascal bindings are built by default
-  * configure.in (AM_GNU_GETTEXT_VERSION): Bump to 0.17
-  * add cpp man files namespace - hdate, class - hdate_Hdate, file - hdatepp.h
-  * move all man files to docs/man directory
+  * Move to GPL3 (COPYING, AUTHORS)
+      - Add Amos Shapir as copyright holder in the years 1984-2003
+      - Updating Amos's email
+      - Add Amos Shapir as the original author in Authors file
+  * Change defult config options (configure.in)
+      - Gettext version used now is 0.17
+      - Python, Perl, Pascal bindings now built by default
+  * Update to man files (docs/man)
+      - add man files for c++ language
+      - move all man files to docs/man directory
+  * Bug fixes
+      - Fix Kislev Hebrew translation misspell (Bug report: Ariel Galola)
+      - TODO: Fix Julian day calculation (Bug report: Afonso Arantes)
+      - TODO: Add missing holidays
   * 
 	
   -- Yaacov Zamir <kzamir@wall.co.il>  Thusday, 3 January 2008 22:00
