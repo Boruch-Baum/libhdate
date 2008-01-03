@@ -1,6 +1,6 @@
 /*  libhdate - Hebrew calendar library
  *
- *  Copyright (C) 1984-2003 Amos Shapir, 2004-2007  Yaacov Zamir <kzamir@walla.co.il>
+ *  Copyright (C) 1984-2003 Amos Shapir, 2004-2008  Yaacov Zamir <kzamir@walla.co.il>
  *  
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
