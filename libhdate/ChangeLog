@@ -1,3 +1,12 @@
+libhdate (1.4.10)
+
+  * Add Amos Shapir to the Authors file and updating Amos's email
+  * Fix Kislev Hebrew translation (thanks: Ariel Galola)
+  * Python, Perl, Pascal bindings are building by default
+  *
+	
+  -- Yaacov Zamir <kzamir@wall.co.il>  Thusday, 3 January 2008 22:00
+
 libhdate (1.4.9)
 
   * Fix endianess bug in big endian machins (/examples/hcal/hcal.c and hdate.c)

@@ -13,6 +13,7 @@ libhdatedoc_DATA = \
 	ChangeLog\
 	INSTALL\
 	NEWS\
-	USE
+	USE \
+	ABOUT-NLS 
 
 EXTRA_DIST = $(libhdatedoc_DATA) libhdate.pc.in

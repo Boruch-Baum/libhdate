@@ -174,7 +174,7 @@ msgstr "חשון"
 
 #: src/hdate_strings.c:202 src/hdate_strings.c:206
 msgid "Kislev"
-msgstr "כיסלו"
+msgstr "כסלו"
 
 #: src/hdate_strings.c:202 src/hdate_strings.c:206
 msgid "Tevet"
