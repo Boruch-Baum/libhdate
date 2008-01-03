@@ -51,8 +51,6 @@ AC_ARG_ENABLE([pascal],
   [do not build pascal binding])],
   [build_pascal=no], [build_pascal=$have_pascal])
 
-pascal_var=$enablevar
-
 if test "$have_pascal" = "yes"; then
 	PA_VERSION=`fpc -iV`
 	PA_TPR=`fpc -iTP`
@@ -74,8 +72,6 @@ AC_ARG_ENABLE([python],
   [AS_HELP_STRING([--disable-python],
   [do not build python binding])],
   [build_python=no], [build_python=$have_python])
-
-python_var=$enablevar
 
 AC_ARG_WITH(python-sitelib-dir, 
   [AS_HELP_STRING([--with-python-sitelib-dir=PATH],
@@ -119,8 +115,6 @@ AC_ARG_ENABLE([perl],
   [AS_HELP_STRING([--disable-perl],
   [do not build perl binding])],
   [build_perl=no], [build_perl=$have_perl])
-
-perl_var=$enablevar
 
 AC_ARG_WITH(perl-sitelib-dir, 
   [AS_HELP_STRING([--with-perl-sitelib-dir=PATH],
