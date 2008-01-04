@@ -12,22 +12,24 @@ patched by Nadav Har'El. The Torah reading sequence
 is from tables by Zvi Har'El.
 .SH "SYNOPSIS"
 .B hdate
-[\-sctShHrRdi]
+[\-sctShHrRjdi]
 .PP
 [\-L longitude \-l latitude]
 [\-z timezone]
 .PP
-[[[day] month] year]
+[[[day] month] year]/[julian_day]
 .SH "DESCRIPTION"
 .I Hdate
 translates the specified date to the Hebrew calendar.
 If no arguments are given, it uses today's date.
 `month' is a number between 1 and 12.
 .PP 
-If the year is greater than 3000,
+If the year is greater than 3000
 .I hdate
 takes the given date as a Hebrew date, and translates it
-back to the common calendar.
+back to the common calendar. If argument is greater than 100000 
+.I hdate 
+takes it as the Julian day number.
 Months are numbered with Tishrey being 1 and Elul 12; Adar I and Adar II are months 13 and 14.
 .PP
 .I \-s 
@@ -57,6 +59,9 @@ first light, talit, sunrise, mid day, sunset, first stars, three stars.
 .PP
 .I \-R 
 : Print just weekly reading on Saturday.
+.PP
+.I \-j 
+: Print Julian day number.
 .PP
 .I \-d 
 : Use diaspora reading and holidays.

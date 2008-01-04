@@ -31,25 +31,25 @@ uses cTypes;
 const
   LIBHDATE_LIBRARY_NAME = 'hdate';
 
-(** @def HDATA_DIASPORA_FLAG
+(** @def HDATE_DIASPORA_FLAG
   @brief use diaspora dates and holydays flag
 *)
-  HDATA_DIASPORA_FLAG = -1;
+  HDATE_DIASPORA_FLAG = -1;
 
-(** @def HDATA_ISRAEL_FLAG
+(** @def HDATE_ISRAEL_FLAG
   @brief use israel dates and holydays flag
 *)
-  HDATA_ISRAEL_FLAG   = 0;
+  HDATE_ISRAEL_FLAG   = 0;
 
-(** @def HDATA_SHORT_FLAG
+(** @def HDATE_SHORT_FLAG
   @brief use short strings flag
 *)
-  HDATA_SHORT_FLAG    = -1;
+  HDATE_SHORT_FLAG    = -1;
 
-(** @def HDATA_LONG_FLAG
+(** @def HDATE_LONG_FLAG
   @brief use long strings flag
 *)
-  HDATA_LONG_FLAG     = 0;
+  HDATE_LONG_FLAG     = 0;
 
 
 { Base structore for hebrew dates }

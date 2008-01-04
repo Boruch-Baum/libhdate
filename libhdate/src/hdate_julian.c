@@ -145,9 +145,9 @@ hdate_get_year_type (int size_of_year, int new_year_dw)
 
 /**
  @brief Compute Julian day from Gregorian day, month and year
- Algorithm from 'Julian and Gregorian Day Numbers' by Peter Meyer
+ Algorithm from the wikipedia's julian_day 
 
- @author Yaacov Zamir ( algorithm from Henry F. Fliegel and Thomas C. Van Flandern ,1968)
+ @author Yaacov Zamir
 
  @param day Day of month 1..31
  @param month Month 1..12
@@ -157,12 +157,18 @@ hdate_get_year_type (int size_of_year, int new_year_dw)
 int
 hdate_gdate_to_jd (int day, int month, int year)
 {
-	int jd;
-	jd = (1461 * (year + 4800 + (month - 14) / 12)) / 4 +
-		(367 * (month - 2 - 12 * ((month - 14) / 12))) / 12 -
-		(3 * ((year + 4900 + (month - 14) / 12) / 100)) / 4 + day -
-		32075;
-	return jd;
+	int a;
+	int y;
+	int m;
+	int jdn;
+	
+	a = (14 - month) / 12;
+	y = year + 4800 - a;
+	m = month + 12 * a - 3;
+	
+	jdn = day + (153 * m + 2) / 5 + 365 * y + y / 4 - y / 100 + y / 400 - 32045;
+	
+	return jdn;
 }
 
 /**
@@ -253,7 +259,7 @@ hdate_jd_to_gdate (int jd, int *d, int *m, int *y)
 /**
  @brief Converting from the Julian day to the Hebrew day
  
- @author Amos Shapir 1984 (rev. 1985, 1992) Yaacov Zamir 2003-2005
+ @author Amos Shapir 1984 (rev. 1985, 1992) Yaacov Zamir 2003-2008
 
  @param jd Julian day
  @param day Return Day of month 1..31
@@ -305,7 +311,12 @@ hdate_jd_to_hdate (int jd, int *day, int *month, int *year, int *jd_tishrey1, in
 	else /* in 4-5 first months */
 	{
 		/* Special cases for this year */
-		if (size_of_year % 10 > 4 && days > 58) /* long Heshvan */
+		if (size_of_year % 10 > 4 && days == 59) /* long Heshvan (day 30 of Heshvan) */
+			{
+				*month = 1;
+				*day = 30;
+			}
+		else if (size_of_year % 10 > 4 && days > 59) /* long Heshvan */
 			{
 				*month = (days - 1) * 2 / 59;
 				*day = days - (*month * 59 + 1) / 2;

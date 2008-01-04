@@ -54,7 +54,7 @@ namespace hdate
 			h = new_hdate();
 			
 			/* default is in israel */
-			diaspora = HDATA_ISRAEL_FLAG;
+			diaspora = HDATE_ISRAEL_FLAG;
 			
 			/* default localeconv is Tel-Aviv winter time */
 			latitude = 32.0;
@@ -576,7 +576,7 @@ namespace hdate
 		void
 		set_diaspora ()
 		{
-			diaspora = HDATA_DIASPORA_FLAG;
+			diaspora = HDATE_DIASPORA_FLAG;
 		}
 		
 		/**
@@ -585,7 +585,7 @@ namespace hdate
 		void
 		set_israel ()
 		{
-			diaspora = HDATA_ISRAEL_FLAG;
+			diaspora = HDATE_ISRAEL_FLAG;
 		}
 		
 	private:

@@ -12,10 +12,14 @@ libhdate (1.4.10)
       - move all man files to docs/man directory
   * Bug fixes
       - Fix Kislev Hebrew translation misspell (Bug report: Ariel Galola)
-      - TODO: Fix Julian day calculation (Bug report: Afonso Arantes)
+      - Fix Julian day calculation (Bug report: Afonso Arantes)
       - TODO: Add missing holidays
-  * 
-	
+      - TODO: Add sfirat ha omer
+  * Changes to hdate command line utility
+      - flag -j print the Julian day number
+      - if argument is greater than 100000 it is asumed as Julian day number
+      - "hdate -S YEAR" now print out same format as "hebcal -d -h -e YEAR" nice for debuging
+  
   -- Yaacov Zamir <kzamir@wall.co.il>  Thusday, 3 January 2008 22:00
 
 libhdate (1.4.9)

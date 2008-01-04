@@ -24,25 +24,25 @@ extern "C"
 {
 #endif
 
-/** @def HDATA_DIASPORA_FLAG
+/** @def HDATE_DIASPORA_FLAG
   @brief use diaspora dates and holydays flag
 */
-#define HDATA_DIASPORA_FLAG -1
+#define HDATE_DIASPORA_FLAG -1
 	
-/** @def HDATA_ISRAEL_FLAG
+/** @def HDATE_ISRAEL_FLAG
   @brief use israel dates and holydays flag
 */
-#define HDATA_ISRAEL_FLAG 0
+#define HDATE_ISRAEL_FLAG 0
 	
-/** @def HDATA_SHORT_FLAG
+/** @def HDATE_SHORT_FLAG
   @brief use short strings flag
 */
-#define HDATA_SHORT_FLAG -1
+#define HDATE_SHORT_FLAG -1
 	
-/** @def HDATA_LONG_FLAG
+/** @def HDATE_LONG_FLAG
   @brief use long strings flag
 */
-#define HDATA_LONG_FLAG 0
+#define HDATE_LONG_FLAG 0
 
 /** Base structore for hebrew dates
 
