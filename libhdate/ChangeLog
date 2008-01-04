@@ -18,7 +18,7 @@ libhdate (1.4.10)
   * Changes to hdate command line utility
       - flag -j print the Julian day number
       - if argument is greater than 100000 it is asumed as Julian day number
-      - "hdate -S YEAR" now print out same format as "hebcal -d -h -e YEAR" nice for debuging
+      - "hdate -S YEAR" now print out same format as "hebcal -d -h -e YEAR"
   
   -- Yaacov Zamir <kzamir@wall.co.il>  Thusday, 3 January 2008 22:00
 

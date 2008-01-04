@@ -140,12 +140,16 @@ print_date (hdate_struct * h, int opt_S, int opt_i)
 			switch (h->hd_day)
 			{
 				case 1:
+				case 21:
+				case 31:
 					printf ("st of ");
 					break;
 				case 2:
+				case 22:
 					printf ("nd of ");
 					break;
 				case 3:
+				case 23:
 					printf ("rd of ");
 					break;
 				default:
