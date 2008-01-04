@@ -121,6 +121,18 @@ print_ical_footer ()
 int
 print_date (hdate_struct * h, int opt_S, int opt_i)
 {
+	char *locale;
+	char *language;
+	
+	/* Get the name of the current locale.  */
+#ifdef ENABLE_NLS
+	locale = setlocale (LC_MESSAGES, NULL);
+	language = getenv("LANGUAGE");
+#else
+	locale = NULL;
+	language = NULL;
+#endif
+	
 	if (opt_i)
 	{
 		printf ("%s %s ",
@@ -133,34 +145,45 @@ print_date (hdate_struct * h, int opt_S, int opt_i)
 		printf ("%d.%d.%d ",
 			h->gd_day, h->gd_mon, h->gd_year);
 		
-		/* check for hebrew numbers */
-		if (hdate_get_int_string (1)[0] == '1')
+		/* check for hebrew locale */
+		if (! ((locale && (locale[0] == 'h') && (locale[1] == 'e')) ||
+	       (language && (language[0] == 'h') && (language[1] == 'e'))) )
 		{ /* non hebrew numbers */
+			
 			printf ("%d", h->hd_day);
-			switch (h->hd_day)
+			
+			/* FIXME: this only warks for english :-( */
+			
+			/* check for english locale */
+			if (! ((locale && (locale[0] == 'e') && (locale[1] == 'n')) ||
+	     	  (language && (language[0] == 'e') && (language[1] == 'n'))) )
 			{
-				case 1:
-				case 21:
-				case 31:
-					printf ("st of ");
-					break;
-				case 2:
-				case 22:
-					printf ("nd of ");
-					break;
-				case 3:
-				case 23:
-					printf ("rd of ");
-					break;
-				default:
-					printf ("th of ");
+				switch (h->hd_day)
+				{
+					case 1:
+					case 21:
+					case 31:
+						printf ("st of");
+						break;
+					case 2:
+					case 22:
+						printf ("nd of");
+						break;
+					case 3:
+					case 23:
+						printf ("rd of");
+						break;
+					default:
+						printf ("th of");
+				}
 			}
+			
 		}
 		else { /* hebrew numbers */
-			printf ("%s ", hdate_get_int_string (h->hd_day));
+			printf ("%s", hdate_get_int_string (h->hd_day));
 		}
 		
-		printf ("%s, ",
+		printf (" %s, ",
 			hdate_get_hebrew_month_string (h->hd_mon, opt_S));
 		printf ("%s\n",
 			hdate_get_int_string (h->hd_year));

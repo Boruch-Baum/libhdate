@@ -7,14 +7,13 @@ libhdate (1.4.10)
   * Change defult config options (configure.in)
       - Gettext version used now is 0.17
       - Python, Perl, Pascal bindings now built by default
-  * Update to man files (docs/man)
+  * Update the man files (docs/man)
       - add man files for c++ language
       - move all man files to docs/man directory
   * Bug fixes
       - Fix Kislev Hebrew translation misspell (Bug report: Ariel Galola)
       - Fix Julian day calculation (Bug report: Afonso Arantes)
       - TODO: Add missing holidays
-      - TODO: Add sfirat ha omer
   * Changes to hdate command line utility
       - flag -j print the Julian day number
       - if argument is greater than 100000 it is asumed as Julian day number
