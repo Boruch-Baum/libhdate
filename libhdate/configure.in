@@ -122,7 +122,8 @@ AC_ARG_WITH(ruby-sitelib-dir,
 
 if test "$have_ruby" = "yes"; then
 	  RU_PREFIX=`ruby -e 'require "mkmf"; puts $topdir'`
-	  RU_VERSION=`ruby -e 'require "mkmf"; puts $ruby_version'`
+	  RU_VERSION=`ruby -e "require 'mkmf'; puts config_string('MAJOR')"`
+	  RU_VERSION+=.`ruby -e "require 'mkmf'; puts config_string('MINOR')"`
 	  AC_MSG_CHECKING(for $RU_PREFIX/ruby.h)
 	  if test -f $RU_PREFIX/ruby.h; then
 		  AC_MSG_RESULT(yes)
@@ -244,6 +245,7 @@ bindings/Makefile
 bindings/python/Makefile
 bindings/perl/Makefile
 bindings/pascal/Makefile
+bindings/ruby/Makefile
 ])
 
 dnl ===========================================================================================
@@ -258,7 +260,7 @@ $PACKAGE-$VERSION
 	have free pascal    		${have_pascal}
 	have python			${have_python}
 	have perl			${have_perl}
-	have ruby			${have_ruby}
+	have ruby			${have_ruby} ${RU_VERSION}
 	
 	build hcal			${build_hcal}
 	
