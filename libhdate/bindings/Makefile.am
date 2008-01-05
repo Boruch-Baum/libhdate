@@ -1,1 +1,1 @@
-SUBDIRS = python perl pascal
+SUBDIRS = python perl pascal ruby
