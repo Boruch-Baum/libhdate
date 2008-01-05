@@ -52,14 +52,14 @@ hdate_get_int_string (int n)
 	/* Get the name of the current locale.  */
 #ifdef ENABLE_NLS
 	locale = setlocale (LC_MESSAGES, NULL);
-	language = getenv("LANGUAGE");
+	language = getenv ("LANGUAGE");
 #else
 	locale = NULL;
 	language = NULL;
 #endif
 
-	if (! ((locale && (locale[0] == 'h') && (locale[1] == 'e')) ||
-	       (language && (language[0] == 'h') && (language[1] == 'e'))) )
+	if (!((locale && (locale[0] == 'h') && (locale[1] == 'e')) ||
+		  (language && (language[0] == 'h') && (language[1] == 'e'))))
 	{
 		/* not hebrew locale return the number in decimal form */
 		snprintf (h_number, 100, "%d", n);
@@ -138,7 +138,7 @@ hdate_get_day_string (int day, int s)
 	bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
 	bind_textdomain_codeset (PACKAGE, "UTF-8");
 #endif
-	
+
 	/* make sure s is 0 or 1 */
 	s = s ? 0 : 1;
 
@@ -160,7 +160,7 @@ hdate_get_day_string (int day, int s)
 char *
 hdate_get_month_string (int month, int s)
 {
-	
+
 	static char *months[2][12] = {
 		{N_("Jan"), N_("Feb"), N_("Mar"), N_("Apr"), N_("May"),
 		 N_("Jun"), N_("Jul"), N_("Aug"), N_("Sep"), N_("Oct"),
@@ -175,7 +175,7 @@ hdate_get_month_string (int month, int s)
 	bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
 	bind_textdomain_codeset (PACKAGE, "UTF-8");
 #endif
-	
+
 	/* make sure s is 0 or 1 */
 	s = s ? 0 : 1;
 
@@ -213,7 +213,7 @@ hdate_get_hebrew_month_string (int month, int s)
 	bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
 	bind_textdomain_codeset (PACKAGE, "UTF-8");
 #endif
-	
+
 	/* make sure s is 0 or 1 */
 	s = s ? 0 : 1;
 
@@ -236,9 +236,9 @@ char *
 hdate_get_holyday_string (int holyday, int s)
 {
 	/* holyday strings */
-	static char *holydays[2][32] = {
+	static char *holydays[2][36] = {
 		{
-		 N_("Rosh Hashana I"), /* 1 */
+		 N_("Rosh Hashana I"),	/* 1 */
 		 N_("Rosh Hashana II"),
 		 N_("Tzom Gedaliah"),
 		 N_("Yom Kippur"),
@@ -247,7 +247,7 @@ hdate_get_holyday_string (int holyday, int s)
 		 N_("Hoshana raba"),
 		 N_("Simchat Torah"),
 		 N_("Chanukah"),
-		 N_("Asara B'Tevet"), /* 10 */
+		 N_("Asara B'Tevet"),	/* 10 */
 		 N_("Tu B'Shvat"),
 		 N_("Ta'anit Esther"),
 		 N_("Purim"),
@@ -257,19 +257,23 @@ hdate_get_holyday_string (int holyday, int s)
 		 N_("Yom HaAtzma'ut"),
 		 N_("Lag B'Omer"),
 		 N_("Erev Shavuot"),
-		 N_("Shavuot"), /* 20 */
+		 N_("Shavuot"),			/* 20 */
 		 N_("Tzom Tammuz"),
 		 N_("Tish'a B'Av"),
 		 N_("Tu B'Av"),
 		 N_("Yom HaShoah"),
-		 N_("Yom HaZikaron"), /* 25 */
+		 N_("Yom HaZikaron"),	/* 25 */
 		 N_("Yom Yerushalayim"),
 		 N_("Shmini Atzeret"),
 		 N_("Pesach VII"),
 		 N_("Pesach VIII"),
-		 N_("Shavuot II"),
-                 N_("Sukkot II"),
-                 N_("Pesach II")},
+		 N_("Shavuot II"),   /* 30 */
+		 N_("Sukkot II"),
+		 N_("Pesach II"),	 
+		 N_("Family Day"),
+		 N_("Memorial day for fallen whose place of burial is unknown"), 
+		 N_("Rabin memorial day"), /* 35 */
+		 N_("Zhabotinsky day")},
 		{
 		 N_("Rosh Hashana I"),
 		 N_("Rosh Hashana II"),
@@ -301,19 +305,23 @@ hdate_get_holyday_string (int holyday, int s)
 		 N_("Pesach VII"),
 		 N_("Pesach VIII"),
 		 N_("Shavuot II"),
-                 N_("Sukkot II"),
-                 N_("Pesach II")}
+		 N_("Sukkot II"),
+		 N_("Pesach II"),
+		 N_("Family Day"),
+		 N_("Memorial day for fallen whose place of burial is unknown"), 
+		 N_("Yitzhak Rabin memorial day"), /* 35 */
+		 N_("Zeev Zhabotinsky day")}
 	};
 
 #ifdef ENABLE_NLS
 	bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
 	bind_textdomain_codeset (PACKAGE, "UTF-8");
 #endif
-	
+
 	/* make sure s is 0 or 1 */
 	s = s ? 0 : 1;
 
-	if (holyday >= 1 && holyday <= 32)
+	if (holyday >= 1 && holyday <= 36)
 	{
 		return _(holydays[s][holyday - 1]);
 	}
@@ -336,7 +344,7 @@ hdate_get_parasha_string (int parasha, int s)
 	static char *parashaot[2][62] = {
 		{
 		 N_("none"),
-		 N_("Bereshit"), /* 1 */
+		 N_("Bereshit"),		/* 1 */
 		 N_("Noach"),
 		 N_("Lech-Lecha"),
 		 N_("Vayera"),
@@ -345,7 +353,7 @@ hdate_get_parasha_string (int parasha, int s)
 		 N_("Vayetzei"),
 		 N_("Vayishlach"),
 		 N_("Vayeshev"),
-		 N_("Miketz"), /* 10 */
+		 N_("Miketz"),			/* 10 */
 		 N_("Vayigash"),
 		 N_("Vayechi"),
 		 N_("Shemot"),
@@ -355,7 +363,7 @@ hdate_get_parasha_string (int parasha, int s)
 		 N_("Yitro"),
 		 N_("Mishpatim"),
 		 N_("Terumah"),
-		 N_("Tetzaveh"), /* 20 */
+		 N_("Tetzaveh"),		/* 20 */
 		 N_("Ki Tisa"),
 		 N_("Vayakhel"),
 		 N_("Pekudei"),
@@ -365,7 +373,7 @@ hdate_get_parasha_string (int parasha, int s)
 		 N_("Tazria"),
 		 N_("Metzora"),
 		 N_("Achrei Mot"),
-		 N_("Kedoshim"), /* 30 */
+		 N_("Kedoshim"),		/* 30 */
 		 N_("Emor"),
 		 N_("Behar"),
 		 N_("Bechukotai"),
@@ -375,7 +383,7 @@ hdate_get_parasha_string (int parasha, int s)
 		 N_("Sh'lach"),
 		 N_("Korach"),
 		 N_("Chukat"),
-		 N_("Balak"), /* 40 */
+		 N_("Balak"),			/* 40 */
 		 N_("Pinchas"),
 		 N_("Matot"),
 		 N_("Masei"),
@@ -385,11 +393,11 @@ hdate_get_parasha_string (int parasha, int s)
 		 N_("Re'eh"),
 		 N_("Shoftim"),
 		 N_("Ki Teitzei"),
-		 N_("Ki Tavo"), /* 50 */
+		 N_("Ki Tavo"),			/* 50 */
 		 N_("Nitzavim"),
 		 N_("Vayeilech"),
 		 N_("Ha'Azinu"),
-		 N_("Vezot Habracha"), /* 54 */
+		 N_("Vezot Habracha"),	/* 54 */
 		 N_("Vayakhel-Pekudei"),
 		 N_("Tazria-Metzora"),
 		 N_("Achrei Mot-Kedoshim"),
@@ -399,7 +407,7 @@ hdate_get_parasha_string (int parasha, int s)
 		 N_("Nitzavim-Vayeilech")},
 		{
 		 N_("none"),
-		 N_("Bereshit"), /* 1 */
+		 N_("Bereshit"),		/* 1 */
 		 N_("Noach"),
 		 N_("Lech-Lecha"),
 		 N_("Vayera"),
@@ -408,7 +416,7 @@ hdate_get_parasha_string (int parasha, int s)
 		 N_("Vayetzei"),
 		 N_("Vayishlach"),
 		 N_("Vayeshev"),
-		 N_("Miketz"), /* 10 */
+		 N_("Miketz"),			/* 10 */
 		 N_("Vayigash"),
 		 N_("Vayechi"),
 		 N_("Shemot"),
@@ -418,7 +426,7 @@ hdate_get_parasha_string (int parasha, int s)
 		 N_("Yitro"),
 		 N_("Mishpatim"),
 		 N_("Terumah"),
-		 N_("Tetzaveh"), /* 20 */
+		 N_("Tetzaveh"),		/* 20 */
 		 N_("Ki Tisa"),
 		 N_("Vayakhel"),
 		 N_("Pekudei"),
@@ -428,7 +436,7 @@ hdate_get_parasha_string (int parasha, int s)
 		 N_("Tazria"),
 		 N_("Metzora"),
 		 N_("Achrei Mot"),
-		 N_("Kedoshim"), /* 30 */
+		 N_("Kedoshim"),		/* 30 */
 		 N_("Emor"),
 		 N_("Behar"),
 		 N_("Bechukotai"),
@@ -438,7 +446,7 @@ hdate_get_parasha_string (int parasha, int s)
 		 N_("Sh'lach"),
 		 N_("Korach"),
 		 N_("Chukat"),
-		 N_("Balak"), /* 40 */
+		 N_("Balak"),			/* 40 */
 		 N_("Pinchas"),
 		 N_("Matot"),
 		 N_("Masei"),
@@ -448,11 +456,11 @@ hdate_get_parasha_string (int parasha, int s)
 		 N_("Re'eh"),
 		 N_("Shoftim"),
 		 N_("Ki Teitzei"),
-		 N_("Ki Tavo"), /* 50 */
+		 N_("Ki Tavo"),			/* 50 */
 		 N_("Nitzavim"),
 		 N_("Vayeilech"),
 		 N_("Ha'Azinu"),
-		 N_("Vezot Habracha"), /* 54 */
+		 N_("Vezot Habracha"),	/* 54 */
 		 N_("Vayakhel-Pekudei"),
 		 N_("Tazria-Metzora"),
 		 N_("Achrei Mot-Kedoshim"),
@@ -466,7 +474,7 @@ hdate_get_parasha_string (int parasha, int s)
 	bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
 	bind_textdomain_codeset (PACKAGE, "UTF-8");
 #endif
-	
+
 	/* make sure s is 0 or 1 */
 	s = s ? 0 : 1;
 
@@ -490,40 +498,38 @@ hdate_get_parasha_string (int parasha, int s)
  @param s A short flag (true - returns a short string, false returns a long string. ).
 */
 char *
-hdate_get_format_date (hdate_struct const * h, int diaspora, int s)
+hdate_get_format_date (hdate_struct const *h, int diaspora, int s)
 {
 	static char format_date[500];
 	static char temp[500];
 	int holyday;
-	
+
 	if (h)
 	{
 		if (s)
-		{	/* short format */
+		{						/* short format */
 			snprintf (format_date, 500, "%s %s",
-				  hdate_get_int_string (h->hd_day),
-				  hdate_get_hebrew_month_string (h->hd_mon, s));
+					  hdate_get_int_string (h->hd_day),
+					  hdate_get_hebrew_month_string (h->hd_mon, s));
 			return (format_date);
 		}
 		else
 		{
 			snprintf (temp, 500, "%s, %s %s",
-				  hdate_get_day_string (h->hd_dw, s),
-				  hdate_get_int_string (h->hd_day),
-				  hdate_get_hebrew_month_string (h->hd_mon, s));
+					  hdate_get_day_string (h->hd_dw, s),
+					  hdate_get_int_string (h->hd_day),
+					  hdate_get_hebrew_month_string (h->hd_mon, s));
 			snprintf (format_date, 500, "%s %s",
-				  temp,
-				  hdate_get_int_string (h->hd_year));
-			
+					  temp, hdate_get_int_string (h->hd_year));
+
 			/* if holyday print it */
 			holyday = hdate_get_holyday (h, diaspora);
-			
+
 			if (holyday != 0)
 			{
 				snprintf (temp, 500, "%s, %s",
-				  format_date,
-				  hdate_get_holyday_string (holyday, 0));
-				
+						  format_date, hdate_get_holyday_string (holyday, 0));
+
 				return (temp);
 			}
 			else
@@ -543,12 +549,10 @@ char *
 hdate_get_version_string ()
 {
 	static char version[500];
-	
+
 	/* make a "packge version" string */
-	snprintf (version, 500, "%s %s",
-				  PACKAGE,
-				  VERSION);
-	
+	snprintf (version, 500, "%s %s", PACKAGE, VERSION);
+
 	return (version);
 }
 
@@ -559,11 +563,11 @@ hdate_get_version_string ()
 */
 char *
 hdate_get_translator_string ()
-{	
+{
 	/* if untranslated return null */
 	if (strcmp (_("translator"), "translator") == 0)
 		return NULL;
-	
+
 	/* return the translator name */
 	return _("translator");
 }

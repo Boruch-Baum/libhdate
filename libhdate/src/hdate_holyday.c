@@ -39,8 +39,8 @@ hdate_get_holyday (hdate_struct const * h, int diaspora)
 			0, 0, 0, 0, 5, 31, 6, 6, 6, 6,
 			7, 27, 8, 0, 0, 0, 0, 0, 0, 0},
 		{	/* Heshvan */
-			0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 35,
+			35, 35, 0, 0, 0, 0, 0, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 		{	/* Kislev */
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -53,7 +53,7 @@ hdate_get_holyday (hdate_struct const * h, int diaspora)
 		{	/* Shvat */
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 			0, 0, 0, 0, 11, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+			0, 0, 0, 0, 0, 0, 0, 0, 33, 0},
 		{	/* Adar */
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 			12, 0, 12, 13, 14, 0, 0, 0, 0, 0,
@@ -73,7 +73,7 @@ hdate_get_holyday (hdate_struct const * h, int diaspora)
 		{	/* Tamuz */
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 21, 21, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+			0, 0, 0, 0, 0, 0, 0, 0, 36, 36},
 		{	/* Av */
 			0, 0, 0, 0, 0, 0, 0, 0, 22, 22,
 			0, 0, 0, 0, 23, 0, 0, 0, 0, 0,
@@ -93,7 +93,7 @@ hdate_get_holyday (hdate_struct const * h, int diaspora)
 	};
 	
 	/* sanity check */
-	if (h->hd_mon < 1 || h->hd_mon > 14 || h->hd_day < 0 || h->hd_day > 30)
+	if (h->hd_mon < 1 || h->hd_mon > 14 || h->hd_day < 1 || h->hd_day > 31)
 		return 0;
 	
 	holyday = holydays_table[h->hd_mon - 1][h->hd_day - 1];
@@ -181,6 +181,34 @@ hdate_get_holyday (hdate_struct const * h, int diaspora)
 			if ((h->hd_day == 28) && (h->hd_dw != 2))
 				holyday = 0;
 			if ((h->hd_day == 27) && (h->hd_dw == 6 || h->hd_dw == 1))
+				holyday = 0;
+		}
+	}
+	
+	/* Rabin day, on years after 1997 */
+	if (holyday == 35)
+	{
+		if (h->gd_year < 1997)
+			holyday = 0;
+		else
+		{
+			if ((h->hd_day == 10 || h->hd_day == 11) && (h->hd_dw != 5))
+				holyday = 0;
+			if ((h->hd_day == 12) && (h->hd_dw == 6 || h->hd_dw == 7))
+				holyday = 0;
+		}
+	}
+	
+	/* Zhabotinsky day, on years after 2005 */
+	if (holyday == 36)
+	{
+		if (h->gd_year < 2005)
+			holyday = 0;
+		else
+		{
+			if ((h->hd_day == 30) && (h->hd_dw != 1))
+				holyday = 0;
+			if ((h->hd_day == 29) && (h->hd_dw == 7))
 				holyday = 0;
 		}
 	}
