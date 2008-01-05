@@ -1,9 +1,8 @@
 libhdate (1.4.10)
 
   * Move to GPL3 (COPYING, AUTHORS)
-      - Add Amos Shapir as copyright holder in the years 1984-2003
-      - Updating Amos's email
-      - Add Amos Shapir as the original author in Authors file
+      - Add Amos Shapir as author in Authors file
+      - Update Amos's email
   * Change defult config options (configure.in)
       - Gettext version used now is 0.17
       - Python, Perl, Pascal bindings now built by default
