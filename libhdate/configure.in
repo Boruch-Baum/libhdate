@@ -156,6 +156,11 @@ ALL_LINGUAS="he es_MX ru fr sv"
 AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION([0.17])
 
+if test "$DATADIRNAME" = ""; then
+   DATADIRNAME="share"
+   AC_SUBST(DATADIRNAME)
+fi
+
 if test "${prefix}" = "NONE"; then
   AC_DEFINE_UNQUOTED(PACKAGE_LOCALE_DIR, "${ac_default_prefix}/${DATADIRNAME}/locale")
 else
