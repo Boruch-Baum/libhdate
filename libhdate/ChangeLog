@@ -2,6 +2,7 @@ libhdate (1.4.11)
 
   * Add Ruby bindings
   * Add GPL notice to the example files
+  * Add a patch prints todays date in hcal in bold (Patch: Patrik Nilsson)
 	
   -- Yaacov Zamir <kzamir@wall.co.il>  Saturday, 5 Jan 2008 22:00
   

@@ -171,7 +171,7 @@ type=\"text/css\" media=\"screen\" href=\"high_contrast.css\">");
 type=\"text/css\" media=\"screen\" href=\"colorful.css\">");
 	printf ("</style>\n\
 <link rel=\"alternate stylesheet\" title=\"Print\" \
-type=\"text/css\" media=\"all\" href=\"print.css\">");
+type=\"text/css\" media=\"all\" href=\"print.css\">\n");
 
 	printf ("\
 <title>Hebrew Calendar</title>\n\
@@ -290,7 +290,9 @@ int
 print_calendar (int month, int year, int opt_h, int opt_d)
 {
 	hdate_struct h;
+	hdate_struct today;
 	int jd;
+	int jd_today;
 	int i, j;
 	char type_char[] = { '/', '+', '*', '-' };
 	int holyday_type;
@@ -298,7 +300,11 @@ print_calendar (int month, int year, int opt_h, int opt_d)
 	/* Find day to start calendar with */
 	hdate_set_gdate (&h, 1, month, year);
 
-	/* return print head to sunday */
+	/* Set today to today, so we know what day to highlight */
+	hdate_set_gdate (&today, 0, 0, 0);
+	jd_today = today.hd_jd;
+	
+	/* Return print head to sunday */
 	jd = h.hd_jd - h.hd_dw + 1;
 
 	/* Loop over all days in this month */
@@ -354,10 +360,22 @@ print_calendar (int month, int year, int opt_h, int opt_d)
 				if (h.gd_mon == month)
 				{
 					/* Print a day */
-					printf ("%2d%c%3s", h.gd_day,
-						type_char[holyday_type],
-						hdate_get_int_string (h.
-								      hd_day));
+					if (jd != jd_today)
+					{
+						printf ("%2d%c%3s", h.gd_day,
+							type_char[holyday_type],
+							hdate_get_int_string (h.
+									      hd_day));
+					}
+					else /* It's today, lets print it in bold */
+					{
+						printf ("%c[1m", 27);
+						printf ("%2d%c%3s", h.gd_day,
+							type_char[holyday_type],
+							hdate_get_int_string (h.
+									      hd_day));
+						printf ("%c[m", 27);
+					}
 				}
 				if (j != 6)
 					printf ("\t");
