@@ -53,7 +53,8 @@ extern "C"
 /** @struct hdate_struct
   @brief libhdate Hebrew date struct
 */
-typedef struct{
+typedef struct
+{
 	/** The number of day in the hebrew month (1..31). */
 	int hd_day;
 	/** The number of the hebrew month 1..14 (1 - tishre, 13 - adar 1, 14 - adar 2). */
