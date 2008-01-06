@@ -1,8 +1,8 @@
-.TH "src/hdate.h" 3 "5 Jan 2008" "Version 1.4" "libhdate C language" \" -*- nroff -*-
+.TH "src/hdate.h" 3 "6 Jan 2008" "Version 1.4" "libhdate C language" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-src/hdate.h \- 
+src/hdate.h \- libhdate C language header. 
 .SH SYNOPSIS
 .br
 .PP
@@ -12,6 +12,7 @@ src/hdate.h \-
 .ti -1c
 .RI "struct \fBhdate_struct\fP"
 .br
+.RI "\fIlibhdate Hebrew date struct \fP"
 .in -1c
 .SS "Defines"
 
@@ -197,6 +198,11 @@ src/hdate.h \-
 .br
 .RI "\fIname of translator \fP"
 .in -1c
+.SH "Detailed Description"
+.PP 
+libhdate C language header. 
+
+libhdate - Hebrew calendar library, the C language header file. 
 .SH "Define Documentation"
 .PP 
 .SS "#define HDATE_DIASPORA_FLAG   -1"
@@ -624,7 +630,26 @@ the days from 1 jan
 .PP
 utc sun times for altitude at a gregorian date 
 .PP
-day this day of month  month this month  year this year  longitude longitude to use in calculations  latitude latitude to use in calculations  deg degrees of sun's altitude (0 - Zenith .. 90 - Horizon)  sunrise return the utc sunrise in minutes  sunset return the utc sunset in minutes 
+\fBParameters:\fP
+.RS 4
+\fIday\fP this day of month 
+.br
+\fImonth\fP this month 
+.br
+\fIyear\fP this year 
+.br
+\fIlatitude\fP latitude to use in calculations 
+.br
+\fIlongitude\fP longitude to use in calculations 
+.br
+\fIdeg\fP degrees of sun's altitude (0 - Zenith .. 90 - Horizon) 
+.br
+\fIsunrise\fP return the utc sunrise in minutes 
+.br
+\fIsunset\fP return the utc sunset in minutes 
+.RE
+.PP
+
 .SS "void hdate_get_utc_sun_time (int day, int month, int year, double latitude, double longitude, int * sunrise, int * sunset)"
 .PP
 utc sunrise/set time for a gregorian date 
@@ -651,7 +676,36 @@ utc sunrise/set time for a gregorian date
 .PP
 utc sunrise/set time for a gregorian date 
 .PP
-day this day of month  month this month  year this year  longitude longitude to use in calculations  latitude latitude to use in calculations  sun_hour return the length of shaa zaminit in minutes  first_light return the utc alut ha-shachar in minutes  talit return the utc tphilin and talit in minutes  sunrise return the utc sunrise in minutes  midday return the utc midday in minutes  sunset return the utc sunset in minutes  first_stars return the utc tzeit hacochavim in minutes  three_stars return the utc shlosha cochavim in minutes 
+\fBParameters:\fP
+.RS 4
+\fIday\fP this day of month 
+.br
+\fImonth\fP this month 
+.br
+\fIyear\fP this year 
+.br
+\fIlongitude\fP longitude to use in calculations 
+.br
+\fIlatitude\fP latitude to use in calculations 
+.br
+\fIsun_hour\fP return the length of shaa zaminit in minutes 
+.br
+\fIfirst_light\fP return the utc alut ha-shachar in minutes 
+.br
+\fItalit\fP return the utc tphilin and talit in minutes 
+.br
+\fIsunrise\fP return the utc sunrise in minutes 
+.br
+\fImidday\fP return the utc midday in minutes 
+.br
+\fIsunset\fP return the utc sunset in minutes 
+.br
+\fIfirst_stars\fP return the utc tzeit hacochavim in minutes 
+.br
+\fIthree_stars\fP return the utc shlosha cochavim in minutes 
+.RE
+.PP
+
 .SS "int hdate_get_gday (\fBhdate_struct\fP const * h)"
 .PP
 get the Gregorian day of the month 

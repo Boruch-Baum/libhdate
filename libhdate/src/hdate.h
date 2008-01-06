@@ -15,7 +15,13 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
+/** @file hdate.h
+    @brief libhdate C language header.
+    
+    libhdate - Hebrew calendar library, the C language header file.
+*/
+
 #ifndef __HDATE_H__
 #define __HDATE_H__
 
@@ -44,11 +50,10 @@ extern "C"
 */
 #define HDATE_LONG_FLAG 0
 
-/** Base structore for hebrew dates
-
+/** @struct hdate_struct
+  @brief libhdate Hebrew date struct
 */
-typedef struct
-{
+typedef struct{
 	/** The number of day in the hebrew month (1..31). */
 	int hd_day;
 	/** The number of the hebrew month 1..14 (1 - tishre, 13 - adar 1, 14 - adar 2). */
@@ -338,14 +343,14 @@ hdate_get_day_of_year (int day, int month, int year);
 /**
  @brief utc sun times for altitude at a gregorian date
   
- @parm day this day of month
- @parm month this month
- @parm year this year
- @parm longitude longitude to use in calculations
- @parm latitude latitude to use in calculations
- @parm deg degrees of sun's altitude (0 -  Zenith .. 90 - Horizon)
- @parm sunrise return the utc sunrise in minutes
- @parm sunset return the utc sunset in minutes
+ @param day this day of month
+ @param month this month
+ @param year this year
+ @param latitude latitude to use in calculations
+ @param longitude longitude to use in calculations
+ @param deg degrees of sun's altitude (0 -  Zenith .. 90 - Horizon)
+ @param sunrise return the utc sunrise in minutes
+ @param sunset return the utc sunset in minutes
 */
 void
 hdate_get_utc_sun_time_deg (int day, int month, int year, 
@@ -371,19 +376,19 @@ hdate_get_utc_sun_time (int day, int month, int year,
 /**
  @brief utc sunrise/set time for a gregorian date
   
- @parm day this day of month
- @parm month this month
- @parm year this year
- @parm longitude longitude to use in calculations
- @parm latitude latitude to use in calculations
- @parm sun_hour return the length of shaa zaminit in minutes
- @parm first_light return the utc alut ha-shachar in minutes
- @parm talit return the utc tphilin and talit in minutes
- @parm sunrise return the utc sunrise in minutes
- @parm midday return the utc midday in minutes
- @parm sunset return the utc sunset in minutes
- @parm first_stars return the utc tzeit hacochavim in minutes
- @parm three_stars return the utc shlosha cochavim in minutes
+ @param day this day of month
+ @param month this month
+ @param year this year
+ @param longitude longitude to use in calculations
+ @param latitude latitude to use in calculations
+ @param sun_hour return the length of shaa zaminit in minutes
+ @param first_light return the utc alut ha-shachar in minutes
+ @param talit return the utc tphilin and talit in minutes
+ @param sunrise return the utc sunrise in minutes
+ @param midday return the utc midday in minutes
+ @param sunset return the utc sunset in minutes
+ @param first_stars return the utc tzeit hacochavim in minutes
+ @param three_stars return the utc shlosha cochavim in minutes
 */
 void
 hdate_get_utc_sun_time_full (int day, int month, int year, double latitude, double longitude, 

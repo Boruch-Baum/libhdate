@@ -15,7 +15,13 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
+/** @file hdatepp.h
+    @brief libhdate C++ language header.
+    
+    libhdate - Hebrew calendar library, the C++ language header file.
+*/
+
 #ifndef __HDATE_PP_H__
 #define __HDATE_PP_H__
 
