@@ -1,7 +1,8 @@
 libhdate (1.4.11)
 
   * Add Ruby bindings
-  * Add GPL notice to the example files
+  * Add PHP bindings
+  * Add GPL notice to the example files (Bug report: Baruch Even)
   * Add a patch to print todays date in hcal in bold (Patch: Patrik Nilsson)
   * Fix documentation of files and structs (Bug report: Baruch Even)
 	
@@ -25,7 +26,6 @@ libhdate (1.4.10)
       - 30 shvat : Family day
       - 12 heshvan : rabin memorial day
       - 29 tamuz : zhabotinsky day
-      
   * Changes to hdate command line utility
       - flag -j print the Julian day number
       - if argument is greater than 100000 it is asumed as Julian day number
