@@ -7,9 +7,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libhdate\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-01-05 10:30+0200\n"
-"PO-Revision-Date: 2006-03-19 16:53+0100\n"
-"Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
+"POT-Creation-Date: 2008-01-11 18:45+0200\n"
+"PO-Revision-Date: 2008-01-10 10:26+0100\n"
+"Last-Translator: Patrik Nilsson <blambi@chebab.com>, Daniel Nylander "
+"<po@danielnylander.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -349,27 +350,27 @@ msgstr "Pesach II"
 
 #: src/hdate_strings.c:273 src/hdate_strings.c:310
 msgid "Family Day"
-msgstr ""
+msgstr "Familjedagen"
 
 #: src/hdate_strings.c:274 src/hdate_strings.c:311
 msgid "Memorial day for fallen whose place of burial is unknown"
-msgstr ""
+msgstr "Minnesdag för de fallena vars gravplats är okänd"
 
 #: src/hdate_strings.c:275
 msgid "Rabin memorial day"
-msgstr ""
+msgstr "Minnesdag för Y. Rabin"
 
 #: src/hdate_strings.c:276
 msgid "Zhabotinsky day"
-msgstr ""
+msgstr "Zhabotinksys dag"
 
 #: src/hdate_strings.c:312
 msgid "Yitzhak Rabin memorial day"
-msgstr ""
+msgstr "Minnesdag för Yitzhak Rabin"
 
 #: src/hdate_strings.c:313
 msgid "Zeev Zhabotinsky day"
-msgstr ""
+msgstr "Zeev Zhabotinksys dag"
 
 #: src/hdate_strings.c:346 src/hdate_strings.c:409
 msgid "none"
@@ -621,4 +622,4 @@ msgstr "Nitzavim-Vayeilech"
 
 #: src/hdate_strings.c:568 src/hdate_strings.c:572
 msgid "translator"
-msgstr "Daniel Nylander"
+msgstr "Daniel Nylander, Patrik Nilsson"

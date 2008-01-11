@@ -25,6 +25,10 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+# Use locale to support hdate localization
+import locale
+locale.setlocale(locale.LC_ALL,'')
+        
 # Import the hdate library
 from hdate import *;
 
