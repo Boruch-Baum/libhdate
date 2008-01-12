@@ -7,7 +7,7 @@
 //
 
 //
-//  Copyright (C) 2005  Ido Kaner
+//  Copyright (C) 2005-2008  Ido Kaner
 //  
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -27,8 +27,9 @@
 {$IFDEF MSWINDOWS}
 {$APPTYPE CONSOLE} //Make sure that in Windows we will be in a console mode
 {$ENDIF}
+{$i linking.inc}
 program hdate_demo;
-uses hdate_class, hdate;
+uses hdate_class, {$IFDEF STATIC_LINK} hdate {$ELSE} hdate_dyn_pascal {$ENDIF};
 
 var
  h : THdateClass;

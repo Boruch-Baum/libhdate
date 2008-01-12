@@ -2,41 +2,42 @@
 This unit create a Pascal object oriented class for libhdate.
 This unit is created as a true object oriented class.
    
-   Copyright  2005       Ido Kanner <idokan@gmail.com>
+   Copyright  2005-2008       Ido Kanner <idokan@gmail.com>
    
-   This program is free software; you can redistribute it and/or modify
+   This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
+   the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
- 
+  
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Library General Public License for more details.
- 
+   GNU General Public License for more details.
+  
    You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  
 History:
-    19-21/05/2005 - Initial creation
+   12/01/2008 - Added support for dynamic linking
+   19-21/05/2005 - Initial creation
  }
 {$IFDEF FPC}
   {$MODE OBJFPC} {$H+}
+  {$i linking.inc}
 {$ELSE}
   {$Warning 'This code was tested with Free Pascal Only.'}
 {$ENDIF}
  unit hdate_class;
  
  interface
- uses hdate, SysUtils;
+ uses {$IFDEF STATIC_LINK} hdate {$ELSE} hdate_dyn_pascal {$ENDIF}, SysUtils;
 
  type
 	 THdateClass = class
 	 private
-		 fh           : Phdate_struct;
-	   FToDestroy   : Boolean;
-	   fJulianDay   : LongInt;
+     fh           : Phdate_struct;
+	 FToDestroy   : Boolean;
+	 fJulianDay   : LongInt;
      fDiaspora    : Boolean;
      fHolyday,
      fHolydayType : LongInt;
@@ -62,9 +63,9 @@ History:
      function GetHebMonth  : LongInt;
      function GetHebYear   : LongInt;
 	 public
-	   constructor Create;                                       virtual; overload;
-	   constructor Create  (hDateRec : Phdate_struct);           virtual; overload;
-	   destructor Destroy;                                       override;
+	 constructor Create;                                       virtual; overload;
+	 constructor Create  (hDateRec : Phdate_struct);           virtual; overload;
+	 destructor Destroy;                                       override;
      
      procedure Assign    (Source : THdateClass);               virtual;
    
@@ -92,17 +93,17 @@ History:
      property Parasha          : LongInt  read fParasha;
      property Weeks            : LongInt  read get_weeks;
      property YearSize         : Longint  read get_size_of_year;
-   published
+     published
      property HebDay           : LongInt  read GetHebDay     write SetHebDay;
      property GregDay          : LongInt  read GetGregDay    write SetGregDay;
      property Diaspora         : Boolean  read fDiaspora     write SetDiaspora    default True;
-	   property JulianDay        : LongInt  read fJulianDay    write SetJulianDay;
+	 property JulianDay        : LongInt  read fJulianDay    write SetJulianDay;
      property HebMonth         : LongInt  read GetHebMonth   write SetHebMonth;
-	   property GregMonth        : LongInt  read GetGregMonth  write SetGregMonth;
-	   property ToDestroy        : Boolean  read FToDestroy    write fToDestroy     default True;
+	 property GregMonth        : LongInt  read GetGregMonth  write SetGregMonth;
+	 property ToDestroy        : Boolean  read FToDestroy    write fToDestroy     default True;
      property GregYear         : LongInt  read GetGregYear   write SetGregYear;
-		 property HebYear          : LongInt  read GetHebYear    write SetHebYear;
-	 end;
+     property HebYear          : LongInt  read GetHebYear    write SetHebYear;
+end;
   
 implementation
 uses DateUtils, cTypes;
@@ -127,7 +128,7 @@ end;
 constructor THdateClass.Create;
 begin
  fh         := nil;
- fh         := new_hdate;
+ fh         := new_hdate();
  fToDestroy := True;
  InitValue; 
 end;

@@ -1,5 +1,5 @@
 
-EXTRA_DIST = Package.fpc hdate.pp hdate_class.pp fpc_README changelog
+EXTRA_DIST = Package.fpc hdate.pp hdate_class.pp hdate_dyn_pascal.pp linking.inc fpc_README changelog
 
 if WITH_PASCAL
 

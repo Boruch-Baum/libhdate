@@ -1,5 +1,10 @@
-25/11/2005 
-  - Added some constants and fixed comments according the orginal API file
+11-12/01/2008
+   - Added support for newer API functions added at 1.3
+   - Added support for dynamic loading for the API.
+   - Added dynamic loading capabilities to the examples.
+
+25/11/2005
+    - Added some constants and fixed comments according the orginal API file
 
 27/05/2005
 	- Created a Changelog.
