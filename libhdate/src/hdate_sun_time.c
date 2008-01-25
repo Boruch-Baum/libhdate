@@ -25,6 +25,7 @@
 #include <time.h>
 #include <stdio.h>
 #include <math.h>
+#include <errno.h>
 
 #include "hdate.h"
 #include "support.h"
@@ -56,7 +57,14 @@ hdate_get_day_of_year (int day, int month, int year)
 
 /**
  @brief utc sun times for altitude at a gregorian date
-  
+
+ Returns the sunset and sunrise times in minutes from 00:00 (utc time)
+ if sun altitude in sunrise is deg degries.
+
+ This function only works for low altitudes (near sunset/sunrise)
+ if a higher altitude is used return sunset sunrise values will be
+ negative.
+
  @parm day this day of month
  @parm month this month
  @parm year this year
@@ -97,8 +105,18 @@ hdate_get_utc_sun_time_deg (int day, int month, int year, double latitude, doubl
 	latitude = M_PI * latitude / 180.0;
 	
 	/* the sun real time diff from noon at sunset/rise in radians */
+  errno = 0;
 	ha = acos (cos (sunrise_angle) / (cos (latitude) * cos (decl)) - tan (latitude) * tan (decl));
 	
+  /* check for too high altitudes and return negative values */
+  if (errno == EDOM)
+  {
+    *sunrise = -720;
+	  *sunset = -720;
+    
+    return;
+  }
+  
 	/* we use minutes, ratio is 1440min/2pi */
 	ha = 720.0 * ha / M_PI;
 	
