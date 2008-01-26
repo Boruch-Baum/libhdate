@@ -1,4 +1,4 @@
-.TH "src/hdate.h" 3 "6 Jan 2008" "Version 1.4" "libhdate C language" \" -*- nroff -*-
+.TH "src/hdate.h" 3 "26 Jan 2008" "Version 1.4" "libhdate C language" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -630,6 +630,8 @@ the days from 1 jan
 .PP
 utc sun times for altitude at a gregorian date 
 .PP
+Returns the sunset and sunrise times in minutes from 00:00 (utc time) if sun altitude in sunrise is deg degries. This function only works for altitudes sun realy is. If the sun never get to this altitude, the returned sunset and sunrise values will be negative. This can happen in low altitude when latitude is nearing the pols in winter times, the sun never goes very high in the sky there.
+.PP
 \fBParameters:\fP
 .RS 4
 \fIday\fP this day of month 
@@ -638,9 +640,9 @@ utc sun times for altitude at a gregorian date
 .br
 \fIyear\fP this year 
 .br
-\fIlatitude\fP latitude to use in calculations 
-.br
 \fIlongitude\fP longitude to use in calculations 
+.br
+\fIlatitude\fP latitude to use in calculations 
 .br
 \fIdeg\fP degrees of sun's altitude (0 - Zenith .. 90 - Horizon) 
 .br
