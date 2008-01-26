@@ -343,15 +343,24 @@ hdate_get_day_of_year (int day, int month, int year);
 
 /**
  @brief utc sun times for altitude at a gregorian date
-  
- @param day this day of month
- @param month this month
- @param year this year
- @param latitude latitude to use in calculations
- @param longitude longitude to use in calculations
- @param deg degrees of sun's altitude (0 -  Zenith .. 90 - Horizon)
- @param sunrise return the utc sunrise in minutes
- @param sunset return the utc sunset in minutes
+
+ Returns the sunset and sunrise times in minutes from 00:00 (utc time)
+ if sun altitude in sunrise is deg degries.
+
+ This function only works for altitudes sun realy is.
+ If the sun never get to this altitude, the returned sunset and sunrise values 
+ will be negative. This can happen in low altitude when latitude is 
+ nearing the pols in winter times, the sun never goes very high in 
+ the sky there.
+
+ @parm day this day of month
+ @parm month this month
+ @parm year this year
+ @parm longitude longitude to use in calculations
+ @parm latitude latitude to use in calculations
+ @parm deg degrees of sun's altitude (0 -  Zenith .. 90 - Horizon)
+ @parm sunrise return the utc sunrise in minutes
+ @parm sunset return the utc sunset in minutes
 */
 void
 hdate_get_utc_sun_time_deg (int day, int month, int year, 
