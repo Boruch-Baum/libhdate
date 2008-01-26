@@ -61,9 +61,11 @@ hdate_get_day_of_year (int day, int month, int year)
  Returns the sunset and sunrise times in minutes from 00:00 (utc time)
  if sun altitude in sunrise is deg degries.
 
- This function only works for low altitudes (near sunset/sunrise)
- if a higher altitude is used return sunset sunrise values will be
- negative.
+ This function only works for altitudes sun realy is.
+ If the sun never get to this altitude, the returned sunset and sunrise values 
+ will be negative. This can happen in low altitude when latitude is 
+ nearing the pols in winter times, the sun never goes very high in 
+ the sky there.
 
  @parm day this day of month
  @parm month this month
