@@ -280,6 +280,7 @@ src/Makefile
 examples/Makefile
 examples/hcal/Makefile
 examples/bindings/Makefile
+examples/bindings/pascal/Makefile
 bindings/Makefile
 bindings/python/Makefile
 bindings/perl/Makefile

@@ -1,6 +1,6 @@
 [package]
 name=hdate
-version=1.0.0
+version=1.4.11
 [require]
 libc=y
 packages_linux_m68k=

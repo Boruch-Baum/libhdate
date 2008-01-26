@@ -7,16 +7,21 @@ The Torah reading sequence is from tables by Zvi Har'El.
 
 The LibHdate is GPL library written by Kobi Zamir <kzamir@walla.co.il> and can be found at http://libhdate.sourceforge.net/ .
 
-The current version of LibHDate is  1.4.11 and contains a Free Pascal binding only that was written by Ido Kanner <idokan@gmail.com>.
+The current version of LibHDate is  1.4.10 and contains a Free Pascal binding only that was written by Ido Kanner <idokan@gmail.com>.
 
 Existed Files:
-  README                  - This file.
-  licence                 - A copy of the GPL license.
-  src/hdate.pp            - The main low level API of LibHdate binding.
-  src/hdate_obj.pp        - An Object Oriented implementation for the hdate.pp API.
-  src/hdate_obj_demo.pp   - An example for the use of the Object Oriented unit.
-  src/hdate_class.pp      - A self made Object Oriented implementation for the LibHdate API.
-  src/hdate_dyn_pascal.pp - A dynamic linking library.
+  /bindings/pascal/fpc_README  - This file.
+  
+  COPYING                      - A copy of the GPL license.
+  
+  examples/bindings/pascal/hdate_obj.pp        - An Object Oriented implementation for the hdate.pp API.
+  examples/bindings/pascal/hdate_obj_demo.pp   - An example for the use of the Object Oriented unit.
+  examples/bindings/pascal/hdate_class.pp      - A self made Object Oriented implementation for the LibHdate API.
+  
+  bindings/pascal/
+  bindings/pascal/hdate.pp                 - The main low level API of LibHdate binding.
+  bindings/pascal/hdate_dyn_pascal.pp      - A dynamic linking library.
+  
 
 Compiling
 =========

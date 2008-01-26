@@ -1,4 +1,5 @@
 (*  libhdate
+
    Copyright (C) 1984-2003 Amos Shapir, 2004-2007  Yaacov Zamir <kzamir@walla.co.il>
    Copyright (C) 2005-2008  Ido Kanner   <idokan@gmail.com>
    
@@ -31,6 +32,7 @@ interface
 uses cTypes;
 
 const
+  // the global name of the hdate library: <b>DEPERCATED</b>
   LIBHDATE_LIBRARY_NAME = 'hdate';
 
 (** @def HDATE_DIASPORA_FLAG
@@ -57,21 +59,35 @@ const
 { Base structore for hebrew dates }
 
 type
+  // A pointer to the Thdate_struct record
   Phdate_struct = ^Thdate_struct;
 	Thdate_struct = record
-                   hd_day          : cInt; //The number of day in the hebrew month (1..31).
-                   hd_mon          : cInt; //The number of the hebrew month 1..14 (1 - tishre, 13 - adar 1, 14 - adar 2).
-                   hd_year         : cInt; //The number of the hebrew year.
-                   gd_day          : cInt; //The number of the day in the month. (1..31)
-                   gd_mon          : cInt; //The number of the month 1..12 (1 - jan).
-                   gd_year         : cInt; //The number of the year.
-                   hd_dw           : cInt; //The day of the week 1..7 (1 - sunday).
-                   hd_size_of_year : cInt; //The length of the year in days.
-                   hd_new_year_dw  : cInt; //The week day of Hebrew new year.
-                   hd_year_type    : cInt; //The number type of year.
-                   hd_jd           : cInt; //The Julian day number
-                   hd_days         : cInt; //The number of days passed since 1 tishrey
-                   hd_weeks        : cInt; //The number of weeks passed since 1 tishrey
+                   //The number of day in the hebrew month (1..31).
+                   hd_day          : cInt;
+                   //The number of the hebrew month 1..14 (1 - tishre, 13 - adar 1, 14 - adar 2).
+                   hd_mon          : cInt;
+                   //The number of the hebrew year.
+                   hd_year         : cInt;
+                   //The number of the day in the month. (1..31)
+                   gd_day          : cInt;
+                   //The number of the month 1..12 (1 - jan).
+                   gd_mon          : cInt;
+                   //The number of the year.
+                   gd_year         : cInt;
+                   //The day of the week 1..7 (1 - sunday).
+                   hd_dw           : cInt;
+                   //The length of the year in days.
+                   hd_size_of_year : cInt;
+                   //The week day of Hebrew new year.
+                   hd_new_year_dw  : cInt;
+                   //The number type of year.
+                   hd_year_type    : cInt;
+                   //The Julian day number
+                   hd_jd           : cInt;
+                   //The number of days passed since 1 tishrey
+                   hd_days         : cInt;
+                   //The number of weeks passed since 1 tishrey
+                   hd_weeks        : cInt;
                   end;
 (********************************************************************************)
 (********************************************************************************)
@@ -85,7 +101,6 @@ type
  @param y Year in 4 digits e.g. 2001
  @return pointer to this hdate struct
  *)
- 
  function hdate_set_gdate (h : Phdate_struct; d, m, y : cInt) : Phdate_struct;
     cdecl; external;
 
@@ -98,7 +113,6 @@ type
  @param y Year in 4 digits e.g. 5731
  @return pointer to this hdate struct
  *)
-
 function hdate_set_hdate (h : Phdate_struct; d, m, y : cInt) : Phdate_struct;
     cdecl; external;
 
@@ -520,7 +534,7 @@ procedure hdate_get_utc_sun_time_deg(day, month, year : cint; latitude, longitud
  @param year this year
  @param longitude longitude to use in calculations
  @param latitude latitude to use in calculations
- @param sun_hour return the length of shaa zaminit in minutes
+ @param sun_hour return the length of shaa zmanit in minutes
  @param first_light return the utc alut ha-shachar in minutes
  @param talit return the utc tphilin and talit in minutes
  @param sunrise return the utc sunrise in minutes
@@ -529,7 +543,6 @@ procedure hdate_get_utc_sun_time_deg(day, month, year : cint; latitude, longitud
  @param first_stars return the utc tzeit hacochavim in minutes
  @param three_stars return the utc shlosha cochavim in minutes
 *)
-
 procedure hdate_get_utc_sun_time_full (day, month, year                                       : cint;
                                        latitude, longitude                                    : cdouble;
                                        sun_hour, first_light, talit, sunrise, midday, sunset,

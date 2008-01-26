@@ -6,7 +6,9 @@ libhdate (1.4.11)
   * Add a patch to print todays date in hcal in bold (Patch: Patrik Nilsson)
   * Fix documentation of files and structs (Bug report: Baruch Even)
   * Update Swedish translation (Thanks: Patrik Nilsson)
-  * Fix hdate_get_utc_sun_time_deg function only work in low altitudes (Bug report: Ido Kanner)
+  * Fix hdate_get_utc_sun_time_deg 
+      function only work in low altitudes (Bug report: Ido Kanner)
+  * Update pascal bindings and examples (Patch: Ido Kanner)
 
   -- Yaacov Zamir <kzamir@wall.co.il>  Saturday, 5 Jan 2008 22:00
   
