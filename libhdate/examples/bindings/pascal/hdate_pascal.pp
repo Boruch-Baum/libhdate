@@ -128,7 +128,7 @@ begin
   
      //print information
      tmp := h.get_temporary_time(Now, Lat, Long);
-     writeln(#9'Temporary hour length: ', MinutesToHours(tmp + time_zone * 60));
+     writeln(#9'Temporary hour length: ', MinutesToHours(tmp));
      tmp := h.get_first_light(Now, Lat, Long);
      writeln(#9'first light: ', MinutesToHours(tmp + time_zone * 60));
      tmp := h.get_prayer_time(Now, Lat, Long);
