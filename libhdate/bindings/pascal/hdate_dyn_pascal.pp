@@ -17,6 +17,8 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 History:
+  14/06/2008 - Added support for GPC due to wishlist request in Debian:
+                 http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=486095
   25/01/2008 - Fixed some logical bugs.
              - Added FPDoc support
   12/01/2008 - Added support for dynamic loading for the library
@@ -43,6 +45,13 @@ Interface
 
 Uses
 ctypes;
+{$ENDIF}
+
+{$IFDEF __GPC__}
+type
+  pcInt   = ^cInt;
+  cInt    = longint;
+  cDouble = double;
 {$ENDIF}
 
 { Load and assign the hdate library dynamiclly
@@ -617,7 +626,47 @@ Var
 
 
 Implementation
+{$IFDEF FPC}
 Uses dynlibs;
+{$ENDIF}
+
+{$IFDEF __GPC__}
+const
+  LIBHDATE_LIBRARY_NAME = 'libhdate.so';
+
+  RTLD_LAZY         = $001;
+  RTLD_NOW          = $002;
+  RTLD_BINDING_MASK = $003;
+  RTLD_GLOBAL       = $100;
+  RTLD_NEXT         = pointer(-1);
+{$IFDEF LINUX}
+  RTLD_DEFAULT      = nil;
+{$ENDIF}
+{$IFDEF BSD}
+  RTLD_DEFAULT      = pointer(-2);
+  RTLD_MODEMASK     = RTLD_BINDING_MASK;
+{$ENDIF}
+
+type
+  Pdl_info = ^dl_info;
+  dl_info = record
+    dli_fname      : Pchar;
+    dli_fbase      : pointer;
+    dli_sname      : Pchar;
+    dli_saddr      : pointer;
+  end;
+  
+  TLibHandle = PtrInt;
+
+const
+  NilHandle = TLibHandle(0);
+
+function dlopen(Name : PChar; Flags : longint) : Pointer; external name 'dlopen';
+function dlerror() : Pchar; external name 'dlerror';
+function dlsym(Lib : PtrInt; Name : Pchar) : Pointer; external name 'dlsym';
+function dlclose(Lib : TLibHandle) : Longint; external name 'dlclose';
+function dladdr(Lib: pointer; info: Pdl_info): Longint; external name 'dladdr';
+{$ENDIF}
 
 Var
   Loaded    : Boolean;
@@ -625,6 +674,7 @@ Var
 
 Procedure hdate_init;
 
+{$IFDEF FPC}
   { Internal function of hdate_init, that load the function and assign it to the right function/procedure}
   Function AssignProc(Name : PChar; Fnc : Pointer) : boolean;
   Var
@@ -637,13 +687,33 @@ Procedure hdate_init;
     pfnc^      := address;
     AssignProc := address <> Nil;
   End;
+{$ENDIF}
+{$IFDEF __GPC__}
+  { Internal function of hdate_init, that load the function and assign it to the right function/procedure}
+  Function AssignProc(Name : PChar; Fnc : Pointer) : boolean;
+  Var
+    address : pointer;
+    pfnc    : ^pointer;
+  Begin
+    address    := Nil;
+    address    := dlsym(LibHandle,Name);
+    pfnc       := Fnc;
+    pfnc^      := address;
+    AssignProc := address <> Nil;
+  End;
+{$ENDIF}
 
 Begin
   If (Loaded) and (LibHandle <> NilHandle) Then
     exit;
 
   Loaded    := False;
+  {$IFDEF FPC}
   LibHandle := LoadLibrary(LIBHDATE_LIBRARY_NAME);
+  {$ENDIF}
+  {$IFDEF __GPC__}
+   LibHandle := TLibHandle(dlopen(LIBHDATE_LIBRARY_NAME, RTLD_LAZY));
+  {$ENDIF}
   If LibHandle = NilHandle Then
     exit;
 
@@ -733,8 +803,14 @@ End;
 
 Procedure hdate_done;
 Begin
+  {$IFDEF FPC}
   If LibHandle <> NilHandle Then
     UnloadLibrary(LibHandle);
+  {$ENDIF}
+  {$IFDEF __GPC__}
+  If LibHandle <> NilHandle Then
+    LibHandle := dlClose(LibHandle);
+  {$ENDIF}
 
   LibHandle := NilHandle;
   Loaded    := false;

@@ -4,7 +4,7 @@ dnl Set release number
 PACKAGE=libhdate
 LIBHDATE_MAJOR_VERSION=1
 LIBHDATE_MINOR_VERSION=4
-LIBHDATE_MICRO_VERSION=11
+LIBHDATE_MICRO_VERSION=12
 
 VERSION=$LIBHDATE_MAJOR_VERSION.$LIBHDATE_MINOR_VERSION.$LIBHDATE_MICRO_VERSION
 
@@ -42,16 +42,16 @@ AC_CHECK_PROG(have_swig, "swig", yes, no)
 
 dnl =======================================================================================
 
-AC_CHECK_PROG(have_pascal, "fpc", yes, no)
+AC_CHECK_PROG(have_fpc, "fpc", yes, no)
 
-build_pascal=$have_pascal
+build_fpc=$have_fpc
 
-AC_ARG_ENABLE([pascal], 
-  [AS_HELP_STRING([--disable-pascal],
-  [do not build pascal binding])],
-  [build_pascal=no], [build_pascal=$have_pascal])
+AC_ARG_ENABLE([fpc], 
+  [AS_HELP_STRING([--disable-fpc],
+  [do not build free pascal binding])],
+  [build_fpc=no], [build_fpc=$have_fpc])
 
-if test "$have_pascal" = "yes"; then
+if test "$have_fpc" = "yes"; then
 	PA_VERSION=`fpc -iV`
 	PA_TPR=`fpc -iTP`
 	PA_TOS=`fpc -iTO`
@@ -60,7 +60,27 @@ if test "$have_pascal" = "yes"; then
 	AC_SUBST([PA_MODULES_PATH])
 fi
 
-AM_CONDITIONAL(WITH_PASCAL, test "$build_pascal" = "yes")
+dnl =======================================================================================
+
+AC_CHECK_PROG(have_gpc, "gpc", yes, no)
+
+build_gpc=$have_gpc
+
+AC_ARG_ENABLE([gpc], 
+  [AS_HELP_STRING([--disable-gpc],
+  [do not build gnu pascal binding])],
+  [build_gpc=no], [build_gpc=$have_gpc])
+
+if test "$have_gpc" = "yes"; then
+	GP_MODULES_PATH=`gpc -print-search-dirs | grep install | cut -d' ' -f 2`
+	AC_SUBST([GP_MODULES_PATH])
+fi
+
+dnl =======================================================================================
+
+AM_CONDITIONAL(WITH_GPC_FPC, [test "$build_fpc" = "yes" -a "$build_gpc" = "yes" ])
+AM_CONDITIONAL(WITH_GPC, [test "$build_gpc" = "yes" -a "$build_fpc" != "yes" ])
+AM_CONDITIONAL(WITH_FPC, [test "$build_gpc" != "yes" -a "$build_fpc" = "yes" ])
 
 dnl =======================================================================================
 
@@ -300,23 +320,25 @@ $PACKAGE-$VERSION
 	compiler:			${CC}
 	
 	have swig			${have_swig}
-	have free pascal		${have_pascal}
+	have free pascal		${have_fpc}
+	have gnu pascal			${have_gpc}
 	have python			${have_python}
 	have perl			${have_perl}
 	have ruby			${have_ruby}
-	have php			${have_php} php-dev ${have_php_config}
+	have php			${have_php} php-dev,php-cli ${have_php_config}
 	
 	build hcal			${build_hcal}
 	
 	build python binding		${build_python}
 	build perl binding		${build_perl}
-	puild pascal binding		${build_pascal}
+	puild free pascal binding	${build_fpc}
 	puild ruby binding		${build_ruby}
 	puild php binding		${build_php}
 	
 	perl site lib path:		$PE_MODULES_PATH
 	python site lib path:		$PY_MODULES_PATH
-	pascal site lib path:		$PA_MODULES_PATH
+	free pascal site lib path:	$PA_MODULES_PATH
+	gnu pascal site lib path:	$GP_MODULES_PATH
 	ruby site lib path:		$RU_MODULES_PATH
 	php site lib path:		$PH_MODULES_PATH
 	  php config path:		$PH_CONFIG_PATH

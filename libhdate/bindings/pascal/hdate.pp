@@ -18,23 +18,40 @@
    Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 	 
 History:
+     14/06/2008 - Added support for GPC due to wishlist request in Debian:
+                   http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=486095
      11/01/2008 - Added support for 1.3 API and cleaned the calling.
      25/11/2005 - Added some constants and fixed comments according the orginal API file
      13/03/2005 - Bug Fixed Added {$PACKRECORDS C}
      10-11/03/2005 - Initial Translation of version 0.31.0
 *)
-{$MODE FPC}{$PACKRECORDS C}
-{$LINKLIB hdate}
+
+{$IFDEF FPC}
+  {$MODE FPC}
+  {$PACKRECORDS C}
+  {$CALLING cdecl}
+  {$LINKLIB hdate}
+{$ENDIF}
 
 unit hdate;
 
 interface
+{$IFDEF FPC}
 uses cTypes;
+{$ENDIF}
 
 const
   // the global name of the hdate library: <b>DEPERCATED</b>
   LIBHDATE_LIBRARY_NAME = 'hdate';
 
+{$IFDEF __GPC__}
+type
+  pcInt   = ^cInt;
+  cInt    = longint;
+  cDouble = double;
+{$ENDIF}
+
+const
 (** @def HDATE_DIASPORA_FLAG
   @brief use diaspora dates and holydays flag
 *)
@@ -101,8 +118,8 @@ type
  @param y Year in 4 digits e.g. 2001
  @return pointer to this hdate struct
  *)
- function hdate_set_gdate (h : Phdate_struct; d, m, y : cInt) : Phdate_struct;
-    cdecl; external;
+function hdate_set_gdate (h : Phdate_struct; d, m, y : cInt) : Phdate_struct;
+ external name 'hdate_set_gdate';
 
 (**
  @brief compute date structure from the Hebrew date
@@ -114,7 +131,7 @@ type
  @return pointer to this hdate struct
  *)
 function hdate_set_hdate (h : Phdate_struct; d, m, y : cInt) : Phdate_struct;
-    cdecl; external;
+ external name 'hdate_set_hdate';
 
 (**
  @brief compute date structure from the Julian day
@@ -124,7 +141,7 @@ function hdate_set_hdate (h : Phdate_struct; d, m, y : cInt) : Phdate_struct;
  @return pointer to this hdate struct
  *)
 function hdate_set_jd (h : Phdate_struct; jd : cInt) : Phdate_struct;
-     cdecl; external;
+ external name 'hdate_set_jd';
      
 (*************************************************************)
 (*************************************************************)
@@ -141,7 +158,7 @@ function hdate_set_jd (h : Phdate_struct; jd : cInt) : Phdate_struct;
  @return a static string of foramted date
 *)
 function hdate_get_format_date (h : Phdate_struct; diaspora, s : cInt) : PChar;
-     cdecl; external;
+ external name 'hdate_get_format_date';
 
 (**
  @brief get the number of hebrew parasha.
@@ -152,7 +169,7 @@ function hdate_get_format_date (h : Phdate_struct; diaspora, s : cInt) : PChar;
    (55 trow 61 are joined strings e.g. Vayakhel Pekudei)
 *)
 function hdate_get_parasha (h : Phdate_struct; diaspora : cInt) : cInt;
-     cdecl; external;
+ external name 'hdate_get_parasha';
 
 (**
  @brief get the number of hebrew holyday.
@@ -162,7 +179,7 @@ function hdate_get_parasha (h : Phdate_struct; diaspora : cInt) : cInt;
  @return the number of holyday.
 *)
 function hdate_get_holyday (h : Phdate_struct; diaspora : cInt) : cInt;
-     cdecl; external;
+ external name 'hdate_get_holyday';
 
 (*************************************************************)
 (*************************************************************)
@@ -175,7 +192,7 @@ function hdate_get_holyday (h : Phdate_struct; diaspora : cInt) : cInt;
  @attention ( 0 < n < 10000)
 *)
 function hdate_get_int_string (n : cInt) : PChar;
-     cdecl; external;
+ external name 'hdate_get_int_string';
 
 (**
  @brief get name of week day.
@@ -186,7 +203,7 @@ function hdate_get_int_string (n : cInt) : PChar;
  @return a static string of the day of the week
 *)
 function hdate_get_day_string (day : cInt; s : cInt) : PChar;
-     cdecl; external;
+ external name 'hdate_get_day_string';
 
 (**
  @brief name of month.
@@ -196,7 +213,7 @@ function hdate_get_day_string (day : cInt; s : cInt) : PChar;
  @return a static string of month name
 *)
 function hdate_get_month_string (month : cInt; s : cInt) : PChar;
-     cdecl; external;
+ external name 'hdate_get_month_string';
 
 (**
  @brief name of hebrew month.
@@ -207,7 +224,7 @@ function hdate_get_month_string (month : cInt; s : cInt) : PChar;
  @return a static string of month name
 *)
 function hdate_get_hebrew_month_string (month : cInt; s : cInt) : PChar;
-     cdecl; external;
+ external name 'hdate_get_hebrew_month_string';
 
 (**
  @brief name of hebrew holyday.
@@ -217,7 +234,7 @@ function hdate_get_hebrew_month_string (month : cInt; s : cInt) : PChar;
  @return a static string of holyday name
 *)
 function hdate_get_holyday_string (holyday, s : cInt) : PChar;
-     cdecl; external;
+ external name 'hdate_get_holyday_string';
 
 (**
  @brief name of parasha
@@ -228,7 +245,7 @@ function hdate_get_holyday_string (holyday, s : cInt) : PChar;
  @return a static string of parasha name
 *)
 function hdate_get_parasha_string (parasha, s : cInt) : PChar;
-     cdecl; external;
+ external name 'hdate_get_parasha_string';
 
 (*************************************************************)
 (*************************************************************)
@@ -240,7 +257,7 @@ function hdate_get_parasha_string (parasha, s : cInt) : PChar;
  @return the number of holyday type.
 *)
 function hdate_get_holyday_type (holyday : cInt) : cInt;
-     cdecl; external;
+ external name 'hdate_get_holyday_type';
 
 (**
  @brief size of hebrew year in days.
@@ -249,7 +266,7 @@ function hdate_get_holyday_type (holyday : cInt) : cInt;
  @return size of Hebrew year
 *)
 function hdate_get_size_of_hebrew_year (hebrew_year : cInt) : cInt;
-     cdecl; external;
+ external name 'hdate_get_size_of_hebrew_year';
 
 (*************************************************************)
 (*************************************************************)
@@ -263,7 +280,7 @@ function hdate_get_size_of_hebrew_year (hebrew_year : cInt) : cInt;
  @return Number of days since 3,1,3744
 *)
 function hdate_days_from_3744 (hebrew_year : cInt) : cInt;
-     cdecl; external;
+ external name 'hdate_days_from_3744';
 
 (**
  @brief Return Hebrew year type based on size and first week day of year.
@@ -273,7 +290,7 @@ function hdate_days_from_3744 (hebrew_year : cInt) : cInt;
  @return the number for year type (1..14)
 *)
 function hdate_get_year_type (size_of_year, new_year_dw : cInt) : cInt;
-     cdecl; external;
+ external name 'hdate_get_year_type';
 
 (**
  @brief Compute Julian day from Gregorian date
@@ -285,8 +302,8 @@ function hdate_get_year_type (size_of_year, new_year_dw : cInt) : cInt;
  @param year Year in 4 digits e.g. 2001
  @return the julian day number
  *)
- function hdate_gdate_to_jd (day, month, year : cInt) : cInt;
-     cdecl; external;
+function hdate_gdate_to_jd (day, month, year : cInt) : cInt;
+ external name 'hdate_gdate_to_jd';
 
 (**
  @brief Compute Julian day from Hebrew day, month and year
@@ -300,8 +317,8 @@ function hdate_get_year_type (size_of_year, new_year_dw : cInt) : cInt;
  @param jd_tishrey1_next_year return the julian number of 1 Tishrey next year
  @return the julian day number
  *)
- function hdate_hdate_to_jd (day, month, year : cInt; jd_tishrey1, jd_tishrey1_next_year : pcInt) : cInt;
-     cdecl; external;
+function hdate_hdate_to_jd (day, month, year : cInt; jd_tishrey1, jd_tishrey1_next_year : pcInt) : cInt;
+ external name 'hdate_hdate_to_jd';
  
 (**
  @brief Converting from the Julian day to the Gregorian date
@@ -313,8 +330,8 @@ function hdate_get_year_type (size_of_year, new_year_dw : cInt) : cInt;
  @param month return Month 1..12
  @param year return Year in 4 digits e.g. 2001
  *)
- procedure hdate_jd_to_gdate (jd : cInt; day, month, year : pcInt);
-     cdecl; external;
+procedure hdate_jd_to_gdate (jd : cInt; day, month, year : pcInt);
+ external name 'hdate_jd_to_gdate';
 
 (**
  @brief Converting from the Julian day to the Hebrew day
@@ -329,7 +346,7 @@ function hdate_get_year_type (size_of_year, new_year_dw : cInt) : cInt;
  @param jd_tishrey1_next_year return the julian number of 1 Tishrey next year
  *)
 procedure hdate_jd_to_hdate (jd : cInt; day, month, year, jd_tishrey1, jd_tishrey1_next_year : pcInt);
-     cdecl; external;
+ external name 'hdate_jd_to_hdate';
 
 (*************************************************************)
 (*************************************************************)
@@ -343,7 +360,7 @@ procedure hdate_jd_to_hdate (jd : cInt; day, month, year, jd_tishrey1, jd_tishre
  @return the days from 1 jan
 *)
 function hdate_get_day_of_year (day, month, year : cInt) : cInt;
-     cdecl; external;
+ external name 'hdate_get_day_of_year';
 
 (**
  @brief utc sunrise/set time for a gregorian date
@@ -359,7 +376,7 @@ function hdate_get_day_of_year (day, month, year : cInt) : cInt;
  @param sunset return the utc sunset in minutes after midnight (00:00)
 *)
 procedure hdate_get_utc_sun_time (day, month, year : cInt; latitude, longitude : cDouble; sunrise, sunset : pcInt);
-     cdecl; external;
+ external name 'hdate_get_utc_sun_time';
 
 (*************************************************************)
 (*************************************************************)
@@ -370,8 +387,8 @@ procedure hdate_get_utc_sun_time (day, month, year : cInt; latitude, longitude :
  @param h pointer this hdate struct.
  @return the Gregorian day of the month, 1..31.
  *)
- function hdate_get_gday (h : Phdate_struct) : cInt;
-     cdecl; external;
+function hdate_get_gday (h : Phdate_struct) : cInt;
+  external name 'hdate_get_gday';
 
 (**
  @brief get the Gregorian month
@@ -380,7 +397,7 @@ procedure hdate_get_utc_sun_time (day, month, year : cInt; latitude, longitude :
  @return the Gregorian month, jan = 1.
  *)
 function hdate_get_gmonth (h : Phdate_struct) : cInt;
-     cdecl; external;
+ external name 'hdate_get_gmonth';
 
 (**
  @brief get the Gregorian year
@@ -389,7 +406,7 @@ function hdate_get_gmonth (h : Phdate_struct) : cInt;
  @return the Gregorian year.
  *)
 function hdate_get_gyear (h : Phdate_struct) : cInt;
-     cdecl; external;
+ external name 'hdate_get_gyear';
 
 (**
  @brief get the Hebrew day of the month
@@ -398,7 +415,7 @@ function hdate_get_gyear (h : Phdate_struct) : cInt;
  @return the Hebrew day of the month, 1..30.
  *)
 function hdate_get_hday (h : Phdate_struct) : cInt;
-     cdecl; external;
+ external name 'hdate_get_hday';
 
 (**
  @brief get the Hebrew month
@@ -407,7 +424,7 @@ function hdate_get_hday (h : Phdate_struct) : cInt;
  @return the Hebrew month, Tishery = 1 .. Adar I =13, Adar II = 14.
  *)
 function hdate_get_hmonth (h : Phdate_struct) : cInt;
-     cdecl; external;
+ external name 'hdate_get_hmonth';
 
 (**
  @brief get the Hebrew year
@@ -416,7 +433,7 @@ function hdate_get_hmonth (h : Phdate_struct) : cInt;
  @return the Hebrew year.
  *)
 function hdate_get_hyear (h : Phdate_struct) : cInt;
-     cdecl; external;
+ external name 'hdate_get_hyear';
 
 (**
  @brief get the day of the week
@@ -425,7 +442,7 @@ function hdate_get_hyear (h : Phdate_struct) : cInt;
  @return the the day of the week.
  *)
 function hdate_get_day_of_the_week (h : Phdate_struct) : cInt;
-     cdecl; external;
+ external name 'hdate_get_day_of_the_week';
 
 (**
  @brief get the size of the hebrew year
@@ -434,7 +451,7 @@ function hdate_get_day_of_the_week (h : Phdate_struct) : cInt;
  @return the the size of the hebrew year.
  *)
 function hdate_get_size_of_year (h : Phdate_struct) : cInt;
-     cdecl; external;
+ external name 'hdate_get_size_of_year';
 
 (**
  @brief get the new year day of the week
@@ -443,7 +460,7 @@ function hdate_get_size_of_year (h : Phdate_struct) : cInt;
  @return the the new year day of the week.
  *)
 function hdate_get_new_year_day_of_the_week (h : Phdate_struct) : cInt;
-     cdecl; external;
+ external name 'hdate_get_new_year_day_of_the_week';
 
 (**
  @brief get the Julian day number
@@ -452,7 +469,7 @@ function hdate_get_new_year_day_of_the_week (h : Phdate_struct) : cInt;
  @return the Julian day number.
  *)
 function hdate_get_julian (h : Phdate_struct) : cInt;
-     cdecl; external;
+ external name 'hdate_get_julian';
 
 (**
  @brief get the number of days passed since 1 tishrey
@@ -461,7 +478,7 @@ function hdate_get_julian (h : Phdate_struct) : cInt;
  @return the number of days passed since 1 tishrey.
  *)
 function hdate_get_days (h : Phdate_struct) : cInt;
-     cdecl; external;
+ external name 'hdate_get_days';
 
 (**
  @brief get the number of weeks passed since 1 tishrey
@@ -470,7 +487,7 @@ function hdate_get_days (h : Phdate_struct) : cInt;
  @return the number of weeks passed since 1 tishrey.
  *)
 function hdate_get_weeks (h : Phdate_struct) : cInt;
-     cdecl; external;
+ external name 'hdate_get_weeks';
 
 (*************************************************************)
 (*************************************************************)
@@ -481,7 +498,7 @@ function hdate_get_weeks (h : Phdate_struct) : cInt;
  @return a new hdate object
  *)
 function new_hdate : Phdate_struct;
-     cdecl; external;
+ external name 'new_hdate';
 
 (**
  @brief delete an hdate struct object.
@@ -489,7 +506,7 @@ function new_hdate : Phdate_struct;
  @param h pointer this hdate struct.
  *)
 function delete_hdate (h : Phdate_struct) : Phdate_struct;
-     cdecl; external;
+ external name 'delete_hdate';
 
 (*************************************************************)
 (*************************************************************)
@@ -500,7 +517,7 @@ function delete_hdate (h : Phdate_struct) : Phdate_struct;
  @return a a static string, with the package name and version
 *)
 function hdate_get_version_string : PChar;
-     cdecl; external;
+ external name 'hdate_get_version_string';
 
 (**
  @brief Return a static string, with the name of translator
@@ -508,7 +525,7 @@ function hdate_get_version_string : PChar;
  @return a a static string, with the name of translator
 *)
 function hdate_get_translator_string : PChar;
-     cdecl; external;
+ external name 'hdate_get_translator_string';
 
 (**
  @brief utc sun times for altitude at a gregorian date
@@ -523,7 +540,7 @@ function hdate_get_translator_string : PChar;
  @param sunset return the utc sunset in minutes
 *)
 procedure hdate_get_utc_sun_time_deg(day, month, year : cint; latitude, longitude, deg : cdouble; sunrise, sunset : pcint);
-     cdecl; external;
+ external name 'hdate_get_utc_sun_time_deg';
      
 
 (**
@@ -547,7 +564,7 @@ procedure hdate_get_utc_sun_time_full (day, month, year                         
                                        latitude, longitude                                    : cdouble;
                                        sun_hour, first_light, talit, sunrise, midday, sunset,
                                        first_stars, three_stars                               :  pcint);
-     cdecl; external;
+ external name 'hdate_get_utc_sun_time_full';
 
 
 

@@ -1,3 +1,12 @@
+libhdate (1.4.12)
+
+  * Add GNU Pascal bindings (Ido Kanner)
+  * Add example for GNU pascal
+  * change configure flags for pascal from --disable-pascal
+      to --disable-fpc and --disable-gpc
+
+  -- Yaacov Zamir <kzamir@wall.co.il>  Saturday, 14 Jun 2008 22:00
+  
 libhdate (1.4.11)
 
   * Add Ruby bindings
