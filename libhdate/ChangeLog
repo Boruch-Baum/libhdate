@@ -1,3 +1,15 @@
+libhdate (1.4.14)
+
+  * Fix --localedir configure option and add a gettext localedir indicator
+  	at the configure summary
+  * Add Sfirat ha omer function (Patch: Moshe Wagner <moshe.wagner@gmail.com>)
+  * Add Erev Yum Kipur to the holidays list 
+  	(Bug report Arnon Sharlin; Patch: Moshe Wagner <moshe.wagner@gmail.com>)
+  * Fix Tora readings in diaspora (Patch: Moshe Wagner <moshe.wagner@gmail.com>)
+  * Change the type of holiday function to me more descriptive
+  	(Patch: Moshe Wagner <moshe.wagner@gmail.com>)
+  -- Yaacov Zamir <kzamir@wall.co.il>  Saturday, 17 Oct 2008 22:00
+  
 libhdate (1.4.12)
 
   * Add GNU Pascal bindings (Ido Kanner)
