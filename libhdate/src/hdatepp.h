@@ -189,7 +189,6 @@ namespace hdate
 			return hdate_get_holyday_string (holyday, s);
 		}
 		
-		hdate_get_omer_day(hdate_struct const * h)
 		/**
 		 @brief get the day of the omer
 		
@@ -199,32 +198,6 @@ namespace hdate
 		get_omer_day ()
 		{
 			return hdate_get_omer_day (h);
-		}
-		
-		/**
-		 @brief get the hebrew holiday type.
-		
-		Holiday types:
-		0 - Regular day
-		1 - Yom tov (plus yom kippor)
-		2 - Erev yom kippur
-		3 - Hol hamoed
-		4 - Hanuka and purim
-		5 - Tzomot
-		6 - Independance day and Yom yerushalaim
-		7 - Lag baomer ,Tu beav, Tu beshvat
-		8 - Tzahal and Holocaust memorial days
-		9 - National days
-		
-		 @return the holiday type 
-		*/
-		int
-		get_holyday_type ()
-		{
-			int holyday;
-			
-			holyday = hdate_get_holyday (h, diaspora);
-			return hdate_get_holyday_type (holyday);
 		}
 		
 		/**
