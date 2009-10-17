@@ -4,7 +4,7 @@ libhdate (1.4.14)
   	at the configure summary
   * Add Sfirat ha omer function (Patch: Moshe Wagner <moshe.wagner@gmail.com>)
   * Add Erev Yum Kipur to the holidays list 
-  	(Bug report Arnon Sharlin; Patch: Moshe Wagner <moshe.wagner@gmail.com>)
+  	(Bug report: Arnon Sharlin; Patch: Moshe Wagner <moshe.wagner@gmail.com>)
   * Fix Tora readings in diaspora (Patch: Moshe Wagner <moshe.wagner@gmail.com>)
   * Change the type of holiday function to me more descriptive
   	(Patch: Moshe Wagner <moshe.wagner@gmail.com>)
