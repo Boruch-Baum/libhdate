@@ -4,7 +4,7 @@ dnl Set release number
 PACKAGE=libhdate
 LIBHDATE_MAJOR_VERSION=1
 LIBHDATE_MINOR_VERSION=4
-LIBHDATE_MICRO_VERSION=12
+LIBHDATE_MICRO_VERSION=14
 
 VERSION=$LIBHDATE_MAJOR_VERSION.$LIBHDATE_MINOR_VERSION.$LIBHDATE_MICRO_VERSION
 
@@ -264,11 +264,7 @@ if test "$DATADIRNAME" = ""; then
    AC_SUBST(DATADIRNAME)
 fi
 
-if test "${prefix}" = "NONE"; then
-  AC_DEFINE_UNQUOTED(PACKAGE_LOCALE_DIR, "${ac_default_prefix}/${DATADIRNAME}/locale")
-else
-  AC_DEFINE_UNQUOTED(PACKAGE_LOCALE_DIR, "${prefix}/${DATADIRNAME}/locale")
-fi
+AC_DEFINE_UNQUOTED(PACKAGE_LOCALE_DIR, "$localedir")
 
 dnl =======================================================================================
 
@@ -318,6 +314,7 @@ $PACKAGE-$VERSION
 
 	prefix:				${prefix}
 	compiler:			${CC}
+	locale-dir:			$localedir
 	
 	have swig			${have_swig}
 	have free pascal		${have_fpc}
@@ -329,7 +326,7 @@ $PACKAGE-$VERSION
 	
 	build hcal			${build_hcal}
 	
-	build python binding		${build_python}
+	build python binding	${build_python}
 	build perl binding		${build_perl}
 	puild free pascal binding	${build_fpc}
 	puild ruby binding		${build_ruby}
