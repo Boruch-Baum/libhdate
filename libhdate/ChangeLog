@@ -8,6 +8,7 @@ libhdate (1.4.14)
   * Fix Tora readings in diaspora (Patch: Moshe Wagner <moshe.wagner@gmail.com>)
   * Change the type of holiday function to me more descriptive
   	(Patch: Moshe Wagner <moshe.wagner@gmail.com>)
+  	
   -- Yaacov Zamir <kzamir@wall.co.il>  Saturday, 17 Oct 2008 22:00
   
 libhdate (1.4.12)
