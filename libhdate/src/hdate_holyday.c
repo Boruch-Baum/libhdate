@@ -35,7 +35,7 @@ hdate_get_holyday (hdate_struct const * h, int diaspora)
 	static int holydays_table[14][30] = 
 	{
 		{	/* Tishrey */
-			1, 2, 3, 3, 0, 0, 0, 0, 0, 4,
+			1, 2, 3, 3, 0, 0, 0, 0, 37, 4,
 			0, 0, 0, 0, 5, 31, 6, 6, 6, 6,
 			7, 27, 8, 0, 0, 0, 0, 0, 0, 0},
 		{	/* Heshvan */
@@ -99,10 +99,10 @@ hdate_get_holyday (hdate_struct const * h, int diaspora)
 	holyday = holydays_table[h->hd_mon - 1][h->hd_day - 1];
 	
 	/* if tzom on sat delay one day */
-	/* yom cipur on sat */
+	/* tzom gdalyaho on sat */
 	if ((holyday == 3) && (h->hd_dw == 7 || (h->hd_day == 4 && h->hd_dw !=1)))
 		holyday = 0;
-	/* 17 of Tanuz on sat */
+	/* 17 of Tamuz on sat */
 	if ((holyday == 21) && ((h->hd_dw == 7) || (h->hd_day == 18 && h->hd_dw != 1)))
 		holyday = 0;
 	/* 9 of Av on sat */
@@ -239,11 +239,45 @@ hdate_get_holyday (hdate_struct const * h, int diaspora)
 }
 
 /**
+ @brief Return the day in the omer of the given date
+
+ @param h The hdate_struct of the date to use.
+ @return The day in the omer, starting from 1 (or 0 if not in sfirat ha omer)
+*/
+int
+hdate_get_omer_day(hdate_struct const * h)
+{
+	int omer_day;
+	hdate_struct sixteen_nissan;
+	
+	hdate_set_hdate(&sixteen_nissan, 16, 7, h->hd_year);
+	omer_day = h->hd_jd - sixteen_nissan.hd_jd + 1;
+
+	if ((omer_day > 49) || (omer_day < 0)) 
+		omer_day = 0;
+
+	return omer_day;
+}
+
+/**
  @brief Return number of hebrew holyday type.
 
+  Holiday types:
+    0 - Regular day
+    1 - Yom tov (plus yom kippor)
+    2 - Erev yom kippur
+    3 - Hol hamoed
+    4 - Hanuka and purim
+    5 - Tzomot
+    6 - Independance day and Yom yerushalaim
+    7 - Lag baomer ,Tu beav, Tu beshvat
+    8 - Tzahal and Holocaust memorial days
+    9 - National days
+    
  @param holyday the holyday number
  @return the number of holyday type.
 */
+
 int
 hdate_get_holyday_type (int holyday)
 {
@@ -254,21 +288,66 @@ hdate_get_holyday_type (int holyday)
 	case 0: /* regular day */
 		holyday_type = 0;
 		break;
+
+	case 1:
+	case 2:
+	case 4: /* FIXME: yom kipur is a yom tov ? */
 	case 5:
+	case 8:
 	case 15:
-	case 20: /* 3 regels */
+	case 20:
+	case 27:
+	case 28:
+	case 29:
+	case 30:
+	case 31:
+	case 32: /* Yom tov, To find erev yom tov, check if tomorrow returns 1 */
+		holyday_type = 1;
+		break;
+
+	case 37: /* Erev yom kippur */
 		holyday_type = 2;
 		break;
+
+	case 6:
+	case 7:
+	case 16: /* Hol hamoed */
+		holyday_type = 3;
+		break;
+
+	case 9:
+	case 13:
+	case 14: /* Hanuka and purim */
+		holyday_type = 4;
+		break;
+
 	case 3:
-	case 4: 
 	case 10:
 	case 12:
 	case 21:
 	case 22: /* tzom */
-		holyday_type = 3;
+		holyday_type = 5;
 		break;
-	default: /* regular holyday */ 
-		holyday_type = 1;
+		
+	case 17:
+	case 26: /* Independance day and Yom yerushalaim */
+		holyday_type = 6;
+		break;
+
+	case 18:
+	case 23:
+	case 11: /* Lag baomer ,Tu beav, Tu beshvat */
+		holyday_type = 7;
+		break;
+
+	case 24:
+	case 25: /* Tzahal and Holocaust memorial days */
+		holyday_type = 8;
+		break;
+
+
+	default: /* National days */ 
+		holyday_type = 9;
 		break;
 	}
 

@@ -230,9 +230,30 @@ hdate_get_parasha_string (int parasha, int s);
 /*************************************************************/
 
 /**
- @brief get the hebrew holyday type.
+ @brief Return the day in the omer of the given date
 
- @param holyday the holyday number.
+ @param h The hdate_struct of the date to use.
+ @return The day in the omer, starting from 1 (or 0 if not in sfirat ha omer)
+*/
+int
+hdate_get_omer_day(hdate_struct const * h);
+
+/**
+ @brief Return number of hebrew holyday type.
+
+  Holiday types:
+    0 - Regular day
+    1 - Yom tov (plus yom kippor)
+    2 - Erev yom kippur
+    3 - Hol hamoed
+    4 - Hanuka and purim
+    5 - Tzomot
+    6 - Independance day and Yom yerushalaim
+    7 - Lag baomer ,Tu beav, Tu beshvat
+    8 - Tzahal and Holocaust memorial days
+    9 - National days
+    
+ @param holyday the holyday number
  @return the number of holyday type.
 */
 int

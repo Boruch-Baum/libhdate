@@ -236,7 +236,7 @@ char *
 hdate_get_holyday_string (int holyday, int s)
 {
 	/* holyday strings */
-	static char *holydays[2][36] = {
+	static char *holydays[2][37] = {
 		{
 		 N_("Rosh Hashana I"),	/* 1 */
 		 N_("Rosh Hashana II"),
@@ -273,7 +273,8 @@ hdate_get_holyday_string (int holyday, int s)
 		 N_("Family Day"),
 		 N_("Memorial day for fallen whose place of burial is unknown"), 
 		 N_("Rabin memorial day"), /* 35 */
-		 N_("Zhabotinsky day")},
+		 N_("Zhabotinsky day"),
+		 N_("Erev Yom Kippur")},
 		{
 		 N_("Rosh Hashana I"),
 		 N_("Rosh Hashana II"),
@@ -310,7 +311,8 @@ hdate_get_holyday_string (int holyday, int s)
 		 N_("Family Day"),
 		 N_("Memorial day for fallen whose place of burial is unknown"), 
 		 N_("Yitzhak Rabin memorial day"), /* 35 */
-		 N_("Zeev Zhabotinsky day")}
+		 N_("Zeev Zhabotinsky day"),
+		 N_("Erev Yom Kippur")}
 	};
 
 #ifdef ENABLE_NLS
@@ -321,7 +323,7 @@ hdate_get_holyday_string (int holyday, int s)
 	/* make sure s is 0 or 1 */
 	s = s ? 0 : 1;
 
-	if (holyday >= 1 && holyday <= 36)
+	if (holyday >= 1 && holyday <= 37)
 	{
 		return _(holydays[s][holyday - 1]);
 	}

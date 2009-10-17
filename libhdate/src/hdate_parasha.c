@@ -70,8 +70,15 @@ hdate_get_parasha (hdate_struct const * h, int diaspora)
 	
 	int reading;
 	
-	
 	/* if simhat tora return vezot habracha */
+	if (h->hd_mon == 1)
+	{
+		/* simhat tora is a day after shmini atzeret outsite israel */
+		if (h->hd_day == 22 && !diaspora) return 54;
+		if (h->hd_day == 23 && diaspora) return 54;
+	}
+	
+	
 	if (h->hd_mon == 1 && h->hd_day == 22)
 	{
 		return 54;
@@ -91,6 +98,7 @@ hdate_get_parasha (hdate_struct const * h, int diaspora)
 	case  1:
 		if (h->hd_new_year_dw == 7)
 		{
+			/* Rosh hashana */
 			return 0;
 		}
 		else if ((h->hd_new_year_dw == 2) || (h->hd_new_year_dw == 3))
@@ -105,6 +113,7 @@ hdate_get_parasha (hdate_struct const * h, int diaspora)
 	case  2:
 		if (h->hd_new_year_dw == 5)
 		{
+			/* Yom kippur */
 			return 0;
 		}
 		else
@@ -113,12 +122,16 @@ hdate_get_parasha (hdate_struct const * h, int diaspora)
 		}
 		break;
 	case  3:
+		/* Succot */
 		return 0;
 		break;
 	case  4:
 		if (h->hd_new_year_dw == 7)
 		{
-			return 54;
+			/* Simhat tora in israel */
+			if (!diaspora) return 54;
+			/* Not simhat tora in diaspora */
+			else return 0;
 		}
 		else
 		{
@@ -140,14 +153,28 @@ hdate_get_parasha (hdate_struct const * h, int diaspora)
 		}
 		
 		/* pesach */
-		if ((h->hd_mon == 7) && (h->hd_day > 14) && (h->hd_day < 22))
+		if ((h->hd_mon == 7) && (h->hd_day > 14))
 		{
-			return 0;
+			/* Shmini of pesach in diaspora is on the 22 of the month*/
+			if (diaspora && (h->hd_day <= 22))
+				return 0;
+			if (!diaspora && (h->hd_day < 22))
+				return 0;
 		}
+		
+		/* Pesach allways removes one */
 		if (((h->hd_mon == 7) && (h->hd_day > 21)) || (h->hd_mon > 7 && h->hd_mon < 13))
 		{
 			reading--;
+			
+			/* on diaspora, shmini of pesach may fall on shabat if next new year is on shabat */
+			if (diaspora &&
+				(((h->hd_new_year_dw + h->hd_size_of_year) % 7) == 2))
+			{
+				reading--;
+			}
 		}
+		
 		/* on diaspora, shavot may fall on shabat if next new year is on shabat */
 		if (diaspora && 
 			(h->hd_mon < 13) && 
