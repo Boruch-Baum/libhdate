@@ -4,7 +4,7 @@ dnl Set release number
 PACKAGE=libhdate
 LIBHDATE_MAJOR_VERSION=1
 LIBHDATE_MINOR_VERSION=4
-LIBHDATE_MICRO_VERSION=14
+LIBHDATE_MICRO_VERSION=16
 
 VERSION=$LIBHDATE_MAJOR_VERSION.$LIBHDATE_MINOR_VERSION.$LIBHDATE_MICRO_VERSION
 
@@ -266,7 +266,7 @@ fi
 
 localepath=`eval eval echo ${localedir}`
 
-AC_DEFINE_UNQUOTED(PACKAGE_LOCALE_DIR, ${localepath})
+AC_DEFINE_UNQUOTED(PACKAGE_LOCALE_DIR, "${localepath}")
 
 dnl =======================================================================================
 
