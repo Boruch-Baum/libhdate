@@ -264,7 +264,9 @@ if test "$DATADIRNAME" = ""; then
    AC_SUBST(DATADIRNAME)
 fi
 
-AC_DEFINE_UNQUOTED(PACKAGE_LOCALE_DIR, "$localedir")
+localepath=`eval eval echo ${localedir}`
+
+AC_DEFINE_UNQUOTED(PACKAGE_LOCALE_DIR, ${localepath})
 
 dnl =======================================================================================
 
@@ -307,14 +309,12 @@ bindings/php/Makefile
 
 dnl ===========================================================================================
 
-echo $sysconfdir
-
 echo "
 $PACKAGE-$VERSION
 
 	prefix:				${prefix}
 	compiler:			${CC}
-	locale-dir:			$localedir
+	locale-dir:			$localepath
 	
 	have swig			${have_swig}
 	have free pascal		${have_fpc}
