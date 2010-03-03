@@ -71,7 +71,7 @@ print_help (char *program)
 	printf ("   -l xx : Set the latitude for solar calculations to\n");
 	printf ("              xx degrees.  Negative values are south.\n");
 	printf ("   -L xx : Set the longitude for solar calculations to\n");
-	printf ("              xx degrees.  *Negative values are EAST*.\n");
+	printf ("              xx degrees.  *Negative values are west*.\n");
 	printf
 		("        The -l and -L switches must both be used, or not at all.\n");
 	printf ("   -z : Use specified timezone,\n");
@@ -79,17 +79,17 @@ print_help (char *program)
 	printf
 		("   ( default location for sunrise/set is Tel Aviv winter time ).\n");
 	printf ("   some useful locations and time zones:\n");
-	printf ("      Eilat : 29, -34, 2\n");
-	printf ("      Haifa : 32, -34, 2\n");
-	printf ("      Jerusalem : 31, -35, 2\n");
-	printf ("      Tel Aviv : 32, -34, 2\n");
-	printf ("      Ashdod : 31, -34, 2\n");
-	printf ("      Beer Sheva : 31, -34, 2\n");
-	printf ("      Tiberias : 32, -35, 2\n");
+	printf ("      Eilat : 29, 34, 2\n");
+	printf ("      Haifa : 32, 34, 2\n");
+	printf ("      Jerusalem : 31, 35, 2\n");
+	printf ("      Tel Aviv : 32, 34, 2\n");
+	printf ("      Ashdod : 31, 34, 2\n");
+	printf ("      Beer Sheva : 31, 34, 2\n");
+	printf ("      Tiberias : 32, 35, 2\n");
 	printf ("      London : 51, 0, 0\n");
-	printf ("      Paris : 48, -2, 1\n");
-	printf ("      New York : 40, 74, -5\n");
-	printf ("      Moscow : 55, -37, 3\n");
+	printf ("      Paris : 48, 2, 1\n");
+	printf ("      New York : 40, -74, -5\n");
+	printf ("      Moscow : 55, 37, 3\n");
 
 	return 0;
 }
@@ -219,7 +219,7 @@ print_sunrise (hdate_struct * h, double lat, double lon, int tz, int opt_i)
 	sunrise = sunrise + tz * 60;
 
 	/* print sunset/rise times */
-	printf ("%d:%d - %d:%d ",
+	printf ("%02d:%02d - %02d:%02d ",
 			sunrise / 60, sunrise % 60, sunset / 60, sunset % 60);
 
 	return 0;
@@ -245,10 +245,11 @@ print_times (hdate_struct * h, double lat, double lon, int tz, int opt_i)
 	first_stars = first_stars + tz * 60;
 	three_stars = three_stars + tz * 60;
 
-	/* print sunset/rise times */
-	printf ("%d:%d - %d:%d - %d:%d - %d:%d - %d:%d - %d:%d - %d:%d ",
+	/* print sunset/rise times */	
+	printf ("first light: %02d:%02d\ntalit: %02d:%02d\nsun rise: %02d:%02d\nmid day: %02d:%02d\n",
 			first_light / 60, first_light % 60, talit / 60, talit % 60,
-			sunrise / 60, sunrise % 60, midday / 60, midday % 60,
+			sunrise / 60, sunrise % 60, midday / 60, midday % 60);
+	printf ("sun set: %02d:%02d\nfirst stars: %02d:%02d\nthree stars: %02d:%02d\n",
 			sunset / 60, sunset % 60, first_stars / 60, first_stars % 60,
 			three_stars / 60, three_stars % 60);
 
@@ -606,7 +607,7 @@ main (int argc, char *argv[])
 	int opt_i = 0;				/* -i option iCal */
 
 	double lat = 32.0;			/* -l option default to Tel aviv latitude */
-	double lon = -34.0;			/* -L option default to Tel aviv longitude */
+	double lon = 34.0;			/* -L option default to Tel aviv longitude */
 	int tz = 2;					/* -z option default to Tel aviv time zone */
 
 	/* init locale */
