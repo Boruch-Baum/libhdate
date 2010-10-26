@@ -2,8 +2,10 @@ libhdate (1.4.18)
 
   * Fix longitude positive and negative directions.
   * in the hdate example make the times printout more verbose
-  	
-  -- Yaacov Zamir <kzamir@wall.co.il>  Wed, 3 Mar 2010 22:00
+  * Add sfirat ha omer to the hdate example (Patch: Amiad Hatul)
+  * Add 'bet' in front of the month name in hebrew (Patch: Amiad Hatul)
+  
+  -- Yaacov Zamir <kzamir@wall.co.il>  Tue, 26 Oct 2010 22:00
   
 libhdate (1.4.14)
 
