@@ -333,6 +333,31 @@ hdate_get_holyday_string (int holyday, int s)
 }
 
 /**
+ @brief Return a static string, with the day in the omer
+
+ @param h The hdate_struct of the date to use.
+ @return a static string, with the day in the omer
+*/
+char *
+hdate_get_omer_string (hdate_struct const * h)
+{
+	int omer_day = hdate_get_omer_day(h);
+	static char omer_string[500];
+	
+	/* this is not a day in the omer */
+	if (omer_day == 0)
+		return "";
+	
+	/* create a nice string */
+	snprintf(omer_string, 500, "%s %s",
+					hdate_get_int_string(omer_day),
+					N_("in the Omer"));
+	
+	/* return the string */
+	return omer_string;
+}
+
+/**
  @brief Name of Parasha
 
  @param parasha The Number of Parasha 1-Bereshit
@@ -505,21 +530,45 @@ hdate_get_format_date (hdate_struct const *h, int diaspora, int s)
 	static char format_date[500];
 	static char temp[500];
 	int holyday;
+	char *locale;
+	char *language;
+	char *bet;
+
+	/* Get the name of the current locale.  */
+#ifdef ENABLE_NLS
+	locale = setlocale (LC_MESSAGES, NULL);
+	language = getenv ("LANGUAGE");
+#else
+	locale = NULL;
+	language = NULL;
+#endif
+		/* if hebrew add bet to the month */
+	if ((locale && (locale[0] == 'h') && (locale[1] == 'e')) ||
+		  (language && (language[0] == 'h') && (language[1] == 'e')))
+	{
+		bet="ב";
+	}
+	else
+	{
+		bet="";
+	}
 
 	if (h)
 	{
 		if (s)
 		{						/* short format */
-			snprintf (format_date, 500, "%s %s",
+			snprintf (format_date, 500, "%s %s%s",
 					  hdate_get_int_string (h->hd_day),
+					  bet,
 					  hdate_get_hebrew_month_string (h->hd_mon, s));
 			return (format_date);
 		}
 		else
 		{
-			snprintf (temp, 500, "%s, %s %s",
+			snprintf (temp, 500, "%s, %s %s%s",
 					  hdate_get_day_string (h->hd_dw, s),
 					  hdate_get_int_string (h->hd_day),
+					  bet,
 					  hdate_get_hebrew_month_string (h->hd_mon, s));
 			snprintf (format_date, 500, "%s %s",
 					  temp, hdate_get_int_string (h->hd_year));

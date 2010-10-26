@@ -64,6 +64,7 @@ print_help (char *program)
 	printf ("   -H : Print just holidays.\n");
 	printf ("   -r : Print weekly reading on saturday.\n");
 	printf ("   -R : Print just weekly reading on saturday.\n");
+	printf ("   -o : Print Sefirat Haomer.\n");
 	printf ("   -j : Print Julian day number.\n");
 
 	printf ("   -d : Use diaspora reading and holidays.\n");
@@ -123,6 +124,7 @@ print_date (hdate_struct * h, int opt_S, int opt_i)
 {
 	char *locale;
 	char *language;
+	char *bet;
 
 	/* Get the name of the current locale.  */
 #ifdef ENABLE_NLS
@@ -132,11 +134,22 @@ print_date (hdate_struct * h, int opt_S, int opt_i)
 	locale = NULL;
 	language = NULL;
 #endif
-
+	/* if hebrew add bet to the month */
+	if ((locale && (locale[0] == 'h') && (locale[1] == 'e')) ||
+		  (language && (language[0] == 'h') && (language[1] == 'e')))
+	{
+		bet="ב";
+	}
+	else
+	{
+		bet="";
+	}
+	
 	if (opt_i)
 	{
-		printf ("%s %s ",
+		printf ("%s %s%s ",
 				hdate_get_int_string (h->hd_day),
+				bet,
 				hdate_get_hebrew_month_string (h->hd_mon, opt_S));
 		printf ("%s", hdate_get_int_string (h->hd_year));
 	}
@@ -187,7 +200,7 @@ print_date (hdate_struct * h, int opt_S, int opt_i)
 			printf ("%s", hdate_get_int_string (h->hd_day));
 		}
 
-		printf (" %s, ", hdate_get_hebrew_month_string (h->hd_mon, opt_S));
+		printf (" %s%s, ", bet, hdate_get_hebrew_month_string (h->hd_mon, opt_S));
 		printf ("%s\n", hdate_get_int_string (h->hd_year));
 	}
 	else
@@ -196,8 +209,9 @@ print_date (hdate_struct * h, int opt_S, int opt_i)
 				hdate_get_day_string (h->hd_dw, opt_S),
 				h->gd_day,
 				hdate_get_month_string (h->gd_mon, opt_S), h->gd_year);
-		printf ("%s %s ",
+		printf ("%s %s%s ",
 				hdate_get_int_string (h->hd_day),
+				bet,
 				hdate_get_hebrew_month_string (h->hd_mon, opt_S));
 		printf ("%s\n", hdate_get_int_string (h->hd_year));
 	}
@@ -273,6 +287,15 @@ print_holiday (hdate_struct * h, int opt_d, int opt_S, int opt_i)
 	return 0;
 }
 
+/* print day in the omer */
+int
+print_omer (hdate_struct * h)
+{
+	printf ("%s ", hdate_get_omer_string (h));
+	
+	return 0;
+}
+
 /* print one day - reading */
 int
 print_reading (hdate_struct * h, int opt_d, int opt_S, int opt_i)
@@ -333,7 +356,7 @@ print_candales (hdate_struct * h, double lat, double lon, int tz, int opt_i)
 int
 print_day (hdate_struct * h,
 		   int opt_d, int opt_S,
-		   double lat, double lon, int tz, int opt_s, int opt_h, int opt_r,
+		   double lat, double lon, int tz, int opt_s, int opt_h, int opt_o, int opt_r,
 		   int opt_R, int opt_j, int opt_H, int opt_i, int opt_c, int opt_t)
 {
 	/* check for just parasha or holiday flag */
@@ -371,7 +394,8 @@ print_day (hdate_struct * h,
 	/* check for iCal format */
 	if (opt_i &&
 		(((opt_h && hdate_get_holyday (h, opt_d)) ||
-		  ((opt_r && hdate_get_parasha (h, opt_d)) || opt_c)) || opt_s
+		  ((opt_r && hdate_get_parasha (h, opt_d)) || opt_c 
+						|| (opt_o && hdate_get_omer_day(h) != 0))) || opt_s
 		 || opt_t))
 		printf ("\\, ");
 
@@ -383,16 +407,31 @@ print_day (hdate_struct * h,
 			print_sunrise (h, lat, lon, tz, opt_i);
 
 		if (!opt_i && ((opt_h && hdate_get_holyday (h, opt_d)) ||
-					   ((opt_r && hdate_get_parasha (h, opt_d)) || opt_c)))
+					   ((opt_r && hdate_get_parasha (h, opt_d)) || opt_c 
+						|| (opt_o && hdate_get_omer_day(h) != 0))))
 			printf (", ");
 		if (opt_i && ((opt_h && hdate_get_holyday (h, opt_d)) ||
-					  ((opt_r && hdate_get_parasha (h, opt_d)) || opt_c)))
+					  ((opt_r && hdate_get_parasha (h, opt_d)) || opt_c 
+						|| (opt_o && hdate_get_omer_day(h) != 0))))
 			printf ("\\, ");
 	}
 	if (opt_h)
 	{
 		print_holiday (h, opt_d, opt_S, opt_i);
 
+		if (!opt_i && ((opt_r && hdate_get_parasha (h, opt_d) || opt_c 
+						|| (opt_o && hdate_get_omer_day(h) != 0))
+					   && hdate_get_holyday (h, opt_d)))
+			printf (", ");
+		if (opt_i && ((opt_r && hdate_get_parasha (h, opt_d) || opt_c 
+						|| (opt_o && hdate_get_omer_day(h) != 0))
+					  && hdate_get_holyday (h, opt_d)))
+			printf ("\\, ");
+	}
+	if (opt_o && hdate_get_omer_day(h) != 0)
+	{
+		print_omer (h);
+		
 		if (!opt_i && ((opt_r && hdate_get_parasha (h, opt_d) || opt_c)
 					   && hdate_get_holyday (h, opt_d)))
 			printf (", ");
@@ -409,7 +448,7 @@ print_day (hdate_struct * h,
 		print_candales (h, lat, lon, tz, opt_i);
 	}
 
-	if (opt_r || opt_h || opt_s || opt_t || opt_i || opt_c)
+	if (opt_r || opt_h || opt_s || opt_t || opt_i || opt_c || opt_o)
 	{
 		printf ("\n");
 	}
@@ -434,7 +473,7 @@ print_day (hdate_struct * h,
 int
 print_month (int opt_d, int opt_S,
 			 double lat, double lon, int tz,
-			 int opt_s, int opt_h, int opt_r, int opt_R, int opt_j,
+			 int opt_s, int opt_h, int opt_o, int opt_r, int opt_R, int opt_j,
 			 int opt_H, int opt_i, int opt_c, int opt_t, int month, int year)
 {
 	hdate_struct h;
@@ -451,7 +490,7 @@ print_month (int opt_d, int opt_S,
 	/* print month days */
 	while (h.gd_mon == month)
 	{
-		print_day (&h, opt_d, opt_S, lat, lon, tz, opt_s, opt_h,
+		print_day (&h, opt_d, opt_S, lat, lon, tz, opt_s, opt_h, opt_o,
 				   opt_r, opt_R, opt_j, opt_H, opt_i, opt_c, opt_t);
 
 		jd++;
@@ -465,7 +504,7 @@ print_month (int opt_d, int opt_S,
 int
 print_hebrew_month (int opt_d, int opt_S,
 					double lat, double lon, int tz,
-					int opt_s, int opt_h, int opt_r, int opt_R, int opt_j,
+					int opt_s, int opt_h, int opt_o, int opt_r, int opt_R, int opt_j,
 					int opt_H, int opt_i, int opt_c, int opt_t, int month,
 					int year)
 {
@@ -490,7 +529,7 @@ print_hebrew_month (int opt_d, int opt_S,
 		while (h.hd_mon == 13)
 		{
 			print_day (&h, opt_d, opt_S, lat, lon, tz, opt_s,
-					   opt_h, opt_r, opt_R, opt_j, opt_H, opt_i, opt_c, opt_t);
+					   opt_h, opt_o, opt_r, opt_R, opt_j, opt_H, opt_i, opt_c, opt_t);
 
 			jd++;
 			hdate_set_jd (&h, jd);
@@ -507,7 +546,7 @@ print_hebrew_month (int opt_d, int opt_S,
 		while (h.hd_mon == 14)
 		{
 			print_day (&h, opt_d, opt_S, lat, lon, tz, opt_s,
-					   opt_h, opt_r, opt_R, opt_j, opt_H, opt_i, opt_c, opt_t);
+					   opt_h, opt_o, opt_r, opt_R, opt_j, opt_H, opt_i, opt_c, opt_t);
 
 			jd++;
 			hdate_set_jd (&h, jd);
@@ -523,7 +562,7 @@ print_hebrew_month (int opt_d, int opt_S,
 		while (h.hd_mon == month)
 		{
 			print_day (&h, opt_d, opt_S, lat, lon, tz, opt_s,
-					   opt_h, opt_r, opt_R, opt_j, opt_H, opt_i, opt_c, opt_t);
+					   opt_h, opt_o, opt_r, opt_R, opt_j, opt_H, opt_i, opt_c, opt_t);
 
 			jd++;
 			hdate_set_jd (&h, jd);
@@ -536,7 +575,7 @@ print_hebrew_month (int opt_d, int opt_S,
 /* print one gregorian year - all */
 int
 print_year (int opt_d, int opt_S,
-			double lat, double lon, int tz, int opt_s, int opt_h, int opt_r,
+			double lat, double lon, int tz, int opt_s, int opt_h, int opt_o, int opt_r,
 			int opt_R, int opt_j, int opt_H, int opt_i, int opt_c,
 			int opt_t, int year)
 {
@@ -549,7 +588,7 @@ print_year (int opt_d, int opt_S,
 	/* print year months */
 	while (month < 13)
 	{
-		print_month (opt_d, opt_S, lat, lon, tz, opt_s, opt_h, opt_r,
+		print_month (opt_d, opt_S, lat, lon, tz, opt_s, opt_h, opt_o, opt_r,
 					 opt_R, opt_j, opt_H, opt_i, opt_c, opt_t, month, year);
 		month++;
 	}
@@ -561,7 +600,7 @@ print_year (int opt_d, int opt_S,
 int
 print_hebrew_year (int opt_d, int opt_S,
 				   double lat, double lon, int tz,
-				   int opt_s, int opt_h, int opt_r, int opt_R, int opt_j,
+				   int opt_s, int opt_h, int opt_o, int opt_r, int opt_R, int opt_j,
 				   int opt_H, int opt_i, int opt_c, int opt_t, int year)
 {
 	int month = 1;
@@ -573,7 +612,7 @@ print_hebrew_year (int opt_d, int opt_S,
 	/* print year months */
 	while (month < 13)
 	{
-		print_hebrew_month (opt_d, opt_S, lat, lon, tz, opt_s, opt_h,
+		print_hebrew_month (opt_d, opt_S, lat, lon, tz, opt_s, opt_h, opt_o,
 							opt_r, opt_R, opt_j, opt_H, opt_i, opt_c, opt_t,
 							month, year);
 		month++;
@@ -605,6 +644,7 @@ main (int argc, char *argv[])
 	int opt_j = 0;				/* -j option Julian day number */
 	int opt_d = 0;				/* -d option diaspora */
 	int opt_i = 0;				/* -i option iCal */
+	int opt_o = 0;				/* -o option Sfirat Haomer */
 
 	double lat = 32.0;			/* -l option default to Tel aviv latitude */
 	double lon = 34.0;			/* -L option default to Tel aviv longitude */
@@ -614,7 +654,7 @@ main (int argc, char *argv[])
 	setlocale (LC_ALL, "");
 
 	/* command line parsing */
-	while ((c = getopt (argc, argv, "sctShHrRjdil:L:z:")) != -1)
+	while ((c = getopt (argc, argv, "sctShHorRjdil:L:z:")) != -1)
 	{
 		switch (c)
 		{
@@ -635,6 +675,9 @@ main (int argc, char *argv[])
 		case 'h':
 			opt_h = 1;
 			break;
+		case 'o':
+			opt_o = 1;
+			break;	
 		case 'R':
 			opt_R = 1;
 		case 'j':
@@ -676,7 +719,7 @@ main (int argc, char *argv[])
 		if (opt_i)
 			print_ical_header ();
 
-		print_day (&h, opt_d, opt_S, lat, lon, tz, opt_s, opt_h,
+		print_day (&h, opt_d, opt_S, lat, lon, tz, opt_s, opt_h, opt_o,
 				   opt_r, opt_R, opt_j, opt_H, opt_i, opt_c, opt_t);
 
 		if (opt_i)
@@ -702,7 +745,7 @@ main (int argc, char *argv[])
 			if (opt_i)
 				print_ical_header ();
 
-			print_day (&h, opt_d, opt_S, lat, lon, tz, opt_s, opt_h,
+			print_day (&h, opt_d, opt_S, lat, lon, tz, opt_s, opt_h, opt_o,
 					   opt_r, opt_R, opt_j, opt_H, opt_i, opt_c, opt_t);
 
 			if (opt_i)
@@ -716,7 +759,7 @@ main (int argc, char *argv[])
 				print_ical_header ();
 
 			print_hebrew_year (opt_d, opt_S, lat, lon, tz, opt_s,
-							   opt_h, opt_r, opt_R, opt_j, opt_H, opt_i,
+							   opt_h, opt_o, opt_r, opt_R, opt_j, opt_H, opt_i,
 							   opt_c, opt_t, year);
 
 			if (opt_i)
@@ -729,7 +772,7 @@ main (int argc, char *argv[])
 			if (opt_i)
 				print_ical_header ();
 
-			print_year (opt_d, opt_S, lat, lon, tz, opt_s, opt_h,
+			print_year (opt_d, opt_S, lat, lon, tz, opt_s, opt_h, opt_o,
 						opt_r, opt_R, opt_j, opt_H, opt_i, opt_c, opt_t, year);
 
 			if (opt_i)
@@ -755,7 +798,7 @@ main (int argc, char *argv[])
 				print_ical_header ();
 
 			print_hebrew_month (opt_d, opt_S, lat, lon, tz, opt_s,
-								opt_h, opt_r, opt_R, opt_j, opt_H, opt_i,
+								opt_h, opt_o, opt_r, opt_R, opt_j, opt_H, opt_i,
 								opt_c, opt_t, month, year);
 
 			if (opt_i)
@@ -768,7 +811,7 @@ main (int argc, char *argv[])
 			if (opt_i)
 				print_ical_header ();
 
-			print_month (opt_d, opt_S, lat, lon, tz, opt_s, opt_h,
+			print_month (opt_d, opt_S, lat, lon, tz, opt_s, opt_h, opt_o,
 						 opt_r, opt_R, opt_j, opt_H, opt_i, opt_c, opt_t,
 						 month, year);
 
@@ -804,7 +847,7 @@ main (int argc, char *argv[])
 		if (opt_i)
 			print_ical_header ();
 
-		print_day (&h, opt_d, opt_S, lat, lon, tz, opt_s, opt_h,
+		print_day (&h, opt_d, opt_S, lat, lon, tz, opt_s, opt_h, opt_o,
 				   opt_r, opt_R, opt_j, opt_H, opt_i, opt_c, opt_t);
 
 		if (opt_i)
