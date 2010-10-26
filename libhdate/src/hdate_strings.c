@@ -351,7 +351,7 @@ hdate_get_omer_string (hdate_struct const * h)
 	/* create a nice string */
 	snprintf(omer_string, 500, "%s %s",
 					hdate_get_int_string(omer_day),
-					N_("in the Omer"));
+					_("in the Omer"));
 	
 	/* return the string */
 	return omer_string;
