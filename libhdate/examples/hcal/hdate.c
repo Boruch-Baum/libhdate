@@ -205,9 +205,10 @@ print_date (hdate_struct * h, int opt_S, int opt_i)
 	}
 	else
 	{
-		printf ("%s, %d %s %d, ",
+		printf ("%s, %d %s%s %d, ",
 				hdate_get_day_string (h->hd_dw, opt_S),
 				h->gd_day,
+				bet,
 				hdate_get_month_string (h->gd_mon, opt_S), h->gd_year);
 		printf ("%s %s%s ",
 				hdate_get_int_string (h->hd_day),
@@ -281,7 +282,7 @@ print_holiday (hdate_struct * h, int opt_d, int opt_S, int opt_i)
 	if (holyday)
 	{
 		/* print holyday */
-		printf ("%s ", hdate_get_holyday_string (holyday, opt_S));
+		printf ("%s", hdate_get_holyday_string (holyday, opt_S));
 	}
 
 	return 0;
@@ -291,7 +292,12 @@ print_holiday (hdate_struct * h, int opt_d, int opt_S, int opt_i)
 int
 print_omer (hdate_struct * h)
 {
-	printf ("%s ", hdate_get_omer_string (h));
+	int omer_day;
+	
+	omer_day = hdate_get_omer_day(h);
+	
+	if (omer_day != 0)
+		printf ("%s", hdate_get_omer_string (omer_day));
 	
 	return 0;
 }
@@ -307,7 +313,7 @@ print_reading (hdate_struct * h, int opt_d, int opt_S, int opt_i)
 	if (reading)
 	{
 		/* print parash */
-		printf ("%s ", hdate_get_parasha_string (reading, opt_S));
+		printf ("%s", hdate_get_parasha_string (reading, opt_S));
 	}
 
 	return 0;
@@ -359,6 +365,14 @@ print_day (hdate_struct * h,
 		   double lat, double lon, int tz, int opt_s, int opt_h, int opt_o, int opt_r,
 		   int opt_R, int opt_j, int opt_H, int opt_i, int opt_c, int opt_t)
 {
+	char seperator[5];
+	
+	/* iCal format require \ before comma */
+	if (opt_i) 
+		snprintf(seperator, 5, "\\, ");
+	else
+		snprintf(seperator, 5, ", ");
+	
 	/* check for just parasha or holiday flag */
 	if (opt_R && opt_H &&
 		!hdate_get_parasha (h, opt_d) && !hdate_get_holyday (h, opt_d))
@@ -390,61 +404,41 @@ print_day (hdate_struct * h,
 
 	/* print the day */
 	print_date (h, opt_S, opt_i);
-
-	/* check for iCal format */
-	if (opt_i &&
-		(((opt_h && hdate_get_holyday (h, opt_d)) ||
-		  ((opt_r && hdate_get_parasha (h, opt_d)) || opt_c 
-						|| (opt_o && hdate_get_omer_day(h) != 0))) || opt_s
-		 || opt_t))
-		printf ("\\, ");
-
-	if (opt_s || opt_t)
+	
+	if (opt_s)
 	{
-		if (opt_t)
-			print_times (h, lat, lon, tz, opt_i);
-		else if (opt_s)
-			print_sunrise (h, lat, lon, tz, opt_i);
-
-		if (!opt_i && ((opt_h && hdate_get_holyday (h, opt_d)) ||
-					   ((opt_r && hdate_get_parasha (h, opt_d)) || opt_c 
-						|| (opt_o && hdate_get_omer_day(h) != 0))))
-			printf (", ");
-		if (opt_i && ((opt_h && hdate_get_holyday (h, opt_d)) ||
-					  ((opt_r && hdate_get_parasha (h, opt_d)) || opt_c 
-						|| (opt_o && hdate_get_omer_day(h) != 0))))
-			printf ("\\, ");
+		printf (seperator);
+		
+		print_sunrise (h, lat, lon, tz, opt_i);
 	}
-	if (opt_h)
+	if (opt_t)
 	{
+		printf (seperator);
+		
+		print_times (h, lat, lon, tz, opt_i);
+	}
+	if (opt_h && hdate_get_holyday (h, opt_d) != 0)
+	{
+		printf (seperator);
+		
 		print_holiday (h, opt_d, opt_S, opt_i);
-
-		if (!opt_i && ((opt_r && hdate_get_parasha (h, opt_d) || opt_c 
-						|| (opt_o && hdate_get_omer_day(h) != 0))
-					   && hdate_get_holyday (h, opt_d)))
-			printf (", ");
-		if (opt_i && ((opt_r && hdate_get_parasha (h, opt_d) || opt_c 
-						|| (opt_o && hdate_get_omer_day(h) != 0))
-					  && hdate_get_holyday (h, opt_d)))
-			printf ("\\, ");
 	}
 	if (opt_o && hdate_get_omer_day(h) != 0)
 	{
-		print_omer (h);
+		printf (seperator);
 		
-		if (!opt_i && ((opt_r && hdate_get_parasha (h, opt_d) || opt_c)
-					   && hdate_get_holyday (h, opt_d)))
-			printf (", ");
-		if (opt_i && ((opt_r && hdate_get_parasha (h, opt_d) || opt_c)
-					  && hdate_get_holyday (h, opt_d)))
-			printf ("\\, ");
+		print_omer (h);
 	}
-	if (opt_r)
+	if (opt_r && hdate_get_parasha (h, opt_d) != 0)
 	{
+		printf (seperator);
+		
 		print_reading (h, opt_d, opt_S, opt_i);
 	}
 	if (opt_c)
 	{
+		printf (seperator);
+		
 		print_candales (h, lat, lon, tz, opt_i);
 	}
 

@@ -28,6 +28,35 @@
 #include "support.h"
 
 /**
+ @brief helper function to find hebrew locale
+ 
+ @return 0 - latin locale, -1 - hebrew locale
+*/
+int
+hdate_is_hebrew_locale()
+{
+	char *locale;
+	char *language;
+
+	/* Get the name of the current locale.  */
+#ifdef ENABLE_NLS
+	locale = setlocale (LC_MESSAGES, NULL);
+	language = getenv ("LANGUAGE");
+#else
+	locale = NULL;
+	language = NULL;
+#endif
+
+	if (!((locale && (locale[0] == 'h') && (locale[1] == 'e')) ||
+		  (language && (language[0] == 'h') && (language[1] == 'e'))))
+	{
+		/* not hebrew locale return false */
+		return 0;
+	}
+	
+	return -1;
+}
+/**
  @brief convert an integer to hebrew string UTF-8 (logical)
  
  @param n The int to convert
@@ -46,20 +75,7 @@ hdate_get_int_string (int n)
 		{" ", "ק", "ר", "ש", "ת"}
 	};
 
-	char *locale;
-	char *language;
-
-	/* Get the name of the current locale.  */
-#ifdef ENABLE_NLS
-	locale = setlocale (LC_MESSAGES, NULL);
-	language = getenv ("LANGUAGE");
-#else
-	locale = NULL;
-	language = NULL;
-#endif
-
-	if (!((locale && (locale[0] == 'h') && (locale[1] == 'e')) ||
-		  (language && (language[0] == 'h') && (language[1] == 'e'))))
+	if (!hdate_is_hebrew_locale())
 	{
 		/* not hebrew locale return the number in decimal form */
 		snprintf (h_number, 100, "%d", n);
@@ -335,18 +351,17 @@ hdate_get_holyday_string (int holyday, int s)
 /**
  @brief Return a static string, with the day in the omer
 
- @param h The hdate_struct of the date to use.
+ @param omer day The day in the omer.
  @return a static string, with the day in the omer
 */
 char *
-hdate_get_omer_string (hdate_struct const * h)
+hdate_get_omer_string (int omer_day)
 {
-	int omer_day = hdate_get_omer_day(h);
 	static char omer_string[500];
 	
 	/* this is not a day in the omer */
-	if (omer_day == 0)
-		return "";
+	if (omer_day < 1 || omer_day > 49)
+		return NULL;
 	
 	/* create a nice string */
 	snprintf(omer_string, 500, "%s %s",
@@ -505,7 +520,7 @@ hdate_get_parasha_string (int parasha, int s)
 	/* make sure s is 0 or 1 */
 	s = s ? 0 : 1;
 
-	if (parasha >= 0 && parasha <= 61)
+	if (parasha >= 1 && parasha <= 61)
 	{
 		return _(parashaot[s][parasha]);
 	}
@@ -530,61 +545,61 @@ hdate_get_format_date (hdate_struct const *h, int diaspora, int s)
 	static char format_date[500];
 	static char temp[500];
 	int holyday;
-	char *locale;
-	char *language;
-	char *bet;
-
-	/* Get the name of the current locale.  */
-#ifdef ENABLE_NLS
-	locale = setlocale (LC_MESSAGES, NULL);
-	language = getenv ("LANGUAGE");
-#else
-	locale = NULL;
-	language = NULL;
-#endif
-		/* if hebrew add bet to the month */
-	if ((locale && (locale[0] == 'h') && (locale[1] == 'e')) ||
-		  (language && (language[0] == 'h') && (language[1] == 'e')))
-	{
-		bet="ב";
-	}
-	else
-	{
-		bet="";
-	}
-
+	int omer_day;
+	
 	if (h)
 	{
 		if (s)
-		{						/* short format */
-			snprintf (format_date, 500, "%s %s%s",
-					  hdate_get_int_string (h->hd_day),
-					  bet,
-					  hdate_get_hebrew_month_string (h->hd_mon, s));
+		{						
+			/* short format */
+			/* if hebrew add bet to the month */
+			if (hdate_is_hebrew_locale())
+				snprintf (format_date, 500, "%s ב%s",
+					hdate_get_int_string (h->hd_day),
+					hdate_get_hebrew_month_string (h->hd_mon, s));
+			else
+				snprintf (format_date, 500, "%s %s",
+					hdate_get_int_string (h->hd_day),
+					hdate_get_hebrew_month_string (h->hd_mon, s));
+			
 			return (format_date);
 		}
 		else
 		{
-			snprintf (temp, 500, "%s, %s %s%s",
-					  hdate_get_day_string (h->hd_dw, s),
-					  hdate_get_int_string (h->hd_day),
-					  bet,
-					  hdate_get_hebrew_month_string (h->hd_mon, s));
+			/* if hebrew add bet to the month */
+			if (hdate_is_hebrew_locale())
+				snprintf (temp, 500, "%s, %s ב%s",
+					hdate_get_day_string (h->hd_dw, s),
+					hdate_get_int_string (h->hd_day),
+					hdate_get_hebrew_month_string (h->hd_mon, s));
+			else
+				snprintf (temp, 500, "%s, %s %s",
+					hdate_get_day_string (h->hd_dw, s),
+					hdate_get_int_string (h->hd_day),
+					hdate_get_hebrew_month_string (h->hd_mon, s));
+					
 			snprintf (format_date, 500, "%s %s",
-					  temp, hdate_get_int_string (h->hd_year));
+					temp, hdate_get_int_string (h->hd_year));
 
+			/* if a day in the omer print it */
+			omer_day = hdate_get_omer_day(h);
+			
+			if (omer_day != 0)
+				snprintf (temp, 500, "%s, %s",
+						format_date, hdate_get_omer_string (omer_day));
+			else
+				snprintf (temp, 500, "%s", format_date);
+			
 			/* if holyday print it */
 			holyday = hdate_get_holyday (h, diaspora);
-
+			
 			if (holyday != 0)
-			{
 				snprintf (temp, 500, "%s, %s",
 						  format_date, hdate_get_holyday_string (holyday, 0));
-
-				return (temp);
-			}
 			else
-				return (format_date);
+				snprintf (temp, 500, "%s", format_date);
+			
+			return (temp);
 		}
 	}
 

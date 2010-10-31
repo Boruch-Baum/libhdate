@@ -226,6 +226,15 @@ hdate_get_holyday_string (int holyday, int s);
 char *
 hdate_get_parasha_string (int parasha, int s);
 
+/**
+ @brief Return a static string, with the day in the omer
+
+ @param omer day The day in the omer.
+ @return a static string, with the day in the omer
+*/
+char *
+hdate_get_omer_string (int omer_day);
+
 /*************************************************************/
 /*************************************************************/
 
@@ -573,6 +582,14 @@ hdate_get_version_string ();
 */
 char *
 hdate_get_translator_string ();
+
+/**
+ @brief helper function to find hebrew locale
+ 
+ @return 0 - latin locale, -1 - hebrew locale
+*/
+int
+hdate_is_hebrew_locale();
 
 #ifdef __cplusplus
 }
