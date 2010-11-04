@@ -1,3 +1,9 @@
+libhdate (1.4.20)
+
+  * Update pascal class example (Patch: Ido Kanner)
+  
+  -- Yaacov Zamir <kzamir@wall.co.il>  Tue, 26 Oct 2010 22:00
+
 libhdate (1.4.18)
 
   * Fix longitude positive and negative directions.
