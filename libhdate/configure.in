@@ -106,7 +106,7 @@ if test "$have_python" = "yes"; then
 		  PY_CFLAGS="-I$PY_PREFIX/include/python$PY_VERSION"
 		  
 		  if test "$with_python_sitelib_dir" = "" ; then
-		    PY_MODULES_PATH="$PY_PREFIX/lib/python$PY_VERSION/site-packages"
+		    PY_MODULES_PATH="$PY_PREFIX/lib/python$PY_VERSION/dist-packages"
 		  else
 		    PY_MODULES_PATH=$with_python_sitelib_dir
 		  fi
