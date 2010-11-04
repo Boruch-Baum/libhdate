@@ -1,4 +1,4 @@
-
+﻿
 {
 This unit create a Pascal object oriented class for libhdate.
 This unit is created as a true object oriented class.
@@ -64,6 +64,7 @@ Type
     Procedure SetGregYear  (Value : LongInt);
     Procedure SetHebYear   (Value : LongInt);
     Procedure SetDiaspora  (Value : Boolean);
+    Procedure SetHolydayValues;
 
     Function GetGregDay   : LongInt;
     Function GetGregMonth : LongInt;
@@ -221,47 +222,59 @@ Procedure THdateClass.SetHebDay (Value : LongInt);
 Begin
   hdate_set_hdate (Fh, Value, GetHebMonth, GetHebYear);
   fHebrewDay := StrPas (hdate_get_int_string (fh^.hd_day));
+  SetHolydayValues;
 End;
 
 Procedure THdateClass.SetGregDay (Value : LongInt);
 Begin
   hdate_set_gdate (fh, Value, GetGregMonth, GetGregYear);
+  SetHolydayValues;
 End;
 
 Procedure THdateClass.SetJulianDay (Value : LongInt);
 Begin
   fJulianDay := Value;
   hdate_set_jd (fh, fJulianDay);
+  SetHolydayValues;
 End;
 
 Procedure THdateClass.SetHebMonth (Value : LongInt);
 Begin
   hdate_set_hdate (Fh, GetHebDay, Value, GetHebYear);
+  SetHolydayValues;
 End;
 
 Procedure THdateClass.SetGregMonth (Value : LongInt);
 Begin
   hdate_set_gdate (fh, GetGregDay, Value, GetGregYear);
+  SetHolydayValues;
 End;
 
 Procedure THdateClass.SetHebYear (Value : LongInt);
 Begin
   hdate_set_hdate (fh, GetHebDay, GetGregMonth, Value);
   fHebrewYear := StrPas (hdate_get_int_string (fh^.hd_year));
+  SetHolydayValues;
 End;
 
 Procedure THdateClass.SetGregYear (Value : LongInt);
 Begin
   hdate_set_gdate (fh, GetGregDay, GetGregMonth, Value);
+  SetHolydayValues;
 End;
 
 Procedure THdateClass.SetDiaspora  (Value : Boolean);
 Begin
   fDiaspora    := Value;
+  SetHolydayValues;
+End;
+
+Procedure THdateClass.SetHolydayValues;
+begin
   fHolyday     := hdate_get_holyday      (fh, Longint(FDiaspora));
   fHolydayType := hdate_get_holyday_type (fHolyday);
   fParasha     := hdate_get_parasha      (fh, Longint(fDiaspora));
-End;
+end;
 
 Function THdateClass.GetGregDay : LongInt;
 Begin
