@@ -26,14 +26,16 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+require ("hdate.php");
+
 # Create a new Hdate object
-$h = new_Hdate();
+$h = new Hdate();
 
 # Print gregorian date
 echo "Today is:\n";
-echo Hdate_get_gday($h).".".Hdate_get_gmonth($h).",".Hdate_get_gyear($h)."\n";
+echo $h->get_gday().".".$h->get_gmonth().",".$h->get_gyear()."\n";
 
 # Print hebrew date: 0 - long format
-echo Hdate_get_format_date($h, 0)."\n";
+echo $h->get_format_date(0)."\n";
 
 ?>

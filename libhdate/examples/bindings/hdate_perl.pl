@@ -29,11 +29,11 @@
 use hdate;
 
 # Create a new Hdate object
-$h = hdatec::new_Hdate();
+$h = new hdate::Hdate();
 
 # Print gregorian date
 print "Today is:\n";
-print hdatec::Hdate_get_gday($h) . "," . hdatec::Hdate_get_gmonth($h) . "," . hdatec::Hdate_get_gyear($h) . "\n";
+print $h->get_gday() . "," . $h->get_gmonth() . "," . $h->get_gyear() . "\n";
 
 # Print hebrew date: 0 - long format
-print hdatec::Hdate_get_format_date ($h, 0) . "\n";
+print $h->get_format_date (0) . "\n";

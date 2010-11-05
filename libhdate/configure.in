@@ -188,7 +188,8 @@ if test "$have_php" = "yes"; then
 	  AC_CHECK_PROG(have_php_config, "php-config5", yes, no)
 	  if test "$have_php_config" = "yes"; then
 	      
-	      PH_CONFIG_PATH=`php --ini | head -n1 | cut -d: -f2 | sed 's/\s//g'`
+	      PH_CONFIG_PATH=`php --ini |  grep "Scan" | cut -d: -f2 | sed 's/\s//g'`
+	      PH_INCLUDE_PATH=`php -r "echo get_include_path();" | cut -f2 -d:`
 		  if test "$with_php_sitelib_dir" = "" ; then
 		    PH_MODULES_PATH=`php-config5 --extension-dir`
 		  else
@@ -196,6 +197,7 @@ if test "$have_php" = "yes"; then
 		  fi
 		  
 		  AC_SUBST([PH_CONFIG_PATH])
+		  AC_SUBST([PH_INCLUDE_PATH])
 		  AC_SUBST([PH_MODULES_PATH])
 		  if test "$have_swig" = "no"; then
 			build_php=no
@@ -339,4 +341,5 @@ $PACKAGE-$VERSION
 	ruby site lib path:		$RU_MODULES_PATH
 	php site lib path:		$PH_MODULES_PATH
 	  php config path:		$PH_CONFIG_PATH
+	  php include path:		$PH_INCLUDE_PATH
 "
