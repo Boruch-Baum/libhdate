@@ -1,8 +1,11 @@
 libhdate (1.4.20)
 
   * Update pascal class example (Patch: Ido Kanner)
+  * Update perl and php examples to use hdate objets
+  * Fix PHP install dirs, and add hdate.php to the include path
+  * Fix hdate man page
   
-  -- Yaacov Zamir <kzamir@wall.co.il>  Tue, 26 Oct 2010 22:00
+  -- Yaacov Zamir <kzamir@wall.co.il>  Tue, 5 Nov 2010 10:00
 
 libhdate (1.4.18)
 
