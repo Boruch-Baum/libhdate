@@ -33,64 +33,42 @@
 /* FIXME: global var - ugly ! */
 int iCal_uid_counter = 0;
 
-/* some useful time zones
- * Eilat 29, -34, 2
- * Haifa 32, -34, 2
- * Jerusalem 31, -35, 2
- * Tel Aviv 32, -34, 2
- */
-
 /* print help */
 int
 print_help (char *program)
 {
-	printf ("hdate - example program for libhdate\n\n");
+	printf ("hdate - display Hebrew date information, using libhdate\n\n");
 
-	printf ("USAGE: %s [-sShdr]\n", program);
-	printf ("   [-L longitude -l latitude]\n");
-	printf ("   [-z timezone]\n");
-	printf ("   [[[day] month] year]/[julian_day]\n");
+	printf ("USAGE: hdate [options] [-l xx -L yy] [[[day] month] year]\n");
+	printf ("       hdate [options] [-l xx -L yy] [julian_day]\n\n");
 
 	printf ("OPTIONS:\n");
-	printf ("   -s : Print sunrise/sunset times.\n");
-	printf ("   -c : Print Shabat enter/leave times.\n");
-	printf ("        Shabat starts 20 min before sunset,\n");
-	printf ("        and exits when three stars are out.\n");
-	printf ("   -t : Print day times -\n");
-	printf ("        first light, talit, sunrise, midday, sunset,\n");
-	printf ("        first stars, three stars.\n");
-	printf ("   -S : Print using short format.\n");
-	printf ("   -h : Print holidays.\n");
-	printf ("   -H : Print just holidays.\n");
-	printf ("   -r : Print weekly reading on saturday.\n");
-	printf ("   -R : Print just weekly reading on saturday.\n");
-	printf ("   -o : Print Sefirat Haomer.\n");
-	printf ("   -j : Print Julian day number.\n");
+	printf ("   -i     use iCal formated output.\n");
+	printf ("   -S     print using short format.\n");
+	printf ("   -s     print sunrise/sunset times. (default: Tel Aviv winter time)\n");
+	printf ("   -c     print Shabbat start/end times.\n");
+	printf ("            Shabbat starts 20 min before sunset,\n");
+	printf ("            and ends when three stars are out.\n");
+	printf ("   -t     print day times: first light, talit, sunrise,\n");
+	printf ("            midday, sunset, first stars, three stars.\n");
+	printf ("   -h     print holidays.\n");
+	printf ("   -H     print just holidays.\n");
+	printf ("   -r     print weekly reading on saturday.\n");
+	printf ("   -R     print just weekly reading on saturday.\n");
+	printf ("   -o     print Sefirat Haomer.\n");
+	printf ("   -j     print Julian day number.\n");
+	printf ("   -d     use diaspora reading and holidays.\n");
+	printf ("   -z nn  timezone, +/-GMT\n\n");
+	printf ("   -l xx  latitude xx degrees. Negative values are South.\n");
+	printf ("   -L yy  longitude yy degrees. Negative values are West.\n\n");
 
-	printf ("   -d : Use diaspora reading and holidays.\n");
-	printf ("   -i : Use iCal formated output.\n");
-	printf ("   -l xx : Set the latitude for solar calculations to\n");
-	printf ("              xx degrees.  Negative values are south.\n");
-	printf ("   -L xx : Set the longitude for solar calculations to\n");
-	printf ("              xx degrees.  *Negative values are west*.\n");
-	printf
-		("        The -l and -L switches must both be used, or not at all.\n");
-	printf ("   -z : Use specified timezone,\n");
-
-	printf
-		("   ( default location for sunrise/set is Tel Aviv winter time ).\n");
-	printf ("   some useful locations and time zones:\n");
-	printf ("      Eilat : 29, 34, 2\n");
-	printf ("      Haifa : 32, 34, 2\n");
-	printf ("      Jerusalem : 31, 35, 2\n");
-	printf ("      Tel Aviv : 32, 34, 2\n");
-	printf ("      Ashdod : 31, 34, 2\n");
-	printf ("      Beer Sheva : 31, 34, 2\n");
-	printf ("      Tiberias : 32, 35, 2\n");
-	printf ("      London : 51, 0, 0\n");
-	printf ("      Paris : 48, 2, 1\n");
-	printf ("      New York : 40, -74, -5\n");
-	printf ("      Moscow : 55, 37, 3\n");
+	printf ("USEFUL LOCATIONS/TIMEZONES:\n");
+	printf ("      Jerusalem    31, 35, 2    Tiberias     32, 35, 2\n");
+	printf ("      Tel Aviv     32, 34, 2    London       51,  0, 0\n");
+	printf ("      Haifa        32, 34, 2    Paris        48,  2, 1\n");
+	printf ("      Beer Sheva   31, 34, 2    New York     40,-74,-5\n");
+	printf ("      Ashdod       31, 34, 2    Moscow       55, 37, 3\n");
+	printf ("      Eilat        29, 34, 2\n");
 
 	return 0;
 }

@@ -1,100 +1,113 @@
 .\" .UC 4
 .TH "HDATE" "1" "2 Mar 2005" "Yaacov Zamir" "libhdate"
 .SH "NAME"
-hdate \- Hebrew date and calendar
-.PP 
-example programs for libhdate, a library that help use Hebrew dates.
-.PP 
-LibHdate is a small C,C++ library for Hebrew dates,
-holidays, and reading sequence (parasha). It is using 
-the source code from Amos Shapir's "hdate" package fixed and 
-patched by Nadav Har'El. The Torah reading sequence
-is from tables by Zvi Har'El.
+hdate \- displays Hebrew date information for a given Gregorian/Julian date
 .SH "SYNOPSIS"
 .B hdate
-[\-soctShHrRjdi]
+[\-soctShHrRjdiz] [\-l latitude \-L longitude] [[[dd] mm] yyyy]
+
+.B hdate
+[\-soctShHrRjdiz] [\-l latitude \-L longitude] [julian_day]
 .PP
-[\-L longitude \-l latitude]
-[\-z timezone]
-.PP
-[[[day] month] year]/[julian_day]
 .SH "DESCRIPTION"
-.I Hdate
-translates the specified date to the Hebrew calendar.
-If no arguments are given, it uses today's date.
-`month' is a number between 1 and 12.
+.B Hdate
+translates the specified date to the Hebrew calendar and optionally displays further information about that Hebrew date, including holidays and astronomical-related times.
+If no arguments are given, it displays information for the current date. If a single numeric argument is given, it will be interpreted as a year, and 
+.B
+hdate
+will output the requested information for all days of that year. If two numeric arguments are given, it will be interpreted as mm yyyy, and
+.B
+hdate
+will output the requested information for all days of that month.
+.PP
+.B LOCATION: hdate 
+uses Tel-Aviv as its default location for all astronomical calculations, and Israel standard time as its default time zone. For other locations, use the 
+.I -l
+xx
+.I -L
+yy option pair. For other timezones, use the 
+.I -z 
+nn option. Co-ordinates and satndard time zones for some common locations are listed below.
 .PP 
-If the year is greater than 3000
-.I hdate
-takes the given date as a Hebrew date, and translates it
-back to the common calendar. If argument is greater than 100000 
-.I hdate 
-takes it as the Julian day number.
-Months are numbered with Tishrey being 1 and Elul 12; Adar I and Adar II are months 13 and 14.
+.B INPUTTING A HEBREW DATE:
+If the year provided is greater than 3000,
+.B hdate
+will interpret the given date as a Hebrew date, and will display information for the corresponding Gregorian date. Hebrew months are expected to be passed as numbers 1-12 for Tishrei - Elul 12; Adar I and Adar II are expected to be passed as months 13 and 14.
+
 .PP
-.I \-s 
-: Print sunrise/sunset times.
+.B INPUTTING A JULIAN DAY:
+If a single numeric argument is provided, and it is greater than 100000, 
+.B hdate 
+will interpret it as the "Julian day number" and will display information for the corresponding Hebrew date.
 .PP
-.I \-c 
-: Print Shabat enter/leave times. 
+.B Hcal
+and
+.B Hdate
+are part of the package
+.B libhdate
+, a small C,C++ library for Hebrew dates, holidays, and reading
+sequences (parashiot). It uses the source code from Amos Shapir's
+"hdate" package, as fixed and patched by Nadav Har'El. The Torah
+reading sequence tables were contributed by Zvi Har'El.
+.PP 
+.SH "OPTIONS"
+.B \-s
+Print sunrise/sunset times.
+.PP
+.B \-c
+Print Shabat start/end times.
+
 Shabat starts 20 min before sunset, 
-and exits when three stars are out. 
+and ends when three stars are out. 
 .PP
-.I \-t 
-: Print day times list.
+.B \-t
+Print day times list.
 .PP
 first light, talit, sunrise, mid day, sunset, first stars, three stars. 
 .PP
-.I \-S 
-: Print using short format.
+.B \-S 
+Print using short format.
 .PP
-.I \-h 
-: Print holidays.
+.B \-h 
+Print holidays.
 .PP
-.I \-o 
-: Print Sfirat Ha Omer.
+.B \-o 
+Print Sfirat Ha Omer.
 .PP
-.I \-H 
-: Print just holidays.
+.B \-H 
+Print just holidays.
 .PP
-.I \-r 
-: Print weekly reading on Saturday.
+.B \-r 
+Print weekly reading on Saturday.
 .PP
-.I \-R 
-: Print just weekly reading on Saturday.
+.B \-R 
+Print just weekly reading on Saturday.
 .PP
-.I \-j 
-: Print Julian day number.
+.B \-j 
+Print Julian day number.
 .PP
-.I \-d 
-: Use diaspora reading and holidays.
+.B \-d 
+Use diaspora reading and holidays.
 .PP
-.I \-i 
-:  Use iCal formatted output.
+.B \-i 
+Use iCal formatted output.
 .PP
-.I \-l 
-xx : Set the latitude for solar calculations to
+.B \-l 
+xx   latitude xx degrees. Negative values are South.
 .PP
-xx degrees.  Negative values are south.
+.B \-L 
+yy   longitude yy degrees.  Negative values are West.
 .PP
-.I \-L 
-xx : Set the longitude for solar calculations to
-.PP
-xx degrees.  *Negative values are EAST*.
-.PP
-.I \-z 
-: Use specified timezone.
-.PP
-( default location for sunrise/set is Tel Aviv ).
+.B \-z
+nn   timezone +/-GMT
 .SH "EXAMPLES"
-.B hdate -Hi 2025
+Create an iCal calendar of the holidays of year 2025.
 .PP
-Creates an iCal calendar of the holidays of year 2025.
+.B       hdate -Hi 2025
 .PP
-.B hdate -sR 4 2031 -l29 -L34 -z2
-.PP
-Print out the weekly readings and sunset/sunrise times in Eilat on April 2031.
+Print out the weekly readings and sunset/sunrise times for Eilat, on April 2031.
 .PP  
+.B       hdate -sR 4 2031 -l29 -L34 -z2
 .PP
 .B Useful locations and time zones
 .PP
@@ -124,5 +137,7 @@ Moscow : 55, 37, 3
 .PP
 .SH "SEE ALSO"
 date(1), cal(1), hcal(1), hebcal(1), remind(1), hdate.h(3), hdate_struct(3)
-.SH "AUTHOR"
+.SH "AUTHORS"
+Boruch Baum 2011
+
 Yaacov Zamir 2005, 2010 text copied from Amos Shapir's hdate man file.

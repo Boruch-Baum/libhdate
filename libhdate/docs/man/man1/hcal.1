@@ -1,44 +1,74 @@
 .\" .UC 4
 .TH "HCAL" "1" "2 Mar 2005" "Yaacov Zamir" "libhdate"
 .SH "NAME"
-hcal \- Hebrew date
+hcal \- displays a Hebrew / Gregorian calendar
 .PP 
-example programs for libhdate, a library that help use hebrew dates.
-.PP 
-LibHdate is a small C,C++ library for Hebrew dates,
-holidays, and reading sequence (parasha). It is using 
-the source code from Amos Shapir's "hdate" package fixed and 
-patched by Nadav Har'El. The Torah reading sequence
-is from tables by Zvi Har'El.
 .SH "SYNOPSIS"
-.B hcal
-[\-hdi]
+.B hcal [\-hdi]
+[ [ mm ] yyyy ]
 .PP
-[ [ month ] year ]
 .SH "DESCRIPTION"
-.I Hcal
-prints a calendar with both common and Hebrew dates for the
-specified month, or the whole year if no month is specified.
-If no arguments are given, it prints the current month.
-Major holidays are marked by a `*', other holidays by a `+', 
-fast days by a `\-'.
+.B Hcal
+prints a calendar with both Gregorian and Hebrew dates for the
+specified Gregorian month or, if no month is specified, for the
+whole Gregorian year. If no arguments are given, it prints the
+current month's calendar.
+.PP
+.B INPUTTING A HEBREW DATE:
+If the year provided is greater than 3000,
+.B hdate
+will interpret the given date as a Hebrew date, and will display the calendar of the corresponding Gregorian month(s). Hebrew months are expected to be passed as numbers 1-12 for Tishrei - Elul 12; Adar I and Adar II are expected to be passed as months 13 and 14.
+.PP
+.B Hcal
+and
+.B Hdate
+are part of the package
+.B libhdate
+, a small C,C++ library for Hebrew dates, holidays, and reading
+sequences (parashiot). It uses the source code from Amos Shapir's
+"hdate" package, as fixed and patched by Nadav Har'El. The Torah
+reading sequence tables were contributed by Zvi Har'El.
 .PP 
-If the year is greater than 3000,
-.I hcal
-takes the given date as a Hebrew date, and translates it
-back to the common calendar.
-Months are numbered with Tishrey being 1 and Elul 12; Adar I and Adar II are months 13 and 14.
+.SH "OPTIONS"
+.B \-h    
+Print output in html format.
 .PP
-.I \-h 
-: Print output in html format.
+.B \-d    
+Use diaspora reading and holidays.
 .PP
-.I \-d 
-: Use diaspora reading and holidays.
+.B \-i    
+Use external css file "./hcal.css".
 .PP
-.I \-i 
-: Use external css file "./hcal.css".
+.El
+.PP
+.SH "HOLIDAYS"
+.PP
+Holidays are depicted by a change in the symbol separating a day's
+Gregorian and Hebrew dates, as follows:
+
+/ Regular day
+
++ Yom Tov (plus Yom Kippur)
+
+* Erev Yom Kippur
+
+~ Hol HaMoed
+
+! Hanuka and Purim
+
+@ Tzomot
+
+# Independance day and Yom Yerushalaim
+
+$ Lag BaOmer ,Tu BeAv, Tu BeShvat
+
+% Tzahal and Holocaust memorial days
+
+^ National days
 .PP
 .SH "SEE ALSO"
 date(1), cal(1), hdate(1), hebcal(1), remind(1), hdate.h(3), hdate_struct(3)
-.SH "AUTHOR"
-Yaacov Zamir 2005, text copied from Amos Shapir's hdate man file.
+.SH "AUTHORS"
+Boruch Baum 2011
+
+Yaacov Zamir 2005-2010, text copied from Amos Shapir's hdate man file.

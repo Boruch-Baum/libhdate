@@ -206,49 +206,31 @@ print_header (int month, int year, int opt_h, int opt_d)
 
 	/* set dates for begining and end of calendar */
 	hdate_set_gdate (&h1, 1, month, year);
-	hdate_set_gdate (&h2, 1, month % 12 + 1, year);
-
-	/* Print Gregorian month and year */
-	if (opt_h)
+/*	FIXED: for months like 7-2011, would print wrong ending month */
+/*	Note:  not sure why it allows parm #3 to be 13, and why that works */
+/*	hdate_set_gdate (&h2, 1, month % 12 + 1, year); */
+	hdate_set_jd ( &h2, hdate_gdate_to_jd ( 1, month % 12 + 1, year) - 1  );
+	
+	if (opt_h) /* HTML output */
 	{
+		/* Print Gregorian month and year */
 		printf ("<div class=\"gmonth\">\n");
 		printf ("%s\n", hdate_get_month_string (h1.gd_mon, FALSE));
 		printf ("</div>\n");
-
 		printf ("<div class=\"gyear\">\n");
 		printf ("%d\n", h1.gd_year);
 		printf ("</div>\n");
-	}
-	else
-	{
-		printf ("%s %d\n", hdate_get_month_string (h1.gd_mon, FALSE),
-			h1.gd_year);
-	}
-
-	/* Print Hebrew month and year */
-	if (opt_h)
-	{
+		/* Print Hebrew month and year */
 		printf ("<div class=\"hmonth\">\n");
-	}
-
-	if (h1.hd_mon != h2.hd_mon)
-	{
-		printf ("%s-",
-			hdate_get_hebrew_month_string (h1.hd_mon, FALSE));
-	}
-	printf ("%s ", hdate_get_hebrew_month_string (h2.hd_mon, FALSE));
-
-	if (opt_h)
-	{
+		if (h1.hd_mon != h2.hd_mon)
+		{
+			printf ("%s-",
+				hdate_get_hebrew_month_string (h1.hd_mon, FALSE));
+		}
+		printf ("%s ", hdate_get_hebrew_month_string (h2.hd_mon, FALSE));
 		printf ("\n</div>\n");
-
 		printf ("<div class=\"hyear\">\n");
-	}
-
-	printf ("%s\n", hdate_get_int_string (h1.hd_year));
-
-	if (opt_h)
-	{
+		printf ("%s\n", hdate_get_int_string (h1.hd_year));
 		printf ("</div>\n");
 
 		printf ("<div class=\"month_table\">\n");
@@ -256,6 +238,23 @@ print_header (int month, int year, int opt_h, int opt_d)
 		printf ("<tr>\n");
 	}
 
+	else      /* not HTML output */
+	{
+		/* Print Gregorian month and year */
+		printf ("%s %d\n", hdate_get_month_string (h1.gd_mon, FALSE),
+			h1.gd_year);
+		/* Print Hebrew month and year */
+		if (h1.hd_mon != h2.hd_mon)
+		{
+			printf ("%s-",
+				hdate_get_hebrew_month_string (h1.hd_mon, FALSE));
+		}
+		printf ("%s ", hdate_get_hebrew_month_string (h2.hd_mon, FALSE));
+		printf ("%s\n", hdate_get_int_string (h1.hd_year));
+	}
+
+
+	/* print column headings for days of weeks */ 
 	for (j = 1; j < 8; j++)
 	{
 		if (opt_h)
@@ -294,8 +293,23 @@ print_calendar (int month, int year, int opt_h, int opt_d)
 	int jd;
 	int jd_today;
 	int i, j;
-	char type_char[] = { '/', '+', '*', '-' };
+	
+/*  FIXED: more holiday types had been added in libhdate, but not here */
+/*	char type_char[] = { '/', '+', '*', '-' }; */
+	char type_char[] = { '/', '+', '*', '~', '!', '@', '#', '$', '%', '^' };
 	int holyday_type;
+/*  Holiday types: (reference hdate_holyday.c)
+    / - 0 - Regular day
+    + - 1 - Yom tov (plus yom kippor)
+    * - 2 - Erev yom kippur
+    ~ - 3 - Hol hamoed
+    ! - 4 - Hanuka and purim
+    @ - 5 - Tzomot
+    # - 6 - Independance day and Yom yerushalaim
+    $ - 7 - Lag baomer ,Tu beav, Tu beshvat
+    % - 8 - Tzahal and Holocaust memorial days
+    ^ - 9 - National days
+*/
 
 	/* Find day to start calendar with */
 	hdate_set_gdate (&h, 1, month, year);
