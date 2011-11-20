@@ -25,25 +25,38 @@
 #include <hdate.h>		/* For hebrew date */
 #include <stdlib.h>		/* For atoi */
 #include <locale.h>		/* For setlocale */
-#include <unistd.h>		/* For getopt */
+/* #include <unistd.h>		 For getopt */
+#include <getopt.h>		/* For getopt_long */
 
 #define FALSE 0
 #define TRUE -1
 
+/* Defining option variables globally */
+int opt_no_reverse = 0;	/* --no-reverse		do not highlight current day in reverse video */
+
+
+/* print version */
+int
+print_version ()
+{
+	printf ("hcal - Hebrew calendar\nversion 2\n");
+	return 0;
+}
+
 /* print help */
 int
-print_help (char *program)
+print_help ()
 {
-	printf ("hcal - example program for libhdate\n\n");
+	printf ("hcal - Hebrew calendar\n\n");
 
-	printf ("USAGE: %s [-hid] ", program);
-	printf ("   [[month] year]\n");
-
+	printf ("USAGE: hcal [-dhi] [[month] year]\n");
 	printf ("OPTIONS:\n");
-	printf ("   -h : Print html format.\n");
 	printf ("   -d : Use diaspora reading and holidays.\n");
+	printf ("   -h : Print html format.\n");
 	printf ("   -i : Use external css file \"./hcal.css\".\n");
-
+/* To be documented:
+	--no-reverse	do not highlight the current date in reverse video
+*/
 	return 0;
 }
 
@@ -64,10 +77,10 @@ body {\n\
 }\n\
 \n\
 img { \n\
-    margin:0;\n\
-    padding: 0;\n\
-    vertical-align: middle;\n\
-    border: 0;\n\
+	margin:0;\n\
+	padding: 0;\n\
+	vertical-align: middle;\n\
+	border: 0;\n\
 }\n\
 \n\
 p {\n\
@@ -238,7 +251,7 @@ print_header (int month, int year, int opt_h, int opt_d)
 		printf ("<tr>\n");
 	}
 
-	else      /* not HTML output */
+	else	  /* not HTML output */
 	{
 		/* Print Gregorian month and year */
 		printf ("%s %d\n", hdate_get_month_string (h1.gd_mon, FALSE),
@@ -299,16 +312,16 @@ print_calendar (int month, int year, int opt_h, int opt_d)
 	char type_char[] = { '/', '+', '*', '~', '!', '@', '#', '$', '%', '^' };
 	int holyday_type;
 /*  Holiday types: (reference hdate_holyday.c)
-    / - 0 - Regular day
-    + - 1 - Yom tov (plus yom kippor)
-    * - 2 - Erev yom kippur
-    ~ - 3 - Hol hamoed
-    ! - 4 - Hanuka and purim
-    @ - 5 - Tzomot
-    # - 6 - Independance day and Yom yerushalaim
-    $ - 7 - Lag baomer ,Tu beav, Tu beshvat
-    % - 8 - Tzahal and Holocaust memorial days
-    ^ - 9 - National days
+	/ - 0 - Regular day
+	+ - 1 - Yom tov (plus yom kippor)
+	* - 2 - Erev yom kippur
+	~ - 3 - Hol hamoed
+	! - 4 - Hanuka and purim
+	@ - 5 - Tzomot
+	# - 6 - Independance day and Yom yerushalaim
+	$ - 7 - Lag baomer ,Tu beav, Tu beshvat
+	% - 8 - Tzahal and Holocaust memorial days
+	^ - 9 - National days
 */
 
 	/* Find day to start calendar with */
@@ -379,15 +392,21 @@ print_calendar (int month, int year, int opt_h, int opt_d)
 						printf ("%2d%c%3s", h.gd_day,
 							type_char[holyday_type],
 							hdate_get_int_string (h.
-									      hd_day));
+										  hd_day));
 					}
-					else /* It's today, lets print it in bold */
+					else /* It's today */
 					{
+						/* print bold - not very noticeable
+										inconsistent with cal/ncal
 						printf ("%c[1m", 27);
+						   print reverse-video instead */
+						if (! opt_no_reverse)
+							printf ("%c[7m", 27);
+
 						printf ("%2d%c%3s", h.gd_day,
 							type_char[holyday_type],
 							hdate_get_int_string (h.
-									      hd_day));
+										  hd_day));
 						printf ("%c[m", 27);
 					}
 				}
@@ -445,9 +464,19 @@ main (int argc, char *argv[])
 
 	/* user opts */
 	int c;
-	int opt_h = 0;		/* -h html format flag */
-	int opt_d = 0;		/* -d Diaspora holidays */
-	int opt_i = 0;		/* -i External css file */
+	int opt_h = 0;			/* -h html format flag */
+	int opt_d = 0;			/* -d Diaspora holidays */
+	int opt_i = 0;			/* -i External css file */
+	/* note: other options defined globally at beginning of this file */
+
+	/* support for long options */
+	int option_index = 0;
+	static struct option long_options[] = {
+		{"version", 0, 0, 0},
+		{"help", 0, 0, 0},
+		{"no-reverse", 0, 0, 0},
+		{0, 0, 0, 0}
+		};
 
 	/* hdate struct */
 	hdate_struct h;
@@ -456,23 +485,25 @@ main (int argc, char *argv[])
 	setlocale (LC_ALL, "");
 
 	/* command line parsing */
-	while ((c = getopt (argc, argv, "shdi")) != -1)
+ 	while ((c = getopt_long(argc, argv, "hdi?",
+						long_options, &option_index)) != -1)
+
 	{
 		switch (c)
 		{
-		case 'h':
-			opt_h = 1;
+		case 0: /* long options */
+			switch (option_index)
+			{
+			case 0:	print_version (); exit (0); break;
+			case 1:	print_help (); exit (0); break;
+			case 2:	opt_no_reverse = 1; break;
+			}
 			break;
-		case 'd':
-			opt_d = 1;
-			break;
-		case 'i':
-			opt_i = 1;
-			break;
-		default:
-			print_help (argv[0]);
-			exit (0);
-			break;
+		case 'h': opt_h = 1; break;
+		case 'd': opt_d = 1; break;
+		case 'i': opt_i = 1; break;
+		case '?': print_help (); exit (0); break;
+		default: print_help (); exit (0); break;
 		}
 	}
 

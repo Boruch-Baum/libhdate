@@ -8,7 +8,7 @@ hcal \- displays a Hebrew / Gregorian calendar
 [ [ mm ] yyyy ]
 .PP
 .SH "DESCRIPTION"
-.B Hcal
+.B hcal
 prints a calendar with both Gregorian and Hebrew dates for the
 specified Gregorian month or, if no month is specified, for the
 whole Gregorian year. If no arguments are given, it prints the
@@ -17,7 +17,7 @@ current month's calendar.
 .B INPUTTING A HEBREW DATE:
 If the year provided is greater than 3000,
 .B hdate
-will interpret the given date as a Hebrew date, and will display the calendar of the corresponding Gregorian month(s). Hebrew months are expected to be passed as numbers 1-12 for Tishrei - Elul 12; Adar I and Adar II are expected to be passed as months 13 and 14.
+will interpret the given date as a Hebrew date, and will display the calendar of the corresponding Gregorian month(s). Hebrew months are expected to be passed as numbers 1-12 for Tishrei - Elul; Adar I and Adar II are expected to be passed as months 13 and 14.
 .PP
 .B Hcal
 and
@@ -30,45 +30,54 @@ sequences (parashiot). It uses the source code from Amos Shapir's
 reading sequence tables were contributed by Zvi Har'El.
 .PP 
 .SH "OPTIONS"
+.TP
 .B \-h    
 Print output in html format.
-.PP
+.TP
 .B \-d    
 Use diaspora reading and holidays.
-.PP
+.TP
 .B \-i    
 Use external css file "./hcal.css".
-.PP
-.El
-.PP
 .SH "HOLIDAYS"
 .PP
 Holidays are depicted by a change in the symbol separating a day's
 Gregorian and Hebrew dates, as follows:
 
-/ Regular day
+.RS
+.B /
+Regular day
 
-+ Yom Tov (plus Yom Kippur)
+.B +
+Yom Tov (plus Yom Kippur)
 
-* Erev Yom Kippur
+.B *
+Erev Yom Kippur
 
-~ Hol HaMoed
+.B ~
+Hol HaMoed
 
-! Hanuka and Purim
+.B !
+Hanuka and Purim
 
-@ Tzomot
+.B @
+Tzomot
 
-# Independance day and Yom Yerushalaim
+.B #
+Independance day and Yom Yerushalaim
 
-$ Lag BaOmer ,Tu BeAv, Tu BeShvat
+.B $
+Lag BaOmer ,Tu BeAv, Tu BeShvat
 
-% Tzahal and Holocaust memorial days
+.B %
+Tzahal and Holocaust memorial days
 
-^ National days
-.PP
+.B ^
+National days
 .SH "SEE ALSO"
 date(1), cal(1), hdate(1), hebcal(1), remind(1), hdate.h(3), hdate_struct(3)
 .SH "AUTHORS"
+.RS0
 Boruch Baum 2011
-
+.RE
 Yaacov Zamir 2005-2010, text copied from Amos Shapir's hdate man file.
