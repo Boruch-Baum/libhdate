@@ -5,7 +5,7 @@
  * compile:
  * gcc `pkg-config --libs --cflags libhdate` hcal.c -o hcal
  * 
- * Copyright:  2004 (c) Yaacov Zamir 
+ * Copyright:  2011 (c) Boruch Baum, 2004-2010 (c) Yaacov Zamir 
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -27,12 +27,13 @@
 #include <locale.h>		/* For setlocale */
 /* #include <unistd.h>		 For getopt */
 #include <getopt.h>		/* For getopt_long */
+#include <string.h>		/* For strlen */
 
 #define FALSE 0
 #define TRUE -1
 
 /* Defining option variables globally */
-int opt_no_reverse = 0;	/* --no-reverse		do not highlight current day in reverse video */
+int opt_no_reverse = 0;	/* do not highlight current day in reverse video */
 
 
 /* print version */
@@ -216,6 +217,8 @@ print_header (int month, int year, int opt_h, int opt_d)
 {
 	hdate_struct h1, h2;
 	int j;
+	int padding, g_month_len, h1_month_len, h2_month_len, h2_year_len;
+	char *g_month, *h1_month, *h2_month;
 
 	/* set dates for begining and end of calendar */
 	hdate_set_gdate (&h1, 1, month, year);
@@ -254,16 +257,62 @@ print_header (int month, int year, int opt_h, int opt_d)
 	else	  /* not HTML output */
 	{
 		/* Print Gregorian month and year */
-		printf ("%s %d\n", hdate_get_month_string (h1.gd_mon, FALSE),
-			h1.gd_year);
-		/* Print Hebrew month and year */
+		g_month = hdate_get_month_string (h1.gd_mon, FALSE);
+		printf ("%s-%d", g_month, h1.gd_year);
+
+		/* calculate padding */
+		g_month_len = strlen(g_month);
+		h1_month = hdate_get_hebrew_month_string (h1.hd_mon, FALSE);
+		h1_month_len = strlen(h1_month);
 		if (h1.hd_mon != h2.hd_mon)
+		{
+			h2_month = hdate_get_hebrew_month_string (h2.hd_mon, FALSE);
+			h2_month_len = strlen(h2_month);
+		}
+		else { h2_month_len = 0; }
+		if (h1.hd_year != h2.hd_year)
+		{
+			h2_year_len = 5;
+		}
+		else { h2_year_len = 0; }
+		padding = 42-g_month_len-6-h2_month_len-h1_month_len-5-h2_year_len;
+		
+		
+		/* print padding */
+		for (j = 1; j < padding; j++)
+		{
+			printf(" ");
+		}
+/* 			h2_year = hdate_get_int_string (h2.hd_year);*/
+
+		/* Print Hebrew month and year */
+		printf ("%s-", h1_month);
+		if (h1.hd_year != h2.hd_year)
+		{
+			printf ("%s ", hdate_get_int_string (h1.hd_year));
+			printf ("%s-%s\n", 
+				h2_month,  hdate_get_int_string (h2.hd_year));
+		}
+		else if (h1.hd_mon != h2.hd_mon)
+		{
+			printf ("%s-%s\n", h2_month,
+				hdate_get_int_string (h1.hd_year));
+		}
+		else 
+		{
+			printf ("%s\n", hdate_get_int_string (h1.hd_year));
+		}
+
+
+		/* Print Hebrew month and year */
+/*		if (h1.hd_mon != h2.hd_mon)
 		{
 			printf ("%s-",
 				hdate_get_hebrew_month_string (h1.hd_mon, FALSE));
 		}
 		printf ("%s ", hdate_get_hebrew_month_string (h2.hd_mon, FALSE));
 		printf ("%s\n", hdate_get_int_string (h1.hd_year));
+		*/
 	}
 
 
@@ -278,10 +327,18 @@ print_header (int month, int year, int opt_h, int opt_d)
 		}
 		else
 		{
-			printf ("%3s", hdate_get_day_string (j, TRUE));
+			if (hdate_is_hebrew_locale())
+			{		/* Hebrew heading is a single charcter per day */
+				printf ("%s%s%s", "  ", hdate_get_day_string (j, TRUE)," ");
+			}
+			else
+			{		/* presume three character heading */
+				printf ("%s%3s", " ", hdate_get_day_string (j, TRUE));
+			}
 
 			if (j != 7)
-				printf ("\t");
+/*				printf ("\t"); */
+				printf ("  ");
 		}
 	}
 
@@ -306,6 +363,7 @@ print_calendar (int month, int year, int opt_h, int opt_d)
 	int jd;
 	int jd_today;
 	int i, j;
+	int opt_compressed = 1;
 	
 /*  FIXED: more holiday types had been added in libhdate, but not here */
 /*	char type_char[] = { '/', '+', '*', '-' }; */
@@ -389,10 +447,20 @@ print_calendar (int month, int year, int opt_h, int opt_d)
 					/* Print a day */
 					if (jd != jd_today)
 					{
-						printf ("%2d%c%3s", h.gd_day,
-							type_char[holyday_type],
-							hdate_get_int_string (h.
-										  hd_day));
+/*						printf ("%2d%c%3s", h.gd_day, */
+						if  (hdate_is_hebrew_locale() &&
+							( (h.hd_day < 11) || (h.hd_day == 20) ) )
+						{	/* need to pad Hebrew dates 1-10, 20 */
+							printf ("%2d%c%s%s", h.gd_day,
+								type_char[holyday_type], " ",
+								hdate_get_int_string_(h.hd_day,opt_compressed));
+						}
+						else
+						{
+							printf ("%2d%c%2s", h.gd_day,
+								type_char[holyday_type],
+								hdate_get_int_string_(h.hd_day,opt_compressed));
+						}
 					}
 					else /* It's today */
 					{
@@ -403,16 +471,21 @@ print_calendar (int month, int year, int opt_h, int opt_d)
 						if (! opt_no_reverse)
 							printf ("%c[7m", 27);
 
-						printf ("%2d%c%3s", h.gd_day,
+/*						printf ("%2d%c%3s", h.gd_day, */
+						printf ("%2d%c%2s", h.gd_day,
 							type_char[holyday_type],
-							hdate_get_int_string (h.
-										  hd_day));
+							hdate_get_int_string_(h.hd_day,opt_compressed));
 						printf ("%c[m", 27);
 					}
 				}
-				if (j != 6)
-					printf ("\t");
+				else /* out of month - needs padding */
+				{
+				printf("     ");
+				}
 			}
+			if (j != 6)
+/*				printf ("\t"); prints too wide and gets messed up by fribidi */
+				printf (" ");
 			jd++;
 		}
 

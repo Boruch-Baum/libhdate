@@ -174,6 +174,17 @@ char *
 hdate_get_int_string (int n);
 
 /**
+ @brief convert an integer to hebrew string. 
+ 
+ @param n The int to convert
+ @param opt_compressed don't include apostrophes and quotes
+ @return a static string of the hebrew number UTF-8 (logical)
+ @attention ( 0 < n < 10000)
+*/
+char *
+hdate_get_int_string_ (int n, int opt_compressed);
+
+/**
  @brief get name of week day.
 
  @param day The number of the day 1..7 (1 - sun).

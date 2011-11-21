@@ -67,6 +67,16 @@ hdate_is_hebrew_locale()
 char *
 hdate_get_int_string (int n)
 {
+	/* this function is now just a wrapper so I
+		can add an option to output a compressed
+		number, without apostrophes or quotation marks */
+	return hdate_get_int_string_(n,0);
+}
+	
+char *
+hdate_get_int_string_ (int n, int opt_compressed)
+{
+	
 	int length;
 	static char h_number[100];
 	static char *digits[3][10] = {
@@ -114,20 +124,17 @@ hdate_get_int_string (int n)
 	}
 	if (n > 0)
 		strncat (h_number, digits[0][n], 16);
-
-	length = strlen (h_number);
-
-	/* add the ' and " to hebrew numbers */
-	if (length <= 2)
+	if (!opt_compressed) 	/* add the ' and " to hebrew numbers */
 	{
-		strncat (h_number, "'", 100);
-	}
-	else
-	{
-		h_number[length + 1] = h_number[length];
-		h_number[length] = h_number[length - 1];
-		h_number[length - 1] = h_number[length - 2];
-		h_number[length - 2] = '\"';
+		length = strlen (h_number);
+		if (length <= 2) strncat (h_number, "'", 100);
+		else
+		{
+			h_number[length + 1] = h_number[length];
+			h_number[length] = h_number[length - 1];
+			h_number[length - 1] = h_number[length - 2];
+			h_number[length - 2] = '\"';
+		}
 	}
 
 	return h_number;

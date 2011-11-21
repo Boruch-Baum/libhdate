@@ -4,7 +4,7 @@
  * compile:
  * gcc `pkg-config --libs --cflags libhdate` hdate.c -o hdate
  * 
- * Copyright:  2004 (c) Yaacov Zamir 
+ * Copyright:  2011 (c) Baruch Baum, 2004 (c) Yaacov Zamir 
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -32,13 +32,12 @@
 #include <stdlib.h>				/* For atoi, getenv, setenv */
 #include <locale.h>				/* For setlocale */
 /* #include <unistd.h>		 For getopt */
-#include <getopt.h>		/* For getopt_long */
+#include <getopt.h>				/* For getopt_long */
+#include <time.h>				/* for time */
 
 #define FALSE 0
 #define TRUE -1
 
-/* FIXME: global var - ugly ! */
-int iCal_uid_counter = 0;
 
 /* Defining option variables globally */
 int opt_force_hebrew = 0;
@@ -450,6 +449,9 @@ print_day (hdate_struct * h,
 		   double lat, double lon, int tz, int opt_s, int opt_h, int opt_o, int opt_r,
 		   int opt_R, int opt_j, int opt_H, int opt_i, int opt_c, int opt_t)
 {
+
+	int iCal_uid_counter = 0;
+	time_t t;
 	
 	/* iCal format require \ before comma */
 	/* BUT ... who wants the comma? */
@@ -478,7 +480,7 @@ print_day (hdate_struct * h,
 		/* print_ical_header (); */
 
 		printf ("BEGIN:VEVENT\n");
-		printf ("UID:%d\n", ++iCal_uid_counter);
+		printf ("UID:hdate-%d-%d\n", time(&t), ++iCal_uid_counter);
 		printf ("DTSTART;VALUE=DATE:%04d%02d%02d\n", h->gd_year,
 				h->gd_mon, h->gd_day);
 		printf ("SUMMARY:");
@@ -547,7 +549,7 @@ print_day (hdate_struct * h,
 	/* check for iCal format */
 	if (opt_i)
 	{
-		printf ("CLASS:PUBLIC\n");
+		printf ("\nCLASS:PUBLIC\n");
 		printf ("DTEND;VALUE=DATE:%04d%02d%02d\n", h->gd_year,
 				h->gd_mon, h->gd_day);
 		printf ("CATEGORIES:Holidays\n");
