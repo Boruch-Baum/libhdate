@@ -1,5 +1,5 @@
 .\" .UC 4
-.TH "HCAL" "1" "2 Mar 2005" "Yaacov Zamir" "libhdate"
+.TH "HDATE" "1" "2011-11-21" "Linux" "libhdate"
 .SH "NAME"
 hcal \- displays a Hebrew / Gregorian calendar
 .PP 
@@ -18,16 +18,6 @@ current month's calendar.
 If the year provided is greater than 3000,
 .B hdate
 will interpret the given date as a Hebrew date, and will display the calendar of the corresponding Gregorian month(s). Hebrew months are expected to be passed as numbers 1-12 for Tishrei - Elul; Adar I and Adar II are expected to be passed as months 13 and 14.
-.PP
-.B Hcal
-and
-.B Hdate
-are part of the package
-.B libhdate
-, a small C,C++ library for Hebrew dates, holidays, and reading
-sequences (parashiot). It uses the source code from Amos Shapir's
-"hdate" package, as fixed and patched by Nadav Har'El. The Torah
-reading sequence tables were contributed by Zvi Har'El.
 .PP 
 .SH "OPTIONS"
 .TP
@@ -81,3 +71,13 @@ date(1), cal(1), hdate(1), hebcal(1), remind(1), hdate.h(3), hdate_struct(3)
 Boruch Baum 2011
 .RE
 Yaacov Zamir 2005-2010, text copied from Amos Shapir's hdate man file.
+.PP
+.B Hcal
+and
+.B Hdate
+are part of the package
+.B libhdate
+, a small C,C++ library for Hebrew dates, holidays, and reading
+sequences (parashiot). It uses the source code from Amos Shapir's
+"hdate" package, as fixed and patched by Nadav Har'El. The Torah
+reading sequence tables were contributed by Zvi Har'El.

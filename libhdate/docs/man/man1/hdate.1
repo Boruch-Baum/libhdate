@@ -1,13 +1,17 @@
 .\" .UC 4
-.TH "HDATE" "1" "2 Mar 2005" "Yaacov Zamir" "libhdate"
+.TH "HDATE" "1" "2011-11-21" "Linux" "libhdate"
 .SH "NAME"
 hdate \- displays Hebrew date information for a given Gregorian/Julian date
 .SH "SYNOPSIS"
 .B hdate
-[\-soctShHrRjdiz] [\-l latitude \-L longitude] [[[dd] mm] yyyy]
+[\-soctShHrRjdiz]
+.RI [\-l \ latitude \-L \ longitude ] 
+[[[dd] mm] yyyy]
 
 .B hdate
-[\-soctShHrRjdiz] [\-l latitude \-L longitude] [julian_day]
+[\-soctShHrRjdiz] 
+.RI [\-l \ latitude \-L \ longitude ] 
+.RI [ julian_day ]
 .PP
 .SH "DESCRIPTION"
 .B hdate
@@ -22,37 +26,47 @@ will output the requested information for
 .I all 
 days of that month.
 .PP
-.B LOCATION:
-The default location for all astronomical calculations is Tel-Aviv, and the default time zone is Israel standard time. For other locations, use the 
-.B -l
-.I xx
-.B -L
-.I yy
+.B LOCATION: hdate
+requires location and time zone information in order to make astronomical calculations for a given date. If you don't provide ANY such information, 
+.B hdate
+uses your computer's local time zone information as an indicator, and either picks a city in that time zone, or defaults to the equator at the center of that time zone. If 
+.B hdate
+can't even retrieve time zone information from your computer, it defaults to Tel-Aviv. For other locations, use the 
+.BI -l \ xx [ .xxx ]\ -L \ yy [ .yyy ]
 option pair. For other timezones, use the 
 .B -z
 .I nn
-option. Co-ordinates and satndard time zones for some common locations are listed below.
+option. Co-ordinates and standard time zones for some common locations are listed below.
+.PP
+The current defaults are:
+.RS 9
+Timezone   Default city    Lattitude  Longitude
+.RE
+.RS 12
+-5      New York City      40        \-74
+.RE
+.RS 12
+ 0      London             51          0
+.RE
+.RS 12
+ 1      Paris              48          2
+.RE
+.RS 12
+ 2      Tel-Aviv           32         34
+.RE
+.RS 12
+ 3      Moscow             55         37
+.RE
 .PP 
 .B INPUTTING A HEBREW DATE:
 If the year provided is greater than 3000,
 .B hdate
 will interpret the given date as a Hebrew date, and will display information for the corresponding Gregorian date. Hebrew months are expected to be passed as numbers 1-12 for Tishrei - Elul; Adar I and Adar II are expected to be passed as months 13 and 14.
-
 .PP
 .B INPUTTING A JULIAN DAY:
-If a single numeric argument is provided, and it is greater than 100000, 
+If a single numeric argument is provided, and it is greater than 348021, 
 .B hdate 
 will interpret it as the "Julian day number" and will display information for the corresponding Hebrew date.
-.PP
-.B Hcal
-and
-.B Hdate
-are part of the package
-.B libhdate
-, a small C,C++ library for Hebrew dates, holidays, and reading
-sequences (parashiot). It uses the source code from Amos Shapir's
-"hdate" package, as fixed and patched by Nadav Har'El. The Torah
-reading sequence tables were contributed by Zvi Har'El.
 .PP 
 .SH "OPTIONS"
 .TP 6
@@ -93,22 +107,21 @@ Use diaspora reading and holidays.
 .B \-i 
 Use iCal formatted output.
 .P
-.B \-l
-.I xx   
-latitude
-.I xx
+.BI \-l \ xx
+.RI latitude \ xx [ .xxx ]
 degrees. Negative values are South.
 .P
-.B \-L 
-.I yy
-longitude
-.I yy
+.BI \-l \ yy
+.RI longitude \ yy [ .yyy ]
 degrees.  Negative values are West.
 .P
-.B \-z
-.I
-nn
-timezone +/-GMT
+.BI \-z \ nn
+timezone +/- UTC
+.SH "BUGS"
+.PP
+The accuracy of the astronomically-derived data will suffer from not accounting for environmental conditions such as elevation, horizon, temperature and air pressure.
+.PP
+The timezone support is primitive and lacks support for fractional time zone rules and  daylight savings time transitions. 
 .SH "EXAMPLES"
 1. Create an iCal calendar of the holidays of year 2025.
 .RS 6
@@ -145,6 +158,12 @@ Eilat       29, 34, 2
 date(1), cal(1), hcal(1), hebcal(1), remind(1), hdate.h(3), hdate_struct(3)
 .SH "AUTHORS"
 .RS 0
-Boruch Baum 2011
-.RE
-Yaacov Zamir 2005, 2010 text copied from Amos Shapir's hdate man file.
+Boruch Baum 2011. Yaacov Zamir 2005-2010. Text copied from Amos Shapir's hdate man file.
+.PP
+.BR hcal \ and \ hdate
+are part of the package
+.B libhdate
+, a small C,C++ library for Hebrew dates, holidays, and reading
+sequences (parashiot). It uses the source code from Amos Shapir's
+"hdate" package, as fixed and patched by Nadav Har'El. The Torah
+reading sequence tables were contributed by Zvi Har'El.
