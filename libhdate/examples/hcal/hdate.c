@@ -20,18 +20,17 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <stdio.h>				// For printf
-#include <hdate.h>				// For hebrew date
-#include <stdlib.h>				// For atoi, getenv, setenv
-#include <locale.h>				// For setlocale
-#include <getopt.h>				// For getopt_long
-#include <time.h>				// For time
-#include <error.h>				// For error
+#include <stdio.h>		// For printf
+#include <hdate.h>		// For hebrew date
+#include <stdlib.h>		// For atoi, getenv, setenv
+#include <locale.h>		// For setlocale
+#include <getopt.h>		// For getopt_long
+#include <time.h>		// For time
+#include <error.h>		// For error
+#include <string.h>		// For strchr
 
 #define FALSE 0
 #define TRUE -1
-#define DELTA_LONGITUDE 30
-#define BAD_COORDINATE 999
 #define DATA_WAS_NOT_PRINTED 0
 #define DATA_WAS_PRINTED 1
 
@@ -54,6 +53,10 @@
 #  define _(String) (String)
 #  define N_(String) (String)
 #endif
+
+// for hdate_get_int_string_
+#define NO_COMPRESS 0
+#define COMPRESS 1
 
 char *debug_var;				// system environment variable
 
@@ -99,15 +102,24 @@ int print_version ()
 }
 
 /************************************************************
+* print usage information
+************************************************************/
+void print_usage ()
+{
+	printf ("hdate - display Hebrew date information\n");
+
+	printf ("USAGE: hdate [options] [-l xx[.xxx] -L yy[.yyy] [-z nn] ] [[[day] month] year]\n");
+	printf ("       hdate [options] [-l xx[.xxx] -L yy[.yyy] [-z nn] ] [julian_day]\n");
+}
+
+
+/************************************************************
 * print help information
 ************************************************************/
-int print_help ()
+void print_help ()
 {
-	printf ("hdate - display Hebrew date information\n\n");
-
-	printf ("USAGE: hdate [options] [-l xx[.xxx] -L yy[.yyy] ] [[[day] month] year]\n");
-	printf ("       hdate [options] [-l xx[.xxx] -L yy[.yyy] ] [julian_day]\n\n");
-
+	print_usage();
+	
 	printf ("OPTIONS:\n");
 	printf ("   -i     use iCal formated output.\n");
 	printf ("   -S     print using short format.\n");
@@ -124,17 +136,17 @@ int print_help ()
 	printf ("   -o     print Sefirat Haomer.\n");
 	printf ("   -j     print Julian day number.\n");
 	printf ("   -d     use diaspora reading and holidays.\n");
-	printf ("   -q     quiet. suppresses warning messages.]n");
+	printf ("   -q     quiet. suppress warning messages.]n");
 	printf ("   -z nn  timezone, +/-UTC\n\n");
 	printf ("   -l xx  latitude xx degrees. Negative values are South.\n");
 	printf ("   -L yy  longitude yy degrees. Negative values are West.\n\n");
 
-	printf ("   --table	        tabular output, suitable for spreadsheets\n");
+	printf ("   --table         tabular output, suitable for spreadsheets\n");
 	printf ("   --hebrew        forces Hebrew to print in Hebrew characters\n");
 	printf ("   --yom           force Hebrew prefix to Hebrew day of week\n");
 	printf ("   --leshabbat     insert parasha between day of week and day\n");
 	printf ("   --leseder       insert parasha between day of week and day\n");
-	printf ("   --sunset-aware  display next day if after sunset\n");
+	printf ("   --not-sunset-aware  don't display next day if after sunset\n");
 
 	printf ("USEFUL LOCATIONS/TIMEZONES:\n");
 	printf ("      Jerusalem    31, 35, 2    Tiberias     32, 35, 2\n");
@@ -144,7 +156,6 @@ int print_help ()
 	printf ("      Ashdod       31, 34, 2    Moscow       55, 37, 3\n");
 	printf ("      Eilat        29, 34, 2\n");
 
-	return 0;
 }
 /* TODO - document these options here and in man page
 --hebrew
@@ -152,50 +163,13 @@ int print_help ()
 --leshabbat (implies --hebrew and --yom)
 --leseder (implies --hebrew and --yom)
 --table
---sunset-aware
+--not-sunset-aware
 */
 
 
 /************************************************************
 * begin - error message functions
 ************************************************************/
-void print_parm_error ( char *parm_name )
-{
-	error(0,0,"%s: %s %s %s",N_("error"), N_("parameter"), parm_name, N_("is non-numeric or out of bounds"));
-}
-
-void print_alert_timezone( int tz )
-{
-	error(0,0,"%s: %s, %+d UTC",N_("ALERT: time zone not entered, using system local time zone"), *tzname, tz);
-}
-
-void print_alert_coordinate( char *city_name )
-{
-	error(0,0,"%s %s", N_("ALERT: guessing... will use co-ordinates for"), city_name);
-}
-
-void print_alert_default_location( int tz )
-{
-	switch (tz)
-	{
-	case -8:	print_alert_coordinate( N_("Los Angeles") ); break;
-	case -6:	print_alert_coordinate( N_("Mexico City") ); break;
-	case -5:	print_alert_coordinate( N_("New York City") ); break;
-//	case -5:	print_alert_coordinate( N_("Toronto") ); break;
-//	case -3:	print_alert_coordinate( N_("Sao Paolo") ); break;
-	case -3:	print_alert_coordinate( N_("Buenos Aires") ); break;
-	case  0:	print_alert_coordinate( N_("London") ); break;
-	case  1:	print_alert_coordinate( N_("Paris") ); break;
-	case  2:	print_alert_coordinate( N_("Tel-Aviv") ); break;
-	case  3:	print_alert_coordinate( N_("Moscow") ); break;
-	case  5:	print_alert_coordinate( N_("Tashkent") ); break;
-	case  8:	print_alert_coordinate( N_("Beijing") ); break;
-//	case  8:	print_alert_coordinate( N_("Hong Kong") ); break;
-	case 10:	print_alert_coordinate( N_("Honolulu") ); break;
-	default:	error(0,0,"%s \n%s", N_("Hmmm, ... hate to do this, really ..."), N_("using co-ordinates for the equator, at the center of time zone")); break;
-	}
-}
-
 void print_alert_sunset ()
 {
 	error(0,0,"%s", N_("ALERT: The information displayed is for today's Hebrew date.\n \
@@ -208,34 +182,6 @@ void print_alert_sunset ()
 
 
 
-
-/************************************************************
-* set default location
-************************************************************/
-void set_default_location( int tz, double *lat, double *lon )
-{
-	/*	Temporarily, set some default lat/lon coordinates
-		for certain timezones */
-	switch (tz)
-	{
-	case -8:	*lat =  34.05;	*lon =-118.25;	break; // Los Angeles
-	case -6:	*lat =  19.43;	*lon = -99.13;	break; // Mexico City
-	case -5:	*lat =  40.0;	*lon = -74.0;	break; // New York
-//	case -5:	*lat = -43.71;	*lon = -79.43;	break; // Toronto
-//	case -3:	*lat = -23.55;	*lon = -46.61;	break; // Sao Paolo
-	case -3:	*lat = -34.6;	*lon = -58.37;	break; // Buenos Aires
-	case  0:	*lat =  51.0;	*lon =   0.0;	break; // London
-	case  1:	*lat =  48.0;	*lon =   2.0;	break; // Paris
-	case  2:	*lat =  32.0;	*lon =  34.0;	break; // Tel aviv
-	case  3:	*lat =  55.0;	*lon =  37.0;	break; // Moscow
-	case  5:	*lat =  41.27;	*lon =  69.22;	break; // Tashkent
-	case  8:	*lat =  39.90;	*lon = 116.38;	break; // Beijing
-//	case  8:	*lat =  22.26;	*lon = 114.15;	break; // Hong Kong
-	case 10:	*lat =  21.30;	*lon = 157.82;	break; // Honolulu
-	default:	*lat =   0.0;	*lon =  tz * 15; break; /* center of tz */
-	}
-	return;
-}
 
 
 /************************************************************
@@ -312,36 +258,10 @@ int find_shabbat (hdate_struct * h, int opt_d)
 
 
 
-
-/************************************************************
-* check for sunset
-************************************************************/
-int
-check_for_sunset (hdate_struct * h, double lat, double lon, int timezone )
-{
-	time_t now_time;
-	struct tm *now_timep;
-	int sunrise, sunset;
-
-	hdate_get_utc_sun_time (h->gd_day, h->gd_mon, h->gd_year, lat, lon,
-							&sunrise, &sunset);
-
-	time(&now_time);
-	now_timep = localtime(&now_time);
-
-	if ( ((now_timep->tm_hour) *60 + now_timep->tm_min) > (sunset + (timezone*60) ) ) return 1;
-	else return 0;
-}
-
-
-
-
-
 /************************************************************
 * print one date - both Gregorian and Hebrew
 ************************************************************/
-int
-print_date (hdate_struct * h, hdate_struct * tomorrow, option_list opt, double lat, double lon)
+int print_date (hdate_struct * h, hdate_struct * tomorrow, option_list opt, double lat, double lon)
 {
 	char *language;				// system environment variable
 	char *locale;				// system environment variable
@@ -427,10 +347,10 @@ print_date (hdate_struct * h, hdate_struct * tomorrow, option_list opt, double l
 				setenv("LANGUAGE", "he_IL.UTF-8", 1);
 		printf ("%s%s %s%s ",
 				for_day_of_g,
-				hdate_get_int_string (h->hd_day),
+				hdate_get_int_string_ (h->hd_day, NO_COMPRESS),
 				bet_h,
 				hdate_get_hebrew_month_string (h->hd_mon, opt.short_format));
-		printf ("%s", hdate_get_int_string (h->hd_year));
+		printf ("%s", hdate_get_int_string_(h->hd_year, NO_COMPRESS));
 	}
 
 
@@ -449,11 +369,11 @@ print_date (hdate_struct * h, hdate_struct * tomorrow, option_list opt, double l
 		else
 		{
 			setenv("LANGUAGE", "he_IL.UTF-8", 1);
-			printf ("%s", hdate_get_int_string (h->hd_day));
+			printf ("%s", hdate_get_int_string_(h->hd_day, NO_COMPRESS));
 		}
 
 		printf (" %s ", hdate_get_hebrew_month_string (h->hd_mon, opt.short_format));
-		printf ("%s\n", hdate_get_int_string (h->hd_year));
+		printf ("%s\n", hdate_get_int_string_(h->hd_year, NO_COMPRESS));
 	}
 
 
@@ -498,10 +418,10 @@ print_date (hdate_struct * h, hdate_struct * tomorrow, option_list opt, double l
 
 		// print Hebrew dd mmmm yyyy
 		printf ("%s %s%s ",
-				hdate_get_int_string (h->hd_day),
+				hdate_get_int_string_(h->hd_day, NO_COMPRESS),
 				bet_h,
 				hdate_get_hebrew_month_string (h->hd_mon, opt.short_format));
-		printf ("%s\n", hdate_get_int_string (h->hd_year));
+		printf ("%s\n", hdate_get_int_string_(h->hd_year, NO_COMPRESS));
 	}
 
 
@@ -622,33 +542,34 @@ int print_candles (hdate_struct * h, double lat, double lon, int tz, int opt_i)
 	int sun_hour, first_light, talit, sunrise;
 	int midday, sunset, first_stars, three_stars;
 
-	/* check for friday - print knisat shabat */
+	// check for friday - print knisat shabat
 	if (h->hd_dw == 6)
 	{
-		/* get times */
+		// get times
 		hdate_get_utc_sun_time (h->gd_day, h->gd_mon, h->gd_year, lat, lon,
 								&sunrise, &sunset);
 
-		/* FIXME - knisat shabat 20 minutes before shkiaa ? */
+		// FIXME - allow for minhag variation
 		sunset = sunset + tz * 60 - 20;
 
-		/* print candlelighting times */
+		// print candlelighting times
 		printf ("candle-lighting: %d:%d\n", sunset / 60, sunset % 60);
 		return DATA_WAS_PRINTED;
 	}
 
-	/* check for saturday - print motzay shabat */
+	// check for saturday - print motzay shabat
 	else if (h->hd_dw == 7)
 	{
-		/* get times */
+		// get times
 		hdate_get_utc_sun_time_full (h->gd_day, h->gd_mon, h->gd_year, lat,
 									 lon, &sun_hour, &first_light, &talit,
 									 &sunrise, &midday, &sunset,
 									 &first_stars, &three_stars);
 
+		// FIXME - allow for minhag variation
 		three_stars = three_stars + tz * 60;
 
-		/* print motzay shabat */
+		// print motzay shabat
 		printf ("Shabbat ends: %d:%d\n", three_stars / 60, three_stars % 60);
 		return DATA_WAS_PRINTED;
 	}
@@ -719,11 +640,11 @@ int print_tabular_day (hdate_struct * h, option_list opt,
 	else /* Hebrew */
 	{
 		setenv("LANGUAGE", "he_IL.UTF-8", 1);
-		printf ("%s", hdate_get_int_string (h->hd_day));
+		printf ("%s", hdate_get_int_string_(h->hd_day, NO_COMPRESS));
 	}
 
 	printf (" %s ", hdate_get_hebrew_month_string (h->hd_mon, 1));
-	printf ("%s", hdate_get_int_string (h->hd_year));
+	printf ("%s", hdate_get_int_string_(h->hd_year, NO_COMPRESS));
 	/************************************************************
 	* end - print Hebrew date
 	************************************************************/
@@ -1073,7 +994,7 @@ int print_hyear (option_list opt, double lat, double lon, int tz, int year)
 
 	/* print year header */
 	if (!opt.iCal && !opt.short_format)
-		printf ("%s:\n", hdate_get_int_string (year));
+		printf ("%s:\n", hdate_get_int_string_(year,NO_COMPRESS));
 
 	/* print year months */
 	while (month < 13)
@@ -1141,17 +1062,14 @@ int main (int argc, char *argv[])
 	opt.iCal = 0;				/* -i option iCal */
 	opt.omer = 0;				/* -o option Sfirat Haomer */
 
-	int opt_latitude = 0;			/* -l option latitude */
-	double lat = BAD_COORDINATE;	/* set to this value for error handling */
-	int opt_Longitude = 0;				/* -L option longitude */
-	double lon = BAD_COORDINATE;	/* set to this value for error handling */
 
-	int opt_timezone = 0;				/* -z option Time Zone, default to system local time */
-	int tz;
+
+	// support for getopt short options
+	static char * short_options = "sctShHorRjdiql:L:z:";
+
+	/* support for getopt long options */
 	/* note: other (long) options will be defined
 	   globally at beginning of this file */
-
-	/* support for long options */
 	int option_index = 0;
 	static struct option long_options[] = {
 		{"version", 0, 0, 0},
@@ -1162,7 +1080,7 @@ int main (int argc, char *argv[])
 		{"leseder", 0, 0, 0},
 		{"table",0,0,0},
 		{"not-sunset-aware",0,0,0},
-		{"quiet_alerts",0,0,0},
+		{"quiet-alerts",0,0,0},
 		{"short_format",0,0,0},
 		{"parasha",0,0,0},
 		{"holidays",0,0,0},
@@ -1173,21 +1091,35 @@ int main (int argc, char *argv[])
 		{"sunrise",0,0,0},
 		{"candles",0,0,0},
 		{"havdalah",0,0,0},
+		{"latitude", 0, 0, 0},
+		{"longitude", 0, 0, 0},
+		{"timezone", 0, 0, 0},
 		{0, 0, 0, 0}
 		};
-
-	int error_detected = FALSE;		/* exit after reporting ALL bad parms */
 
 	/* init locale */
 	/* WHY?? -- reconsider this, or at least test it out */
 	setlocale (LC_ALL, "");
 
 
+	/************************************************************
+	* location-related parsing functions
+	*	void parse_latitude()
+	*	void parse_longitude()
+	*	void parse_timezone()
+	*	void validate_location()
+	*	double lat, lon
+	*	int tz
+	*	int error_detected
+	************************************************************/
+	#include "./location.include.c"
+
 
 /************************************************************
 * begin command line parsing
 ************************************************************/
-	while ((c = getopt_long(argc, argv, "sctShHorRjdiql:L:z:?",
+	opterr = 0; // we'll do our own error reporting
+	while ((c = getopt_long(argc, argv, short_options,
 						long_options, &option_index)) != -1)
 	{
 		switch (c)
@@ -1212,38 +1144,24 @@ int main (int argc, char *argv[])
 				opt.yom = 1;
 				opt.hebrew = 1;
 				break;
-			case 6:
-				opt.tablular_output = 1;
-				break;
-			case 7:
-				opt.not_sunset_aware = 1;
-				break;
-			case 8:
-				opt.quiet_alerts = 1;
-				break;
-			case 9:
-				opt.short_format = 1;
-			case 10:
-				opt.parasha = 1;
-				break;
-			case 11:
-				opt.holidays = 1;
-				break;
+			case 6:	opt.tablular_output = 1; break;
+			case 7:	opt.not_sunset_aware = 1; break;
+			case 8:	opt.quiet_alerts = 1; break;
+			case 9:	opt.short_format = 1; break;
+			case 10:opt.parasha = 1; break;
+			case 11:opt.holidays = 1; break;
 			case 12:
 				opt.candles = 1;
 				opt.havdalah = 1;
 				break;
 			case 13:
 			case 14:
-			case 15:
-				opt.sun = 1;
-				break;
-			case 16:
-				opt.candles = 1;
-				break;
-			case 17:
-				opt.havdalah = 1;
-				break;
+			case 15: opt.sun = 1;		break;
+			case 16: opt.candles = 1;	break;
+			case 17: opt.havdalah = 1;	break;
+			case 18: parse_latitude();	break;
+			case 19: parse_longitude();	break;
+			case 20: parse_timezone();	break;
 			}
 			break;
 		case 's': opt.sun = 1; break;
@@ -1263,112 +1181,30 @@ int main (int argc, char *argv[])
 		case 'd': opt.diaspora = 1; break;
 		case 'i': opt.iCal = 1; break;
 		case 'q': opt.quiet_alerts = 1; break;
-		case 'l':
-			if (optarg)
-			{
-				lat = (double) atof (optarg);
-				if ((lat < -180) || (lat > 180))
-				{
-					print_parm_error(N_("lattitude"));
-					error_detected = TRUE;
-				}
-				else opt_latitude = 1;
-			}
-			break;
-		case 'L':
-			if (optarg)
-			{
-				lon = (double) atof (optarg);
-				if ((lon < -90) || (lon > 90))
-				{
-					print_parm_error(N_("longitude"));
-					error_detected = TRUE;
-				}
-				else opt_Longitude = 1;
-			}
-			break;
-		case 'z':
-			if (optarg)
-			{
-				tz = atoi (optarg);
-				if ((tz < -11) || (tz > 11))
-				{
-					print_parm_error("time zone");
-					error_detected = TRUE;
-				}
-				else opt_timezone = 1;
-			}
-			break;
+		case 'l': parse_latitude();	break;
+		case 'L': parse_longitude(); break;
+		case 'z': parse_timezone();	break;
 		case '?':
+			if (strchr(short_options,optopt)==NULL)
+				error(0,0,"option %c unknown",optopt);
+			else error(0,0,"option %c missing parameter",optopt);
+			// variable error_detected is defined in location.include.c
+			error_detected = TRUE;
+			break;
 		default:
-			print_help (); exit (0); break;
-		}
-	}
-	/************************************************************
-	* begin validating location parameters - lat, lon, tz
-	************************************************************/
-	/* only if we need the information 	*/
-	if ( (opt.sun) || (opt.times) || (opt.candles) || (opt.havdalah) )
-	{
-
-		/* latitude and longitude must be paired */
-		if ( (opt_latitude) && (!opt_Longitude) )
-		{
-			error(0,0,"%s: %s", N_("error"), N_("valid longitude parameter missing for given latitude"));
-			error_detected = TRUE;
-		}
-		else if ( (opt_Longitude) && (!opt_latitude) )
-		{
-			error(0,0,"%s: %s", N_("error"), N_("valid latitude parameter missing for given longitude"));
-			error_detected = TRUE;
-		}
-
-		/* if no timezone entered, choose guess method */
-		if (!opt_timezone)
-		{
-			tzset();
-			tz = timezone /-3600;
-			if ( (opt_latitude) && (opt_Longitude) && ( ((lon/15)-tz) > DELTA_LONGITUDE ) )
-			{
-				/*  reject system local timezone, because it's
-					too far from the longitude explicitly provided
-					by the user; guess based on longitude entered */
-				tz = lon /15;
-			}
-			if (!opt.quiet_alerts) print_alert_timezone( tz );
-			if ( (lat==BAD_COORDINATE) && (lon==BAD_COORDINATE) )
-			{
-				if (!opt.quiet_alerts) print_alert_default_location( tz );
-				set_default_location( tz, &lat, &lon );
-			}
-			printf("\n");
-		}
-		else
-		{	/* we have timezone, what about latitude and longitude? */
-			if ( (opt_Longitude) && (opt_latitude) )
-			{
-				/* sanity-check longitude versus timezone */
-				if ( abs( ( tz * 15 ) - lon ) > DELTA_LONGITUDE )
-				{
-					error(0,0,"%s %d %s %.3f %s", N_("time zone value of"), tz, N_("is incompatible with a longitude of"), lon, N_("degrees"));
-					error_detected = TRUE;
-				}
-			}
-			else
-			{
-				if (!opt.quiet_alerts) print_alert_default_location( tz );
-				set_default_location( tz, &lat, &lon );
-				printf("\n");
-			}
+			print_usage (); exit (0); break;
 		}
 	}
 
-	/* exit after reporting all bad parameters found */
-	if (error_detected) exit(0);
-	/************************************************************
-	* end validating location parameters - lat, lon, tz
-	************************************************************/
 
+	/************************************************************
+	* function validate_location is defined in the include file
+	* ./location.include.c
+	* It issues an exit(EXIT_CODE_BAD_PARMS) [==1]
+	* if it discovers, um, bad parameters 
+	************************************************************/
+	validate_location();
+	
 	/************************************************************
 	* option "s" is a subset of option "t"
 	************************************************************/
@@ -1482,7 +1318,6 @@ int main (int argc, char *argv[])
 	else if (argc == (optind + 2))
 	{
 
-		/* get year */
 		year = atoi (argv[optind + 1]);
 		month = atoi (argv[optind]);
 

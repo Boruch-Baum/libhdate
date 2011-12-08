@@ -4,13 +4,13 @@
 hdate \- displays Hebrew date information for a given Gregorian/Julian date
 .SH "SYNOPSIS"
 .B hdate
-[\-soctShHrRjdiz]
-.RI [\-l \ latitude \-L \ longitude ] 
+[options]
+.RI [\-l \ latitude \ \-L \ longitude \ [-z \ nn ]]
 [[[dd] mm] yyyy]
 
 .B hdate
-[\-soctShHrRjdiz] 
-.RI [\-l \ latitude \-L \ longitude ] 
+[options]
+.RI [\-l \ latitude \ \-L \ longitude \ [-z \ nn ]]
 .RI [ julian_day ]
 .PP
 .SH "DESCRIPTION"
@@ -26,7 +26,11 @@ will output the requested information for
 .I all 
 days of that month.
 .PP
-.B LOCATION: hdate
+.B LOCATION: 
+If you want 
+.B hdate
+to display accurate time-of-day information,
+.B hdate
 requires location and time zone information in order to make astronomical calculations for a given date. If you don't provide ANY such information, 
 .B hdate
 uses your computer's local time zone information as an indicator, and either picks a city in that time zone, or defaults to the equator at the center of that time zone. If 
@@ -38,7 +42,7 @@ option pair. For other timezones, use the
 .I nn
 option. Co-ordinates and standard time zones for some common locations are listed below.
 .PP
-The current defaults are:
+The current defaults include:
 .RS 9
 Timezone   Default city    Lattitude  Longitude
 .RE
@@ -70,58 +74,78 @@ will interpret it as the "Julian day number" and will display information for th
 .PP 
 .SH "OPTIONS"
 .TP 6
-.B \-s
-Print sunrise/sunset times.
-.TP 6
 .B \-c
-Print Shabat start/end times. Shabat starts 20 min before sunset, 
+print Shabbat start/end times. Shabbat starts 20 min before sunset, 
 and ends when three stars are out. 
 .TP 6
-.B \-t
-Print day times list: first light, talit, sunrise, mid day, sunset, first stars, three stars. 
-.TP 6
-.B \-S 
-Print using short format.
+.B \-d 
+use diaspora reading and holidays.
 .TP 6
 .B \-h 
-Print holidays.
-.TP 6
-.B \-o 
-Print Sfirat Ha Omer.
+print holidays.
 .TP 6
 .B \-H 
 Print just holidays.
 .TP 6
-.B \-r 
-Print weekly reading on Saturday.
-.TP 6
-.B \-R 
-Print just weekly reading on Saturday.
+.B \-i 
+use iCal formatted output.
 .TP 6
 .B \-j 
-Print Julian day number.
+print Julian day number.
 .TP 6
-.B \-d 
-Use diaspora reading and holidays.
+.B \-o 
+print Sefirat Ha Omer.
 .TP 6
-.B \-i 
-Use iCal formatted output.
-.P
-.BI \-l \ xx
-.RI latitude \ xx [ .xxx ]
-degrees. Negative values are South.
-.P
-.BI \-l \ yy
-.RI longitude \ yy [ .yyy ]
-degrees.  Negative values are West.
-.P
-.BI \-z \ nn
-timezone +/- UTC
+.B \-q
+quiet. suppress warning messages
+.TP 6
+.B \-r 
+print weekly reading on Saturday.
+.TP 6
+.B \-R 
+print just weekly reading on Saturday.
+.TP 6
+.B \-s
+print sunrise/sunset times.
+.TP 6
+.B \-S 
+print using short format.
+.TP 6
+.B \-t
+print day times list: first light, talit, sunrise, mid day, sunset, first stars, three stars. 
+.TP
+.B \-l --latitude
+xx[.xxx] degrees. Negative values are South.
+.TP
+.B \-L --longitude
+yy[.yyy] degrees.  Negative values are West.
+.TP
+.B \-z --timezone
+nn hours +/- UTC
 .SH "BUGS"
-.PP
+.TP 10
+.B Accuracy
 The accuracy of the astronomically-derived data will suffer from not accounting for environmental conditions such as elevation, horizon, temperature and air pressure.
-.PP
-The timezone support is primitive and lacks support for fractional time zone rules and  daylight savings time transitions. 
+.TP
+.B BIDI
+In most locales, using option -H / --hebrew will cause hcal to output lines containing bi-directional text.
+hcal conforms to the current unicode standards, and its output displays perfectly to any application that
+accurately supports unicode/bidi. The rub is that, as of this writing, the only xterm clone I know that comes close is
+.B mlterm
+(version 3.0.8-2). Other xterm clones display the Hebrew text in reverse, although the output will paste well to other
+applications (eg. mousepad, gedit, geany). The only deficiency noticeable when running hcal in mlterm is that calendar
+header lines that begin with an LTR language, will justify the entire line right, while the lines of calendar body,
+which begin with numerals, will justify right.
+.P
+.RS 10
+An alternative is to pipe hcal's output through
+.B fribidi
+using the hcal option --no-reverse, but not using hcal's color option (you know, the "calming", "muted" tones).
+.RE
+.TP 10
+.B TIMEZONES
+The timezone support is currenlty primitive and lacks support for fractional time zone rules and  daylight savings
+time transitions.
 .SH "EXAMPLES"
 1. Create an iCal calendar of the holidays of year 2025.
 .RS 6
@@ -155,7 +179,7 @@ Tiberias    32, 35, 2
 Eilat       29, 34, 2
 
 .SH "SEE ALSO"
-date(1), cal(1), hcal(1), hebcal(1), remind(1), hdate.h(3), hdate_struct(3)
+mlterm(1), fribidi(1), hcal(1), hebcal(1), date(1), cal(1), remind(1), hdate.h(3), hdate_struct(3)
 .SH "AUTHORS"
 .RS 0
 Boruch Baum 2011. Yaacov Zamir 2005-2010. Text copied from Amos Shapir's hdate man file.
@@ -163,7 +187,7 @@ Boruch Baum 2011. Yaacov Zamir 2005-2010. Text copied from Amos Shapir's hdate m
 .BR hcal \ and \ hdate
 are part of the package
 .B libhdate
-, a small C,C++ library for Hebrew dates, holidays, and reading
+, a small C/C++ library for Hebrew dates, holidays, and reading
 sequences (parashiot). It uses the source code from Amos Shapir's
 "hdate" package, as fixed and patched by Nadav Har'El. The Torah
 reading sequence tables were contributed by Zvi Har'El.

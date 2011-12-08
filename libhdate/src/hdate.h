@@ -178,6 +178,7 @@ hdate_get_int_string (int n);
  
  @param n The int to convert
  @param opt_compressed don't include apostrophes and quotes
+	0 = no compression
  @return a static string of the hebrew number UTF-8 (logical)
  @attention ( 0 < n < 10000)
 */

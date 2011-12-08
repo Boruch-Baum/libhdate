@@ -32,7 +32,11 @@
 
 #define FALSE 0
 #define TRUE -1
-#define Shabbat 7
+#define SHABBAT 7
+
+// for hdate_get_int_string_
+#define NO_COMPRESS 0
+#define COMPRESS 1
 
 // copied from support.h in src dir
 #ifdef ENABLE_NLS
@@ -55,12 +59,6 @@
 #endif
 
 
-// for function hdate_validate
-#define CHECK_DAY_PARM   1
-#define CHECK_MONTH_PARM 2
-#define CHECK_YEAR_PARM  3
-
-
 // for colorization
 #define CODE_REVERSE_VIDEO "%c[7m", 27
 #define CODE_RESTORE_VIDEO "%c[m", 27
@@ -80,15 +78,22 @@
 #define CODE_BOLD_PURPLE   "%c[1;35m", 27
 #define CODE_BOLD_AQUA     "%c[1;36m", 27
 #define CODE_BOLD_WHITE    "%c[1;37m", 27
-#define ELEMENT_WEEKDAY_G     1
-#define ELEMENT_WEEKDAY_H     2
-#define ELEMENT_SHABBAT_DAY   3
-#define ELEMENT_HOLIDAY_DAY   4
-#define ELEMENT_HOLIDAY_FLAG  5
-#define ELEMENT_SHABBAT_NAME  6
-#define ELEMENT_WEEKDAY_NAMES 7
-#define ELEMENT_MONTH_G       8
-#define ELEMENT_MONTH_H       9
+#define ELEMENT_WEEKDAY_G      1
+#define ELEMENT_WEEKDAY_H      2
+#define ELEMENT_SHABBAT_DAY    3
+#define ELEMENT_HOLIDAY_DAY    4
+#define ELEMENT_HOLIDAY_FLAG   5
+#define ELEMENT_SHABBAT_NAME   6
+#define ELEMENT_WEEKDAY_NAMES  7
+#define ELEMENT_MONTH_G        8
+#define ELEMENT_MONTH_H        9
+#define ELEMENT_SHABBAT_TIMES 10
+#define ELEMENT_PARASHA       11
+#define ELEMENT_THIS_SHABBAT_TIMES 12
+#define ELEMENT_THIS_PARASHA  13
+#define ELEMENT_HOLIDAY_NAME  14
+#define ELEMENT_TODAY_HOLIDAY_DAY  15
+#define ELEMENT_TODAY_HOLIDAY_NAME 16
 
 static char holiday_flag[] = { '/', '+', '*', '~', '!', '@', '#', '$', '%', '^' };
 /*  Holiday types: (reference hdate_holyday.c)
@@ -120,6 +125,11 @@ typedef struct {
 			int jd_today_h;
 			int force_hebrew;
 			int force_israel;
+			int not_sunset_aware;
+			int quiet_alerts;
+			double lat;
+			double lon;
+			int tz;
 				} option_list;
 
 typedef struct {
@@ -145,103 +155,39 @@ int print_version ()
 }
 
 /**************************************************
+*  print usage
+*************************************************/
+void print_usage ()
+{
+	printf ("hcal - Hebrew calendar\n");
+	printf ("USAGE: hcal [options] [-l xx[.xxx] -L yy[.yyy] [-z nn] ] [[month] year]\n");
+}
+
+/**************************************************
 *  print help
 *************************************************/
-int print_help ()
+void print_help ()
 {
-	printf ("hcal - Hebrew calendar\n\n");
-
-	printf ("USAGE: hcal [-dhi] [[month] year]\n");
+	print_usage();
 	printf ("OPTIONS:\n");
-	printf ("   -d : Use diaspora reading and holidays.\n");
-	printf ("   -h : Print html format.\n");
-	printf ("   -i : Use external css file \"./hcal.css\".\n");
-/* To be documented:
-	--no-reverse	do not highlight the current date in reverse video
-*/
-	return 0;
+
+	printf ("   -3 --three-month   displays previous/next months\n");
+	printf ("                      side by side. requires 127 columns\n");
+	printf ("   -c --colorize      displays in calming, muted tones\n");
+	printf ("   -d --diaspora      use diaspora reading and holidays.\n");
+	printf ("   -f --footnote      print descriptive notes of holidays\n");
+	printf ("   -h --html          output in html format to stdout\n");
+	printf ("   -H --hebrew        print hebrew information in Hebrew\n");
+	printf ("   -i                 use external css file \"./hcal.css\".\n");
+	printf ("   -I --israel        override a diaspora default\n\n");
+	printf ("      --no-reverse    do not highlight today's date\n");
+	printf ("   -p --parasha       print week's parasha on each calendar row\n");
+	printf ("   -s --shabbat       print Shabbat times and parshiot\n");
+	
+	printf ("   -z --timezone nn   timezone, +/-UTC\n");
+	printf ("   -l --latitude xx   latitude xx degrees. Negative values are South\n");
+	printf ("   -L --longitude yy  longitude yy degrees. Negative values are West\n\n");
 }
-
-
-/************************************************************
-* check validity of date parameters
-************************************************************/
-int hdate_validate (int parameter_to_check, int day, int month, int year)
-{
-	hdate_struct h;
-	
-	if (year < 0) return FALSE;
-	
-	switch (parameter_to_check)
-	{
-
-	case CHECK_DAY_PARM:
-
-		/************************************************************
-		* check day in Hebrew date
-		************************************************************/
-		if (year > 3000)
-		{
-			hdate_set_hdate (&h, 1, 1, year);
-			if ((day < 1) || (day > 30) ||
-				((day > 29) && ((month==4) || (month==6) || (month==8) || (month=10) || (month==12) || (month==14))) ||
-				(((h.hd_size_of_year==353) || (h.hd_size_of_year==383)) && ((month==2) || (month==3)) && (day >29)) ||
-				(((h.hd_size_of_year==354) || (h.hd_size_of_year==384)) && (month==2) && (day>29)) )			
-				return FALSE;
-			return TRUE;
-		}
-
-		/************************************************************
-		* check day in Gregorian date
-		************************************************************/
-		else
-		{
-			if ((day < 1) || 
-				((day > 31) && ((month==1) || (month==3) || (month==5) || (month==7) || (month==8) || (month==10) ||(month==12))) ||
-				((day > 30) && ((month==4) || (month==6) || (month==9) || (month==11))) ||
-				((day > 29) && (month==2) && ((year%4)==0)) ||
-				((day > 28) && (month==2) && ((year%4)!=0))
-			   )
-				return FALSE;
-			return TRUE;
-		}
-		break;	
-
-
-	case CHECK_MONTH_PARM:
-
-		/************************************************************
-		* check month in Hebrew date
-		************************************************************/
-		if (year > 3000)
-		{
-			if ((month <= 0) || (month > 14)) return FALSE;
-			hdate_set_hdate (&h, 1, 1, year);
-			if ((h.hd_size_of_year <365) && (month >12)) return FALSE;
-			return TRUE;
-		}
-
-		/************************************************************
-		* check month in Gregorian date
-		************************************************************/
-		else
-		{
-			if ((month <= 0) || (month > 12)) return FALSE;
-			return TRUE;
-		}
-		break;
-	
-	case CHECK_YEAR_PARM:
-		return TRUE;
-		break;
-	}
-	return FALSE;
-}
-
-
-
-
-
 
 
 /**************************************************
@@ -371,7 +317,7 @@ void print_header_month_line_html( header_info header)
 	printf ("%s ", hdate_get_hebrew_month_string (header.h_month_2, FALSE));
 	printf ("\n</div>\n");
 	printf ("<div class=\"hyear\">\n");
-	printf ("%s\n", hdate_get_int_string (header.h_year_1));
+	printf ("%s\n", hdate_get_int_string_ (header.h_year_1, NO_COMPRESS));
 	printf ("</div>\n");
 
 	printf ("<div class=\"month_table\">\n");
@@ -407,12 +353,19 @@ void colorize_element ( int element )
 	switch (element) {
 	case ELEMENT_WEEKDAY_G: printf(CODE_LIGHT_GREY); break;
 	case ELEMENT_WEEKDAY_H: printf(CODE_LIGHT_BROWN); break;
-	case ELEMENT_MONTH_G: printf(CODE_LIGHT_GREEN); break;
+	case ELEMENT_MONTH_G: printf(CODE_LIGHT_GREY); break;
 	case ELEMENT_MONTH_H: printf(CODE_LIGHT_BROWN); break;
-	case ELEMENT_WEEKDAY_NAMES: printf(CODE_LIGHT_GREY); break;
+	case ELEMENT_WEEKDAY_NAMES: printf(CODE_LIGHT_GREEN); break;
 	case ELEMENT_SHABBAT_NAME: printf(CODE_LIGHT_AQUA); break;
 	case ELEMENT_SHABBAT_DAY: printf(CODE_LIGHT_AQUA); break;
 	case ELEMENT_HOLIDAY_DAY: printf(CODE_LIGHT_AQUA); break;
+	case ELEMENT_SHABBAT_TIMES: printf(CODE_LIGHT_PURPLE); break;
+	case ELEMENT_PARASHA: printf(CODE_LIGHT_PURPLE); break;
+	case ELEMENT_THIS_SHABBAT_TIMES: printf(CODE_LIGHT_GREEN); break;
+	case ELEMENT_THIS_PARASHA: printf(CODE_LIGHT_GREEN); break;
+	case ELEMENT_HOLIDAY_NAME: printf(CODE_LIGHT_GREY); break;
+	case ELEMENT_TODAY_HOLIDAY_DAY: printf(CODE_LIGHT_GREEN); break;
+	case ELEMENT_TODAY_HOLIDAY_NAME: printf(CODE_LIGHT_GREEN); break;
 	}
 }
 
@@ -512,18 +465,18 @@ void print_header_month_line_stdout( header_info header, int colorize, int force
 	printf ("%s", h1_month);
 	if (header.h_year_1 != header.h_year_2)
 	{
-		printf (" %s", hdate_get_int_string (header.h_year_1));
+		printf (" %s", hdate_get_int_string_ (header.h_year_1, NO_COMPRESS));
 		printf (" - %s %s", 
-			h2_month,  hdate_get_int_string (header.h_year_2));
+			h2_month,  hdate_get_int_string_ (header.h_year_2, NO_COMPRESS));
 	}
 	else if (header.h_month_1 != header.h_month_2)
 	{
 		printf (" - %s %s", h2_month,
-			hdate_get_int_string (header.h_year_1));
+			hdate_get_int_string_ (header.h_year_1, NO_COMPRESS));
 	}
 	else 
 	{
-		printf (" %s", hdate_get_int_string (header.h_year_1));
+		printf (" %s", hdate_get_int_string_ (header.h_year_1, NO_COMPRESS));
 	}
 	if (colorize) printf(CODE_RESTORE_VIDEO);
 
@@ -682,12 +635,12 @@ void print_day_html ( hdate_struct h, int month, option_list opt)
 
 
 	if (h.gd_mon != month) printf ("<td class=\"out_of_month\">");
-	else if (h.hd_dw == Shabbat) printf ("<td class=\"sat\">");
+	else if (h.hd_dw == SHABBAT) printf ("<td class=\"sat\">");
 	else if (holiday_type) printf ("<td class=\"holiday\">");
 	else printf ("<td class=\"regular\">");
 
 	/* Print a day */
-	printf ("<div class=\"gday\">%2d</div>\n<div class=\"hday\">%3s</div>", h.gd_day, hdate_get_int_string (h.hd_day));
+	printf ("<div class=\"gday\">%2d</div>\n<div class=\"hday\">%3s</div>", h.gd_day, hdate_get_int_string_ (h.hd_day, NO_COMPRESS));
 
 	if (holiday_type) printf ("<div class=\"holiday_name\">%s</div>",
 			hdate_get_holyday_string (hdate_get_holyday (&h, opt.diaspora), FALSE));
@@ -701,7 +654,6 @@ void print_day_html ( hdate_struct h, int month, option_list opt)
 *************************************************/
 void print_day ( hdate_struct h, int month, option_list opt)
 {
-	#define compress 1
 
 	// for forcing Hebrew printing of Hebrew data
 	char *language;
@@ -723,7 +675,7 @@ void print_day ( hdate_struct h, int month, option_list opt)
 		/*************************************************
 		*  Gregorian date entry
 		*************************************************/
-//		unnecessary because opt.jd_today_g/h == 0 if !opt.no_reverse 
+//		unnecessary because opt.jd_today_g/h == 0 if opt.no_reverse 
 //		if ((h.hd_jd == opt.jd_today_g) && (! opt.no_reverse))
 		if (h.hd_jd == opt.jd_today_g)
 				printf (CODE_REVERSE_VIDEO);
@@ -753,7 +705,7 @@ void print_day ( hdate_struct h, int month, option_list opt)
 		/*************************************************
 		*  Hebrew date entry
 		*************************************************/
-//		unnecessary because opt.jd_today_g/h == 0 if !opt.no_reverse 
+//		unnecessary because opt.jd_today_g/h == 0 if opt.no_reverse 
 //		if ((h.hd_jd == opt.jd_today_h) && (! opt.no_reverse))
 		if (h.hd_jd == opt.jd_today_h)
 				printf (CODE_REVERSE_VIDEO);
@@ -774,9 +726,9 @@ void print_day ( hdate_struct h, int month, option_list opt)
 		if  (hdate_is_hebrew_locale() &&
 			( (h.hd_day < 11) || (h.hd_day == 20) || (h.hd_day == 30) ) )
 		{	// need to pad Hebrew dates 1-10, 20, 30
-			printf ("%2s%s", hdate_get_int_string_(h.hd_day,compress)," ");
+			printf ("%2s%s", hdate_get_int_string_(h.hd_day,COMPRESS)," ");
 		}
-		else printf ("%2s", hdate_get_int_string_(h.hd_day,compress));
+		else printf ("%2s", hdate_get_int_string_(h.hd_day,COMPRESS));
 
 		if ((h.hd_jd == opt.jd_today_h) || (opt.colorize))
 			printf (CODE_RESTORE_VIDEO);
@@ -796,6 +748,16 @@ void print_week( int jd, int month, option_list opt)
 	hdate_struct h;
 	int parasha;
 	int calendar_column;
+
+	// required for opt.shabbat
+	int sun_hour, first_light, talit, sunrise;
+	int midday, sunset, first_stars, three_stars;
+	int this_week;
+	hdate_struct yom_shishi;
+
+	// for forcing Hebrew printing of Hebrew data
+	char *language;
+	
 	
 	/**************************************************
 	*  for each column of calendar
@@ -804,7 +766,8 @@ void print_week( int jd, int month, option_list opt)
 	{
 		/* Get this day's information */
 		hdate_set_jd (&h, jd);
-
+		if ( ((opt.shabbat) || (opt.parasha)) && (calendar_column == 5) )
+			yom_shishi = h;
 
 		/**************************************************
 		*  HTML calendar option
@@ -833,15 +796,68 @@ void print_week( int jd, int month, option_list opt)
 	/**************************************************
 	*  print end of calendar line
 	*************************************************/
-	
-	if ( (opt.parasha) && !((h.gd_mon != month) && (h.gd_day > 7)) )
+	if ( (h.gd_mon == month) || (h.gd_day < SHABBAT) )
 	{
-		parasha = hdate_get_parasha (&h, opt.diaspora);
-		if (parasha) printf("  %s", hdate_get_parasha_string (parasha, long_parasha_name));
-	}
+		if ((opt.shabbat) || (opt.parasha))
+		{
+			if	( ((jd - 1) > opt.jd_today_h) &&
+				( ((jd - 1) - opt.jd_today_h) < 7) )
+				this_week = TRUE;
+			else this_week = FALSE;
+		}
+		if (opt.shabbat)
+		{
+			// candlelighting times
+			hdate_get_utc_sun_time (yom_shishi.gd_day, yom_shishi.gd_mon, yom_shishi.gd_year,
+									opt.lat, opt.lon, &sunrise, &sunset);
+			// FIXME - allow for minhag variation
+			sunset = sunset + opt.tz * 60 - 20;
+			if (opt.colorize)
+			{
+				if (this_week) colorize_element(ELEMENT_THIS_SHABBAT_TIMES);
+				else colorize_element(ELEMENT_SHABBAT_TIMES);
+			}
+			printf ("  %d:%d", sunset / 60, sunset % 60);
+			if (opt.colorize) printf (CODE_RESTORE_VIDEO);
 	
-	//TODO -- requires lat, lon, tz logic
-	// if (opt.shabbat) print candle-lighting and tzeit Shabbat
+			printf(" - ");
+	
+			// motzay shabat time
+			hdate_get_utc_sun_time_full (h.gd_day, h.gd_mon, h.gd_year, opt.lat,
+										 opt.lon, &sun_hour, &first_light, &talit,
+										 &sunrise, &midday, &sunset,
+										 &first_stars, &three_stars);
+			// FIXME - allow for minhag variation
+			three_stars = three_stars + opt.tz * 60;
+			if (opt.colorize)
+			{
+				if (this_week) colorize_element(ELEMENT_THIS_SHABBAT_TIMES);
+				else colorize_element(ELEMENT_SHABBAT_TIMES);
+			}
+			printf ("%d:%d", three_stars / 60, three_stars % 60);
+			if (opt.colorize) printf (CODE_RESTORE_VIDEO);
+		}
+		if (opt.parasha)
+		{
+			parasha = hdate_get_parasha (&h, opt.diaspora);
+			if (parasha)
+			{
+				if (opt.colorize)
+				{
+					if (this_week) colorize_element(ELEMENT_THIS_PARASHA);
+					else colorize_element(ELEMENT_PARASHA);
+				}
+				if (opt.force_hebrew)
+				{
+					language=getenv("LANGUAGE");
+					setenv("LANGUAGE", "he_IL.UTF-8", 1);
+				}
+				printf("  %s", hdate_get_parasha_string (parasha, long_parasha_name));
+				if (opt.force_hebrew) setenv("LANGUAGE", language, 1);
+				if (opt.colorize) printf (CODE_RESTORE_VIDEO);
+			}
+		}
+	}
 }
 
 
@@ -951,22 +967,6 @@ int print_month (int month, int year, option_list opt)
 	char *language; // for forcing Hebrew printing of footnote
 
 
-
-	// Determine today's Julian day in order to know what to highlight
-	if ((!opt.no_reverse) && (!opt.html))
-	{
-		hdate_set_gdate (&h, 0, 0, 0);
-		opt.jd_today_g = h.hd_jd;
-		// TODO - guess or determine if it's after sunset
-		opt.jd_today_h = h.hd_jd;
-	}
-	else
-	{
-		opt.jd_today_g = 0;
-		opt.jd_today_h = 0;
-	}
-	
-
 	/* check if hebrew year (year > 3000) */
 	if (year > 3000) hdate_set_hdate (&h, 1, month, year);
 	else			 hdate_set_gdate (&h, 1, month, year);
@@ -993,7 +993,13 @@ int print_month (int month, int year, option_list opt)
 					language=getenv("LANGUAGE");
 					setenv("LANGUAGE", "he_IL.UTF-8", 1);
 				}
+				if (opt.colorize)
+				{
+					if (opt.jd_today_h == h.hd_jd) colorize_element(ELEMENT_TODAY_HOLIDAY_NAME);
+					else colorize_element(ELEMENT_HOLIDAY_NAME);
+				}
 				printf ("  %s\n", hdate_get_holyday_string (holiday, FALSE));
+				if (opt.colorize) printf (CODE_RESTORE_VIDEO);
 				if (opt.force_hebrew) setenv("LANGUAGE", language, 1);
 			}
 			jd_counter++;
@@ -1017,9 +1023,9 @@ int print_month (int month, int year, option_list opt)
 **************************************************/
 int main (int argc, char *argv[])
 {
+
 	/* date */
-	int month;
-	int year;
+	int month, year;
 
 	option_list opt;
 	opt.html = 0;			// -h html format flag
@@ -1033,7 +1039,16 @@ int main (int argc, char *argv[])
 	opt.footnote = 0;		// display description of month's holidays
 	opt.force_hebrew = 0;	// force display of Hebrew data in Hebrew
 	opt.force_israel = 0;	// override diaspora-awareness
-	
+	opt.not_sunset_aware = 0;	// override sunset-awareness
+	opt.quiet_alerts = 0;
+//	done below
+//	opt.lat = BAD_COORDINATE;
+//	opt.lon = BAD_COORDINATE;
+//	opt.tz = BAD_TIMEZONE;
+
+
+	// support for getopt short options
+	static char * short_options = "hHdiIpq3cfsl:L:z:";
 	
 	/* support for long options */
 	int option_index = 0;
@@ -1048,11 +1063,15 @@ int main (int argc, char *argv[])
 		{"three-month", 0, 0, 0},
 		{"colorize", 0, 0, 0},
 		{"footnote",0,0,0},
-		{"force-hebrew",0,0,0},
-		{"force-israel",0,0,0},
+		{"hebrew",0,0,0},
+		{"israel",0,0,0},
+		{"latitude", 0, 0, 0},
+		{"longitude", 0, 0, 0},
+		{"timezone", 0, 0, 0},
+		{"not-sunset-aware", 0, 0, 0},
+		{"quiet-alerts",0,0,0},
 		{0, 0, 0, 0}
 		};
-	char *bad_option = NULL;
 
 	/* hdate struct */
 	hdate_struct h;
@@ -1061,8 +1080,28 @@ int main (int argc, char *argv[])
 	/* WHY ??*/
 	setlocale (LC_ALL, "");
 
+
+	/************************************************************
+	* location-related parsing functions
+	*	void parse_latitude()
+	*	void parse_longitude()
+	*	void parse_timezone()
+	*	void validate_location()
+	*	double lat, lon
+	*	int tz
+	*	int error_detected
+	************************************************************/
+	#include "./location.include.c"
+	// once I fix necessity for opt.quiet_alerts in
+	// location.include.c, I can move this up, so all the
+	// opt initializations will be together
+	opt.lat = BAD_COORDINATE;
+	opt.lon = BAD_COORDINATE;
+	opt.tz = BAD_TIMEZONE;
+
+
 	/* command line parsing */
- 	while ((c = getopt_long(argc, argv, "hdi?p3cf",
+ 	while ((c = getopt_long(argc, argv, short_options,
 						long_options, &option_index)) != -1)
 
 	{
@@ -1076,23 +1115,40 @@ int main (int argc, char *argv[])
 			case 2:	opt.no_reverse = 1; break;
 			case 3: opt.html = 1; break;
 			case 4: opt.parasha = 1; break;
-			case 5: opt.shabbat = 1; break;
+			case 5: opt.shabbat = 1; opt.parasha = 1; break;
 			case 6: opt.three_month = 1; break;
 			case 7: opt.colorize = 1; break;
 			case 8: opt.footnote = 1; break;
 			case 9: opt.force_hebrew = 1; break;
 			case 10:opt.force_israel = 1; break;
+			case 11: parse_latitude();	break;
+			case 12: parse_longitude();	break;
+			case 13: parse_timezone();	break;
+			case 14: opt.not_sunset_aware = 1;	break;
+			case 15: opt.quiet_alerts = 1; break;
 			}
 			break;
-		case '?': print_help (); exit (0); break;
 		case '3': opt.three_month = 1; break;
 		case 'c': opt.colorize = 1; break;
 		case 'd': opt.diaspora = 1; break;
 		case 'f': opt.footnote = 1; break;
 		case 'h': opt.html = 1; break;
+		case 'H': opt.force_hebrew = 1; break;
+		case 'I': opt.force_israel = 1; break;
 		case 'i': opt.external_css = 1; break;
 		case 'p': opt.parasha = 1; break;
-		default: print_help (); exit (0); break;
+		case 'q': opt.quiet_alerts = 1; break;
+		case 'l': parse_latitude();	break;
+		case 'L': parse_longitude(); break;
+		case 's': opt.shabbat = 1; opt.parasha = 1; break;
+		case 'z': parse_timezone();	break;
+		case '?':
+			if (strchr(short_options,optopt)!=NULL)
+				error(0,0,"option %c missing parameter",optopt);
+			// variable error_detected is defined in location.include.c
+			error_detected = TRUE;
+			break;
+		default: print_usage (); exit (0); break;
 		}
 	}
 
@@ -1100,16 +1156,44 @@ int main (int argc, char *argv[])
 	/**************************************************
 	* sanity check - options compatability
 	*************************************************/
-	if (opt.three_month)
+	if	( (opt.three_month) &&
+		  ((opt.parasha) || (opt.shabbat) || (opt.footnote) ) )
 	{
-		if (opt.parasha) bad_option = "parasha";
-		if (opt.shabbat) bad_option = "shabbat";
-		if (opt.footnote) bad_option = "footnote";
-		if (bad_option)
-		{
-			error(0,0,"%s %s %s", N_("option"), bad_option, N_("not supported in 'three-month' mode"));
-			exit(0);
-		}
+		error(0,0,"%s", N_("options --parasha, --shabbat, --footnote are not supported in 'three-month' mode"));
+		// variable error_detected is defined in location.include.c
+		error_detected = TRUE;
+	}
+
+
+	/************************************************************
+	* function validate_location is defined in the include file
+	* ./location.include.c
+	* It issues an exit(EXIT_CODE_BAD_PARMS) [==1]
+	* if it discovers, um, bad parameters 
+	************************************************************/
+	validate_location();
+	opt.lat = lat;
+	opt.lon = lon;
+	opt.tz = tz;
+
+
+	/************************************************************
+	* determine what day to highlight (ie. what is today)
+	************************************************************/
+	if ((opt.no_reverse) || (opt.html))
+	{
+		// user doesn't want any highlighting
+		opt.jd_today_g = 0;
+		opt.jd_today_h = 0;
+	}
+	else
+	{
+		hdate_set_gdate (&h, 0, 0, 0);
+		opt.jd_today_g = h.hd_jd;
+		if	((!opt.not_sunset_aware) &&
+			 (check_for_sunset(&h, lat, lon, tz)) )
+					opt.jd_today_h = h.hd_jd + 1;
+		else 		opt.jd_today_h = h.hd_jd;
 	}
 
 /**************************************************
@@ -1123,7 +1207,10 @@ int main (int argc, char *argv[])
 	**************************************************/
 	if (argc == (optind))
 	{
-		hdate_set_gdate (&h, 0, 0, 0);	// current year
+		if ((opt.not_sunset_aware) || (opt.no_reverse) || (opt.html))
+			// call function only if not already called
+			// for sunset awareness, above.
+			hdate_set_gdate (&h, 0, 0, 0);	// today
 		month = h.gd_mon;
 		year = h.gd_year;
 	}
