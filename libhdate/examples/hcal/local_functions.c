@@ -1,10 +1,19 @@
-// originally, these were code snippets in hdate main()
-// now want to make common with hcal
-
-// !! FIXME - currently requires definition of opt.quiet_alert
-
-
+/**************************************************
+*   functions to support hcal and hdate
+**************************************************/
+#define _GNU_SOURCE		// For mempcpy, asprintf
+//include <hdate.h>		// For hebrew date
+#include "../../src/hdate.h"
+#include <stdlib.h>		// For atoi, malloc
+#include <error.h>		// For error
+#include <errno.h>		// For errno
+#include <time.h>		// For time
+#include <ctype.h>		// for isprint
 #include <fnmatch.h>	// For fnmatch
+#include <string.h>		// For mempcpy
+#include <getopt.h>		// For optarg, optind
+#include <stdio.h>		// For printf, fopen, fclose, fprintf, snprintf. FILE
+
 
 // support for fnmatch
 #define FNM_EXTMATCH	(1 << 5)
@@ -19,20 +28,31 @@
 
 #define EXIT_CODE_BAD_PARMS	1
 
-double lat = BAD_COORDINATE;	/* set to this value for error handling */
-double lon = BAD_COORDINATE;	/* set to this value for error handling */
-int tz = BAD_TIMEZONE;			/* -z option Time Zone, default to system local time */
-
-int opt_latitude = 0;			/* -l option latitude */
-int opt_Longitude = 0;			/* -L option longitude */
-
-int error_detected = FALSE;		/* exit after reporting ALL bad parms */
 
 
-// for function hdate_validate
-#define CHECK_DAY_PARM   1
-#define CHECK_MONTH_PARM 2
-#define CHECK_YEAR_PARM  3
+// copied from support.h in src dir
+#ifdef ENABLE_NLS
+#  include <libintl.h>
+#  undef _
+#  define _(String) dgettext (PACKAGE, String)
+#  ifdef gettext_noop
+#    define N_(String) gettext_noop (String)
+#  else
+#    define N_(String) (String)
+#  endif
+#else
+#  define textdomain(String) (String)
+#  define gettext(String) (String)
+#  define dgettext(Domain,Message) (Message)
+#  define dcgettext(Domain,Message,Type) (Message)
+#  define bindtextdomain(Domain,Directory) (Domain)
+#  define _(String) (String)
+#  define N_(String) (String)
+#endif
+
+#define FALSE 0
+#define TRUE -1
+
 
 
 /************************************************************
@@ -40,7 +60,7 @@ int error_detected = FALSE;		/* exit after reporting ALL bad parms */
 ************************************************************/
 void print_parm_error ( char *parm_name )
 {
-	error(0,0,"%s: %s %s %s",N_("error"), N_("parameter to option"), parm_name, N_("is non-numeric or out of bounds"));
+	error(0,0,"%s: %s %s %s",N_("error"), N_("parameter"), parm_name, N_("is non-numeric or out of bounds"));
 }
 
 void print_parm_missing_error ( char *parm_name )
@@ -58,6 +78,10 @@ void print_alert_timezone( int tz )
 
 
 
+
+/************************************************************
+* begin - alert message functions
+************************************************************/
 void print_alert_coordinate( char *city_name )
 {
 	error(0,0,"%s %s", N_("ALERT: guessing... will use co-ordinates for"), city_name);
@@ -84,6 +108,10 @@ void print_alert_default_location( int tz )
 	default:	error(0,0,"%s \n%s", N_("Hmmm, ... hate to do this, really ..."), N_("using co-ordinates for the equator, at the center of time zone")); break;
 	}
 }
+/************************************************************
+* end - alert message functions
+************************************************************/
+
 
 
 /************************************************************
@@ -115,6 +143,7 @@ void set_default_location( int tz, double *lat, double *lon )
 }
 
 
+
 /************************************************************
 * check for sunset
 ************************************************************/
@@ -136,11 +165,59 @@ int check_for_sunset (hdate_struct * h, double lat, double lon, int timezone )
 
 
 
+
+/***********************************************************
+ *  reverse a hebrew string (for visual bidi)
+ *  parameters:
+ *    source is a pointer to a writeable buffer.
+ *    source_len is the length of a string in source. This 
+ *    length must be LESS than the size of the source buffer
+***********************************************************/
+void revstr( char *source, size_t source_len)
+{
+	#define H_CHAR_WIDTH 2
+
+#define DEBUG 0
+#if DEBUG
+printf("\nrevstr: entry: sourcelen = %d, source = %s\n",source_len, source);
+#endif
+
+	if (source == NULL) {error(0,0,"revstr: source buffer pointer is NULL"); exit(0);};
+	if (source_len <= 0) {error(0,0,"revstr: source_len parameter invalid, %d",source_len); exit(0);};
+
+	size_t i,j;
+	char *temp_buff;
+
+	temp_buff = malloc(source_len+2);
+	if (temp_buff == NULL) {error(0,0,"revstr: malloc failure"); exit(0);};
+
+	for (i=(source_len-1), j=0; j < source_len; i--, j++)
+	{
+		if (isprint(source[i])) temp_buff[j] = source[i];
+		else
+		{
+			// FIXME - presumes H_CHAR_WIDTH = 2
+			temp_buff[j++] = source[i-1];
+			temp_buff[j]   = source[i--];
+		}
+	}
+	memcpy(source, temp_buff, source_len);
+	source[source_len] = '\0';
+#if DEBUG
+printf("\nrevstr: before free(tempbuff): sourcelen = %d, source = %s\n",source_len, source);
+#endif
+	free(temp_buff);
+	return;
+}
+
+
 /************************************************************
 * parse latitude
 ************************************************************/
-void parse_latitude()
+int parse_latitude(double *lat, int *opt_latitude)
 {
+	int error_detected = FALSE;
+
 	if	((!optarg) ||
 		 (	(fnmatch("-*",optarg,FNM_NOFLAG)==0) &&
 			(fnmatch(NEGATIVE_NUMBER_GLOB,optarg,FNM_EXTMATCH)!=0)) )
@@ -151,11 +228,11 @@ void parse_latitude()
 	}
 	else
 	{
-		lat = (double) atof (optarg);
+		*lat = (double) atof (optarg);
 		if	((fnmatch(COORDINATE_GLOB,optarg,FNM_EXTMATCH)==0) &&
-			 (lat > -90) && (lat < 90))
+			 (*lat > -90) && (*lat < 90))
 		{
-			opt_latitude = 1;
+			*opt_latitude = 1;
 		}
 		else
 		{
@@ -163,14 +240,17 @@ void parse_latitude()
 			error_detected = TRUE;
 		}
 	}
+	return error_detected;
 }
 
 
 /************************************************************
 * parse longitude
 ************************************************************/
-void parse_longitude()
+int parse_longitude( double *lon, int *opt_Longitude)
 {
+	int error_detected = FALSE;
+
 	if	((!optarg) ||
 		 (	(fnmatch("-*",optarg,FNM_NOFLAG)==0) &&
 			(fnmatch(NEGATIVE_NUMBER_GLOB,optarg,FNM_EXTMATCH)!=0)) )
@@ -181,11 +261,11 @@ void parse_longitude()
 	}
 	else
 	{
-		lon = (double) atof (optarg);
+		*lon = (double) atof (optarg);
 		if	((fnmatch(COORDINATE_GLOB,optarg,FNM_EXTMATCH)==0) &&
-			 (lon > -180) && (lon < 180))
+			 (*lon > -180) && (*lon < 180))
 		{
-			opt_Longitude = 1;
+			*opt_Longitude = 1;
 		}
 		else
 		{
@@ -193,13 +273,15 @@ void parse_longitude()
 			error_detected = TRUE;
 		}
 	}
+	return error_detected;
 }
 
 /************************************************************
 * parse timezone
 ************************************************************/
-void parse_timezone()
+int parse_timezone( int *tz)
 {
+	int error_detected = FALSE;
 	if	((!optarg) ||
 		 (	(fnmatch("-*",optarg,FNM_NOFLAG)==0) &&
 			(fnmatch(NEGATIVE_NUMBER_GLOB,optarg,FNM_EXTMATCH)!=0)) )
@@ -210,15 +292,18 @@ void parse_timezone()
 	}
 	else
 	{
-		tz = atoi (optarg);
+		*tz = atoi (optarg);
 		if	((fnmatch(TIMEZONE_GLOB,optarg,FNM_EXTMATCH)!=0) ||
-			 (tz < -12) || (tz > 12))
+			 (*tz < -12) || (*tz > 12))
 		{
 			print_parm_error(N_("z (time zone)"));
 			error_detected = TRUE;
 		}
 	}
+	return error_detected;
 }
+
+
 
 
 /************************************************************
@@ -228,7 +313,7 @@ void parse_timezone()
 // originally, we did this only if we needed the information
 // now, because of sunset-awareness, we always perform these checks
 // if ( (opt.sun) || (opt.times) || (opt.candles) || (opt.havdalah) )
-void validate_location()
+void validate_location( int opt_latitude, int opt_Longitude, double *lat, double *lon, int *tz, int quiet_alerts, int error_detected)
 {
 
 	/* latitude and longitude must be paired */
@@ -247,22 +332,22 @@ void validate_location()
 	if (!error_detected)
 	{
 		/* if no timezone entered, choose guess method */
-		if (tz==BAD_TIMEZONE)
+		if (*tz==BAD_TIMEZONE)
 		{
 			tzset();
-			tz = timezone /-3600;
-			if ( (opt_latitude) && (opt_Longitude) && ( ((lon/15)-tz) > DELTA_LONGITUDE ) )
+			*tz = timezone /-3600;
+			if ( (opt_latitude) && (opt_Longitude) && ( ((*lon/15)-*tz) > DELTA_LONGITUDE ) )
 			{
 				/*  reject system local timezone, because it's
 					too far from the longitude explicitly provided
 					by the user; guess based on longitude entered */
-				tz = lon /15;
+				*tz = *lon /15;
 			}
-			if (!opt.quiet_alerts) print_alert_timezone( tz );
-			if ( (lat==BAD_COORDINATE) && (lon==BAD_COORDINATE) )
+			if (!quiet_alerts) print_alert_timezone( *tz );
+			if ( (*lat==BAD_COORDINATE) && (*lon==BAD_COORDINATE) )
 			{
-				if (!opt.quiet_alerts) print_alert_default_location( tz );
-				set_default_location( tz, &lat, &lon );
+				if (!quiet_alerts) print_alert_default_location( *tz );
+				set_default_location( *tz, lat, lon );
 			}
 			printf("\n");
 		}
@@ -271,16 +356,16 @@ void validate_location()
 			if ( (opt_Longitude) && (opt_latitude) )
 			{
 				/* sanity-check longitude versus timezone */
-				if ( abs( ( tz * 15 ) - lon ) > DELTA_LONGITUDE )
+				if ( abs( ( *tz * 15 ) - *lon ) > DELTA_LONGITUDE )
 				{
-					error(0,0,"%s %d %s %.3f %s", N_("time zone value of"), tz, N_("is incompatible with a longitude of"), lon, N_("degrees"));
+					error(0,0,"%s %d %s %.3f %s", N_("time zone value of"), *tz, N_("is incompatible with a longitude of"), *lon, N_("degrees"));
 					error_detected = TRUE;
 				}
 			}
 			else
 			{
-				if (!opt.quiet_alerts) print_alert_default_location( tz );
-				set_default_location( tz, &lat, &lon );
+				if (!quiet_alerts) print_alert_default_location( *tz );
+				set_default_location( *tz, lat, lon );
 				printf("\n");
 			}
 		}
@@ -295,11 +380,13 @@ void validate_location()
 }
 
 
-
 /************************************************************
 * check validity of date parameters
 ************************************************************/
-int hdate_validate (int parameter_to_check, int day, int month, int year)
+#define CHECK_DAY_PARM   1
+#define CHECK_MONTH_PARM 2
+#define CHECK_YEAR_PARM  3
+int validate_hdate (int parameter_to_check, int day, int month, int year)
 {
 	hdate_struct h;
 	
@@ -315,6 +402,7 @@ int hdate_validate (int parameter_to_check, int day, int month, int year)
 		************************************************************/
 		if (year > 3000)
 		{
+			if (year > 10999) return FALSE;
 			hdate_set_hdate (&h, 1, 1, year);
 			if ((day < 1) || (day > 30) ||
 				((day > 29) && ((month==4) || (month==6) || (month==8) || (month=10) || (month==12) || (month==14))) ||
@@ -348,6 +436,7 @@ int hdate_validate (int parameter_to_check, int day, int month, int year)
 		************************************************************/
 		if (year > 3000)
 		{
+			if (year > 10999) return FALSE;
 			if ((month <= 0) || (month > 14)) return FALSE;
 			hdate_set_hdate (&h, 1, 1, year);
 			if ((h.hd_size_of_year <365) && (month >12)) return FALSE;
@@ -365,9 +454,124 @@ int hdate_validate (int parameter_to_check, int day, int month, int year)
 		break;
 	
 	case CHECK_YEAR_PARM:
+		if (year > 10999) return FALSE;
 		return TRUE;
 		break;
 	}
 	return FALSE;
 }
 
+
+
+/************************************************************
+* Open config file, or create one
+*  - returns filepointer or NULL
+*  - if file does not exist, attempt to create it
+************************************************************/
+FILE* get_config_file(	const char* config_dir_name,
+						const char* config_file_name,
+						const char* default_config_file_text )
+{
+#include <pwd.h>			// for get pwuid
+#include <unistd.h>			// for getuid
+#include <sys/stat.h>
+#include <sys/types.h>		// for mkdir,
+
+	size_t path_len;
+
+	char* config_home_path_name = "";
+	char* config_sub_path_name = "";
+
+	char* config_dir_path;
+	char* config_file_path;
+
+	FILE* config_file;
+
+	/************************************************************
+	* sub-function to get_config_file: create_config_file
+	************************************************************/
+	void create_config_file()
+	{
+		config_file = fopen(config_file_path, "a");
+		if (config_file == NULL) return;
+		fprintf(config_file, default_config_file_text);
+		if (fclose(config_file) != 0) error(0,errno,"failure closing %s",config_file_name);
+	}
+
+	/************************************************************
+	* sub-function to get_config_file: open_config_file
+	************************************************************/
+	int open_config_file()
+	{
+		config_file = fopen(config_file_path, "r");
+		if (config_file == NULL)
+		{
+			if (errno != ENOENT) return FALSE;
+			// maybe replace all this with a single line asprintf()
+			path_len = strlen(config_home_path_name)
+						+ strlen(config_sub_path_name)
+						+ strlen(config_dir_name) +1;
+			if (path_len < 1) return FALSE;
+			config_dir_path = malloc(path_len);
+			if (config_dir_path == NULL)
+			{
+				error(0,errno,"memory allocation failure");
+				return FALSE;
+			}
+			snprintf(config_dir_path, path_len, "%s%s%s",
+					config_home_path_name, config_sub_path_name,
+					config_dir_name);
+	
+			if ((mkdir(config_dir_path, (mode_t) 0700) != 0) &&
+				(errno != EEXIST))
+			{
+				free(config_dir_path);
+				return FALSE;
+			}
+			create_config_file();
+			free(config_dir_path);
+			return FALSE;
+		}
+		return TRUE;
+	}
+
+
+/************************************************************
+* main part of function get_config_file
+************************************************************/
+	config_home_path_name = getenv("XDG_CONFIG_HOME");
+	if (config_home_path_name == NULL)
+	{
+		config_home_path_name = getenv("HOME");
+		if (config_home_path_name == NULL)
+		{
+			struct passwd *passwdEnt = getpwuid(getuid());
+			config_home_path_name = passwdEnt->pw_dir;
+			if (config_home_path_name == NULL) return NULL;
+		}
+		config_sub_path_name = "/.config";
+	}
+
+	// maybe replace all this with a single line asprintf()
+	path_len = strlen(config_home_path_name) + strlen(config_sub_path_name)
+				+ strlen(config_dir_name) + strlen(config_file_name) + 1;
+	if (path_len < 1) return NULL;
+	config_file_path = malloc(path_len);
+	if (config_file_path == NULL)
+	{
+		error(0,errno,"memory allocation failure");
+		return NULL;
+	}
+	snprintf(config_file_path, path_len, "%s%s%s%s",
+			config_home_path_name, config_sub_path_name,
+			config_dir_name, config_file_name);
+
+	if (open_config_file() == TRUE)
+	{
+		free(config_file_path);
+		return config_file;
+	}
+	else
+		free(config_file_path);
+		return NULL;
+}

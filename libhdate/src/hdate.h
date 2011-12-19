@@ -50,6 +50,13 @@ extern "C"
 */
 #define HDATE_LONG_FLAG 0
 
+/** @def HEBREW_NUMBER_BUFFER_SIZE
+  @brief for hdate_get_int_string_ and hdate_get_int_wstring
+*/
+#define HEBREW_NUMBER_BUFFER_SIZE 17
+#define HEBREW_WNUMBER_BUFFER_SIZE 9
+
+
 /** @struct hdate_struct
   @brief libhdate Hebrew date struct
 */
@@ -169,6 +176,7 @@ hdate_get_holyday (hdate_struct const * h, int diaspora);
  @param n The int to convert
  @return a static string of the hebrew number UTF-8 (logical)
  @attention ( 0 < n < 10000)
+ @attention free memory allocated at return pointer 
 */
 char *
 hdate_get_int_string (int n);
@@ -176,14 +184,14 @@ hdate_get_int_string (int n);
 /**
  @brief convert an integer to hebrew string. 
  
+ @param *dest pointer to a buffer of size HEBREW_NUMBER_BUFFER_SIZE
  @param n The int to convert
  @param opt_compressed don't include apostrophes and quotes
-	0 = no compression
  @return a static string of the hebrew number UTF-8 (logical)
- @attention ( 0 < n < 10000)
+ @attention ( 0 < n < 11000)
 */
 char *
-hdate_get_int_string_ (int n, int opt_compressed);
+hdate_get_int_string_ (char *dest, int n, int opt_compressed);
 
 /**
  @brief get name of week day.

@@ -1,6 +1,7 @@
 /*  libhdate - Hebrew calendar library
  *
  *  Copyright (C) 1984-2003 Amos Shapir, 2004-2007  Yaacov Zamir <kzamir@walla.co.il>
+ *                2011 Boruch Baum
  *  
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -61,83 +62,129 @@ hdate_is_hebrew_locale()
  
  @param n The int to convert
 
- @attention ( 0 < n < 10000)
- @warning uses a static string, so output should be copied away.
+ @attention ( 0 < n < 11000)
+ @warning This function is now just a wrapper, and is subject to
+		  either deprecation or to have its calling definition
+		  changed to match hdate_get_int_string_.
+		  Callers to this function must free() after use the memory
+		  pointed to by the return value.
+          The original function outputted to a local static string,
+          and suggested that the caller copied it away. The shiny,
+          new version improves thread-safety by requiring the caller
+		  to pass a buffer of size HEBREW_NUMBER_BUFFER_SIZE into
+		  which we ourput.
+		  It also adds an option to output a compressed number,
+		  without apostrophes or quotation marks.
 */
 char *
 hdate_get_int_string (int n)
 {
-	/* this function is now just a wrapper so I
-		can add an option to output a compressed
-		number, without apostrophes or quotation marks */
-	return hdate_get_int_string_(n,0);
+	char *dest;
+	dest = malloc(HEBREW_NUMBER_BUFFER_SIZE);
+	return hdate_get_int_string_(dest, n, 0);
 }
-	
+
+/**
+ @brief convert an integer to hebrew string UTF-8 (logical)
+
+ @param *dest pointer to a buffer of size HEBREW_NUMBER_BUFFER_SIZE
+ 
+ @param n The int to convert
+
+ @param opt_compressed don't include apostrophes and quotes
+
+ @attention ( 0 < n < 11000)
+ @warning This was originally written using a local static string,
+          calling for output to be copied away.  The shiny,
+          new version improves thread-safety by requiring the caller
+		  to pass a buffer of size HEBREW_NUMBER_BUFFER_SIZE into
+		  which we ourput.
+		  It also adds an option to output a compressed number,
+		  without apostrophes or quotation marks.
+*/
 char *
-hdate_get_int_string_ (int n, int opt_compressed)
+hdate_get_int_string_ (char *dest, int n, int opt_compressed)
 {
-	
+	/***********************************************************
+	* How large should the buffer be? Hebrew year 10,999 would
+	* be י'תתקצ"ט, eight characters, each two bytes, plus an
+	* end-of-string delimiter, equals 17. This could effectively
+	* yield a range extending to Hebrew year 11,899, י"א תתצ"ט,
+	* due to the extra ק needed for the '900' century. However,
+	* for readability, I would want a an extra space at that
+	* point between the millenium and the century...
+	***********************************************************/
+	// #define HEBREW_NUMBER_BUFFER_SIZE 17	// done in hdate.h
+	#define H_CHAR_WIDTH 2
 	int length;
-	static char h_number[100];
 	static char *digits[3][10] = {
 		{" ", "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט"},
 		{"ט", "י", "כ", "ל", "מ", "נ", "ס", "ע", "פ", "צ"},
 		{" ", "ק", "ר", "ש", "ת"}
 	};
 
+
+	// bounds check
+	if (n < 1 || n > 10999)	return NULL;
+
+
+	// not hebrew locale - return the number in decimal form
 	if (!hdate_is_hebrew_locale())
 	{
-		/* not hebrew locale return the number in decimal form */
-		snprintf (h_number, 100, "%d", n);
-		return h_number;
+		snprintf (dest, HEBREW_NUMBER_BUFFER_SIZE, "%d", n);
+		return dest;
 	}
 
-	/* sanity checks */
-	if (n < 1 || n > 10000)
-	{
-		return NULL;
-	}
-
-	strncpy (h_number, "", 100);
+	// Why?? - for the null?
+	//strncpy (dest, "", H_CHAR_WIDTH);
+	dest[0] = '\0';
 
 	if (n >= 1000)
 	{
-		strncat (h_number, digits[0][n / 1000], 100);
+		strncat (dest, digits[0][n / 1000], H_CHAR_WIDTH);
 		n %= 1000;
 	}
 	while (n >= 400)
 	{
-		strncat (h_number, digits[2][4], 100);
+		strncat (dest, digits[2][4], H_CHAR_WIDTH);
 		n -= 400;
 	}
 	if (n >= 100)
 	{
-		strncat (h_number, digits[2][n / 100], 100);
+		strncat (dest, digits[2][n / 100], H_CHAR_WIDTH);
 		n %= 100;
 	}
 	if (n >= 10)
 	{
 		if (n == 15 || n == 16)
 			n -= 9;
-		strncat (h_number, digits[1][n / 10], 100);
+		strncat (dest, digits[1][n / 10], H_CHAR_WIDTH);
 		n %= 10;
 	}
 	if (n > 0)
-		strncat (h_number, digits[0][n], 16);
-	if (!opt_compressed) 	/* add the ' and " to hebrew numbers */
+		strncat (dest, digits[0][n], H_CHAR_WIDTH);
+		
+ 	// possibly add the ' and " to hebrew numbers	
+	if (!opt_compressed)
 	{
-		length = strlen (h_number);
-		if (length <= 2) strncat (h_number, "'", 100);
+		length = strlen (dest);
+		if (length <= H_CHAR_WIDTH) strncat (dest, "'", H_CHAR_WIDTH);
 		else
 		{
-			h_number[length + 1] = h_number[length];
-			h_number[length] = h_number[length - 1];
-			h_number[length - 1] = h_number[length - 2];
-			h_number[length - 2] = '\"';
+			dest[length + 1] = dest[length];
+			dest[length] = dest[length - 1];
+			dest[length - 1] = dest[length - 2];
+			dest[length - 2] = '\"';
+			dest[length + 2] = '\0';
 		}
 	}
-
-	return h_number;
+#define DEBUG 0
+#if DEBUG
+	length = strlen (dest);
+	printf("\nhebrew integer value = %d, string length = %d, string =%s\n",n,length,dest);
+	int ii; for (ii=0; ii<(length+3); ii++) printf("%x ",dest[ii]); printf("\n");
+#endif
+	return dest;
 }
 
 /**
@@ -156,6 +203,12 @@ hdate_get_day_string (int day, int s)
 		{N_("Sunday"), N_("Monday"), N_("Tuesday"), N_("Wednesday"),
 		 N_("Thursday"), N_("Friday"), N_("Saturday")}
 	};
+
+	static char *days_in_hebrew[2][7] = {
+		{"א", "ב", "ג", "ד", "ה", "ו", "ש"},
+		{"ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"}
+	};
+
 
 #ifdef ENABLE_NLS
 	bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
@@ -224,12 +277,19 @@ hdate_get_hebrew_month_string (int month, int s)
 	static char *months[2][14] = {
 		{N_("Tishrei"), N_("Cheshvan"), N_("Kislev"), N_("Tevet"),
 		 N_("Sh'vat"), N_("Adar"), N_("Nisan"), N_("Iyyar"),
-		 N_("Sivan"), N_("Tamuz"), N_("Av"), N_("Elul"), N_("Adar I"),
+		 N_("Sivan"), N_("Tammuz"), N_("Av"), N_("Elul"), N_("Adar I"),
 		 N_("Adar II")},
 		{N_("Tishrei"), N_("Cheshvan"), N_("Kislev"), N_("Tevet"),
 		 N_("Sh'vat"), N_("Adar"), N_("Nisan"), N_("Iyyar"),
-		 N_("Sivan"), N_("Tamuz"), N_("Av"), N_("Elul"), N_("Adar I"),
+		 N_("Sivan"), N_("Tammuz"), N_("Av"), N_("Elul"), N_("Adar I"),
 		 N_("Adar II")}
+	};
+
+	static char *months_in_hebrew[2][14] = {
+		{ "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר", "ניסן", "אייר",
+		  "סיון", "תמוז", "אב", "אלול", "אדר א", "אדר ב" },
+		{ "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר", "ניסן", "אייר",
+		  "סיון", "תמוז", "אב", "אלול", "אדר א", "אדר ב" },
 	};
 
 #ifdef ENABLE_NLS
@@ -253,90 +313,102 @@ hdate_get_hebrew_month_string (int month, int s)
  @brief Name of hebrew holyday.
 
  @param holyday The holyday number.
- @param s A short flag.
+ @param short_text A short flag. 0=true, !0=false
 */
 char *
-hdate_get_holyday_string (int holyday, int s)
+hdate_get_holyday_string (int holiday, int short_text)
 {
-	/* holyday strings */
-	static char *holydays[2][37] = {
+	/* holiday strings */
+	static char *holidays[2][37] = {
 		{
-		 N_("Rosh Hashana I"),	/* 1 */
-		 N_("Rosh Hashana II"),
-		 N_("Tzom Gedaliah"),
-		 N_("Yom Kippur"),
-		 N_("Sukkot"),
-		 N_("Hol hamoed Sukkot"),
-		 N_("Hoshana raba"),
-		 N_("Simchat Torah"),
-		 N_("Chanukah"),
-		 N_("Asara B'Tevet"),	/* 10 */
-		 N_("Tu B'Shvat"),
-		 N_("Ta'anit Esther"),
-		 N_("Purim"),
-		 N_("Shushan Purim"),
-		 N_("Pesach"),
-		 N_("Hol hamoed Pesach"),
-		 N_("Yom HaAtzma'ut"),
-		 N_("Lag B'Omer"),
-		 N_("Erev Shavuot"),
-		 N_("Shavuot"),			/* 20 */
-		 N_("Tzom Tammuz"),
-		 N_("Tish'a B'Av"),
-		 N_("Tu B'Av"),
-		 N_("Yom HaShoah"),
-		 N_("Yom HaZikaron"),	/* 25 */
-		 N_("Yom Yerushalayim"),
-		 N_("Shmini Atzeret"),
-		 N_("Pesach VII"),
-		 N_("Pesach VIII"),
-		 N_("Shavuot II"),   /* 30 */
-		 N_("Sukkot II"),
-		 N_("Pesach II"),	 
-		 N_("Family Day"),
-		 N_("Memorial day for fallen whose place of burial is unknown"), 
-		 N_("Rabin memorial day"), /* 35 */
-		 N_("Zhabotinsky day"),
+		// short versions
+		 N_("Rosh Hashana I"),	N_("Rosh Hashana II"),
+		 N_("Tzom Gedaliah"),	N_("Yom Kippur"),
+		 N_("Sukkot"),			N_("Hol hamoed Sukkot"),
+		 N_("Hoshana raba"),	N_("Simchat Torah"),
+		 N_("Chanukah"),		N_("Asara B'Tevet"),	/* 10 */
+		 N_("Tu B'Shvat"),		N_("Ta'anit Esther"),
+		 N_("Purim"),			N_("Shushan Purim"),
+		 N_("Pesach"),			N_("Hol hamoed Pesach"),
+		 N_("Yom HaAtzma'ut"),	N_("Lag B'Omer"),
+		 N_("Erev Shavuot"),	N_("Shavuot"),			/* 20 */
+		 N_("Tzom Tammuz"),		N_("Tish'a B'Av"),
+		 N_("Tu B'Av"),			N_("Yom HaShoah"),
+		 N_("Yom HaZikaron"),	N_("Yom Yerushalayim"),
+		 N_("Shmini Atzeret"),	N_("Pesach VII"),
+		 N_("Pesach VIII"),		N_("Shavuot II"),   /* 30 */
+		 N_("Sukkot II"),		N_("Pesach II"),	 
+		 N_("Family Day"),		N_("Memorial day for fallen whose place of burial is unknown"), 
+		 N_("Rabin memorial day"),	 N_("Zhabotinsky day"),
 		 N_("Erev Yom Kippur")},
 		{
-		 N_("Rosh Hashana I"),
-		 N_("Rosh Hashana II"),
-		 N_("Tzom Gedaliah"),
-		 N_("Yom Kippur"),
-		 N_("Sukkot"),
-		 N_("Hol hamoed Sukkot"),
-		 N_("Hoshana raba"),
-		 N_("Simchat Torah"),
-		 N_("Chanukah"),
-		 N_("Asara B'Tevet"),
-		 N_("Tu B'Shvat"),
-		 N_("Ta'anit Esther"),
-		 N_("Purim"),
-		 N_("Shushan Purim"),
-		 N_("Pesach"),
-		 N_("Hol hamoed Pesach"),
-		 N_("Yom HaAtzma'ut"),
-		 N_("Lag B'Omer"),
-		 N_("Erev Shavuot"),
-		 N_("Shavuot"),
-		 N_("Tzom Tammuz"),
-		 N_("Tish'a B'Av"),
-		 N_("Tu B'Av"),
-		 N_("Yom HaShoah"),
-		 N_("Yom HaZikaron"),
-		 N_("Yom Yerushalayim"),
-		 N_("Shmini Atzeret"),
-		 N_("Pesach VII"),
-		 N_("Pesach VIII"),
-		 N_("Shavuot II"),
-		 N_("Sukkot II"),
-		 N_("Pesach II"),
-		 N_("Family Day"),
-		 N_("Memorial day for fallen whose place of burial is unknown"), 
-		 N_("Yitzhak Rabin memorial day"), /* 35 */
-		 N_("Zeev Zhabotinsky day"),
+		// long versions
+		 N_("Rosh Hashana I"),	N_("Rosh Hashana II"),
+		 N_("Tzom Gedaliah"),	N_("Yom Kippur"),
+		 N_("Sukkot"),			N_("Hol hamoed Sukkot"),
+		 N_("Hoshana raba"),	N_("Simchat Torah"),
+		 N_("Chanukah"),		N_("Asara B'Tevet"),
+		 N_("Tu B'Shvat"),		N_("Ta'anit Esther"),
+		 N_("Purim"),			N_("Shushan Purim"),
+		 N_("Pesach"),			N_("Hol hamoed Pesach"),
+		 N_("Yom HaAtzma'ut"),	N_("Lag B'Omer"),
+		 N_("Erev Shavuot"),	N_("Shavuot"),
+		 N_("Tzom Tammuz"),		N_("Tish'a B'Av"),
+		 N_("Tu B'Av"),			N_("Yom HaShoah"),
+		 N_("Yom HaZikaron"),	N_("Yom Yerushalayim"),
+		 N_("Shmini Atzeret"),	N_("Pesach VII"),
+		 N_("Pesach VIII"),		N_("Shavuot II"),
+		 N_("Sukkot II"),		N_("Pesach II"),
+		 N_("Family Day"),		N_("Memorial day for fallen whose place of burial is unknown"), 
+		 N_("Yitzhak Rabin memorial day"), N_("Zeev Zhabotinsky day"),
 		 N_("Erev Yom Kippur")}
 	};
+
+	static char *holidays_in_hebrew[2][37] = {
+		{
+		// short versions
+		 "א' ראש השנה",		"ב' ראש השנה",
+		 "צום גדליה",		"יום הכפורים",
+		 "סוכות",		"חול המועד סוכות",
+		 "הושענא רבה",		"שמחת תורה",
+		 "חנוכה",		"צום עשרה בטבת",/* 10 */
+		 "ט\"ו בשבט",		"תענית אסתר",
+		 "פורים",		"שושן פורים",
+		 "פסח",			"חול המועד פסח",
+		 "יום העצמאות",		"ל\"ג בעומר",
+		 "ערב שבועות",		"שבועות",	/* 20 */
+		 "צום שבעה עשר בתמוז",	"תשעה באב",
+		 "ט\"ו באב",		"יום השואה",
+		 "יום הזכרון",		"יום ירושלים",
+		 "שמיני עצרת",		"שביעי פסח",
+		 "אחרון של פסח",	"שני של שבועות",/* 30 */
+		 "שני של סוכות",	"שני של פסח",
+		 "יום המשפחה",		"יום זכרון...", 
+		 "יום הזכרון ליצחק רבין","יום ז\'בוטינסקי",
+		 "עיוה\"כ"},
+		{
+		// long versions
+		 "א ר\"ה",		 "ב' ר\"ה",
+		 "צום גדליה",		 "יוה\"כ",
+		 "סוכות",		 "חוה\"מ סוכות",
+		 "הוש\"ר",		 "שמח\"ת",
+		 "חנוכה",		 "י' בטבת",	/* 10 */
+		 "ט\"ו בשבט",		 "תענית אסתר",
+		 "פורים",		 "שושן פורים",
+		 "פסח",			 "חוה\"מ פסח",
+		 "יום העצמאות",		 "ל\"ג בעומר",
+		 "ערב שבועות",		 "שבועות",	/* 20 */
+		 "צום תמוז",		 "ט' באב",
+		 "ט\"ו באב",		 "יום השואה",
+		 "יום הזכרון",		 "יום י-ם",
+		 "שמיני עצרת",		 "ז' פסח",
+		 "אחרון של פסח",	 "ב' שבועות",   /* 30 */
+		 "ב' סוכות",		 "ב' פסח",	 
+		 "יום המשפחה",		 "יום זכרון...", 
+		 "יום הזכרון ליצחק רבין","יום ז\'בוטינסקי",
+		 "עיוה\"כ"}
+	};
+
 
 #ifdef ENABLE_NLS
 	bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
@@ -344,14 +416,15 @@ hdate_get_holyday_string (int holyday, int s)
 #endif
 
 	/* make sure s is 0 or 1 */
-	s = s ? 0 : 1;
+	//s = s ? 0 : 1;
+	short_text = (short_text==0?1:0);
 
-	if (holyday >= 1 && holyday <= 37)
+	if (holiday >= 1 && holiday <= 37)
 	{
-		return _(holydays[s][holyday - 1]);
+		return _(holidays[short_text][holiday - 1]);
 	}
 
-	/* if not a valid holyday return NULL */
+	/* if not a valid holiday return NULL */
 	return NULL;
 }
 
@@ -384,139 +457,110 @@ hdate_get_omer_string (int omer_day)
 
  @param parasha The Number of Parasha 1-Bereshit
 	(55 trow 61 are joined strings e.g. Vayakhel Pekudei)
- @param s A short flag.
+ @param short_text A short flag. 0=true, !0 = false
 */
 char *
-hdate_get_parasha_string (int parasha, int s)
+hdate_get_parasha_string (int parasha, int short_text)
 {
 	/* FIXME: abbrev of parasha */
 	static char *parashaot[2][62] = {
 		{
-		 N_("none"),
-		 N_("Bereshit"),		/* 1 */
-		 N_("Noach"),
-		 N_("Lech-Lecha"),
-		 N_("Vayera"),
-		 N_("Chayei Sara"),
-		 N_("Toldot"),
-		 N_("Vayetzei"),
-		 N_("Vayishlach"),
-		 N_("Vayeshev"),
-		 N_("Miketz"),			/* 10 */
-		 N_("Vayigash"),
-		 N_("Vayechi"),
-		 N_("Shemot"),
-		 N_("Vaera"),
-		 N_("Bo"),
-		 N_("Beshalach"),
-		 N_("Yitro"),
-		 N_("Mishpatim"),
-		 N_("Terumah"),
-		 N_("Tetzaveh"),		/* 20 */
-		 N_("Ki Tisa"),
-		 N_("Vayakhel"),
-		 N_("Pekudei"),
-		 N_("Vayikra"),
-		 N_("Tzav"),
-		 N_("Shmini"),
-		 N_("Tazria"),
-		 N_("Metzora"),
-		 N_("Achrei Mot"),
-		 N_("Kedoshim"),		/* 30 */
-		 N_("Emor"),
-		 N_("Behar"),
-		 N_("Bechukotai"),
-		 N_("Bamidbar"),
-		 N_("Nasso"),
-		 N_("Beha'alotcha"),
-		 N_("Sh'lach"),
-		 N_("Korach"),
-		 N_("Chukat"),
-		 N_("Balak"),			/* 40 */
-		 N_("Pinchas"),
-		 N_("Matot"),
-		 N_("Masei"),
-		 N_("Devarim"),
-		 N_("Vaetchanan"),
-		 N_("Eikev"),
-		 N_("Re'eh"),
-		 N_("Shoftim"),
-		 N_("Ki Teitzei"),
-		 N_("Ki Tavo"),			/* 50 */
-		 N_("Nitzavim"),
-		 N_("Vayeilech"),
-		 N_("Ha'Azinu"),
+		 N_("none"),		N_("Bereshit"),		N_("Noach"),
+		 N_("Lech-Lecha"),	N_("Vayera"),		N_("Chayei Sara"),
+		 N_("Toldot"),		N_("Vayetzei"),		N_("Vayishlach"),
+		 N_("Vayeshev"),	N_("Miketz"),		N_("Vayigash"),		/* 11 */
+		 N_("Vayechi"),		N_("Shemot"),		N_("Vaera"),
+		 N_("Bo"),		N_("Beshalach"),	N_("Yitro"),
+		 N_("Mishpatim"),	N_("Terumah"),		N_("Tetzaveh"),		/* 20 */
+		 N_("Ki Tisa"),		N_("Vayakhel"),		N_("Pekudei"),
+		 N_("Vayikra"),		N_("Tzav"),		N_("Shmini"),
+		 N_("Tazria"),		N_("Metzora"),		N_("Achrei Mot"),
+		 N_("Kedoshim"),	N_("Emor"),		N_("Behar"),		/* 32 */
+		 N_("Bechukotai"),	N_("Bamidbar"),		N_("Nasso"),
+		 N_("Beha'alotcha"),	N_("Sh'lach"),		N_("Korach"),
+		 N_("Chukat"),		N_("Balak"),		N_("Pinchas"),		/* 41 */
+		 N_("Matot"),		N_("Masei"),		N_("Devarim"),
+		 N_("Vaetchanan"),	N_("Eikev"),		N_("Re'eh"),
+		 N_("Shoftim"),		N_("Ki Teitzei"),	N_("Ki Tavo"),		/* 50 */
+		 N_("Nitzavim"),	N_("Vayeilech"),	N_("Ha'Azinu"),
 		 N_("Vezot Habracha"),	/* 54 */
-		 N_("Vayakhel-Pekudei"),
-		 N_("Tazria-Metzora"),
-		 N_("Achrei Mot-Kedoshim"),
-		 N_("Behar-Bechukotai"),
-		 N_("Chukat-Balak"),
-		 N_("Matot-Masei"),
+		 N_("Vayakhel-Pekudei"),N_("Tazria-Metzora"),	N_("Achrei Mot-Kedoshim"),
+		 N_("Behar-Bechukotai"),N_("Chukat-Balak"),	N_("Matot-Masei"),
 		 N_("Nitzavim-Vayeilech")},
 		{
-		 N_("none"),
-		 N_("Bereshit"),		/* 1 */
-		 N_("Noach"),
-		 N_("Lech-Lecha"),
-		 N_("Vayera"),
-		 N_("Chayei Sara"),
-		 N_("Toldot"),
-		 N_("Vayetzei"),
-		 N_("Vayishlach"),
-		 N_("Vayeshev"),
-		 N_("Miketz"),			/* 10 */
-		 N_("Vayigash"),
-		 N_("Vayechi"),
-		 N_("Shemot"),
-		 N_("Vaera"),
-		 N_("Bo"),
-		 N_("Beshalach"),
-		 N_("Yitro"),
-		 N_("Mishpatim"),
-		 N_("Terumah"),
-		 N_("Tetzaveh"),		/* 20 */
-		 N_("Ki Tisa"),
-		 N_("Vayakhel"),
-		 N_("Pekudei"),
-		 N_("Vayikra"),
-		 N_("Tzav"),
-		 N_("Shmini"),
-		 N_("Tazria"),
-		 N_("Metzora"),
-		 N_("Achrei Mot"),
-		 N_("Kedoshim"),		/* 30 */
-		 N_("Emor"),
-		 N_("Behar"),
-		 N_("Bechukotai"),
-		 N_("Bamidbar"),
-		 N_("Nasso"),
-		 N_("Beha'alotcha"),
-		 N_("Sh'lach"),
-		 N_("Korach"),
-		 N_("Chukat"),
-		 N_("Balak"),			/* 40 */
-		 N_("Pinchas"),
-		 N_("Matot"),
-		 N_("Masei"),
-		 N_("Devarim"),
-		 N_("Vaetchanan"),
-		 N_("Eikev"),
-		 N_("Re'eh"),
-		 N_("Shoftim"),
-		 N_("Ki Teitzei"),
-		 N_("Ki Tavo"),			/* 50 */
-		 N_("Nitzavim"),
-		 N_("Vayeilech"),
-		 N_("Ha'Azinu"),
+		 N_("none"),		N_("Bereshit"),		N_("Noach"),
+		 N_("Lech-Lecha"),	N_("Vayera"),		N_("Chayei Sara"),
+		 N_("Toldot"),		N_("Vayetzei"),		N_("Vayishlach"),
+		 N_("Vayeshev"),	N_("Miketz"),		N_("Vayigash"),		/* 11 */
+		 N_("Vayechi"),		N_("Shemot"),		N_("Vaera"),
+		 N_("Bo"),		N_("Beshalach"),	N_("Yitro"),
+		 N_("Mishpatim"),	N_("Terumah"),		N_("Tetzaveh"),		/* 20 */
+		 N_("Ki Tisa"),		N_("Vayakhel"),		N_("Pekudei"),
+		 N_("Vayikra"),		N_("Tzav"),		N_("Shmini"),
+		 N_("Tazria"),		N_("Metzora"),		N_("Achrei Mot"),
+		 N_("Kedoshim"),	N_("Emor"),		N_("Behar"),		/* 32 */
+		 N_("Bechukotai"),	N_("Bamidbar"),		N_("Nasso"),
+		 N_("Beha'alotcha"),	N_("Sh'lach"),		N_("Korach"),
+		 N_("Chukat"),		N_("Balak"),		N_("Pinchas"),		/* 41 */
+		 N_("Matot"),		N_("Masei"),		N_("Devarim"),
+		 N_("Vaetchanan"),	N_("Eikev"),		N_("Re'eh"),
+		 N_("Shoftim"),		N_("Ki Teitzei"),	N_("Ki Tavo"),		/* 50 */
+		 N_("Nitzavim"),	N_("Vayeilech"),	N_("Ha'Azinu"),
 		 N_("Vezot Habracha"),	/* 54 */
-		 N_("Vayakhel-Pekudei"),
-		 N_("Tazria-Metzora"),
-		 N_("Achrei Mot-Kedoshim"),
-		 N_("Behar-Bechukotai"),
-		 N_("Chukat-Balak"),
-		 N_("Matot-Masei"),
+		 N_("Vayakhel-Pekudei"),N_("Tazria-Metzora"),	N_("Achrei Mot-Kedoshim"),
+		 N_("Behar-Bechukotai"),N_("Chukat-Balak"),	N_("Matot-Masei"),
 		 N_("Nitzavim-Vayeilech")}
+	};
+
+
+	/* FIXME: abbrev of parasha */
+	static char *parashaot_in_hebrew[2][62] = {
+		{
+		 "none",		"בראשית",		"נח",
+		 "לך לך",		"וירא",			"חיי שרה",
+		 "תולדות",		"ויצא",			"וישלח",
+		 "וישב",		"מקץ",			"ויגש",		/* 11 */
+		 "ויחי",		"שמות",			"וארא",
+		 "בא",			"בשלח",			"יתרו",
+		 "משפטים",		"תרומה",		"תצוה",		/* 20 */
+		 "כי תשא",		"ויקהל",		"פקודי",
+		 "ויקרא",		"צו",			"שמיני",
+		 "תזריע",		"מצורע",		"אחרי מות",
+		 "קדושים",		"אמור",			"בהר",		/* 32 */
+		 "בחוקתי",		"במדבר",		"נשא",
+		 "בהעלתך",		"שלח",			"קרח",
+		 "חקת",			"בלק",			"פנחס",		/* 41 */
+		 "מטות",		"מסעי",			"דברים",
+		 "ואתחנן",		"עקב",			"ראה",
+		 "שופטים",		"כי תצא",		"כי תבוא",		/* 50 */
+		 "נצבים",		"וילך",			"האזינו",
+		 "וזאת הברכה",	/* 54 */
+		 "ויקהל-פקודי",	"תזריע-מצורע",	"אחרי מות-קדושים",
+		 "בהר-בחוקתי",	"חוקת-בלק",		"מטות מסעי",
+		 "נצבים-וילך"},
+		{
+		 "none",		"בראשית",		"נח",
+		 "לך לך",		"וירא",			"חיי שרה",
+		 "תולדות",		"ויצא",			"וישלח",
+		 "וישב",		"מקץ",			"ויגש",		/* 11 */
+		 "ויחי",		"שמות",			"וארא",
+		 "בא",			"בשלח",			"יתרו",
+		 "משפטים",		"תרומה",		"תצוה",		/* 20 */
+		 "כי תשא",		"ויקהל",		"פקודי",
+		 "ויקרא",		"צו",			"שמיני",
+		 "תזריע",		"מצורע",		"אחרי מות",
+		 "קדושים",		"אמור",			"בהר",		/* 32 */
+		 "בחוקתי",		"במדבר",		"נשא",
+		 "בהעלתך",		"שלח",			"קרח",
+		 "חקת",			"בלק",			"פנחס",		/* 41 */
+		 "מטות",		"מסעי",			"דברים",
+		 "ואתחנן",		"עקב",			"ראה",
+		 "שופטים",		"כי תצא",		"כי תבוא",		/* 50 */
+		 "נצבים",		"וילך",			"האזינו",
+		 "וזאת הברכה",	/* 54 */
+		 "ויקהל-פקודי",	"תזריע-מצורע",	"אחרי מות-קדושים",
+		 "בהר-בחוקתי",	"חוקת-בלק",		"מטות מסעי",
+		 "נצבים-וילך"}
 	};
 
 #ifdef ENABLE_NLS
@@ -525,11 +569,11 @@ hdate_get_parasha_string (int parasha, int s)
 #endif
 
 	/* make sure s is 0 or 1 */
-	s = s ? 0 : 1;
+	short_text = short_text ? 0 : 1;
 
 	if (parasha >= 1 && parasha <= 61)
 	{
-		return _(parashaot[s][parasha]);
+		return _(parashaot[short_text][parasha]);
 	}
 
 	/* if not a valid parasha return NULL */
@@ -549,6 +593,7 @@ hdate_get_parasha_string (int parasha, int s)
 char *
 hdate_get_format_date (hdate_struct const *h, int diaspora, int s)
 {
+	
 	static char format_date[500];
 	static char temp[500];
 	int holyday;
@@ -624,7 +669,7 @@ hdate_get_version_string ()
 	static char version[500];
 
 	/* make a "packge version" string */
-	snprintf (version, 500, "%s %s", PACKAGE, VERSION);
+//	snprintf (version, 500, "%s %s", PACKAGE, VERSION);
 
 	return (version);
 }

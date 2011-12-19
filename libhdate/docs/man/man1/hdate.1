@@ -73,77 +73,83 @@ If a single numeric argument is provided, and it is greater than 348021,
 will interpret it as the "Julian day number" and will display information for the corresponding Hebrew date.
 .PP 
 .SH "OPTIONS"
-.TP 6
+.TP 18
+.B \-b --bidi
+output Hebrew information in Hebrew, but in reverse
+.RE
+.B \ \ \ --visual
+\      sequence.
+.TP 18
 .B \-c
 print Shabbat start/end times. Shabbat starts 20 min before sunset, 
 and ends when three stars are out. 
-.TP 6
-.B \-d 
+.TP
+.B \-d --diaspora
 use diaspora reading and holidays.
-.TP 6
-.B \-h 
+.TP
+.B \-h --holidays
 print holidays.
-.TP 6
+.TP
 .B \-H 
 Print just holidays.
-.TP 6
-.B \-i 
+.TP
+.B \-i --ical 
 use iCal formatted output.
-.TP 6
-.B \-j 
+.TP
+.B \-j --julian
 print Julian day number.
-.TP 6
-.B \-o 
-print Sefirat Ha Omer.
-.TP 6
-.B \-q
+.TP
+.B \-o --omer
+print Sefirat Ha Omer
+.TP
+.B \-q --quiet-alerts
 quiet. suppress warning messages
-.TP 6
-.B \-r 
-print weekly reading on Saturday.
-.TP 6
+.TP
+.B \-r --parasha
+print weekly reading for Shabbat.
+.TP
 .B \-R 
-print just weekly reading on Saturday.
-.TP 6
-.B \-s
+print only if the weekly reading is read on that Shabbat
+.TP
+.B \-s --sun
 print sunrise/sunset times.
-.TP 6
-.B \-S 
+.TP
+.B \-S --short-format
 print using short format.
-.TP 6
+.TP
 .B \-t
 print day times list: first light, talit, sunrise, mid day, sunset, first stars, three stars. 
 .TP
 .B \-l --latitude
-xx[.xxx] degrees. Negative values are South.
+xx[.xxx] degrees. Negative values are South
 .TP
 .B \-L --longitude
-yy[.yyy] degrees.  Negative values are West.
+yy[.yyy] degrees.  Negative values are West
 .TP
 .B \-z --timezone
 nn hours +/- UTC
+.TP
+.B \ \   --hebrew
+forces Hebrew to print in Hebrew characters
+.TP
+.B \ \   --yom
+force Hebrew prefix to Hebrew day of week
+.TP
+.B \ \   --leshabbat
+insert parasha between day of week and day
+.TP
+.B \ \   --leseder
+insert parasha between day of week and day
+.TP
+.B \ \   --not-sunset-aware
+don't display next day if after sunset
 .SH "BUGS"
 .TP 10
 .B Accuracy
 The accuracy of the astronomically-derived data will suffer from not accounting for environmental conditions such as elevation, horizon, temperature and air pressure.
-.TP
-.B BIDI
-In most locales, using option -H / --hebrew will cause hcal to output lines containing bi-directional text.
-hcal conforms to the current unicode standards, and its output displays perfectly to any application that
-accurately supports unicode/bidi. The rub is that, as of this writing, the only xterm clone I know that comes close is
-.B mlterm
-(version 3.0.8-2). Other xterm clones display the Hebrew text in reverse, although the output will paste well to other
-applications (eg. mousepad, gedit, geany). The only deficiency noticeable when running hcal in mlterm is that calendar
-header lines that begin with an LTR language, will justify the entire line right, while the lines of calendar body,
-which begin with numerals, will justify right.
-.P
-.RS 10
-An alternative is to pipe hcal's output through
-.B fribidi
-using the hcal option --no-reverse, but not using hcal's color option (you know, the "calming", "muted" tones).
 .RE
 .TP 10
-.B TIMEZONES
+.B Timezones
 The timezone support is currenlty primitive and lacks support for fractional time zone rules and  daylight savings
 time transitions.
 .SH "EXAMPLES"
