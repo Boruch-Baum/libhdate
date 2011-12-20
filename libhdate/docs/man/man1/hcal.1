@@ -5,9 +5,15 @@ hcal \- displays a Hebrew / Gregorian calendar
 .PP 
 .SH "SYNOPSIS"
 .B hcal
-[options]
-.RI [\-l \ latitude \ \-L \ longitude \ [-z \ nn ]]
-[[mm] yyyy]
+[options] [coordinates [timezone]] [[mm] yyyy]
+.TP
+coordinates: -l xx[.xxx] -L yy[.yyy]
+.RE
+.RS 7
+             -l xx[:mm[:ss]] -L yy[:mm[:ss]]
+.RE
+.RS 7
+timezone:    -z nn[( .nn | :mm )]
 .PP
 .SH "DESCRIPTION"
 .B hcal
@@ -26,10 +32,9 @@ requires location and time zone information in order to make astronomical calcul
 uses your computer's local time zone information as an indicator, and either picks a city in that time zone, or defaults to the equator at the center of that time zone. If 
 .B hcal
 can't even retrieve time zone information from your computer, it defaults to Tel-Aviv. For other locations, use the 
-.BI -l \ xx [ .xxx ]\ -L \ yy [ .yyy ]
+.B -l -L
 option pair. For other timezones, use the 
 .B -z
-.I nn
 option. Co-ordinates and standard time zones for some common locations are listed below.
 .PP
 The current defaults include:
@@ -99,13 +104,13 @@ output week's parasha on each calendar row
 output Shabbat times and parshiot
 .TP
 .B \-l --latitude
-xx[.xxx] degrees. Negative values are South
+xx[.xxx] decimal degrees, or xx[:mm[:ss]] degrees, minutes, seconds. Negative values are South
 .TP
 .B \-L --longitude
-yy[.yyy] degrees.  Negative values are West
+yy[.yyy] decimal degrees, or xx[:mm[:ss]] degrees, minutes, seconds. Negative values are West
 .TP
 .B \-z --timezone
-nn hours +/- UTC
+\+/-UTC. Notation may  be in decimal hours ( hh[.hh] ) or hours, minutes ( hh[:mm] )
 .SH "HOLIDAYS"
 .PP
 Holidays are depicted by a change in the symbol separating a day's
@@ -160,8 +165,7 @@ The accuracy of the astronomically-derived data will suffer from not accounting 
 .RE
 .TP 10
 .B TIMEZONES
-The timezone support is currenlty primitive and lacks support for fractional time zone rules and  daylight savings
-time transitions.
+The timezone support is currenlty primitive and lacks support for daylight savings time transitions.
 .SH "EXAMPLES"
 .TP 3
 1. Display a 2012ce year's calendar, three-months wide, in color.

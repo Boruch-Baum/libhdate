@@ -174,8 +174,13 @@ const char* hcal_config_file_text = "\
 # hcal's guesses will also affect its default behaviour for ouput of\n\
 # Shabbat times, parshiot, and choice of Israel/diaspora hoidays\n\
 #SUNSET_AWARE=TRUE\n\
+# LATITUDE and LONGITUDE may be in decimal format or in the form\n\
+# degrees[:minutes[:seconds]] with the characters :'\" as possible\n\
+# delimiters.\n\
 #LATITUDE=\n\
 #LONGITUDE=\n\
+# TIMEZONE may may be in decimal format or in the form degrees[:minutes]\n\
+# with the characters :'\" as possible delimiters.\n\
 #TIMEZONE=\n\n\
 # Israel and the diaspora\n\
 # If hcal guesses that you're not in Israel, the DIASPORA option will be\n\
@@ -260,8 +265,11 @@ int print_version ()
 *************************************************/
 void print_usage ()
 {
-	printf ("hcal - Hebrew calendar\n");
-	printf ("USAGE: hcal [options] [-l xx[.xxx] -L yy[.yyy] [-z nn] ] [[month] year]\n");
+	printf ("\
+Usage: hcal [options] [coordinates timezone] ] [[month] year]\n\
+       coordinates: -l xx[.xxx] -L yy[.yyy]\n\
+             -l xx[:mm[:ss]] -L yy[:mm[:ss]]\n\
+       timezone:    -z nn[( .nn | :mm )]\n");
 }
 
 /**************************************************
@@ -270,7 +278,7 @@ void print_usage ()
 void print_help ()
 {
 	print_usage();
-	printf ("OPTIONS:\n\
+	printf ("Hebrew calendar\nOPTIONS:\n\
    -3 --three-month   displays previous/next months\n\
                       side by side. requires 127 columns\n\
    -b --bidi          prints hebrew in reverse (visual)\n\
@@ -1562,8 +1570,8 @@ int main (int argc, char *argv[])
 			case 8: opt.footnote = 1; break;
 			case 9: opt.force_hebrew = 1; break;
 			case 10:opt.force_israel = 1; break;
-			case 11: error_detected = parse_latitude(&lat, &opt_latitude);	break;
-			case 12: error_detected = parse_longitude(&lon, &opt_Longitude);	break;
+			case 11: error_detected = parse_coordinate(1, &lat, &opt_latitude);	break;
+			case 12: error_detected = parse_coordinate(2, &lon, &opt_Longitude);	break;
 			case 13: error_detected = parse_timezone(&tz);	break;
 			case 14: opt.not_sunset_aware = 1;	break;
 			case 15: opt.quiet_alerts = 1; break;
@@ -1582,8 +1590,8 @@ int main (int argc, char *argv[])
 		case 'i': opt.external_css = 1; break;
 		case 'p': opt.parasha = 1; break;
 		case 'q': opt.quiet_alerts = 1; break;
-		case 'l': error_detected = parse_latitude(&lat,&opt_latitude);	break;
-		case 'L': error_detected = parse_longitude(&lon,&opt_Longitude); break;
+		case 'l': error_detected = parse_coordinate(1, &lat, &opt_latitude);	break;
+		case 'L': error_detected = parse_coordinate(2, &lon, &opt_Longitude); break;
 		case 's': opt.shabbat = 1; opt.parasha = 1; break;
 		case 'z': parse_timezone(&tz);	break;
 		case '?':
@@ -1707,6 +1715,7 @@ int main (int argc, char *argv[])
 	else
 	{
 		tzset();
+		// system timezone is denominated in seconds
 		if ( (timezone/-3600) != 2) opt.diaspora = 1;
 	}
 

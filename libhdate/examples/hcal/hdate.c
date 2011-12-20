@@ -94,10 +94,15 @@ const char* hdate_config_file_text = "\
 # in that timezone. When hdate is forced to guess, it alerts the user\n\
 # with a message that includes the guessed location.\n\
 # hdate's guesses will also affect its default behaviour for ouput of\n\
-# Shabbat times, parshiot, and choice of Israel/diaspora hoidays\n\
+# Shabbat times, parshiot, and choice of Israel/diaspora hoidays.\n\
 #SUNSET_AWARE=TRUE\n\
+# LATITUDE and LONGITUDE may be in decimal format or in the form\n\
+# degrees[:minutes[:seconds]] with the characters :'\" as possible\n\
+# delimiters.\n\
 #LATITUDE=\n\
 #LONGITUDE=\n\
+# TIMEZONE may may be in decimal format or in the form degrees[:minutes]\n\
+# with the characters :'\" as possible delimiters.\n\
 #TIMEZONE=\n\n\
 # Output in hebrew characters\n\
 # hdate defaults to output all information in your default language, so\n\
@@ -182,10 +187,12 @@ int print_version ()
 ************************************************************/
 void print_usage ()
 {
-	printf ("hdate - display Hebrew date information\n");
-
-	printf ("USAGE: hdate [options] [-l xx[.xxx] -L yy[.yyy] [-z nn] ] [[[day] month] year]\n");
-	printf ("       hdate [options] [-l xx[.xxx] -L yy[.yyy] [-z nn] ] [julian_day]\n");
+	printf ("\
+Usage: hdate [options] [coordinates timezone] [[[day] month] year]\n\
+       hdate [options] [coordinates timezone] ] [julian_day]\n\n\
+       coordinates: -l xx[.xxx] -L yy[.yyy]\n\
+             -l xx[:mm[:ss]] -L yy[:mm[:ss]]\n\
+       timezone:    -z nn[( .nn | :mm )]\n");
 }
 
 
@@ -195,8 +202,8 @@ void print_usage ()
 void print_help ()
 {
 	print_usage();
-	
-	printf ("OPTIONS:\n\
+
+	printf ("hdate - display Hebrew date information\nOPTIONS:\n\
    -b --bidi          prints hebrew in reverse (visual)\n\
       --visual\n\
    -c                 print Shabbat start/end times.\n\
@@ -251,7 +258,7 @@ void print_astronomical_time( char *description, int timeval, int tz)
 {
 	if (timeval < 0) printf("%s: --:--\n", description);
 	else printf("%s: %02d:%02d\n", description,
-		(timeval+(tz*60)) / 60, (timeval+(tz*60)) % 60 );
+		(timeval+tz) / 60, (timeval+tz) % 60 );
 	return;
 }
 
@@ -262,7 +269,7 @@ void print_astronomical_time_tabular( int timeval, int tz)
 {
 	if (timeval < 0) printf(",--:--");
 	else printf(",%02d:%02d",
-			(timeval+(tz*60)) / 60, (timeval+(tz*60)) % 60 );
+			(timeval+tz) / 60, (timeval+tz) % 60 );
 	return;
 }
 
@@ -670,7 +677,7 @@ int print_candles (hdate_struct * h, double lat, double lon, int tz, int opt_i)
 								&sunrise, &sunset);
 
 		// FIXME - allow for minhag variation
-		sunset = sunset + tz * 60 - 20;
+		sunset = sunset + tz - 20;
 
 		// print candlelighting times
 		printf ("candle-lighting: %d:%d\n", sunset / 60, sunset % 60);
@@ -687,7 +694,7 @@ int print_candles (hdate_struct * h, double lat, double lon, int tz, int opt_i)
 									 &first_stars, &three_stars);
 
 		// FIXME - allow for minhag variation
-		three_stars = three_stars + tz * 60;
+		three_stars = three_stars + tz;
 
 		// print motzay shabat
 		printf ("Shabbat ends: %d:%d\n", three_stars / 60, three_stars % 60);
@@ -1401,8 +1408,8 @@ int main (int argc, char *argv[])
 			case 15: opt.sun = 1;		break;
 			case 16: opt.candles = 1;	break;
 			case 17: opt.havdalah = 1;	break;
-			case 18: error_detected = parse_latitude(&lat, &opt_latitude);	break;
-			case 19: error_detected = parse_longitude(&lon, &opt_Longitude);	break;
+			case 18: error_detected = parse_coordinate(1, &lat, &opt_latitude);	break;
+			case 19: error_detected = parse_coordinate(2, &lon, &opt_Longitude);	break;
 			case 20: error_detected = parse_timezone(&tz);	break;
 			case 21:
 			case 22: opt.bidi = 1; opt.hebrew = 1; break;
@@ -1431,8 +1438,8 @@ int main (int argc, char *argv[])
 		case 's': opt.sun = 1; break;
 		case 't': opt.times = 1; break;
 		case 'T': opt.tablular_output = 1; break;
-		case 'l': error_detected = parse_latitude(&lat,&opt_latitude);	break;
-		case 'L': error_detected = parse_longitude(&lon,&opt_Longitude); break;
+		case 'l': error_detected = parse_coordinate(1, &lat, &opt_latitude);	break;
+		case 'L': error_detected = parse_coordinate(2, &lon, &opt_Longitude); break;
 		case 'z': parse_timezone(&tz);	break;
 		case '?':
 			if (strchr(short_options,optopt)==NULL)

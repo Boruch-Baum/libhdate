@@ -2,6 +2,7 @@
 *   functions to support hcal and hdate
 **************************************************/
 #define _GNU_SOURCE		// For mempcpy, asprintf
+
 //include <hdate.h>		// For hebrew date
 #include "../../src/hdate.h"
 #include <stdlib.h>		// For atoi, malloc
@@ -18,9 +19,6 @@
 // support for fnmatch
 #define FNM_EXTMATCH	(1 << 5)
 #define FNM_NOFLAG		0
-#define NEGATIVE_NUMBER_GLOB	"-*([[:digit:]])?(.*([[:digit:]]))"
-#define TIMEZONE_GLOB			"?([+-])?(1)[[:digit:]]"
-#define COORDINATE_GLOB			"?([+-])[[:digit:]]?([[:digit:]])?(.+([[:digit:]]))"
 
 #define BAD_COORDINATE	999
 #define BAD_TIMEZONE	999
@@ -89,7 +87,7 @@ void print_alert_coordinate( char *city_name )
 
 void print_alert_default_location( int tz )
 {
-	switch (tz)
+	switch (tz/60)
 	{
 	case -8:	print_alert_coordinate( N_("Los Angeles") ); break;
 	case -6:	print_alert_coordinate( N_("Mexico City") ); break;
@@ -121,7 +119,7 @@ void set_default_location( int tz, double *lat, double *lon )
 {
 	/*	Temporarily, set some default lat/lon coordinates
 		for certain timezones */
-	switch (tz)
+	switch (tz/60)
 	{
 	case -8:	*lat =  34.05;	*lon =-118.25;	break; // Los Angeles
 	case -6:	*lat =  19.43;	*lon = -99.13;	break; // Mexico City
@@ -137,7 +135,8 @@ void set_default_location( int tz, double *lat, double *lon )
 	case  8:	*lat =  39.90;	*lon = 116.38;	break; // Beijing
 //	case  8:	*lat =  22.26;	*lon = 114.15;	break; // Hong Kong
 	case 10:	*lat =  21.30;	*lon = 157.82;	break; // Honolulu
-	default:	*lat =   0.0;	*lon =  tz * 15; break; /* center of tz */
+	default:	*lat =   0.0;	*lon =  tz * .25; break; // center of timeone:
+														 // .25 = (15 degrees) / 60 [because tz is in minutes, not hours]
 	}
 	return;
 }
@@ -212,95 +211,115 @@ printf("\nrevstr: before free(tempbuff): sourcelen = %d, source = %s\n",source_l
 
 
 /************************************************************
-* parse latitude
+* parse coordinate
+* 
+* presumes commandline options were parsed using getopt.
+* returns 1 to *opt-Latitude and the floating point value
+* of the coordinate in *lat
+* 
+* type_flag (1-latitude, 2=longitude)
 ************************************************************/
-int parse_latitude(double *lat, int *opt_latitude)
+int parse_coordinate(int type_flag, double *coordinate, int *opt_found)
 {
-	int error_detected = FALSE;
+//#define NEGATIVE_NUMBER_GLOB	"-[[:digit:]]?([[:digit:]]?([[:digit:]]))?(.+([[:digit:]]))"
+//#define NEGATIVE_DMS_GLOB		"-[[:digit:]]?([[:digit:]]?([[:digit:]]))?([:\"]?([012345])[[:digit:]]?([:'\"]?([012345])[[:digit:]]))"
+#define COORDINATE_GLOB_DECIMAL	"?([+-])[[:digit:]]?([[:digit:]]?([[:digit:]]))?(.+([[:digit:]]))"
+#define COORDINATE_GLOB_DMS		"?([+-])[[:digit:]]?([[:digit:]]?([[:digit:]]))?([':\"]?([012345])[[:digit:]]?([:'\"]?([012345])[[:digit:]]))"
+	double fractional_part;
+	char* seconds;
 
+	/************************************************************
+	* optarg should hold the value to parse
+	* It must exist and be numeric
+	* we don't want confuse it with the next option of for "-x"
+	************************************************************/
 	if	((!optarg) ||
-		 (	(fnmatch("-*",optarg,FNM_NOFLAG)==0) &&
-			(fnmatch(NEGATIVE_NUMBER_GLOB,optarg,FNM_EXTMATCH)!=0)) )
+		 (	(fnmatch("-*", optarg, FNM_NOFLAG)==0) &&
+			(fnmatch( COORDINATE_GLOB_DECIMAL, optarg, FNM_EXTMATCH)!=0) &&
+			(fnmatch( COORDINATE_GLOB_DMS, optarg, FNM_EXTMATCH) !=0) ) )
 	{
-		print_parm_missing_error(N_("l"));
-		error_detected = TRUE;
-		if (optarg) optind--;
+		if		(type_flag == 1) print_parm_missing_error(N_("l (latitude)"));
+		else if (type_flag == 2) print_parm_missing_error(N_("L (Longitue)"));
+		// if (optarg) optind--;
 	}
 	else
 	{
-		*lat = (double) atof (optarg);
-		if	((fnmatch(COORDINATE_GLOB,optarg,FNM_EXTMATCH)==0) &&
-			 (*lat > -90) && (*lat < 90))
+		if (fnmatch(COORDINATE_GLOB_DECIMAL, optarg, FNM_EXTMATCH)==0)
 		{
-			*opt_latitude = 1;
+			*coordinate = (double) atof (optarg);
+		}
+		else if (fnmatch(COORDINATE_GLOB_DMS, optarg, FNM_EXTMATCH)==0)
+		{
+			*coordinate = (double) atof( strtok( optarg, ":'\""));
+			fractional_part = (double) atof( strtok( NULL, ":'\""))/60;
+			seconds = strtok( NULL, ":'\"");
+			if (seconds != NULL) fractional_part = fractional_part + (double) atof( seconds)/3600;
+			if (*coordinate < 0) *coordinate = *coordinate - fractional_part;
+			else *coordinate = *coordinate + fractional_part;
+		}
+
+		if(	 ( (type_flag == 1) && (*coordinate > -90) && (*coordinate < 90)) ||
+			 ( (type_flag == 2) && (*coordinate > -180) && (*coordinate < 180)) )
+		{
+			*opt_found = 1;
+			return FALSE; // error_detected = FALSE; ie. success
 		}
 		else
 		{
-			print_parm_error(N_("l (latitude)"));
-			error_detected = TRUE;
+			if		(type_flag == 1) print_parm_error(N_("l (latitude)"));
+			else if (type_flag == 2) print_parm_error(N_("L (Longitude)"));
 		}
 	}
-	return error_detected;
-}
-
-
-/************************************************************
-* parse longitude
-************************************************************/
-int parse_longitude( double *lon, int *opt_Longitude)
-{
-	int error_detected = FALSE;
-
-	if	((!optarg) ||
-		 (	(fnmatch("-*",optarg,FNM_NOFLAG)==0) &&
-			(fnmatch(NEGATIVE_NUMBER_GLOB,optarg,FNM_EXTMATCH)!=0)) )
-	{
-		print_parm_missing_error(N_("L"));
-		error_detected = TRUE;
-		if (optarg) optind--;
-	}
-	else
-	{
-		*lon = (double) atof (optarg);
-		if	((fnmatch(COORDINATE_GLOB,optarg,FNM_EXTMATCH)==0) &&
-			 (*lon > -180) && (*lon < 180))
-		{
-			*opt_Longitude = 1;
-		}
-		else
-		{
-			print_parm_error(N_("L (longitude)"));
-			error_detected = TRUE;
-		}
-	}
-	return error_detected;
+	return TRUE; // error_detected = TRUE; ie failure
 }
 
 /************************************************************
 * parse timezone
+* 
+* presumes commandline options were parsed using getopt.
+* timezone is returned in minutes, not hours
 ************************************************************/
 int parse_timezone( int *tz)
 {
-	int error_detected = FALSE;
+#define TIMEZONE_GLOB_DECIMAL	"?([+-])?(1)[[:digit:]]?(.+([[:digit:]]))"
+#define TIMEZONE_GLOB_DM		"?([+-])?(1)[[:digit:]]?([:'\"]+([[:digit:]]))"
+
+	int fractional_part;
+
+	/************************************************************
+	* optarg should hold the value to parse
+	* It must exist and be numeric
+	* we don't want confuse it with the next option of for "-x"
+	************************************************************/
 	if	((!optarg) ||
 		 (	(fnmatch("-*",optarg,FNM_NOFLAG)==0) &&
-			(fnmatch(NEGATIVE_NUMBER_GLOB,optarg,FNM_EXTMATCH)!=0)) )
+			(fnmatch(TIMEZONE_GLOB_DECIMAL, optarg, FNM_EXTMATCH)!=0) &&
+			(fnmatch(TIMEZONE_GLOB_DM, optarg, FNM_EXTMATCH)!=0) ) )
 	{
-		print_parm_missing_error(N_("z"));
-		error_detected = TRUE;
-		if (optarg) optind--;
+		print_parm_missing_error(N_("z (time zone)"));
+		//if (optarg) optind--;
 	}
 	else
 	{
-		*tz = atoi (optarg);
-		if	((fnmatch(TIMEZONE_GLOB,optarg,FNM_EXTMATCH)!=0) ||
-			 (*tz < -12) || (*tz > 12))
+		if (fnmatch(TIMEZONE_GLOB_DECIMAL, optarg, FNM_EXTMATCH)==0)
 		{
-			print_parm_error(N_("z (time zone)"));
-			error_detected = TRUE;
+			*tz = (int) ( atof (optarg) * 60 );
 		}
+		else if (fnmatch(TIMEZONE_GLOB_DM, optarg, FNM_EXTMATCH)==0)
+		{
+				*tz = atoi( strtok( optarg, ":'\"")) * 60;
+				fractional_part = atoi( strtok( NULL, ":'\""));
+				if (*tz < 0)	*tz = *tz - fractional_part;
+				else			*tz = *tz + fractional_part;
+		}
+
+		if( (*tz > -720) && (*tz < 720) ) // 720 minutes in 12 hours
+		{
+			return FALSE; // error_detected = FALSE; ie. success
+		}
+		else print_parm_error(N_("z (timezone)"));
 	}
-	return error_detected;
+	return TRUE; // error_detected = TRUE; ie failure
 }
 
 
@@ -331,17 +350,19 @@ void validate_location( int opt_latitude, int opt_Longitude, double *lat, double
 
 	if (!error_detected)
 	{
-		/* if no timezone entered, choose guess method */
+		// if no timezone entered, choose guess method
 		if (*tz==BAD_TIMEZONE)
 		{
+			// system timezone is in seconds, but we deal in minutes
 			tzset();
-			*tz = timezone /-3600;
-			if ( (opt_latitude) && (opt_Longitude) && ( ((*lon/15)-*tz) > DELTA_LONGITUDE ) )
+			*tz = timezone /-60;
+
+			if ( (opt_latitude) && (opt_Longitude) && ( ((*lon/15)-(*tz/60)) > DELTA_LONGITUDE ) )
 			{
 				/*  reject system local timezone, because it's
 					too far from the longitude explicitly provided
 					by the user; guess based on longitude entered */
-				*tz = *lon /15;
+				*tz = (*lon /15) * 60;
 			}
 			if (!quiet_alerts) print_alert_timezone( *tz );
 			if ( (*lat==BAD_COORDINATE) && (*lon==BAD_COORDINATE) )
@@ -355,10 +376,13 @@ void validate_location( int opt_latitude, int opt_Longitude, double *lat, double
 		{	/* we have timezone, what about latitude and longitude? */
 			if ( (opt_Longitude) && (opt_latitude) )
 			{
-				/* sanity-check longitude versus timezone */
-				if ( abs( ( *tz * 15 ) - *lon ) > DELTA_LONGITUDE )
+				// sanity-check longitude versus timezone
+				// timezone is in minutes
+				if ( abs( ( (*tz/60) * 15 ) - *lon ) > DELTA_LONGITUDE )
 				{
-					error(0,0,"%s %d %s %.3f %s", N_("time zone value of"), *tz, N_("is incompatible with a longitude of"), *lon, N_("degrees"));
+					error(0,0,"%s %d:%d %s %.3f %s",
+							N_("time zone value of"), *tz/60, *tz%60,
+							N_("is incompatible with a longitude of"), *lon, N_("degrees"));
 					error_detected = TRUE;
 				}
 			}
@@ -574,4 +598,26 @@ FILE* get_config_file(	const char* config_dir_name,
 	else
 		free(config_file_path);
 		return NULL;
+}
+
+
+void embedded_hebrew_test()
+{
+static char	*hebrew_array[11] = {
+		N_("א'"),	/* 1 */
+		 N_("ב' ר\"ה"),
+		 N_("צום גדליה"),
+		 N_("יוה\"כ"),
+		 N_("סוכות"),
+		 N_("חוה\"מ סוכות"),
+		 N_("הוש\"ר"),
+		 N_("שמח\"ת"),
+		 N_("חנוכה"),
+		 N_("י' בטבת"),	/* 10 */
+		 N_("ט\"ו בשבט") };
+int i;
+for (i=0; i<11; i++)
+{
+	printf("index = %d, data = %s\n",i,hebrew_array[i]);
+}
 }
