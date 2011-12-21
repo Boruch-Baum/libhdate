@@ -98,7 +98,8 @@ const char* hdate_config_file_text = "\
 #SUNSET_AWARE=TRUE\n\
 # LATITUDE and LONGITUDE may be in decimal format or in the form\n\
 # degrees[:minutes[:seconds]] with the characters :'\" as possible\n\
-# delimiters.\n\
+# delimiters. Use negative values to indicate South and West, or\n\
+# use the abbreviated compass directions N, S, E, W.\n\
 #LATITUDE=\n\
 #LONGITUDE=\n\
 # TIMEZONE may may be in decimal format or in the form degrees[:minutes]\n\
@@ -135,7 +136,7 @@ const char* hdate_config_file_text = "\
 #LESHABBAT=FALSE\n\
 #LESEDER=FALSE\n\
 \n\
-#SUN=FALSE\n\
+#SUN_RISE_SET=FALSE\n\
 #TIMES_OF_DAY=FALSE\n\
 #SHORT_FORMAT=FALSE\n\
 #SEFIRAT_HAOMER=FALSE\n\
@@ -148,7 +149,7 @@ const char* hdate_config_file_text = "\
 #ONLY_IF_PARASHA_IS_READ=FALSE\n\
 #SHABBAT_INFO=FALSE\n\n\
 #CANDLE_LIGHTING=FALSE\n\
-#HAVDALAH=FALSE\n\\n\
+#HAVDALAH=FALSE\n\n\
 # Holiday related\n\
 #HOLIDAYS=FALSE\n\
 #ONLY_IF_HOLIDAY=FALSE\n\n\
@@ -158,7 +159,7 @@ const char* hdate_config_file_text = "\
 # spreadsheet formatting applications, etc. To belabor the obvious,\n\
 # try running -   ./hdate 12 2011 -Rt --table |column -s, -t \n\
 # The command line option for this feature is, um, --table\n\
-#TABULAR=FALSE\n\
+#TABULAR=FALSE\n\n\
 # iCal format\n\
 # hdate can output its information in iCal-compatable format\n\
 # ICAL=FALSE\n\
@@ -189,9 +190,9 @@ void print_usage ()
 {
 	printf ("\
 Usage: hdate [options] [coordinates timezone] [[[day] month] year]\n\
-       hdate [options] [coordinates timezone] ] [julian_day]\n\n\
-       coordinates: -l xx[.xxx] -L yy[.yyy]\n\
-             -l xx[:mm[:ss]] -L yy[:mm[:ss]]\n\
+       hdate [options] [coordinates timezone] [julian_day]\n\n\
+       coordinates: -l [NS]yy[.yyy] -L [EW]xx[.xxx]\n\
+                    -l [NS]yy[:mm[:ss]] -L [EW]xx[:mm[:ss]]\n\
        timezone:    -z nn[( .nn | :mm )]\n");
 }
 
@@ -224,8 +225,8 @@ void print_help ()
                             midday, sunset, first stars, three stars.\n\
    -T --table         tabular output, suitable for spreadsheets\n\n\
    -z --timezone nn   timezone, +/-UTC\n\
-   -l --latitude xx   latitude xx degrees. Negative values are South\n\
-   -L --longitude yy  longitude yy degrees. Negative values are West\n\n\
+   -l --latitude yy   latitude yy degrees. Negative values are South\n\
+   -L --longitude xx  longitude xx degrees. Negative values are West\n\n\
    --hebrew           forces Hebrew to print in Hebrew characters\n\
    --yom              force Hebrew prefix to Hebrew day of week\n\
    --leshabbat        insert parasha between day of week and day\n\
@@ -1156,7 +1157,13 @@ int print_hyear (option_list opt, double lat, double lon, int tz, int year)
 /****************************************************
 * read and parse config file
 ****************************************************/
-void read_config_file( FILE *config_file, option_list *opt )
+void read_config_file(	FILE *config_file,
+						option_list *opt,
+						double*	latitude,
+						int*	opt_latitude,
+						double*	longitude,
+						int*	opt_longitude,
+						int*	tz )
 {
 	char	*input_string;
 	size_t	input_str_len = 50;
@@ -1166,7 +1173,7 @@ void read_config_file( FILE *config_file, option_list *opt )
 	int		match_count;
 	int		end_of_input_file = FALSE;
 	int		i;
-	const int	num_of_keys = 17;
+	const int	num_of_keys = 25;
 	const char*	key_list[] = {	"SUNSET_AWARE",
 								"LATITUDE",
 								"LONGITUDE",
@@ -1177,19 +1184,36 @@ void read_config_file( FILE *config_file, option_list *opt )
 								"SHABBAT_INFO",
 								"FORCE_HEBREW",
 								"OUTPUT_BIDI",
-								"QUIET_ALERTS"};
-	
-
+								"QUIET_ALERTS",
+								"YOM",
+								"LESHABBAT",
+								"LESEDER"
+								"TABULAR"
+								"ICAL"
+								"SEFIRAT_HAOMER",
+								"SHORT_FORMAT",
+								"TIMES_OF_DAY",
+								"SUN_RISE_SET",
+								"ONLY_IF_PARASHA_IS_READ",
+								"ONLY_IF_HOLIDAY",
+								"JULIAN_DAY",
+								"CANDLE_LIGHTING",
+								"HAVDALAH"};
 
 	input_string = malloc(input_str_len+1);
 	input_key    = malloc(input_str_len+1);
 	input_value  = malloc(input_str_len+1);
-	while ( end_of_input_file!=TRUE )
+
+	while ( end_of_input_file != TRUE )
 	{
 		end_of_input_file = getline(&input_string, &input_str_len, config_file);
-		if ( end_of_input_file!=TRUE )
+		if ( end_of_input_file != TRUE )
 		{
 			errno = 0;
+			// BUG - there may be a possibility of buffer overrun for the pointer input_key
+			// BUG - am I calling free() properly for all these values?
+			// NOTE - apply any of these changes to the corresponding part of hcal
+			// get the final word on coversion specification formats a, m
 			match_count = sscanf(input_string,"%[A-Z_]=%sa",input_key,input_value);
 			line_count++;
 			if (errno != 0) error(0,errno,"scan error at line %d", line_count);
@@ -1201,44 +1225,113 @@ void read_config_file( FILE *config_file, option_list *opt )
 				{
 					if (strcmp(input_key, key_list[i]) == 0)
 					{
-						printf("match found!, %s = %s, index = %d\n",input_key,key_list[i],i);
+// DEBUG - 	printf("match found!, %s = %s, index = %d, value = %s\n",input_key,key_list[i],i, input_value);
 						switch(i)
 						{
 
 		case  0:if      (strcmp(input_value,"FALSE") == 0) opt->not_sunset_aware = 1;
 				else if (strcmp(input_value,"TRUE") == 0) opt->not_sunset_aware = 0;
 				break;
-		case  1:break;		//LATITUDE
-		case  2:break;		//Longitude
-		case  3:break;		//time zone
+		case  1:
+				parse_coordinate(1, input_value, latitude, opt_latitude);
+				break;
+		case  2:
+				parse_coordinate(2, input_value, longitude, opt_longitude);
+				break;
+		case  3:
+				parse_timezone(input_value, tz);
+				break;
 		case  4:if      (strcmp(input_value,"FALSE") == 0) opt->diaspora = 0;
 				else if (strcmp(input_value,"TRUE") == 0) opt->diaspora = 1;
 				break;
 //		case  5:if      (strcmp(input_value,"FALSE") == 0) opt->force_israel = 0;
 //				else if (strcmp(input_value,"TRUE") == 0) opt->force_israel = 1;
-//				break;
+				break;
 		case  6:if      (strcmp(input_value,"FALSE") == 0) opt->parasha = 0;
 				else if (strcmp(input_value,"TRUE") == 0) opt->parasha = 1;
 				break;
-//		case  7:if      (strcmp(input_value,"FALSE") == 0) opt->shabbat = 0;
-//				else if (strcmp(input_value,"TRUE") == 0)
-//				{
-//					opt->shabbat = 1;
-//					opt->parasha = 1;
-//				}
-//				break;
-//		case  9:if      (strcmp(input_value,"FALSE") == 0) opt->force_hebrew = 0;
-//				else if (strcmp(input_value,"TRUE") == 0) opt->force_hebrew = 1;
-//				break;
-//		case 10:if      (strcmp(input_value,"FALSE") == 0) opt->bidi = 0;
-//				else if (strcmp(input_value,"TRUE") == 0)
-//						{
-//							opt->bidi = 1;
-//							opt->force_hebrew = 1;
-//						}
-//				break;
-		case 15:if      (strcmp(input_value,"FALSE") == 0) opt->quiet_alerts = 0;
+		case  7:if      (strcmp(input_value,"FALSE") == 0)
+				{
+					// maybe not do anything if set FALSE
+					opt->candles = 0;
+					opt->havdalah = 0;
+					opt->parasha = 0;
+				}
+				else if (strcmp(input_value,"TRUE") == 0)
+				{
+					opt->candles = 1;
+					opt->havdalah = 1;
+					opt->parasha = 1;
+				}
+				break;
+		case  8:if      (strcmp(input_value,"FALSE") == 0) opt->hebrew = 0;
+				else if (strcmp(input_value,"TRUE") == 0) opt->hebrew = 1;
+				break;
+		case  9:if      (strcmp(input_value,"FALSE") == 0) opt->bidi = 0;
+				else if (strcmp(input_value,"TRUE") == 0)
+						{
+							opt->bidi = 1;
+							opt->hebrew = 1;
+						}
+				break;
+		case 10:if      (strcmp(input_value,"FALSE") == 0) opt->quiet_alerts = 0;
 				else if (strcmp(input_value,"TRUE") == 0) opt->quiet_alerts = 1;
+				break;
+		case 11:if      (strcmp(input_value,"FALSE") == 0) opt->yom = 0;
+				else if (strcmp(input_value,"TRUE") == 0)
+						{
+							opt->yom = 1;
+							opt->hebrew = 1;
+						}
+				break;
+		case 12:if      (strcmp(input_value,"FALSE") == 0) opt->leShabbat = 0;
+				else if (strcmp(input_value,"TRUE") == 0)
+						{
+							opt->leShabbat = 1;
+							opt->yom = 1;
+							opt->hebrew = 1;
+						}
+				break;
+		case 13:if      (strcmp(input_value,"FALSE") == 0) opt->leSeder = 0;
+				else if (strcmp(input_value,"TRUE") == 0)
+						{
+							opt->leSeder = 1;
+							opt->yom = 1;
+							opt->hebrew = 1;
+						}
+				break;
+		case 14:if      (strcmp(input_value,"FALSE") == 0) opt->tablular_output = 0;
+				else if (strcmp(input_value,"TRUE") == 0) opt->tablular_output = 1;
+				break;
+		case 15:if      (strcmp(input_value,"FALSE") == 0) opt->iCal = 0;
+				else if (strcmp(input_value,"TRUE") == 0) opt->iCal = 1;
+				break;
+		case 16:if      (strcmp(input_value,"FALSE") == 0) opt->omer = 0;
+				else if (strcmp(input_value,"TRUE") == 0) opt->omer = 1;
+				break;
+		case 17:if      (strcmp(input_value,"FALSE") == 0) opt->short_format = 0;
+				else if (strcmp(input_value,"TRUE") == 0) opt->short_format = 1;
+				break;
+		case 18:if      (strcmp(input_value,"FALSE") == 0) opt->times = 0;
+				else if (strcmp(input_value,"TRUE") == 0) opt->times = 1;
+				break;
+		case 19:if      (strcmp(input_value,"FALSE") == 0) opt->sun = 0;
+				else if (strcmp(input_value,"TRUE") == 0) opt->sun = 1;
+				break;
+		case 20:if      (strcmp(input_value,"FALSE") == 0) opt->only_if_parasha = 0;
+				else if (strcmp(input_value,"TRUE") == 0) opt->only_if_parasha = 1;
+				break;
+		case 21:if      (strcmp(input_value,"FALSE") == 0) opt->only_if_holiday = 0;
+				else if (strcmp(input_value,"TRUE") == 0) opt->only_if_holiday = 1;
+				break;
+		case 22:if      (strcmp(input_value,"FALSE") == 0) opt->julian = 0;
+				else if (strcmp(input_value,"TRUE") == 0) opt->julian = 1;
+				break;
+		case 23:if      (strcmp(input_value,"FALSE") == 0) opt->candles = 0;
+				else if (strcmp(input_value,"TRUE") == 0) opt->candles = 1;
+				break;
+		case 24:if      (strcmp(input_value,"FALSE") == 0) opt->havdalah = 0;
+				else if (strcmp(input_value,"TRUE") == 0) opt->havdalah = 1;
 				break;
 						}
 						break;
@@ -1359,7 +1452,7 @@ int main (int argc, char *argv[])
 	FILE *config_file = get_config_file("/hdate", "/hdaterc", hdate_config_file_text);
 	if (config_file != NULL)
 	{
-		read_config_file(config_file, &opt);
+		read_config_file(config_file, &opt, &lat, &opt_latitude, &lon, &opt_Longitude, &tz);
 		fclose(config_file);
 	}
 
@@ -1408,9 +1501,15 @@ int main (int argc, char *argv[])
 			case 15: opt.sun = 1;		break;
 			case 16: opt.candles = 1;	break;
 			case 17: opt.havdalah = 1;	break;
-			case 18: error_detected = parse_coordinate(1, &lat, &opt_latitude);	break;
-			case 19: error_detected = parse_coordinate(2, &lon, &opt_Longitude);	break;
-			case 20: error_detected = parse_timezone(&tz);	break;
+			case 18:
+				error_detected = error_detected + parse_coordinate(1, optarg, &lat, &opt_latitude);
+				break;
+			case 19:
+				error_detected = error_detected + parse_coordinate(2, optarg, &lon, &opt_Longitude);
+				break;
+			case 20:
+				error_detected = error_detected + parse_timezone(optarg, &tz);
+				break;
 			case 21:
 			case 22: opt.bidi = 1; opt.hebrew = 1; break;
 			case 23: opt.omer = 1; break;
@@ -1438,9 +1537,15 @@ int main (int argc, char *argv[])
 		case 's': opt.sun = 1; break;
 		case 't': opt.times = 1; break;
 		case 'T': opt.tablular_output = 1; break;
-		case 'l': error_detected = parse_coordinate(1, &lat, &opt_latitude);	break;
-		case 'L': error_detected = parse_coordinate(2, &lon, &opt_Longitude); break;
-		case 'z': parse_timezone(&tz);	break;
+		case 'l':
+			error_detected = error_detected + parse_coordinate(1, optarg, &lat, &opt_latitude);
+			break;
+		case 'L':
+			error_detected = error_detected + parse_coordinate(2, optarg, &lon, &opt_Longitude);
+			break;
+		case 'z':
+			error_detected = error_detected + parse_timezone(optarg, &tz);
+			break;
 		case '?':
 			if (strchr(short_options,optopt)==NULL)
 				error(0,0,"option %c unknown",optopt);

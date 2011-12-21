@@ -176,7 +176,8 @@ const char* hcal_config_file_text = "\
 #SUNSET_AWARE=TRUE\n\
 # LATITUDE and LONGITUDE may be in decimal format or in the form\n\
 # degrees[:minutes[:seconds]] with the characters :'\" as possible\n\
-# delimiters.\n\
+# delimiters. Use negative values to indicate South and West, or\n\
+# use the abbreviated compass directions N, S, E, W.\n\
 #LATITUDE=\n\
 #LONGITUDE=\n\
 # TIMEZONE may may be in decimal format or in the form degrees[:minutes]\n\
@@ -267,8 +268,8 @@ void print_usage ()
 {
 	printf ("\
 Usage: hcal [options] [coordinates timezone] ] [[month] year]\n\
-       coordinates: -l xx[.xxx] -L yy[.yyy]\n\
-             -l xx[:mm[:ss]] -L yy[:mm[:ss]]\n\
+       coordinates: -l [NS]yy[.xxx] -L [EW]xx[.xxx]\n\
+                    -l [NS]yy[:mm[:ss]] -L [EW]xx[:mm[:ss]]\n\
        timezone:    -z nn[( .nn | :mm )]\n");
 }
 
@@ -295,8 +296,8 @@ void print_help ()
    -q --quiet-alerts  suppress warning messages\n\
    -s --shabbat       print Shabbat times and parshiot\n\
    -z --timezone nn   timezone, +/-UTC\n\
-   -l --latitude xx   latitude xx degrees. Negative values are South\n\
-   -L --longitude yy  longitude yy degrees. Negative values are West\n");
+   -l --latitude yy   latitude yy degrees. Negative values are South\n\
+   -L --longitude xx  longitude xx degrees. Negative values are West\n");
 }
 
 
@@ -1037,7 +1038,7 @@ void print_week( int jd, int month, option_list opt)
 			hdate_get_utc_sun_time (yom_shishi.gd_day, yom_shishi.gd_mon, yom_shishi.gd_year,
 									opt.lat, opt.lon, &sunrise, &sunset);
 			// FIXME - allow for minhag variation
-			sunset = sunset + opt.tz * 60 - 20;
+			sunset = sunset + opt.tz - 20;
 			if (opt.colorize)
 			{
 				if (this_week) colorize_element(ELEMENT_THIS_SHABBAT_TIMES);
@@ -1054,7 +1055,7 @@ void print_week( int jd, int month, option_list opt)
 										 &sunrise, &midday, &sunset,
 										 &first_stars, &three_stars);
 			// FIXME - allow for minhag variation
-			three_stars = three_stars + opt.tz * 60;
+			three_stars = three_stars + opt.tz;
 			if (opt.colorize)
 			{
 				if (this_week) colorize_element(ELEMENT_THIS_SHABBAT_TIMES);
@@ -1332,7 +1333,14 @@ int print_month (int month, int year, option_list opt)
 /****************************************************
 * read and parse config file
 ****************************************************/
-void read_config_file( FILE *config_file, option_list *opt )
+void read_config_file(	FILE *config_file,
+						option_list *opt,
+						double*	latitude,
+						int*	opt_latitude,
+						double*	longitude,
+						int*	opt_longitude,
+						int*	tz )
+
 {
 	char	*input_string;
 	size_t	input_str_len = 50;
@@ -1360,8 +1368,6 @@ void read_config_file( FILE *config_file, option_list *opt )
 								"USE_EXTERNAL_CSS_FILE",
 								"QUIET_ALERTS",
 								"THREE_MONTH"};
-	
-
 
 	input_string = malloc(input_str_len+1);
 	input_key    = malloc(input_str_len+1);
@@ -1390,9 +1396,15 @@ void read_config_file( FILE *config_file, option_list *opt )
 		case  0:if      (strcmp(input_value,"FALSE") == 0) opt->not_sunset_aware = 1;
 				else if (strcmp(input_value,"TRUE") == 0) opt->not_sunset_aware = 0;
 				break;
-		case  1:break;		//LATITUDE
-		case  2:break;		//Longitude
-		case  3:break;		//time zone
+		case  1:
+				parse_coordinate(1, input_value, latitude, opt_latitude);
+				break;
+		case  2:
+				parse_coordinate(2, input_value, longitude, opt_longitude);
+				break;
+		case  3:
+				parse_timezone(input_value, tz);
+				break;
 		case  4:if      (strcmp(input_value,"FALSE") == 0) opt->diaspora = 0;
 				else if (strcmp(input_value,"TRUE") == 0) opt->diaspora = 1;
 				break;
@@ -1541,7 +1553,7 @@ int main (int argc, char *argv[])
 	FILE *config_file = get_config_file("/hcal", "/hcalrc", hcal_config_file_text);
 	if (config_file != NULL)
 	{
-		read_config_file(config_file, &opt);
+		read_config_file(config_file, &opt, &lat, &opt_latitude, &lon, &opt_Longitude, &tz);
 		fclose(config_file);
 	}
 
@@ -1570,9 +1582,15 @@ int main (int argc, char *argv[])
 			case 8: opt.footnote = 1; break;
 			case 9: opt.force_hebrew = 1; break;
 			case 10:opt.force_israel = 1; break;
-			case 11: error_detected = parse_coordinate(1, &lat, &opt_latitude);	break;
-			case 12: error_detected = parse_coordinate(2, &lon, &opt_Longitude);	break;
-			case 13: error_detected = parse_timezone(&tz);	break;
+			case 11:
+				error_detected = error_detected + parse_coordinate(1, optarg, &lat, &opt_latitude);
+				break;
+			case 12:
+				error_detected = error_detected + parse_coordinate(2, optarg, &lon, &opt_Longitude);
+				break;
+			case 13:
+				error_detected = error_detected + parse_timezone(optarg, &tz);
+				break;
 			case 14: opt.not_sunset_aware = 1;	break;
 			case 15: opt.quiet_alerts = 1; break;
 			case 16:
@@ -1590,10 +1608,16 @@ int main (int argc, char *argv[])
 		case 'i': opt.external_css = 1; break;
 		case 'p': opt.parasha = 1; break;
 		case 'q': opt.quiet_alerts = 1; break;
-		case 'l': error_detected = parse_coordinate(1, &lat, &opt_latitude);	break;
-		case 'L': error_detected = parse_coordinate(2, &lon, &opt_Longitude); break;
+		case 'l':
+			error_detected = error_detected + parse_coordinate(1, optarg, &lat, &opt_latitude);
+			break;
+		case 'L':
+			error_detected = error_detected + parse_coordinate(2,optarg,  &lon, &opt_Longitude);
+			break;
 		case 's': opt.shabbat = 1; opt.parasha = 1; break;
-		case 'z': parse_timezone(&tz);	break;
+		case 'z':
+			error_detected = error_detected + parse_timezone(optarg, &tz);
+			break;
 		case '?':
 			if (strchr(short_options,optopt)!=NULL)
 				error(0,0,"option %c missing parameter",optopt);

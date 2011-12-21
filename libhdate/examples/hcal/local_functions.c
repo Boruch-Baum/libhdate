@@ -58,18 +58,25 @@
 ************************************************************/
 void print_parm_error ( char *parm_name )
 {
-	error(0,0,"%s: %s %s %s",N_("error"), N_("parameter"), parm_name, N_("is non-numeric or out of bounds"));
+	error(0,0,"%s: %s %s %s",N_("error"),
+			N_("parameter"), parm_name,
+			N_("is non-numeric or out of bounds"));
 }
 
 void print_parm_missing_error ( char *parm_name )
 {
-	error(0,0,"%s: %s %s %s",N_("error"), N_("option"), parm_name, N_("missing parameter"));
+	error(0,0,"%s: %s %s %s",N_("error"),
+			N_("option"), parm_name, N_("missing parameter"));
 }
 
 void print_alert_timezone( int tz )
 {
-	error(0,0,"%s: %s, %+d UTC",N_("ALERT: time zone not entered, using system local time zone"), *tzname, tz);
+	error(0,0,"%s: %s, %+d:%d UTC",
+			N_("ALERT: time zone not entered, using system local time zone"),
+			*tzname, tz/60, tz%60);
 }
+
+
 /************************************************************
 * end - error message functions
 ************************************************************/
@@ -82,7 +89,9 @@ void print_alert_timezone( int tz )
 ************************************************************/
 void print_alert_coordinate( char *city_name )
 {
-	error(0,0,"%s %s", N_("ALERT: guessing... will use co-ordinates for"), city_name);
+	error(0,0,"%s %s",
+			N_("ALERT: guessing... will use co-ordinates for"),
+			city_name);
 }
 
 void print_alert_default_location( int tz )
@@ -124,7 +133,7 @@ void set_default_location( int tz, double *lat, double *lon )
 	case -8:	*lat =  34.05;	*lon =-118.25;	break; // Los Angeles
 	case -6:	*lat =  19.43;	*lon = -99.13;	break; // Mexico City
 	case -5:	*lat =  40.0;	*lon = -74.0;	break; // New York
-//	case -5:	*lat = -43.71;	*lon = -79.43;	break; // Toronto
+//	case -5:	*lat =  43.71;	*lon = -79.43;	break; // Toronto
 //	case -3:	*lat = -23.55;	*lon = -46.61;	break; // Sao Paolo
 	case -3:	*lat = -34.6;	*lon = -58.37;	break; // Buenos Aires
 	case  0:	*lat =  51.0;	*lon =   0.0;	break; // London
@@ -158,7 +167,7 @@ int check_for_sunset (hdate_struct * h, double lat, double lon, int timezone )
 	time(&now_time);
 	now_timep = localtime(&now_time);
 
-	if ( ((now_timep->tm_hour) *60 + now_timep->tm_min) > (sunset + (timezone*60) ) ) return 1;
+	if ( ((now_timep->tm_hour) *60 + now_timep->tm_min) > (sunset + timezone) ) return 1;
 	else return 0;
 }
 
@@ -214,63 +223,135 @@ printf("\nrevstr: before free(tempbuff): sourcelen = %d, source = %s\n",source_l
 * parse coordinate
 * 
 * presumes commandline options were parsed using getopt.
-* returns 1 to *opt-Latitude and the floating point value
-* of the coordinate in *lat
+* returns 1 to *opt_found
+* returns the floating point value of the coordinate in *lat
 * 
 * type_flag (1-latitude, 2=longitude)
 ************************************************************/
-int parse_coordinate(int type_flag, double *coordinate, int *opt_found)
+int parse_coordinate(int type_flag, char *input_string, double *coordinate, int *opt_found)
 {
 //#define NEGATIVE_NUMBER_GLOB	"-[[:digit:]]?([[:digit:]]?([[:digit:]]))?(.+([[:digit:]]))"
 //#define NEGATIVE_DMS_GLOB		"-[[:digit:]]?([[:digit:]]?([[:digit:]]))?([:\"]?([012345])[[:digit:]]?([:'\"]?([012345])[[:digit:]]))"
-#define COORDINATE_GLOB_DECIMAL	"?([+-])[[:digit:]]?([[:digit:]]?([[:digit:]]))?(.+([[:digit:]]))"
-#define COORDINATE_GLOB_DMS		"?([+-])[[:digit:]]?([[:digit:]]?([[:digit:]]))?([':\"]?([012345])[[:digit:]]?([:'\"]?([012345])[[:digit:]]))"
-	double fractional_part;
+//#define COORDINATE_GLOB_DECIMAL	"?([+-])[[:digit:]]?([[:digit:]]?([[:digit:]]))?(.+([[:digit:]]))"
+//#define COORDINATE_GLOB_DMS		"?([+-])[[:digit:]]?([[:digit:]]?([[:digit:]]))?([':\"]?([012345])[[:digit:]]?([:'\"]?([012345])[[:digit:]]))"
+
+#define LATITUDE_GLOB_DECIMAL	"?([nNsS+-])[[:digit:]]?([[:digit:]]?([[:digit:]]))?(.+([[:digit:]]))?([nNsS])"
+#define LONGITUDE_GLOB_DECIMAL	"?([eEwW+-])[[:digit:]]?([[:digit:]]?([[:digit:]]))?(.+([[:digit:]]))?([eEwW])"
+
+#define LATITUDE_GLOB_DMS		"?([nNsS+-])[[:digit:]]?([[:digit:]]?([[:digit:]]))?([':\"]?([012345])[[:digit:]]?([:'\"]?([012345])[[:digit:]]))?([nNsS])"
+#define LONGITUDE_GLOB_DMS		"?([eEwW+-])[[:digit:]]?([[:digit:]]?([[:digit:]]))?([':\"]?([012345])[[:digit:]]?([:'\"]?([012345])[[:digit:]]))?([eEwW])"
+
 	char* seconds;
 
+	double fractional_part = 0;
+	int direction_modifier = 1;
+
 	/************************************************************
-	* optarg should hold the value to parse
+	* input_string should hold the value to parse
 	* It must exist and be numeric
 	* we don't want confuse it with the next option of for "-x"
 	************************************************************/
-	if	((!optarg) ||
-		 (	(fnmatch("-*", optarg, FNM_NOFLAG)==0) &&
-			(fnmatch( COORDINATE_GLOB_DECIMAL, optarg, FNM_EXTMATCH)!=0) &&
-			(fnmatch( COORDINATE_GLOB_DMS, optarg, FNM_EXTMATCH) !=0) ) )
+	if	(!input_string)
 	{
 		if		(type_flag == 1) print_parm_missing_error(N_("l (latitude)"));
 		else if (type_flag == 2) print_parm_missing_error(N_("L (Longitue)"));
-		// if (optarg) optind--;
+		return TRUE; // error_detected = TRUE; ie failure
 	}
-	else
+
+	/************************************************************
+	* parse latitude
+	************************************************************/
+	if	(type_flag == 1)
 	{
-		if (fnmatch(COORDINATE_GLOB_DECIMAL, optarg, FNM_EXTMATCH)==0)
+		if(	(fnmatch( LATITUDE_GLOB_DECIMAL, input_string, FNM_EXTMATCH)!=0)
+		&&	(fnmatch( LATITUDE_GLOB_DMS, input_string, FNM_EXTMATCH) !=0) )
 		{
-			*coordinate = (double) atof (optarg);
-		}
-		else if (fnmatch(COORDINATE_GLOB_DMS, optarg, FNM_EXTMATCH)==0)
-		{
-			*coordinate = (double) atof( strtok( optarg, ":'\""));
-			fractional_part = (double) atof( strtok( NULL, ":'\""))/60;
-			seconds = strtok( NULL, ":'\"");
-			if (seconds != NULL) fractional_part = fractional_part + (double) atof( seconds)/3600;
-			if (*coordinate < 0) *coordinate = *coordinate - fractional_part;
-			else *coordinate = *coordinate + fractional_part;
+			if (fnmatch("-*", input_string, FNM_NOFLAG)==0)
+				 print_parm_missing_error(N_("l (latitude)"));
+			else print_parm_error(N_("l (latitude)"));
+			return TRUE; // error_detected = TRUE; ie failure
 		}
 
-		if(	 ( (type_flag == 1) && (*coordinate > -90) && (*coordinate < 90)) ||
-			 ( (type_flag == 2) && (*coordinate > -180) && (*coordinate < 180)) )
+
+		if ( strpbrk(input_string, "sS") != NULL ) direction_modifier = -1;
+
+
+		if (fnmatch(LATITUDE_GLOB_DECIMAL, input_string, FNM_EXTMATCH)==0)
+		{
+			*coordinate = (double) atof( strtok( input_string, "nNsS"));
+		}
+		else if (fnmatch(LATITUDE_GLOB_DMS, input_string, FNM_EXTMATCH)==0)
+		{
+			*coordinate = (double) atof( strtok( input_string, "nNsS:'\""));
+			fractional_part = (double) atof( strtok( NULL, "nNsS:'\""))/60;
+			seconds = strtok( NULL, "nNsS:'\"");
+			if (seconds != NULL) fractional_part = fractional_part + (double) atof( seconds)/3600;
+		}
+
+
+		if (*coordinate > 0)
+			*coordinate = (*coordinate + fractional_part) * direction_modifier;
+		else
+			*coordinate = *coordinate - fractional_part;
+
+
+		if(	(*coordinate > -90) && (*coordinate < 90) )
 		{
 			*opt_found = 1;
 			return FALSE; // error_detected = FALSE; ie. success
 		}
-		else
-		{
-			if		(type_flag == 1) print_parm_error(N_("l (latitude)"));
-			else if (type_flag == 2) print_parm_error(N_("L (Longitude)"));
-		}
+		print_parm_error(N_("L (Longitude)"));
+		return TRUE; // error_detected = TRUE; ie failure
 	}
-	return TRUE; // error_detected = TRUE; ie failure
+
+
+	/************************************************************
+	* parse longitude
+	************************************************************/
+	if	(type_flag == 2)
+	{
+		if(	(fnmatch( LONGITUDE_GLOB_DECIMAL, input_string, FNM_EXTMATCH)!=0)
+		&&	(fnmatch( LONGITUDE_GLOB_DMS, input_string, FNM_EXTMATCH) !=0) )
+		{
+			if (fnmatch("-*", input_string, FNM_NOFLAG)==0)
+				 print_parm_missing_error(N_("L (Longitude)"));
+			else print_parm_error(N_("L (Longitude)"));
+			return TRUE; // error_detected = TRUE; ie failure
+		}
+
+
+		if ( strpbrk(input_string, "wW") != NULL ) direction_modifier = -1;
+
+
+		if (fnmatch(LONGITUDE_GLOB_DECIMAL, input_string, FNM_EXTMATCH)==0)
+		{
+			*coordinate = (double) atof( strtok( input_string, "eEwW"));
+		}
+		else if (fnmatch(LONGITUDE_GLOB_DMS, input_string, FNM_EXTMATCH)==0)
+		{
+			*coordinate = (double) atof( strtok( input_string, "eEwW:'\""));
+			fractional_part = (double) atof( strtok( NULL, "eEwW:'\""))/60;
+			seconds = strtok( NULL, "eEwW:'\"");
+			if (seconds != NULL) fractional_part = fractional_part + (double) atof( seconds)/3600;
+		}
+
+		if (*coordinate > 0)
+			*coordinate = (*coordinate + fractional_part) * direction_modifier;
+		else
+			*coordinate = *coordinate - fractional_part;
+
+
+		if(	(*coordinate > -180) && (*coordinate < 180) )
+		{
+			*opt_found = 1;
+			return FALSE; // error_detected = FALSE; ie. success
+		}
+		print_parm_error(N_("L (Longitude)"));
+		return TRUE; // error_detected = TRUE; ie failure
+	}
+
+printf("INTERNAL ERROR: coordinate parse\n");
+return TRUE; // error_detected = TRUE; ie failure
 }
 
 /************************************************************
@@ -279,7 +360,7 @@ int parse_coordinate(int type_flag, double *coordinate, int *opt_found)
 * presumes commandline options were parsed using getopt.
 * timezone is returned in minutes, not hours
 ************************************************************/
-int parse_timezone( int *tz)
+int parse_timezone( char *input_string, int *tz)
 {
 #define TIMEZONE_GLOB_DECIMAL	"?([+-])?(1)[[:digit:]]?(.+([[:digit:]]))"
 #define TIMEZONE_GLOB_DM		"?([+-])?(1)[[:digit:]]?([:'\"]+([[:digit:]]))"
@@ -287,27 +368,26 @@ int parse_timezone( int *tz)
 	int fractional_part;
 
 	/************************************************************
-	* optarg should hold the value to parse
+	* input_string should hold the value to parse
 	* It must exist and be numeric
 	* we don't want confuse it with the next option of for "-x"
 	************************************************************/
-	if	((!optarg) ||
-		 (	(fnmatch("-*",optarg,FNM_NOFLAG)==0) &&
-			(fnmatch(TIMEZONE_GLOB_DECIMAL, optarg, FNM_EXTMATCH)!=0) &&
-			(fnmatch(TIMEZONE_GLOB_DM, optarg, FNM_EXTMATCH)!=0) ) )
+	if	((!input_string) ||
+		 (	(fnmatch("-*",input_string,FNM_NOFLAG)==0) &&
+			(fnmatch(TIMEZONE_GLOB_DECIMAL, input_string, FNM_EXTMATCH)!=0) &&
+			(fnmatch(TIMEZONE_GLOB_DM, input_string, FNM_EXTMATCH)!=0) ) )
 	{
 		print_parm_missing_error(N_("z (time zone)"));
-		//if (optarg) optind--;
 	}
 	else
 	{
-		if (fnmatch(TIMEZONE_GLOB_DECIMAL, optarg, FNM_EXTMATCH)==0)
+		if (fnmatch(TIMEZONE_GLOB_DECIMAL, input_string, FNM_EXTMATCH)==0)
 		{
-			*tz = (int) ( atof (optarg) * 60 );
+			*tz = (int) ( atof (input_string) * 60 );
 		}
-		else if (fnmatch(TIMEZONE_GLOB_DM, optarg, FNM_EXTMATCH)==0)
+		else if (fnmatch(TIMEZONE_GLOB_DM, input_string, FNM_EXTMATCH)==0)
 		{
-				*tz = atoi( strtok( optarg, ":'\"")) * 60;
+				*tz = atoi( strtok( input_string, ":'\"")) * 60;
 				fractional_part = atoi( strtok( NULL, ":'\""));
 				if (*tz < 0)	*tz = *tz - fractional_part;
 				else			*tz = *tz + fractional_part;

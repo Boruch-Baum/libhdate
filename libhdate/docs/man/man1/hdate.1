@@ -9,18 +9,21 @@ hdate \- displays Hebrew date information for a given Gregorian/Julian date
 .B hdate
 [options] [coordinates [timezone]] [ julian_day ]
 .TP
-coordinates: -l xx[.xxx] -L yy[.yyy]
+coordinates: -l [NS]yy[.yyy] -L [EW]xx[.xxx]
 .RE
 .RS 7
-             -l xx[:mm[:ss]] -L yy[:mm[:ss]]
+             -l [NS]yy[:mm[:ss]] -L [EW]xx[:mm[:ss]]
 .RE
 .RS 7
 timezone:    -z nn[( .nn | :mm )]
 .PP
 .SH "DESCRIPTION"
 .B hdate
-translates the specified date to the Hebrew calendar and optionally displays further information about that Hebrew date, including holidays and astronomical-related times.
-If no arguments are given, it displays information for the current date. If a single numeric argument is given, it will be interpreted as a year, and 
+translates the specified date to the Hebrew calendar and optionally displays further
+information about that Hebrew date, including holidays and astronomical-related times
+(see section LOCATION, below). If no arguments are given, it displays information for
+the current date. If a single numeric argument is given, it will be interpreted as a
+year, and 
 .B hdate
 will output the requested information for 
 .I all 
@@ -29,8 +32,94 @@ days of that year. If two numeric arguments are given, it will be interpreted as
 will output the requested information for 
 .I all 
 days of that month.
+.PP 
+.B INPUTTING A HEBREW DATE:
+If the year provided is greater than 3000,
+.B hdate
+will interpret the given date as a Hebrew date, and will display information for the corresponding Gregorian date. Hebrew months are expected to be passed as numbers 1-12 for Tishrei - Elul; Adar I and Adar II are expected to be passed as months 13 and 14.
 .PP
-.B LOCATION: 
+.B INPUTTING A JULIAN DAY:
+If a single numeric argument is provided, and it is greater than 348021, 
+.B hdate 
+will interpret it as the "Julian day number" and will display information for the corresponding Hebrew date.
+.PP 
+.SH "OPTIONS"
+.TP 18
+.B \-b --bidi
+output Hebrew information in Hebrew, but in reverse
+.RE
+.RS 7
+.B \ \ \ --visual
+\      sequence.
+.TP 18
+.B \-c
+print Shabbat start/end times. Shabbat starts 20 min before sunset, 
+and ends when three stars are out. 
+.TP
+.B \-d --diaspora
+use diaspora reading and holidays.
+.TP
+.B \-h --holidays
+print holidays.
+.TP
+.B \-H 
+Print only if it is a holiday.
+.TP
+.B \-i --ical 
+use iCal formatted output.
+.TP
+.B \-j --julian
+print Julian day number.
+.TP
+.B \-o --omer
+print Sefirat Ha Omer
+.TP
+.B \-q --quiet-alerts
+quiet. suppress warning messages
+.TP
+.B \-r --parasha
+print weekly reading for Shabbat.
+.TP
+.B \-R 
+print only if the weekly reading is read on that Shabbat
+.TP
+.B \-s --sun
+print sunrise/sunset times.
+.TP
+.B \-S --short-format
+print using short format.
+.TP
+.B \-t
+print day times: first light, talit, sunrise, mid day, sunset, first stars, three stars
+.TP
+.B \-T --table
+print tabular output. All data for each requested day will be output on a single comma-delimited line.
+Most suitable for piping, or export to spreadsheets\n\n\
+.TP
+.B \-l --latitude
+[NS]yy[.yyy] decimal degrees, or [NS]yy[:mm[:ss]] degrees, minutes, seconds. Negative values are South
+.TP
+.B \-L --longitude
+[EW]xx[.xxx] decimal degrees, or [EW]xx[:mm[:ss]] degrees, minutes, seconds. Negative values are West
+.TP
+.B \-z --timezone
+\+/-UTC. Notation may  be in decimal hours ( hh[.hh] ) or hours, minutes ( hh[:mm] )
+.TP
+.B \ \   --hebrew
+forces Hebrew to print in Hebrew characters
+.TP
+.B \ \   --yom
+force Hebrew prefix to Hebrew day of week
+.TP
+.B \ \   --leshabbat
+insert parasha between day of week and day
+.TP
+.B \ \   --leseder
+insert parasha between day of week and day
+.TP
+.B \ \   --not-sunset-aware
+don't display next day if after sunset
+.SH LOCATIONS
 If you want 
 .B hdate
 to display accurate time-of-day information,
@@ -64,88 +153,31 @@ Timezone   Default city    Lattitude  Longitude
 .RS 12
  3      Moscow             55         37
 .RE
-.PP 
-.B INPUTTING A HEBREW DATE:
-If the year provided is greater than 3000,
-.B hdate
-will interpret the given date as a Hebrew date, and will display information for the corresponding Gregorian date. Hebrew months are expected to be passed as numbers 1-12 for Tishrei - Elul; Adar I and Adar II are expected to be passed as months 13 and 14.
 .PP
-.B INPUTTING A JULIAN DAY:
-If a single numeric argument is provided, and it is greater than 348021, 
-.B hdate 
-will interpret it as the "Julian day number" and will display information for the corresponding Hebrew date.
-.PP 
-.SH "OPTIONS"
-.TP 18
-.B \-b --bidi
-output Hebrew information in Hebrew, but in reverse
+Useful locations and time zones
+.RS 6
+Jerusalem   31, 35, 2      Buenos Aires 34,  -58, -3
 .RE
-.B \ \ \ --visual
-\      sequence.
-.TP 18
-.B \-c
-print Shabbat start/end times. Shabbat starts 20 min before sunset, 
-and ends when three stars are out. 
-.TP
-.B \-d --diaspora
-use diaspora reading and holidays.
-.TP
-.B \-h --holidays
-print holidays.
-.TP
-.B \-H 
-Print just holidays.
-.TP
-.B \-i --ical 
-use iCal formatted output.
-.TP
-.B \-j --julian
-print Julian day number.
-.TP
-.B \-o --omer
-print Sefirat Ha Omer
-.TP
-.B \-q --quiet-alerts
-quiet. suppress warning messages
-.TP
-.B \-r --parasha
-print weekly reading for Shabbat.
-.TP
-.B \-R 
-print only if the weekly reading is read on that Shabbat
-.TP
-.B \-s --sun
-print sunrise/sunset times.
-.TP
-.B \-S --short-format
-print using short format.
-.TP
-.B \-t
-print day times list: first light, talit, sunrise, mid day, sunset, first stars, three stars
-.TP
-.B \-l --latitude
-xx[.xxx] decimal degrees, or xx[:mm[:ss]] degrees, minutes, seconds. Negative values are South
-.TP
-.B \-L --longitude
-yy[.yyy] decimal degrees, or xx[:mm[:ss]] degrees, minutes, seconds. Negative values are West
-.TP
-.B \-z --timezone
-\+/-UTC. Notation may  be in decimal hours ( hh[.hh] ) or hours, minutes ( hh[:mm] )
-.TP
-.B \ \   --hebrew
-forces Hebrew to print in Hebrew characters
-.TP
-.B \ \   --yom
-force Hebrew prefix to Hebrew day of week
-.TP
-.B \ \   --leshabbat
-insert parasha between day of week and day
-.TP
-.B \ \   --leseder
-insert parasha between day of week and day
-.TP
-.B \ \   --not-sunset-aware
-don't display next day if after sunset
+.RS 6
+Tel Aviv    32, 34, 2      Hong Kong    22,  114,  8
+.RE
+.RS 6
+Haifa       32, 34, 2      Los Angeles  34, -118, -8
+.RE
+.RS 6
+Beer Sheva  31, 34, 2      Sao Paolo    23, -46,  -3
+.RE
+.RS 6
+Ashdod      31, 34, 2      Toronto      43, -79   -5
+.RS 6
+.RE
+Tiberias    32, 35, 2      
+.RS 6
+.RE
+Eilat       29, 34, 2
+.SH FILES
+.I\ ${XDG_CONFIG_HOME}/hdate/hdaterc
+.I\ ~/.config/hdate/hdaterc
 .SH "BUGS"
 .TP 10
 .B Accuracy
@@ -164,30 +196,8 @@ The timezone support is currenlty primitive and lacks support for daylight savin
 .RS  6  
 .B       hdate -sR 4 2031 -l29 -L34 -z2
 .RE
-.SH Useful locations and time zones
-.RS 6
-Jerusalem   31, 35, 2      New York  40, \-74, -5
-.RE
-.RS 6
-Tel Aviv    32, 34, 2      London    51,   0,  0
-.RE
-.RS 6
-Haifa       32, 34, 2      Paris     48,   2,  1
-.RE
-.RS 6
-Beer Sheva  31, 34, 2      Moscow    55,  37,  3
-.RE
-.RS 6
-Ashdod      31, 34, 2
-.RS 6
-.RE
-Tiberias    32, 35, 2
-.RS 6
-.RE
-Eilat       29, 34, 2
-
 .SH "SEE ALSO"
-mlterm(1), fribidi(1), hcal(1), hebcal(1), date(1), cal(1), remind(1), hdate.h(3), hdate_struct(3)
+mlterm(1), hcal(1), hebcal(1), date(1), cal(1), remind(1), hdate.h(3), hdate_struct(3)
 .SH "AUTHORS"
 .RS 0
 Boruch Baum 2011. Yaacov Zamir 2005-2010. Text copied from Amos Shapir's hdate man file.
