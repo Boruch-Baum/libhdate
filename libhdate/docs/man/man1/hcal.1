@@ -34,6 +34,9 @@ will interpret the given date as a Hebrew date, and will display the calendar of
 .PP 
 .SH "OPTIONS"
 .TP 18
+.B \-1 --one-month
+over-ride config file setting if you had set option --three-month as a default there
+.TP
 .B \-3 --three-month
 output previous/next months, side by side. requires 127 columns
 .TP
@@ -43,19 +46,40 @@ output Hebrew information in Hebrew , in reverse
 .RS 7
 .B \ \ \ --visual
 \      sequence
+.P
+.RE
+.RS 7
+.B \ \ \ --no-bidi
+\     over-ride config file setting if you had set
+.RE
+.RS 7
+.B \ \ \ --no-visual
+\   option -bidi as a default there
 .TP 18
 .B \-c --colorize
 output in calming, muted tones
-.TP
+.RE
+.RS 7
+.B \ \ \ --no-color
+\    over-ride config file setting
+.TP 18
 .B \-d --diaspora
 use diaspora reading and holidays. Only relevant if hcal is using location information indicating an Israeli timezone
 .TP
 .B \-f --footnote
 output descriptive notes of holidays
-.TP
+.RE
+.RS 7
+.B \ \ \ --no-footnote
+\ over-ride config file setting
+.TP 18
 .B \-h --html
 output in html format to stdout
-.TP
+.RE
+.RS 7
+.B \ \ \ --no-html
+\     over-ride config file setting
+.TP 18
 .B \-H --hebrew
 output Hebrew information in Hebrew, in 'logical' sequence. If this displays in reverse for you, use option -b
 .TP
@@ -187,8 +211,8 @@ Tiberias    32, 35, 2
 .RE
 Eilat       29, 34, 2
 .SH FILES
-.I\ ${XDG_CONFIG_HOME}/hcal/hcalrc
-.I\ ~/.config/hcal/hcalrc
+.I ${XDG_CONFIG_HOME}/hcal/hcalrc
+.I ~/.config/hcal/hcalrc
 .SH "BUGS"
 .TP 10
 .B Accuracy
@@ -210,7 +234,7 @@ The timezone support is currenlty primitive and lacks support for daylight savin
 .SH "SEE ALSO"
 mlterm(1), hdate(1), hebcal(1), date(1), cal(1), remind(1), hdate.h(3), hdate_struct(3)
 .SH "AUTHORS"
-.RS0
+.RS 0
 Boruch Baum 2011
 .RE
 Yaacov Zamir 2005-2010, text copied from Amos Shapir's hdate man file.

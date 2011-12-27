@@ -1,5 +1,5 @@
 /* hdate.c
- * Example file for libhdate.
+ * Hebrew date/times information(part of package libhdate)
  *
  * compile:
  * gcc `pkg-config --libs --cflags libhdate` hdate.c -o hdate
@@ -22,8 +22,8 @@
 
 #define _GNU_SOURCE		// For mempcpy, asprintf
 #include <stdio.h>		// For printf
-//include <hdate.h>		// For hebrew date
-#include "../../src/hdate.h"
+#include <hdate.h>		// For hebrew date
+//include "../../src/hdate.h"
 #include <stdlib.h>		// For atoi, getenv, setenv
 #include <locale.h>		// For setlocale
 #include <getopt.h>		// For getopt_long
@@ -34,10 +34,14 @@
 #define DATA_WAS_NOT_PRINTED 0
 #define DATA_WAS_PRINTED 1
 
-
 // for hdate_get_int_string_
 #define NO_COMPRESS 0
 #define COMPRESS 1
+#define HEBREW_FORM 1
+
+// for opt.menu[MAX_MENU_ITEMS]
+#define MAX_MENU_ITEMS 10
+
 
 char *debug_var;				// system environment variable
 
@@ -72,10 +76,12 @@ typedef struct  {
 				int julian;
 				int diaspora;
 				int iCal;
+				int menu;
+				char* menu_item[MAX_MENU_ITEMS];
 				} option_list;
 
 
-const char* hdate_config_file_text = "\
+const char* hdate_config_file_text = N_("\
 # configuration file for hdate - Hebrew date information program\n\
 # part of package libhdate\n\
 #\n# Should you mangle this file and wish to restore its default content,\n\
@@ -144,7 +150,11 @@ const char* hdate_config_file_text = "\
 \n\
 \n\
 # Shabbat related\n\
-# setting SHABBAT_INFO true will output parshiot and Shabbat times\n\
+# Setting SHABBAT_INFO true will output parshiot and Shabbat times.\n\
+# The command line options for these features are -r (--parasha), and\n\
+# -c. The CANDLE_LIGHTING field can accept a value of 18 - 90 (minutes\n\
+# before sunset). The HAVDALAH field can accept a value of 20 - 90\n\
+# (minutes after sunset).\n\
 #PARASHA_NAMES=FALSE\n\
 #ONLY_IF_PARASHA_IS_READ=FALSE\n\
 #SHABBAT_INFO=FALSE\n\n\
@@ -170,8 +180,22 @@ const char* hdate_config_file_text = "\
 # The Julian day number is a .... See ... for more details.\n\
 # setting the option JULIAN_DAY will have hdate output that number in\n\
 # the format JDN-nnnnnnn at the beginning of its first line of output.\n\
-#JULIAN_DAY=FALSE";
-
+#JULIAN_DAY=FALSE\n\n\
+# User-defined menus\n\
+# You may specify here command-line strings to optionally be parsed\n\
+# by hcal at execution time. To do so, use the command line option -m\n\
+# (--menu). hcal will process first the settings of this config file,\n\
+# then the other settings of your command line, and then will prompt\n\
+# you for which menu item you would like to select. hcal will process\n\
+# your menu selection as if it were a new command line, further modifying\n\
+# all the prior settings.\n\
+# Only the first ten \"MENU=\" entries will be read. Each line will be\n\
+# truncated at one hundred characters\n\
+#MENU= -l -23.55 -L -46.61 -z -3 # parents in Sao Paolo\n\
+#MENU= -l 32 -L 34 -z 2          # son in bnei brak\n\
+#MENU= -l 43.71 -L -79.43 -z -5  # me in Toronto\n\
+#MENU= -l 22.26 -L 114.15 -z 8   # supplier in Hong Kong\n\
+");
 
 
 /************************************************************
@@ -179,7 +203,7 @@ const char* hdate_config_file_text = "\
 ************************************************************/
 int print_version ()
 {
-	printf ("hdate - display Hebrew date information\nversion 2\n");
+	printf ("%s\n" ,N_("hdate - display Hebrew date information\nversion 2"));
 	return 0;
 }
 
@@ -188,12 +212,12 @@ int print_version ()
 ************************************************************/
 void print_usage ()
 {
-	printf ("\
-Usage: hdate [options] [coordinates timezone] [[[day] month] year]\n\
+	printf ("%s\n",
+N_("Usage: hdate [options] [coordinates timezone] [[[day] month] year]\n\
        hdate [options] [coordinates timezone] [julian_day]\n\n\
        coordinates: -l [NS]yy[.yyy] -L [EW]xx[.xxx]\n\
                     -l [NS]yy[:mm[:ss]] -L [EW]xx[:mm[:ss]]\n\
-       timezone:    -z nn[( .nn | :mm )]\n");
+       timezone:    -z nn[( .nn | :mm )]\n"));
 }
 
 
@@ -204,17 +228,18 @@ void print_help ()
 {
 	print_usage();
 
-	printf ("hdate - display Hebrew date information\nOPTIONS:\n\
+	printf ("%s\n", N_("hdate - display Hebrew date information\nOPTIONS:\n\
    -b --bidi          prints hebrew in reverse (visual)\n\
       --visual\n\
    -c                 print Shabbat start/end times.\n\
-                      Shabbat starts 20 min before sunset,\n\
-                      and ends when three stars are out.\n\
+      --candles       modify default minhag of 20 minutes. (17<n<91)\n\
+      --havdalah      modify default minhag of 3 stars. (19<n<91 minutes)\n\
    -d --diaspora      use diaspora reading and holidays.\n\
    -h --holidays      print holidays.\n\
    -H                 print only it is a holiday.\n\
    -i --ical          use iCal formated output.\n\
    -j --julian        print Julian day number.\n\
+   -m --menu          prompt user-defined menu from config file\n\
    -o --omer          print Sefirat Haomer.\n\
    -q --quiet-alerts  suppress warning messages\n\
    -r --parasha       print weekly reading on saturday.\n\
@@ -231,7 +256,9 @@ void print_help ()
    --yom              force Hebrew prefix to Hebrew day of week\n\
    --leshabbat        insert parasha between day of week and day\n\
    --leseder          insert parasha between day of week and day\n\
-   --not-sunset-aware don't display next day if after sunset\n");
+   --not-sunset-aware don't display next day if after sunset\n\n\
+All options can be made default in the config file, or menu-ized for\n\
+easy selection."));
 }
 
 
@@ -331,10 +358,11 @@ int find_shabbat (hdate_struct * h, int opt_d)
 ************************************************************/
 int print_date (hdate_struct * h, hdate_struct * tomorrow, option_list opt, double lat, double lon)
 {
-	char *language;				// system environment variable
-	char *locale;				// system environment variable
+//	char *language;				// system environment variable
+//	char *locale;				// system environment variable
 	char *eve_before    = "";   // prefix if after sunset
 	char *for_day_of_g  = "";	// Hebrew prefix for day of week
+	char *apostrophe	= "";	// Hebrew suffix for day of week
 	char *bet_g 		= "";	// Hebrew prefix for Gregorian month
 	char *bet_h         = "";	// Hebrew prefix for Hebrew month
 	char *psik_mark     = "";	// --force-yom
@@ -347,6 +375,7 @@ int print_date (hdate_struct * h, hdate_struct * tomorrow, option_list opt, doub
 	hyear_int_str = malloc(HEBREW_NUMBER_BUFFER_SIZE);
 
 
+/*
 #ifdef ENABLE_NLS
 	locale = setlocale (LC_MESSAGES, NULL);
 	language = getenv ("LANGUAGE");
@@ -354,7 +383,7 @@ int print_date (hdate_struct * h, hdate_struct * tomorrow, option_list opt, doub
 	locale = NULL;
 	language = NULL;
 #endif
-
+*/
 
 	/************************************************************
 	* preliminary - if it's after sunset, it's tomorrow already
@@ -376,7 +405,7 @@ int print_date (hdate_struct * h, hdate_struct * tomorrow, option_list opt, doub
 	/************************************************************
 	* preliminary - prepare Hebrew prefixes if forcing any Hebrew
 	************************************************************/
-	language=getenv("LANGUAGE"); // not sure this is really doing anything
+//	language=getenv("LANGUAGE"); // not sure this is really doing anything
 	if (opt.hebrew)
 	{
 		bet_h="ב";
@@ -384,6 +413,7 @@ int print_date (hdate_struct * h, hdate_struct * tomorrow, option_list opt, doub
 		if (opt.yom)
 		{
 			for_day_of_h="יום";
+			if (h->hd_dw!=7) apostrophe = "'";
 			psik_mark=",";
 
 			if		(opt.leShabbat)
@@ -414,14 +444,15 @@ int print_date (hdate_struct * h, hdate_struct * tomorrow, option_list opt, doub
 	************************************************************/
 	if (opt.iCal)
 	{
-		if (opt.hebrew)
-				setenv("LANGUAGE", "he_IL.UTF-8", 1);
+		//if (opt.hebrew) setenv("LANGUAGE", "he_IL.UTF-8", 1);
+
 		printf ("%s%s %s%s ",
 				for_day_of_g,
-				hdate_get_int_string_ (hday_int_str, h->hd_day, NO_COMPRESS),
+				hdate_get_int_string_ (hday_int_str, h->hd_day, NO_COMPRESS,opt.hebrew),
 				bet_h,
-				hdate_get_hebrew_month_string (h->hd_mon, opt.short_format));
-		printf ("%s", hdate_get_int_string_(hyear_int_str, h->hd_year, NO_COMPRESS));
+				hdate_string( HDATE_STRING_HMONTH , h->hd_mon, opt.short_format, opt.hebrew));
+
+		printf ("%s", hdate_get_int_string_(hyear_int_str, h->hd_year, NO_COMPRESS,opt.hebrew));
 	}
 
 
@@ -439,12 +470,13 @@ int print_date (hdate_struct * h, hdate_struct * tomorrow, option_list opt, doub
 		}
 		else
 		{
-			setenv("LANGUAGE", "he_IL.UTF-8", 1);
-			printf ("%s", hdate_get_int_string_(hday_int_str, h->hd_day, NO_COMPRESS));
+			//setenv("LANGUAGE", "he_IL.UTF-8", 1);
+			printf ("%s", hdate_get_int_string_(hday_int_str, h->hd_day, NO_COMPRESS,opt.hebrew));
 		}
 
-		printf (" %s %s\n", hdate_get_hebrew_month_string (h->hd_mon, opt.short_format),
-							hdate_get_int_string_(hyear_int_str, h->hd_year, NO_COMPRESS));
+		printf (" %s %s\n",
+			hdate_string( HDATE_STRING_HMONTH , h->hd_mon, opt.short_format, opt.hebrew),
+			hdate_get_int_string_(hyear_int_str, h->hd_year, NO_COMPRESS,opt.hebrew));
 	}
 
 
@@ -458,10 +490,11 @@ int print_date (hdate_struct * h, hdate_struct * tomorrow, option_list opt, doub
 		************************************************************/
 		printf ("%s%s, %d %s%s %d, ",
 				for_day_of_g,
-				hdate_get_day_string (h->hd_dw, opt.short_format),
+				hdate_string( HDATE_STRING_DOW, h->hd_dw, opt.short_format, HDATE_STRING_LOCAL),
 				h->gd_day,
 				bet_g,
-				hdate_get_month_string (h->gd_mon, opt.short_format), h->gd_year);
+				hdate_string( HDATE_STRING_GMONTH, h->gd_mon, opt.short_format, HDATE_STRING_LOCAL),
+				h->gd_year);
 
 
 		/************************************************************
@@ -487,15 +520,18 @@ int print_date (hdate_struct * h, hdate_struct * tomorrow, option_list opt, doub
 		************************************************************/
 		if (opt.hebrew)
 		{
-			setenv("LANGUAGE", "he_IL.UTF-8", 1);
+			//setenv("LANGUAGE", "he_IL.UTF-8", 1);
 			if (opt.yom)
 				{
-				hebrew_buffer1_len = asprintf(&hebrew_buffer1, "%s%s %s", eve_before,for_day_of_h, hdate_get_day_string (h->hd_dw, opt.short_format));
+				hebrew_buffer1_len = asprintf(&hebrew_buffer1, "%s%s %s%s", eve_before,for_day_of_h,
+					hdate_string( HDATE_STRING_DOW, h->hd_dw, opt.short_format, opt.hebrew), apostrophe);
 				if ((opt.leShabbat) || (opt.leSeder))
 				{
 					is_parasha_read = find_shabbat(h, opt.diaspora);
 					if (is_parasha_read)
-							hebrew_buffer2_len = asprintf(&hebrew_buffer2, " %s %s", for_week_of, hdate_get_parasha_string (is_parasha_read, opt.diaspora));
+							hebrew_buffer2_len = asprintf(&hebrew_buffer2, " %s %s", for_week_of,
+							hdate_string( HDATE_STRING_PARASHA, is_parasha_read, opt.short_format, opt.hebrew)
+							);
 				}
 				hebrew_buffer3_len = asprintf (&hebrew_buffer3, "%s ", psik_mark);
 			}
@@ -508,11 +544,10 @@ int print_date (hdate_struct * h, hdate_struct * tomorrow, option_list opt, doub
 		************************************************************/
 		hebrew_buffer4_len =
 			asprintf (&hebrew_buffer4, "%s %s%s %s",
-				hdate_get_int_string_(hday_int_str, h->hd_day, NO_COMPRESS),
+				hdate_get_int_string_(hday_int_str, h->hd_day, NO_COMPRESS,opt.hebrew),
 				bet_h,
-				hdate_get_hebrew_month_string (h->hd_mon, opt.short_format),
-				hdate_get_int_string_(hyear_int_str, h->hd_year, NO_COMPRESS));
-
+				hdate_string( HDATE_STRING_HMONTH , h->hd_mon, opt.short_format, opt.hebrew),
+				hdate_get_int_string_(hyear_int_str, h->hd_year, NO_COMPRESS,opt.hebrew));
 
 		/************************************************************
 		* prepare another GrUB - grand unified buffer
@@ -549,7 +584,7 @@ int print_date (hdate_struct * h, hdate_struct * tomorrow, option_list opt, doub
 	/************************************************************
 	* CLEANUP - restore default language environment variable *
 	************************************************************/
-	setenv("LANGUAGE", language, 1); // not sure this is really doing anything
+	//setenv("LANGUAGE", language, 1); // not sure this is really doing anything
 
 	/************************************************************
 	* CLEANUP - free allocated memory
@@ -619,7 +654,7 @@ int print_times (hdate_struct * h, double lat, double lon, int tz, int opt_i)
 	holiday = hdate_get_holyday (h, opt.diaspora);
 	if (holiday)
 	{
-		printf ("%s\n", hdate_get_holyday_string (holiday, short_format));
+		printf ("%s\n", hdate_string (holiday, short_format));
 		return DATA_WAS_PRINTED;
 	}
 	else return DATA_WAS_NOT_PRINTED;
@@ -654,7 +689,7 @@ int print_omer (hdate_struct * h)
 	reading = hdate_get_parasha (h, opt.diaspora);
 	if (reading)
 	{
-		printf ("%s  %s\n", N_("Parashat"), hdate_get_parasha_string (reading, short_format));
+		printf ("%s  %s\n", N_("Parashat"), hdate_string (reading, short_format));
 		return DATA_WAS_PRINTED;
 	}
 	else return DATA_WAS_NOT_PRINTED;
@@ -665,7 +700,7 @@ int print_omer (hdate_struct * h)
 /************************************************************
 * option 'c' - candle-lighting time; tzeit Shabbat
 ************************************************************/
-int print_candles (hdate_struct * h, double lat, double lon, int tz, int opt_i)
+int print_candles (hdate_struct * h, double lat, double lon, int tz, option_list opt)
 {
 	int sun_hour, first_light, talit, sunrise;
 	int midday, sunset, first_stars, three_stars;
@@ -677,11 +712,12 @@ int print_candles (hdate_struct * h, double lat, double lon, int tz, int opt_i)
 		hdate_get_utc_sun_time (h->gd_day, h->gd_mon, h->gd_year, lat, lon,
 								&sunrise, &sunset);
 
-		// FIXME - allow for minhag variation
-		sunset = sunset + tz - 20;
+		// FIXME - allow for further minhag variation
+		if (opt.candles != 1) sunset = sunset - opt.candles + tz;
+		else sunset = sunset + tz - DEFAULT_CANDLES_MINUTES;
 
 		// print candlelighting times
-		printf ("candle-lighting: %d:%d\n", sunset / 60, sunset % 60);
+		printf ("candle-lighting: %02d:%02d\n", sunset / 60, sunset % 60);
 		return DATA_WAS_PRINTED;
 	}
 
@@ -694,11 +730,12 @@ int print_candles (hdate_struct * h, double lat, double lon, int tz, int opt_i)
 									 &sunrise, &midday, &sunset,
 									 &first_stars, &three_stars);
 
-		// FIXME - allow for minhag variation
-		three_stars = three_stars + tz;
+		// FIXME - allow for further minhag variation
+		if (opt.havdalah != 1) three_stars = sunset + opt.havdalah + tz;
+		else three_stars = three_stars + tz;
 
 		// print motzay shabat
-		printf ("Shabbat ends: %d:%d\n", three_stars / 60, three_stars % 60);
+		printf ("Shabbat ends: %02d:%02d\n", three_stars / 60, three_stars % 60);
 		return DATA_WAS_PRINTED;
 	}
 	else return DATA_WAS_NOT_PRINTED;
@@ -769,12 +806,14 @@ int print_tabular_day (hdate_struct * h, option_list opt,
 	}
 	else /* Hebrew */
 	{
-		setenv("LANGUAGE", "he_IL.UTF-8", 1);
-		printf ("%s", hdate_get_int_string_(h_int_str, h->hd_day, NO_COMPRESS));
+		//setenv("LANGUAGE", "he_IL.UTF-8", 1);
+		printf ("%s", hdate_get_int_string_(h_int_str, h->hd_day, NO_COMPRESS,opt.hebrew));
 	}
 
-	printf (" %s ", hdate_get_hebrew_month_string (h->hd_mon, 1));
-	printf ("%s", hdate_get_int_string_(h_int_str, h->hd_year, NO_COMPRESS));
+	printf (" %s ",
+		hdate_string( HDATE_STRING_HMONTH , h->hd_mon, HDATE_STRING_LONG, opt.hebrew));
+
+	printf ("%s", hdate_get_int_string_(h_int_str, h->hd_year, NO_COMPRESS,opt.hebrew));
 	/************************************************************
 	* end - print Hebrew date
 	************************************************************/
@@ -805,7 +844,8 @@ int print_tabular_day (hdate_struct * h, option_list opt,
 	}
 	
 	if (opt.holidays && holiday)
-		printf (",%s", hdate_get_holyday_string (holiday, opt.short_format));
+		printf (",%s",
+			hdate_string( HDATE_STRING_HOLIDAY, holiday, opt.short_format, opt.hebrew));
 
 	if (opt.omer)
 	{
@@ -814,7 +854,8 @@ int print_tabular_day (hdate_struct * h, option_list opt,
 	}
 
 	if (opt.parasha && parasha)
-		printf (",%s", hdate_get_parasha_string (parasha, opt.short_format));
+		printf (",%s",
+				hdate_string( HDATE_STRING_PARASHA, parasha, opt.short_format, opt.hebrew));
 
 	
 	printf("\n");
@@ -892,16 +933,18 @@ int print_day (hdate_struct * h, option_list opt,
 	if (opt.times) data_printed = data_printed | print_times (h, lat, lon, tz, opt.iCal);
 	if (opt.holidays && holiday)
 	{
-		printf ("%s\n", hdate_get_holyday_string (holiday, opt.short_format));
+		printf ("%s\n",
+			hdate_string( HDATE_STRING_HOLIDAY, holiday, opt.short_format, opt.hebrew));
 		data_printed = DATA_WAS_PRINTED;
 	}
 	if (opt.omer) data_printed = data_printed | print_omer (h);
 	if (opt.parasha && parasha)
 	{
-		printf ("%s  %s\n", N_("Parashat"), hdate_get_parasha_string (parasha, opt.short_format));
+		printf ("%s  %s\n", N_("Parashat"),
+			hdate_string( HDATE_STRING_PARASHA, parasha, opt.short_format, opt.hebrew));
 		data_printed = DATA_WAS_PRINTED;
 	}
-	if (opt.candles || opt.havdalah) data_printed = data_printed | print_candles (h, lat, lon, tz, opt.iCal);
+	if (opt.candles || opt.havdalah) data_printed = data_printed | print_candles (h, lat, lon, tz, opt);
 	if ((opt.print_tomorrow) && (data_printed) && (!opt.quiet_alerts)) print_alert_sunset();
 	/************************************************************
 	* end - print additional information for day
@@ -968,7 +1011,8 @@ int print_gmonth (option_list opt, double lat, double lon, int tz,
 
 	/* print month header */
 	if (!opt.iCal && !opt.short_format)
-		printf ("\n%s:\n", hdate_get_month_string (h.gd_mon, opt.short_format));
+		printf ("\n%s:\n",
+			hdate_string( HDATE_STRING_GMONTH, h.gd_mon, opt.short_format, HDATE_STRING_LOCAL));
 
 	/* print month days */
 	while (h.gd_mon == month)
@@ -1024,7 +1068,8 @@ int print_hmonth (hdate_struct * h, option_list opt,
 
 	/* print month header */
 	if (!opt.iCal && !opt.short_format)
-		printf ("\n%s:\n", hdate_get_hebrew_month_string (h->hd_mon, opt.short_format));
+		printf ("\n%s:\n",
+			hdate_string( HDATE_STRING_HMONTH , h->hd_mon, opt.short_format, opt.hebrew));
 
 	/* print month days */
 	while (h->hd_mon == month)
@@ -1126,7 +1171,7 @@ int print_hyear (option_list opt, double lat, double lon, int tz, int year)
 
 	/* print year header */
 	if (!opt.iCal && !opt.short_format)
-		printf ("%s:\n", hdate_get_int_string_(h_int_str, year,NO_COMPRESS));
+		printf ("%s:\n", hdate_get_int_string_(h_int_str, year,NO_COMPRESS,opt.hebrew));
 
 	/* print year months */
 	while (month < 13)
@@ -1166,39 +1211,47 @@ void read_config_file(	FILE *config_file,
 						int*	tz )
 {
 	char	*input_string;
-	size_t	input_str_len = 50;
+	size_t	input_str_len = 100;	// WARNING: if you change this value
+									// you will still have to also
+									// change a matching value below
+									// in the statement that includes:
+									// match_count = sscanf(input_string
 	char	*input_key = "";
 	char	*input_value = "";
+	int		menu_item = 0;
+	size_t	menu_len = 0;
 	int		line_count = 0;
 	int		match_count;
 	int		end_of_input_file = FALSE;
 	int		i;
-	const int	num_of_keys = 25;
-	const char*	key_list[] = {	"SUNSET_AWARE",
+	const int	num_of_keys = 26;
+	const char*	key_list[] = {	"SUNSET_AWARE",		// 0
 								"LATITUDE",
-								"LONGITUDE",
+								"LONGITUDE",		// 2
 								"TIMEZONE",
-								"DIASPORA",
+								"DIASPORA",			// 4
 								"FORCE_ISRAEL",
-								"PARASHA_NAMES",
+								"PARASHA_NAMES",	// 6
 								"SHABBAT_INFO",
-								"FORCE_HEBREW",
+								"FORCE_HEBREW",		// 8
 								"OUTPUT_BIDI",
-								"QUIET_ALERTS",
+								"QUIET_ALERTS",		//10
 								"YOM",
-								"LESHABBAT",
-								"LESEDER"
-								"TABULAR"
-								"ICAL"
-								"SEFIRAT_HAOMER",
+								"LESHABBAT",		//12
+								"LESEDER",
+								"TABULAR",			//14
+								"ICAL",
+								"SEFIRAT_HAOMER",	//16
 								"SHORT_FORMAT",
-								"TIMES_OF_DAY",
+								"TIMES_OF_DAY",		//18
 								"SUN_RISE_SET",
 								"ONLY_IF_PARASHA_IS_READ",
 								"ONLY_IF_HOLIDAY",
-								"JULIAN_DAY",
+								"JULIAN_DAY",		//22
 								"CANDLE_LIGHTING",
-								"HAVDALAH"};
+								"HAVDALAH",			//24
+								"MENU"
+								};
 
 	input_string = malloc(input_str_len+1);
 	input_key    = malloc(input_str_len+1);
@@ -1210,47 +1263,59 @@ void read_config_file(	FILE *config_file,
 		if ( end_of_input_file != TRUE )
 		{
 			errno = 0;
-			// BUG - there may be a possibility of buffer overrun for the pointer input_key
-			// BUG - am I calling free() properly for all these values?
-			// NOTE - apply any of these changes to the corresponding part of hcal
-			// get the final word on coversion specification formats a, m
-			match_count = sscanf(input_string,"%[A-Z_]=%sa",input_key,input_value);
+			// The '100' in the next statement is inelegant; it is meant to
+			// be the value of input_str_len. Alternatively, don't malloc
+			// input_value above, use the 'a' specifier here, and free(input_value)
+			// at the end of every successful read and evaluation
+			match_count = sscanf(input_string,"%[A-Z_]=%100[^\n]",input_key,input_value);
 			line_count++;
 			if (errno != 0) error(0,errno,"scan error at line %d", line_count);
-// DEBUG -	printf("line number = %d, matches made = %d, key = %s, value = %s, string = %s",
-//					line_count, match_count, input_key, input_value, input_string);
 			if (match_count ==2)
 			{
 				for (i=0; i<num_of_keys; i++)
 				{
 					if (strcmp(input_key, key_list[i]) == 0)
 					{
-// DEBUG - 	printf("match found!, %s = %s, index = %d, value = %s\n",input_key,key_list[i],i, input_value);
 						switch(i)
 						{
 
+//		SUNSET_AWARE
 		case  0:if      (strcmp(input_value,"FALSE") == 0) opt->not_sunset_aware = 1;
 				else if (strcmp(input_value,"TRUE") == 0) opt->not_sunset_aware = 0;
 				break;
+
+//		LATITUDE
 		case  1:
 				parse_coordinate(1, input_value, latitude, opt_latitude);
 				break;
+
+//		LONGITUDE
 		case  2:
 				parse_coordinate(2, input_value, longitude, opt_longitude);
 				break;
+
+//		TIMEZONE
 		case  3:
 				parse_timezone(input_value, tz);
 				break;
+
+//		DIASPORA
 		case  4:if      (strcmp(input_value,"FALSE") == 0) opt->diaspora = 0;
 				else if (strcmp(input_value,"TRUE") == 0) opt->diaspora = 1;
 				break;
+
+
 //		case  5:if      (strcmp(input_value,"FALSE") == 0) opt->force_israel = 0;
 //				else if (strcmp(input_value,"TRUE") == 0) opt->force_israel = 1;
 				break;
+
+//		PARASHA_NAMES
 		case  6:if      (strcmp(input_value,"FALSE") == 0) opt->parasha = 0;
 				else if (strcmp(input_value,"TRUE") == 0) opt->parasha = 1;
 				break;
-		case  7:if      (strcmp(input_value,"FALSE") == 0)
+
+//		SHABBAT_INFO
+ 		case  7:if      (strcmp(input_value,"FALSE") == 0)
 				{
 					// maybe not do anything if set FALSE
 					opt->candles = 0;
@@ -1264,9 +1329,13 @@ void read_config_file(	FILE *config_file,
 					opt->parasha = 1;
 				}
 				break;
+
+//		FORCE_HEBREW
 		case  8:if      (strcmp(input_value,"FALSE") == 0) opt->hebrew = 0;
 				else if (strcmp(input_value,"TRUE") == 0) opt->hebrew = 1;
 				break;
+
+//		OUTPUT_BIDI
 		case  9:if      (strcmp(input_value,"FALSE") == 0) opt->bidi = 0;
 				else if (strcmp(input_value,"TRUE") == 0)
 						{
@@ -1274,9 +1343,13 @@ void read_config_file(	FILE *config_file,
 							opt->hebrew = 1;
 						}
 				break;
+
+//		QUIET_ALERTS
 		case 10:if      (strcmp(input_value,"FALSE") == 0) opt->quiet_alerts = 0;
 				else if (strcmp(input_value,"TRUE") == 0) opt->quiet_alerts = 1;
 				break;
+
+//		YOM
 		case 11:if      (strcmp(input_value,"FALSE") == 0) opt->yom = 0;
 				else if (strcmp(input_value,"TRUE") == 0)
 						{
@@ -1284,6 +1357,8 @@ void read_config_file(	FILE *config_file,
 							opt->hebrew = 1;
 						}
 				break;
+
+//		LESHABBAT
 		case 12:if      (strcmp(input_value,"FALSE") == 0) opt->leShabbat = 0;
 				else if (strcmp(input_value,"TRUE") == 0)
 						{
@@ -1292,6 +1367,8 @@ void read_config_file(	FILE *config_file,
 							opt->hebrew = 1;
 						}
 				break;
+
+//		LESEDER
 		case 13:if      (strcmp(input_value,"FALSE") == 0) opt->leSeder = 0;
 				else if (strcmp(input_value,"TRUE") == 0)
 						{
@@ -1300,41 +1377,86 @@ void read_config_file(	FILE *config_file,
 							opt->hebrew = 1;
 						}
 				break;
+
+//		TABULAR
 		case 14:if      (strcmp(input_value,"FALSE") == 0) opt->tablular_output = 0;
 				else if (strcmp(input_value,"TRUE") == 0) opt->tablular_output = 1;
 				break;
+
+//		ICAL
 		case 15:if      (strcmp(input_value,"FALSE") == 0) opt->iCal = 0;
 				else if (strcmp(input_value,"TRUE") == 0) opt->iCal = 1;
 				break;
+
+//		SEFIRAT_HAOMER
 		case 16:if      (strcmp(input_value,"FALSE") == 0) opt->omer = 0;
 				else if (strcmp(input_value,"TRUE") == 0) opt->omer = 1;
 				break;
+
+//		SHORT_FORMAT
 		case 17:if      (strcmp(input_value,"FALSE") == 0) opt->short_format = 0;
 				else if (strcmp(input_value,"TRUE") == 0) opt->short_format = 1;
 				break;
+
+//		TIMES_OF_DAY
 		case 18:if      (strcmp(input_value,"FALSE") == 0) opt->times = 0;
 				else if (strcmp(input_value,"TRUE") == 0) opt->times = 1;
 				break;
+
+//		SUN_RISE_SET
 		case 19:if      (strcmp(input_value,"FALSE") == 0) opt->sun = 0;
 				else if (strcmp(input_value,"TRUE") == 0) opt->sun = 1;
 				break;
+
+//		ONLY_IF_PARASHA_IS_READ
 		case 20:if      (strcmp(input_value,"FALSE") == 0) opt->only_if_parasha = 0;
 				else if (strcmp(input_value,"TRUE") == 0) opt->only_if_parasha = 1;
 				break;
+
+//		ONLY_IF_HOLIDAY
 		case 21:if      (strcmp(input_value,"FALSE") == 0) opt->only_if_holiday = 0;
 				else if (strcmp(input_value,"TRUE") == 0) opt->only_if_holiday = 1;
 				break;
+
+//		JULIAN_DAY
 		case 22:if      (strcmp(input_value,"FALSE") == 0) opt->julian = 0;
 				else if (strcmp(input_value,"TRUE") == 0) opt->julian = 1;
 				break;
+
+//		CANDLE_LIGHTING
 		case 23:if      (strcmp(input_value,"FALSE") == 0) opt->candles = 0;
 				else if (strcmp(input_value,"TRUE") == 0) opt->candles = 1;
+				else if (fnmatch( "[[:digit:]]?([[:digit:]])", input_value, FNM_EXTMATCH) == 0)
+				{
+					opt->candles = atoi(input_value);
+					if (opt->candles < MIN_CANDLES_MINUTES) opt->candles = MIN_CANDLES_MINUTES;
+					else if (opt->candles > MAX_CANDLES_MINUTES) opt->candles = MAX_CANDLES_MINUTES;
+				}
 				break;
+
+//		HAVDALAH
 		case 24:if      (strcmp(input_value,"FALSE") == 0) opt->havdalah = 0;
 				else if (strcmp(input_value,"TRUE") == 0) opt->havdalah = 1;
+				else if (fnmatch( "[[:digit:]]?([[:digit:]])", input_value, FNM_EXTMATCH) == 0)
+				{
+					opt->havdalah = atoi(input_value); 
+					if (opt->havdalah < MIN_MOTZASH_MINUTES) opt->havdalah = MIN_MOTZASH_MINUTES;
+					else if (opt->havdalah > MAX_MOTZASH_MINUTES) opt->havdalah = MAX_MOTZASH_MINUTES;
+				}
 				break;
-						}
-						break;
+
+//		MENU
+		case 25:if (menu_item < MAX_MENU_ITEMS)
+				{
+					menu_len = strlen(input_value);
+					opt->menu_item[menu_item] = malloc(menu_len+1);
+					memcpy(opt->menu_item[menu_item], input_value,menu_len);
+					menu_item++;
+				}
+				break;
+
+						}	// end of switch(i)
+					break;	// if found a match don't continue for loop
 					}
 				}
 			}
@@ -1345,6 +1467,159 @@ void read_config_file(	FILE *config_file,
 	free(input_value);
 	return;	
 }
+
+
+/****************************************************
+* exit elegantly
+****************************************************/
+void exit_main( option_list *opt, int exit_code)
+{
+	int i;
+	for (i=0; i<MAX_MENU_ITEMS; i++) 
+	{
+		if (opt->menu_item[i] == NULL) break;
+		free(opt->menu_item[i]);
+	}
+	exit (exit_code);
+}
+
+
+
+/****************************************************
+* parse a command-line or a config-file menu line
+*
+* It was appropriate to make this a function, outside
+* of main, because of its dual use and dual reference
+****************************************************/
+int hdate_parser( int switch_arg, option_list *opt,
+					double *lat, int *opt_latitude,
+					double *lon, int *opt_Longitude,
+					int *tz, int long_option_index)
+{
+	int error_detected = 0;
+
+	switch (switch_arg)
+	{
+
+	case 0: /* long options */
+		switch (long_option_index)
+		{
+/* --version		*/	case 0:	print_version (); exit_main(opt,0); break;
+/* --help			*/	case 1:	print_help (); exit_main(opt,0); break;
+/* --hebrew			*/	case 2: opt->hebrew = 1; break;
+/* --yom			*/	case 3:
+								opt->yom = 1;
+								opt->hebrew = 1;
+								break;
+/* --leshabbat		*/	case 4:
+								opt->leShabbat = 1;
+								opt->yom = 1;
+								opt->hebrew = 1;
+								break;
+/* --leseder		*/	case 5:
+								opt->leSeder = 1;
+								opt->yom = 1;
+								opt->hebrew = 1;
+								break;
+/* --table			*/	case 6: break;
+/* --not-sunset-aware */case 7:	opt->not_sunset_aware = 1; break;
+/* --quiet-alerts	*/	case 8:	break;
+/* --short-format	*/	case 9:	break;
+/* --parasha		*/	case 10:break;
+/* --holidays		*/	case 11:break;
+/* --shabbat-times	*/	case 12:break;
+/* --sun			*/	case 13:
+/* --sunset			*/	case 14:
+/* --sunrise		*/	case 15:break;
+/* --candle-lighting */	case 16:
+/* --candles		*/	case 17:
+			if (optarg == NULL) opt->candles = 1;
+			else
+			{
+				if (fnmatch( "[[:digit:]]?([[:digit:]])", optarg, FNM_EXTMATCH) == 0)
+				{
+					opt->candles = atoi(optarg);
+					if 	( (opt->candles >= MIN_CANDLES_MINUTES) &&
+						(opt->candles <= MAX_CANDLES_MINUTES) ) break;
+				}
+				print_parm_error(N_("--candles"));
+				error_detected++;
+			}
+			break;
+
+/* --havdalah		*/	case 18:
+			if (optarg == NULL) opt->havdalah = 1;
+			else
+			{
+				if (fnmatch( "[[:digit:]]?([[:digit:]])", optarg, FNM_EXTMATCH) == 0)
+				{
+					opt->havdalah = atoi(optarg);
+					if 	( (opt->havdalah >= MIN_MOTZASH_MINUTES) &&
+						(opt->havdalah <= MAX_MOTZASH_MINUTES) ) break;
+				}
+				print_parm_error(N_("--havdalah"));
+				error_detected++;
+			}
+			break;
+
+/* --latitude	*/	case 19:break;
+/* --longitude	*/	case 20:break;
+/* --timezone	*/	case 21:break;
+/* --bidi		*/	case 22:
+/* --visual		*/	case 23:break;
+/* --omer		*/	case 24:break;
+/* --ical		*/	case 25:break;
+/* --julian		*/	case 26:break;
+/* --diaspora	*/	case 27:break;
+/* --menu		*/	case 28:break;
+
+		} // end switch for long_options
+		break;
+
+
+	case 'b': opt->bidi = 1; opt->hebrew = 1; break;
+	case 'c': if (opt->candles == 0) opt->candles = 1;
+			  if (opt->havdalah == 0) opt->havdalah = 1;
+			  break;
+	case 'd': opt->diaspora = 1; break;
+	case 'H': opt->only_if_holiday = 1;	/* why no break? */
+							/* it seems ok 'H' is used only to abort
+								a print, so it always needs 'h' set */
+	case 'h': opt->holidays = 1; break;
+	case 'i': opt->iCal = 1; break;
+	case 'j': opt->julian = 1; break;
+	case 'q': opt->quiet_alerts = 1; break;
+	case 'm': opt->menu = 1; break;
+	case 'o': opt->omer = 1; break;
+	case 'R': opt->only_if_parasha = 1;
+	case 'r': opt->parasha = 1; break;
+	case 'S': opt->short_format = 1; break;
+	case 's': opt->sun = 1; break;
+	case 't': opt->times = 1; break;
+	case 'T': opt->tablular_output = 1; break;
+	case 'l':
+		error_detected = error_detected + parse_coordinate(1, optarg, lat, opt_latitude);
+		break;
+	case 'L':
+		error_detected = error_detected + parse_coordinate(2, optarg, lon, opt_Longitude);
+		break;
+	case 'z':
+		error_detected = error_detected + parse_timezone(optarg, tz);
+		break;
+	case '?':
+//		if (strchr(short_options,optopt)==NULL)
+//			error(0,0,"option %c unknown",optopt);
+		print_parm_missing_error((char*) &optopt);
+		error_detected = TRUE;
+		break;
+	default:
+		print_usage (); exit_main(opt,0); break;
+	}
+
+	return error_detected;
+}
+
+
 
 
 
@@ -1401,50 +1676,69 @@ int main (int argc, char *argv[])
 	opt.iCal = 0;				/* -i option iCal */
 	opt.omer = 0;				/* -o option Sfirat Haomer */
 
+	opt.menu = 0;			// -m print menus for user-selection
+	int i;
+	for (i=0; i<MAX_MENU_ITEMS; i++) opt.menu_item[i] = NULL;
 
 
 	// support for getopt short options
-	static char * short_options = "bcdhHjioqrRsStTl:L:z:";
+	static char * short_options = "bcdhHjimoqrRsStTl:L:z:";
 
-	/* support for getopt long options */
-	/* note: other (long) options will be defined
-	   globally at beginning of this file */
-	int option_index = 0;
+	/**********************************************
+	* support for getopt long options
+	* note: other (long) options will be defined
+	* globally at beginning of this file
+	* ********************************************/
+	int long_option_index = 0;
 	static struct option long_options[] = {
-		{"version", 0, 0, 0},
+	//   name,  has_arg, flag, val
+		{"version", 0, 0, 0},		// 0
 		{"help", 0, 0, 0},
-		{"hebrew", 0, 0, 0},
+		{"hebrew", 0, 0, 0},		// 2
 		{"yom", 0, 0, 0},
-		{"leshabbat", 0, 0, 0},
+		{"leshabbat", 0, 0, 0},		// 4
 		{"leseder", 0, 0, 0},
-		{"table",0,0,0},
+		{"table",0,0,'T'},			// 6
 		{"not-sunset-aware",0,0,0},
-		{"quiet-alerts",0,0,0},
-		{"short_format",0,0,0},
-		{"parasha",0,0,0},
-		{"holidays",0,0,0},
-		{"shabbat-times",0,0,0},
-		{"candle-lighting",0,0,0},
-		{"sun",0,0,0},
-		{"sunset",0,0,0},
+		{"quiet-alerts",0,0,'q'},		// 8
+		{"short_format",0,0,'S'},
+		{"parasha",0,0,'r'},			//10
+		{"holidays",0,0,'h'},
+		{"shabbat-times",0,0,'c'},	//12
+		{"sun",0,0,'s'},		
+		{"sunset",0,0,0},			//14
 		{"sunrise",0,0,0},
-		{"candles",0,0,0},
-		{"havdalah",0,0,0},
-		{"latitude", 0, 0, 0},
-		{"longitude", 0, 0, 0},
-		{"timezone", 0, 0, 0},
-		{"bidi", 0, 0, 0},
-		{"visual", 0, 0, 0},
-		{"omer", 0, 0, 0},
-		{"ical", 0, 0, 0},
-		{"julian", 0, 0, 0},
-		{"diaspora", 0, 0, 0},
+		{"candle-lighting",0,0,0},	//16
+		{"candles",2,0,0},
+		{"havdalah",2,0,0},			//18
+		{"latitude", 1, 0, 'l'},
+		{"longitude", 1, 0, 'L'},		//20
+		{"timezone", 1, 0, 'z'},
+		{"bidi", 0, 0, 'b'},			//22
+		{"visual", 0, 0, 'b'},
+		{"omer", 0, 0, 'o'},			//24
+		{"ical", 0, 0, 'i'},
+		{"julian", 0, 0, 'j'},		//26
+		{"diaspora", 0, 0, 'd'},
+		{"menu",0,0,'m'},				//28
 		{0, 0, 0, 0}
 		};
 
-	/* init locale */
-	/* WHY?? -- reconsider this, or at least test it out */
+
+	// for config file user-defined menus
+	size_t	menu_len = 0;
+	int menu_index;
+	char *menuptr, *optptr;
+
+
+	/************************************************************
+	* init locale
+	*
+	* see hcal.c for the full lecture...
+	* 
+	************************************************************/
 	setlocale (LC_ALL, "");
+
 
 	/************************************************************
 	* parse config file
@@ -1456,107 +1750,54 @@ int main (int argc, char *argv[])
 		fclose(config_file);
 	}
 
-
 	/************************************************************
 	* parse command line
 	************************************************************/
 	opterr = 0; // we'll do our own error reporting
-	while ((c = getopt_long(argc, argv, short_options,
-						long_options, &option_index)) != -1)
+ 	while ((c = getopt_long(argc, argv,
+							short_options, long_options,
+							&long_option_index)) != -1)
+		error_detected = error_detected
+						+ hdate_parser(c, &opt,
+									&lat, &opt_latitude,
+									&lon, &opt_Longitude,
+									&tz, long_option_index);
+
+	/**************************************************
+	* BEGIN - enable user-defined menu
+	*************************************************/
+	if (opt.menu)
 	{
-		switch (c)
+		i = menu_select( &opt.menu_item[0], MAX_MENU_ITEMS );
+		if (i == -1) exit_main(&opt, 0);
+		else if ((i < MAX_MENU_ITEMS) && (opt.menu_item[i] != NULL))
 		{
-		case 0: /* long options */
-			switch (option_index)
+
+			/**************************************************
+			* parse user's menu selection
+			*************************************************/
+			menuptr = opt.menu_item[i];
+			menu_len = strlen( menuptr );
+			menu_index = 0;
+			optptr = NULL;
+			optarg = NULL;
+
+			while (( c = menu_item_parse( menuptr, menu_len, &menu_index,
+								&optptr, short_options, long_options,
+								&long_option_index, &error_detected) ) != -1)
 			{
-			case 0:	print_version (); exit (0); break;
-			case 1:	print_help (); exit (0); break;
-			case 2: opt.hebrew = 1; break;
-			case 3:
-				opt.yom = 1;
-				opt.hebrew = 1;
-				break;
-			case 4:
-				opt.leShabbat = 1;
-				opt.yom = 1;
-				opt.hebrew = 1;
-				break;
-			case 5:
-				opt.leSeder = 1;
-				opt.yom = 1;
-				opt.hebrew = 1;
-				break;
-			case 6:	opt.tablular_output = 1; break;
-			case 7:	opt.not_sunset_aware = 1; break;
-			case 8:	opt.quiet_alerts = 1; break;
-			case 9:	opt.short_format = 1; break;
-			case 10:opt.parasha = 1; break;
-			case 11:opt.holidays = 1; break;
-			case 12:
-				opt.candles = 1;
-				opt.havdalah = 1;
-				break;
-			case 13:
-			case 14:
-			case 15: opt.sun = 1;		break;
-			case 16: opt.candles = 1;	break;
-			case 17: opt.havdalah = 1;	break;
-			case 18:
-				error_detected = error_detected + parse_coordinate(1, optarg, &lat, &opt_latitude);
-				break;
-			case 19:
-				error_detected = error_detected + parse_coordinate(2, optarg, &lon, &opt_Longitude);
-				break;
-			case 20:
-				error_detected = error_detected + parse_timezone(optarg, &tz);
-				break;
-			case 21:
-			case 22: opt.bidi = 1; opt.hebrew = 1; break;
-			case 23: opt.omer = 1; break;
-			case 24: opt.iCal = 1; break;
-			case 25: opt.julian = 1; break;
-			case 26: opt.diaspora = 1; break;
+				error_detected = error_detected + 
+					hdate_parser(c, &opt,
+								&lat, &opt_latitude,
+								&lon, &opt_Longitude,
+								&tz, long_option_index);
 			}
-			break;
-		case 'b': opt.bidi = 1; opt.hebrew = 1; break;
-		case 'c':	opt.candles = 1;
-					opt.havdalah = 1;
-					break;
-		case 'd': opt.diaspora = 1; break;
-		case 'H': opt.only_if_holiday = 1;	/* why no break? */
-								/* it seems ok 'H' is used only to abort
-									a print, so it always needs 'h' set */
-		case 'h': opt.holidays = 1; break;
-		case 'i': opt.iCal = 1; break;
-		case 'j': opt.julian = 1; break;
-		case 'q': opt.quiet_alerts = 1; break;
-		case 'o': opt.omer = 1; break;
-		case 'R': opt.only_if_parasha = 1;
-		case 'r': opt.parasha = 1; break;
-		case 'S': opt.short_format = 1; break;
-		case 's': opt.sun = 1; break;
-		case 't': opt.times = 1; break;
-		case 'T': opt.tablular_output = 1; break;
-		case 'l':
-			error_detected = error_detected + parse_coordinate(1, optarg, &lat, &opt_latitude);
-			break;
-		case 'L':
-			error_detected = error_detected + parse_coordinate(2, optarg, &lon, &opt_Longitude);
-			break;
-		case 'z':
-			error_detected = error_detected + parse_timezone(optarg, &tz);
-			break;
-		case '?':
-			if (strchr(short_options,optopt)==NULL)
-				error(0,0,"option %c unknown",optopt);
-			else error(0,0,"option %c missing parameter",optopt);
-			// variable error_detected is defined in location.include.c
-			error_detected = TRUE;
-			break;
-		default:
-			print_usage (); exit (0); break;
 		}
 	}
+	/**************************************************
+	* END   - enable user-defined menu
+	*************************************************/
+
 
 
 	/************************************************************
@@ -1610,7 +1851,7 @@ int main (int argc, char *argv[])
 		year = atoi (argv[optind]);
 
 		/* handle error */
-		if (year <= 0) { print_parm_error(N_("year")); exit (0); }
+		if (year <= 0) { print_parm_error(N_("year")); exit_main(&opt,0); }
 
 
 		/************************************************************
@@ -1684,7 +1925,7 @@ int main (int argc, char *argv[])
 		month = atoi (argv[optind]);
 
 		/* handle errors */
-		if (year <= 0) { print_parm_error(N_("year")); exit (0); }
+		if (year <= 0) { print_parm_error(N_("year")); exit_main(&opt,0); }
 
 
 		/************************************************************
@@ -1694,10 +1935,10 @@ int main (int argc, char *argv[])
 		{
 			/* begin bounds check for month */
 			if ((month <= 0) || (month > 14))
-				{ print_parm_error(N_("month")); exit (0); }
+				{ print_parm_error(N_("month")); exit_main(&opt,0); }
 			hdate_set_hdate (&h, 1, 1, year);
 			if ((h.hd_size_of_year <365) && (month >12))
-				{ print_parm_error(N_("month")); exit (0); }
+				{ print_parm_error(N_("month")); exit_main(&opt,0); }
 			/* end bounds check for month */
 
 
@@ -1751,7 +1992,7 @@ int main (int argc, char *argv[])
 		else
 		{
 			if ((month <= 0) || (month > 12))
-				{ print_parm_error(N_("month")); exit (0); }
+				{ print_parm_error(N_("month")); exit_main(&opt,0); }
 
 			if (opt.tablular_output)
 			{
@@ -1781,7 +2022,7 @@ int main (int argc, char *argv[])
 		day = atoi (argv[optind]);
 
 		/* handle error */
-		if (year <= 0) { print_parm_error(N_("year")); exit (0); }
+		if (year <= 0) { print_parm_error(N_("year")); exit_main(&opt,0); }
 
 
 		/************************************************************
@@ -1791,17 +2032,17 @@ int main (int argc, char *argv[])
 		{
 			/* begin bounds check for month */
 			if ((month <= 0) || (month > 14))
-				{ print_parm_error(N_("month")); exit (0); }
+				{ print_parm_error(N_("month")); exit_main(&opt,0); }
 			hdate_set_hdate (&h, 1, 1, year);
 			if ((h.hd_size_of_year <365) && (month >12))
-				{ print_parm_error(N_("month")); exit (0); }
+				{ print_parm_error(N_("month")); exit_main(&opt,0); }
 			/* end bounds check for month */
 
 			if ((day <= 0) || (day > 30) ||
 				((day > 29) && ((month==4) || (month==6) || (month==8) || (month=10) || (month==12) || (month==14))) ||
 				(((h.hd_size_of_year==353) || (h.hd_size_of_year==383)) && ((month==2) || (month==3)) && (day >29)) ||
 				(((h.hd_size_of_year==354) || (h.hd_size_of_year==384)) && (month==2) && (day>29)) )			
-				{ print_parm_error(N_("day")); exit (0); }
+				{ print_parm_error(N_("day")); exit_main(&opt,0); }
 
 
 			hdate_set_hdate (&h, day, month, year);
@@ -1813,14 +2054,14 @@ int main (int argc, char *argv[])
 		else
 		{
 			if ((month <= 0) || (month > 12))
-				{ print_parm_error(N_("month")); exit (0); }
+				{ print_parm_error(N_("month")); exit_main(&opt,0); }
 			if ((day <= 0) || 
 				((day > 31) && ((month==1) || (month==3) || (month==5) || (month==7) || (month==8) || (month==10) ||(month==12))) ||
 				((day > 30) && ((month==4) || (month==6) || (month==9) || (month==11))) ||
 				((day > 29) && (month==2) && ((year%4)==0)) ||
 				((day > 28) && (month==2) && ((year%4)!=0))
 			   )
-				{ print_parm_error(N_("day")); exit (0); }
+				{ print_parm_error(N_("day")); exit_main(&opt,0); }
 
 			hdate_set_gdate (&h, day, month, year);
 		}
@@ -1850,7 +2091,7 @@ int main (int argc, char *argv[])
 	else
 	{
 		error(0,0,"%s", N_("too many arguments; after options max is dd mm yyyy"));
-		exit (0);
+		exit_main(&opt,0);
 	}
 
 	return 0;

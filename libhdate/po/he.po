@@ -201,7 +201,7 @@ msgid "Sivan"
 msgstr "סיון"
 
 #: src/hdate_strings.c:220 src/hdate_strings.c:224
-msgid "Tamuz"
+msgid "Tammuz"
 msgstr "תמוז"
 
 #: src/hdate_strings.c:220 src/hdate_strings.c:224

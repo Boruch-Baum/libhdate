@@ -12,7 +12,7 @@ hdate_LDFLAGS =
 hdate_DEPENDENCIES = $(DEPS)
 hdate_LDADD = $(ldadd)
 
-hcal_SOURCES = hcal.c
+hcal_SOURCES = hcal.c 
 hcal_LDFLAGS =
 hcal_DEPENDENCIES = $(DEPS)
 hcal_LDADD = $(ldadd)

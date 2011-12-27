@@ -1,10 +1,34 @@
+/* local_functions.c
+ * a collection of functions in support of both hcal.c and hdate.c
+ * hcal.c  Hebrew calendar              (part of package libhdate)
+ * hdate.c Hebrew date/times information(part of package libhdate)
+ *
+ * compile:
+ * gcc `pkg-config --libs --cflags libhdate` ocal_functions.c -o local_functions
+ *
+ * Copyright:  2011 (c) Boruch Baum
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**************************************************
 *   functions to support hcal and hdate
 **************************************************/
 #define _GNU_SOURCE		// For mempcpy, asprintf
 
-//include <hdate.h>		// For hebrew date
-#include "../../src/hdate.h"
+#include <hdate.h>		// For hebrew date
+//include "../../src/hdate.h"
 #include <stdlib.h>		// For atoi, malloc
 #include <error.h>		// For error
 #include <errno.h>		// For errno
@@ -52,6 +76,13 @@
 #define TRUE -1
 
 
+// support for options parsing
+#define MIN_CANDLES_MINUTES 18
+#define DEFAULT_CANDLES_MINUTES 20
+#define MAX_CANDLES_MINUTES 90
+#define MIN_MOTZASH_MINUTES 20
+#define MAX_MOTZASH_MINUTES 90
+
 
 /************************************************************
 * begin - error message functions
@@ -74,6 +105,12 @@ void print_alert_timezone( int tz )
 	error(0,0,"%s: %s, %+d:%d UTC",
 			N_("ALERT: time zone not entered, using system local time zone"),
 			*tzname, tz/60, tz%60);
+}
+
+void print_parm_invalid_error( char *parm_name )
+{
+	error(0,0,"%s: %s %s %s",N_("error"),
+			N_("option"), parm_name, N_("is not a valid option"));
 }
 
 
@@ -223,8 +260,8 @@ printf("\nrevstr: before free(tempbuff): sourcelen = %d, source = %s\n",source_l
 * parse coordinate
 * 
 * presumes commandline options were parsed using getopt.
-* returns 1 to *opt_found
-* returns the floating point value of the coordinate in *lat
+* returns 1 to *opt_found on success
+* returns the floating point value of the coordinate in *coordinate
 * 
 * type_flag (1-latitude, 2=longitude)
 ************************************************************/
@@ -681,23 +718,173 @@ FILE* get_config_file(	const char* config_dir_name,
 }
 
 
-void embedded_hebrew_test()
+
+
+/**********************************************************************
+* parse user's menu selection into options and their posibile
+* arguments, which can then be parsed (processed really)
+*
+* menuptr points to the beginning of the menu entry string. This
+*       pointer should initially be set to NULL.
+* menu_len is the length of the menu entry string
+* menu_index is the current position of the parser within the string.
+*       This value should initially be set to 0.
+* optptr is a pointer into which we put the location of option text
+*       to be parsed. This pointer should initially be set to NULL.
+* optarg is a pointer to a possible argument to the option. This is a
+*       global variable defined by GNU getopt(), so it shouldn't be
+*       declared or passed.
+* long_options is a pointer to a structure of type option, as defined
+*       by getopt_long()
+* long_option_index is a pointer to position found in long_options, and
+*       simulates the similar value returned by getopt_long()
+* error_detected is a pointer to an accumulator used to delay aborting
+*       the program until after ALL input syntax errors are reported.
+* 
+* RETURN VALUES:
+*	-1 means the menu line string has been completely parsed.
+*	Otherwise, the return value should be the short option character
+*	found, or in the case of a long option found, 0.
+*	This should sound suspiciously similar to the return values issued
+*   by getopt_long().
+***********************************************************************/
+int menu_item_parse(char* menuptr, size_t menu_len, int *menu_index,
+					char** optptr, char* short_options,
+					struct option *long_options, int *long_option_index,
+					int *error_detected)
 {
-static char	*hebrew_array[11] = {
-		N_("א'"),	/* 1 */
-		 N_("ב' ר\"ה"),
-		 N_("צום גדליה"),
-		 N_("יוה\"כ"),
-		 N_("סוכות"),
-		 N_("חוה\"מ סוכות"),
-		 N_("הוש\"ר"),
-		 N_("שמח\"ת"),
-		 N_("חנוכה"),
-		 N_("י' בטבת"),	/* 10 */
-		 N_("ט\"ו בשבט") };
-int i;
-for (i=0; i<11; i++)
-{
-	printf("index = %d, data = %s\n",i,hebrew_array[i]);
+	int ahead_index;
+	char *ahead;
+
+	while ( (*menu_index < menu_len) &&
+			(menuptr[*menu_index] != '#') )
+	{
+		if (menuptr[*menu_index] == '-')
+		{
+			if ( ( (*menu_index+1) >= menu_len) ||
+				(menuptr[*menu_index+1] == '#') ) break;
+			else if (menuptr[*menu_index+1] == '-')
+			{
+				if ( ( (*menu_index+2) >= menu_len) ||
+					(menuptr[*menu_index+2] == '#') ) break;
+				*menu_index = *menu_index +2;
+
+				/**************************************************
+				* We have identified the beginning of what could
+				* be a long option string. We store a pointer to
+				* it in optptr and proceed to:
+				*   find its endpoint
+				*   terminate it with a null
+				*   if it has an argument, store a pointer to
+				* it in optarg and terminate it with a null.
+				* Then we compare the optptr to our list of
+				* valid longoptions and pass the information
+				* to the option parser
+				*************************************************/
+				*optptr = &menuptr[*menu_index]; // ??
+				ahead = *optptr;
+				ahead_index = *menu_index;
+				while ( (ahead_index < menu_len) &&
+						(strchr(" =#",*ahead) == NULL) )
+					{
+						ahead_index++;
+						ahead++;
+					}
+				if (memcmp(ahead,"=",1)==0)
+				{
+					*ahead = '\0';
+					ahead++;
+					optarg = ahead;
+					ahead_index++;
+					while ( (ahead_index < menu_len) &&
+							(strchr(" #",*ahead) == NULL) )
+					{
+						ahead_index++;
+						ahead++;
+					}
+				}
+				if ((*ahead == '#' ) && ((ahead_index+1) < menu_len))
+					ahead[1] = '#';
+				*ahead = '\0';
+				*long_option_index = 0;
+				while ( (long_options[*long_option_index].name != 0) &&
+						(strcmp(long_options[*long_option_index].name, *optptr) != 0) )
+					*long_option_index = *long_option_index + 1;
+				if (long_options[*long_option_index].name == 0)
+				{
+					*error_detected = *error_detected + 1;
+					print_parm_invalid_error(*optptr);
+				}
+				else
+				{
+					*menu_index = ahead_index;
+					return long_options[*long_option_index].val;
+				}
+			}
+			else
+			{
+				*menu_index = *menu_index + 1;
+				/**************************************************
+				* parse a short option from a menu line
+				*************************************************/
+				if ((strchr(short_options, (int) menuptr[*menu_index]) == NULL) ||
+					(menuptr[*menu_index] == ':') )
+				{
+					*error_detected = *error_detected + 1;
+					print_parm_invalid_error(*optptr);
+				}
+				else
+				{
+					*optptr = &menuptr[*menu_index];
+					*long_option_index = -1;
+					if (strchr("lLz", (int) menuptr[*menu_index]) != NULL)
+					{
+						ahead_index = *menu_index+1;
+						while ( (ahead_index < menu_len) &&
+								(memcmp(&menuptr[ahead_index]," ",1)==0) ) ahead_index++;
+						optarg = &menuptr[ahead_index];
+						while ( (ahead_index < menu_len) &&
+								(memcmp(&menuptr[ahead_index]," ",1)) ) ahead_index++;
+						menuptr[ahead_index] = '\0';
+						*menu_index = ahead_index;
+					}
+					return **optptr;
+				}
+
+			}
+		}
+		*menu_index = *menu_index + 1;
+	}
+	return -1;
 }
+
+
+/**************************************************
+* prompt user for menu selection
+*************************************************/
+int menu_select( char* menu_list[], int max_menu_items )
+{
+	int i, j;
+
+	for (i=0; i< max_menu_items; i++)
+	{
+		if (menu_list[i] == NULL) break;
+		if (i==0) printf("\n%s:\n\n", N_("your custom menu options (from your config file)"));
+		printf("     %d: %s\n",i,menu_list[i]);
+	}
+	j = i;
+	if (i == 0)
+	{
+		error(0,0,N_("ALERT: -m (--menu) option specified, but no menu items in config file"));
+		return -1;
+	}
+	printf("\n%s: ",N_("enter your selection, or <return> to continue"));
+	i = getchar() - 48; // effectively converts valid values to integers
+	if ((i < 0) || (i >= j))
+	{
+		error(0,0,N_("menu selection received was out of bounds"));
+		return -1;
+	}
+	printf("\n");
+	return i;
 }

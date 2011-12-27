@@ -177,6 +177,7 @@ hdate_get_holyday (hdate_struct const * h, int diaspora);
  @return a static string of the hebrew number UTF-8 (logical)
  @attention ( 0 < n < 10000)
  @attention free memory allocated at return pointer 
+ @attention possibly will be DEPRECATED in favor of hdate_get_int_string_
 */
 char *
 hdate_get_int_string (int n);
@@ -187,11 +188,13 @@ hdate_get_int_string (int n);
  @param *dest pointer to a buffer of size HEBREW_NUMBER_BUFFER_SIZE
  @param n The int to convert
  @param opt_compressed don't include apostrophes and quotes
+ @param hebrew_form (as opposed to arabic numerals)
  @return a static string of the hebrew number UTF-8 (logical)
- @attention ( 0 < n < 11000)
+ @attention ( 0 < n < 10000)
+ @attention free memory allocated at return pointer 
 */
 char *
-hdate_get_int_string_ (char *dest, int n, int opt_compressed);
+hdate_get_int_string_ (char *dest, int n, int opt_compressed, int hebrew_form);
 
 /**
  @brief get name of week day.
@@ -231,6 +234,8 @@ hdate_get_hebrew_month_string (int month, int s);
  @param holyday the holyday number.
  @param s short flag.
  @return a static string of holyday name
+ @attention This function has been DEPRECATED and is currently
+just a wrapper for hdate_string
 */
 char *
 hdate_get_holyday_string (int holyday, int s);
@@ -610,6 +615,63 @@ hdate_get_translator_string ();
 */
 int
 hdate_is_hebrew_locale();
+
+/**
+ @brief Return a pointer to a static string
+
+ @param type_of_string 1 = day of week, 2 = parshaot, 3 = month, 4 = holiday
+ @param index
+ @param short_form   0 = short format
+ @param hebrew_form  0 = not hebrew (native/embedded)
+*/
+char* hdate_string( int type_of_string, int index, int short_form, int hebrew_form);
+
+/** @def HDATE_STRING_DOW
+  @brief for function hdate_string: identifies string type: day of week 
+*/
+#define HDATE_STRING_DOW     1
+
+/** @def HDATE_STRING_PARASHA
+  @brief for function hdate_string: identifies string type: parasha
+*/
+#define HDATE_STRING_PARASHA 2
+
+/** @def HDATE_STRING_HMONTH
+  @brief for function hdate_string: identifies string type: hebrew_month
+*/
+#define HDATE_STRING_HMONTH   3
+
+/** @def HDATE_STRING_GMONTH
+  @brief for function hdate_string: identifies string type: gregorian_month
+*/
+#define HDATE_STRING_GMONTH   4
+
+/** @def HDATE_STRING_HOLIDAY
+  @brief for function hdate_string: identifies string type: holiday
+*/
+#define HDATE_STRING_HOLIDAY 5
+
+/** @def HDATE_STRING_SHORT
+  @brief for function hdate_string: use short form, if one exists
+*/
+#define HDATE_STRING_SHORT   0
+
+/** @def HDATE_STRING_LONG
+  @brief for function hdate_string: use long form
+*/
+#define HDATE_STRING_LONG    1
+
+/** @def HDATE_STRING_HEBREW
+  @brief for function hdate_string: use embedded hebrew string
+*/
+#define HDATE_STRING_HEBREW  1
+
+/** @def HDATE_STRING_LOCAL
+  @brief for function hdate_string: use local locale string
+*/
+#define HDATE_STRING_LOCAL   0
+
+
 
 #ifdef __cplusplus
 }
