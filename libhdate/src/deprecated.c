@@ -45,12 +45,10 @@ char *
 hdate_get_int_string (int const n)
 {
 	char *dest;
-	int hebrew_form = TRUE;
-	int const compressed = 0; // no compression
+	int hebrew_form = HDATE_STRING_HEBREW;
 
-	dest = malloc(HEBREW_NUMBER_BUFFER_SIZE);
-	if (!hdate_is_hebrew_locale()) hebrew_form = FALSE;
-	return hdate_get_int_string_(dest, n, compressed, hebrew_form);
+	if (!hdate_is_hebrew_locale()) hebrew_form = HDATE_STRING_LOCAL;
+	return hdate_string(HDATE_STRING_INT, n, HDATE_STRING_SHORT, hebrew_form);
 }
 
 
