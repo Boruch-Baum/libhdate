@@ -1,10 +1,10 @@
-/* hcal.c
+/* hcal.c            http://libhdate.sourceforge.net
  * Hebrew calendar (part of package libhdate)
  *
  * compile:
  * gcc `pkg-config --libs --cflags libhdate` hcal.c -o hcal
  *
- * Copyright:  2011 (c) Boruch Baum, 2004-2010 (c) Yaacov Zamir
+ * Copyright:  2011-2012 (c) Boruch Baum, 2004-2010 (c) Yaacov Zamir
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 #define _GNU_SOURCE		// for mempcpy
 #include <stdio.h>		// For printf
 #include <hdate.h>		// For hebrew date
-//include "../../src/hdate.h"
+//#include "../../src/hdate.h"
 #include <stdlib.h>		// For atoi, malloc
 #include <locale.h>		// For setlocale
 #include <getopt.h>		// For getopt_long
@@ -35,10 +35,7 @@
 #define TRUE -1
 #define SHABBAT 7
 
-// for hdate_get_int_string_
-#define NO_COMPRESS 0
-#define COMPRESS 1
-#define HEBREW_FORM 1
+#define HDATE_STRING_SHORT 1
 
 // for opt.menu[MAX_MENU_ITEMS]
 #define MAX_MENU_ITEMS 10
@@ -152,6 +149,14 @@ const char* hcal_config_file_text = N_("\
 # modifying file <not yet implemented>.\n\
 # You may override all defaults by changing the contents of this file.\n\
 #\n\
+# Version information\n\
+# Please do not alter the following line or place another uncommented\n\
+# line in front of it. The version definition may be used by subsequent\n\
+# versions of hcal to how to parse the file and determine whether\n\
+# additional information and options should be appended to the end of\n\
+# this file. If you find more than one instance of this line, you may \n\
+# replace the older with the newer\n\
+VERSION=2.00\n\
 # Location awareness\n\
 # hcal wants to accurately highlight the current Hebrew day, including\n\
 # during the hours between sunset and secular midnight. If you don't\n\
@@ -273,13 +278,14 @@ int print_version ()
 /**************************************************
 *  print usage
 *************************************************/
-void print_usage ()
+void print_usage_hcal ()
 {
 	printf ("%s\n",
 N_("Usage: hcal [options] [coordinates timezone] ] [[month] year]\n\
        coordinates: -l [NS]yy[.xxx] -L [EW]xx[.xxx]\n\
                     -l [NS]yy[:mm[:ss]] -L [EW]xx[:mm[:ss]]\n\
-       timezone:    -z nn[( .nn | :mm )]"));
+       timezone:    -z nn[( .nn | :mm )]\
+Try \'hcal --help\' for more information"));
 }
 
 /**************************************************
@@ -287,7 +293,7 @@ N_("Usage: hcal [options] [coordinates timezone] ] [[month] year]\n\
 *************************************************/
 void print_help ()
 {
-	print_usage();
+	print_usage_hcal();
 	printf ("%s\n",
 N_("Hebrew calendar\nOPTIONS:\n\
    -1 --one-month     over-ride config file setting if you had set\n\
@@ -325,7 +331,7 @@ easy selection."));
 /**************************************************
 *  HTML - print css section
 *************************************************/
-int print_css (int external_css)
+int print_css (const int external_css)
 {
 	if (external_css) printf ("\n\t@import \"hcal.css\";\n");
 	else
@@ -365,7 +371,7 @@ span.holiday_name { }\n");
 /**************************************************
 *  HTML - print header
 *************************************************/
-int print_header_html (int external_css, int force_hebrew)
+int print_header_html ( const int external_css, const int force_hebrew)
 {
 	printf ("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"\"http://www.w3.org/TR/html4/strict.dtd\">\n\
 <html>\n\
@@ -416,13 +422,14 @@ alt=\"Valid HTML 4.01!\" height=\"31\" width=\"88\" />\n</a>\n");
 /**************************************************
 *  Print HTML header - month line
 *************************************************/
-void print_header_month_line_html( header_info header)
+void print_header_month_line_html( const header_info header)
 {
 
 	// TODO - fix bug ellul xxxx - tishrei xxxx+1
 //	char *h_year_1;
 //	h_year_1 = malloc(HEBREW_NUMBER_BUFFER_SIZE);
-	char h_year_1[HEBREW_NUMBER_BUFFER_SIZE + 1];
+//	char h_year_1[HEBREW_NUMBER_BUFFER_SIZE + 1];
+	char *h_year_1 = NULL;
 
 	/**************************************************
 	*  Print Gregorian month and year
@@ -431,6 +438,7 @@ void print_header_month_line_html( header_info header)
 			hdate_string( HDATE_STRING_GMONTH, header.g_month_1, HDATE_STRING_LONG, HDATE_STRING_LOCAL),
 			header.g_year_1);
 
+	h_year_1 = hdate_string(HDATE_STRING_INT, header.h_year_1, HDATE_STRING_LONG, HDATE_STRING_HEBREW);
 	/**************************************************
 	*  Print Hebrew month and year
 	**************************************************/
@@ -442,12 +450,12 @@ void print_header_month_line_html( header_info header)
 	}
 	printf ("%s ", hdate_string( HDATE_STRING_HMONTH , header.h_month_2, HDATE_STRING_LONG, HDATE_STRING_LOCAL));
 	printf ("</span>\n");
-	printf ("<span class=\"hyear\">%s</span></td></tr></table>\n", hdate_get_int_string_ (h_year_1, header.h_year_1, NO_COMPRESS,HEBREW_FORM));
+	printf ("<span class=\"hyear\">%s</span></td></tr></table>\n", h_year_1);
 
 	printf ("<span class=\"month_table\">\n<table class=main>\n");
 
 
-//	free(h_year_1);
+	if (h_year_1 != NULL) free(h_year_1);
 }
 
 
@@ -473,7 +481,7 @@ void print_header_dow_line_html()
 /*************************************************
 *  Display data in a more pleasing visual manner
 *************************************************/
-void colorize_element ( int element )
+void colorize_element ( const int element )
 {
 	switch (element) {
 	case ELEMENT_WEEKDAY_G: printf(CODE_LIGHT_GREY); break;
@@ -516,19 +524,19 @@ void colorize_element ( int element )
 /**************************************************
  *  print header - month line to stdout
  *************************************************/
-void print_header_month_line_stdout( header_info header, int colorize, int force_hebrew, int visual_bidi )
+void print_header_month_line_stdout( const header_info header, const int colorize, const int force_hebrew, const int visual_bidi )
 {
-	char *g_month, *h1_month, *h1_year, *h2_month, *h2_year;
+	char *g_month, *h1_month, *h2_month;
+	char *h1_year = NULL;
+	char *h2_year = NULL;
 	size_t g_month_len, g_year_len, h1_month_len, h2_month_len, h1_year_len, h2_year_len;
+
 
 	char *hebrew_buffer, *hebrew_buffer_next;
 	size_t hebrew_buffer_len, literals_len;
 
 	int j;
 	size_t padding = 0;
-
-	// for forcing Hebrew printing of Hebrew data
-	//char *language;
 
 
 	/**************************************************
@@ -571,33 +579,24 @@ void print_header_month_line_stdout( header_info header, int colorize, int force
 	case 100-999:	g_year_len  = 3; break;
 	}
 
-	/*************************************************
-	*  Hebrew date entry - force-hebrew setup
-	*************************************************/
-	/*if (force_hebrew)
-	{
-		// BUG - this isn't thread-safe
-		language = getenv("LANGUAGE");
-		setenv("LANGUAGE", "he_IL.UTF-8", 1);
-	}*/
 
 	/**************************************************
 	*  collect padding info for Hebrew date
 	*************************************************/
-	h1_year = malloc(HEBREW_NUMBER_BUFFER_SIZE+1);
 	h1_month = hdate_string( HDATE_STRING_HMONTH , header.h_month_1, HDATE_STRING_LONG, force_hebrew);
-	h1_year = hdate_get_int_string_ (h1_year, header.h_year_1, NO_COMPRESS,force_hebrew);
+	h1_year  = hdate_string( HDATE_STRING_INT, header.h_year_1, HDATE_STRING_SHORT, force_hebrew);
+//printf("\nh1_month = %s; h1_year = %s, in-year = %d\n",h1_month,h1_year, header.h_year_1);exit(0);
+
 	h1_month_len = strlen(h1_month);
 	h1_year_len = strlen(h1_year);
-//	DEBUG - printf("\nh1 year value = %d, h1 year string = %s, string length = %d\n",header.h_year_1, h1_year, h1_year_len);
+//  DEBUG - printf("\nh1 year value = %d, h1 year string = %s, string length = %d\n",header.h_year_1, h1_year, h1_year_len);
 //	DEBUG - int ii; for (ii=0; ii<h1_year_len; ii++) printf("%x  ",h1_year[ii]);
 
 	if (header.h_year_1 != header.h_year_2)
 	{
-		h2_year = malloc(HEBREW_NUMBER_BUFFER_SIZE+1);
 
 		h2_month = hdate_string( HDATE_STRING_HMONTH , header.h_month_2, HDATE_STRING_LONG, force_hebrew);
-		h2_year = hdate_get_int_string_ (h2_year, header.h_year_2, NO_COMPRESS,force_hebrew);
+		h2_year = hdate_string(HDATE_STRING_INT, header.h_year_2, HDATE_STRING_LONG,force_hebrew);
 
 		h2_month_len = strlen(h2_month);
 		h2_year_len = strlen(h2_year);
@@ -663,7 +662,6 @@ void print_header_month_line_stdout( header_info header, int colorize, int force
 	for (j = 1; j < padding; j++) printf(" ");
 
 
-
 	/**************************************************
 	*  Print Hebrew month and year
 	*************************************************/
@@ -674,15 +672,11 @@ void print_header_month_line_stdout( header_info header, int colorize, int force
 
 
 	/**************************************************
-	*  clean up force of Hebrew
-	*************************************************/
-	//if (force_hebrew) setenv("LANGUAGE", language, 1);
-
-	/**************************************************
 	*  free allocated memory
 	*************************************************/
-	free(h1_year);
-	if (header.h_year_1 != header.h_year_2)	free(h2_year);
+	if (h1_year != NULL) free(h1_year);
+//	if (header.h_year_1 != header.h_year_2)	free(h2_year);
+	if (h2_year != NULL) free(h2_year);
 	free(hebrew_buffer);
 }
 
@@ -690,7 +684,7 @@ void print_header_month_line_stdout( header_info header, int colorize, int force
 /**************************************************
 *  print column headings for days of weeks
 **************************************************/
-void print_header_dow_line_stdout( int colorize )
+void print_header_dow_line_stdout( const int colorize )
 {
 	int column;
 
@@ -723,7 +717,7 @@ void print_header_dow_line_stdout( int colorize )
 /**************************************************
 *  calculate start/end month/year for a calendar
 **************************************************/
-header_info calculate_calendar_start_end (int month, int year)
+header_info calculate_calendar_start_end (const int month, const int year)
 {
 	hdate_struct h;
 	header_info header;
@@ -736,8 +730,6 @@ header_info calculate_calendar_start_end (int month, int year)
 
 
 	hdate_set_jd ( &h, hdate_gdate_to_jd ( 1, month % 12 + 1, ((month==12) ? year+1 : year) ) - 1  );
-//	DEBUG - hdate_set_jd ( &h, 3313455  );
-//	DEBUG - printf("\nfunction calculate_calendar_start: for julian day 3313455,  month #2 = %d\n",h.hd_mon);
 	header.g_month_2 = h.gd_mon;
 	header.g_year_2 = h.gd_year;
 	header.h_month_2 = h.hd_mon;
@@ -750,7 +742,7 @@ header_info calculate_calendar_start_end (int month, int year)
 /**************************************************
  *  print header - year and month
  *************************************************/
-int print_header (int month, int year, option_list opt)
+int print_header ( const int month, const int year, const option_list opt)
 {
 	header_info previous_month, current_month, next_month;
 
@@ -832,14 +824,14 @@ int print_header (int month, int year, option_list opt)
 /**************************************************
 *  print HTML calendar entry (ie. a single day)
 *************************************************/
-void print_day_html ( hdate_struct h, int month, option_list opt)
+void print_day_html ( const hdate_struct h, const int month, const option_list opt)
 {
 
 	int holiday_type;
 //	char *hd_day;
 //	hd_day = malloc(HEBREW_NUMBER_BUFFER_SIZE);
-	char hd_day_buffer[HEBREW_NUMBER_BUFFER_SIZE + 1];
-
+//	char hd_day_buffer[HEBREW_NUMBER_BUFFER_SIZE + 1];
+	char *hd_day_str = NULL;
 
 	holiday_type = hdate_get_holyday_type(hdate_get_holyday(&h, opt.diaspora));
 
@@ -850,10 +842,11 @@ void print_day_html ( hdate_struct h, int month, option_list opt)
 	else printf ("<td class=\"regular\">");
 
 	/* Print a day */
+	hd_day_str = hdate_string(HDATE_STRING_INT, h.hd_day, HDATE_STRING_LONG,opt.force_hebrew);
 	printf ("<table class=day><tr class=line1><td class=\"gday\">%2d</td>\n\
 <td class=\"hday\">%3s&nbsp;%s</td></tr><tr class=line2><td>&nbsp;</td></tr>",
 		h.gd_day,
-		hdate_get_int_string_ (hd_day_buffer, h.hd_day, NO_COMPRESS,opt.force_hebrew),
+		hd_day_str,
 		hdate_string( HDATE_STRING_HMONTH , h.hd_mon, HDATE_STRING_LONG, opt.force_hebrew));
 	if (holiday_type) printf ("<tr class=line3><td class=\"holiday_name\">%s</td></tr>",
 			hdate_string( HDATE_STRING_HOLIDAY,
@@ -864,21 +857,22 @@ void print_day_html ( hdate_struct h, int month, option_list opt)
 
 	printf ("</table></td>\n");
 
-//	free(hd_day);
+	if (hd_day_str != NULL) free(hd_day_str);
 }
 
 
 /*************************************************
 *  print stdout calendar entry (ie. a single day)
 *************************************************/
-void print_day ( hdate_struct h, int month, option_list opt)
+void print_day ( const hdate_struct h, const int month, const option_list opt)
 {
 
 	// for forcing Hebrew printing of Hebrew data
 	//char *language;
 
-	char hd_day_buffer[HEBREW_NUMBER_BUFFER_SIZE + 1];
+	// char *hd_day_buffer[HEBREW_NUMBER_BUFFER_SIZE + 1];
 	// hd_day_buffer = malloc(HEBREW_NUMBER_BUFFER_SIZE + 1);
+	char *hd_day_str = NULL;
 
 	size_t hd_day_buffer_str_len;
 
@@ -899,8 +893,6 @@ void print_day ( hdate_struct h, int month, option_list opt)
 		/*************************************************
 		*  Gregorian date entry - color prefix
 		*************************************************/
-//		unnecessary because opt.jd_today_g/h == 0 if opt.no_reverse
-//		if ((h.hd_jd == opt.jd_today_g) && (! opt.no_reverse))
 		if (h.hd_jd == opt.jd_today_g)
 				printf (CODE_REVERSE_VIDEO);
 		else if (opt.colorize)
@@ -935,8 +927,6 @@ void print_day ( hdate_struct h, int month, option_list opt)
 		/*************************************************
 		*  Hebrew date entry - color prefix
 		*************************************************/
-//		unnecessary because opt.jd_today_g/h == 0 if opt.no_reverse
-//		if ((h.hd_jd == opt.jd_today_h) && (! opt.no_reverse))
 		if (h.hd_jd == opt.jd_today_h)
 				printf (CODE_REVERSE_VIDEO);
 		else if (opt.colorize)
@@ -946,34 +936,24 @@ void print_day ( hdate_struct h, int month, option_list opt)
 			else            colorize_element(ELEMENT_WEEKDAY_H);
 		}
 
-		/*************************************************
-		*  Hebrew date entry - force-hebrew setup
-		*************************************************/
-		/*if (opt.force_hebrew)
-		{
-			// BUG - this isn't thread-safe
-			language=getenv("LANGUAGE");
-			setenv("LANGUAGE", "he_IL.UTF-8", 1);
-		}*/
 
 		/*************************************************
 		*  Hebrew date entry - day of the month
 		*************************************************/
-//		printf("\nDEBUG: h.hd_day = %d\n",h.hd_day);
-		hdate_get_int_string_(hd_day_buffer, h.hd_day,COMPRESS,opt.force_hebrew);
+		hd_day_str = hdate_string(HDATE_STRING_INT, h.hd_day,HDATE_STRING_SHORT,opt.force_hebrew);
 		if (opt.bidi)
 		{
-			hd_day_buffer_str_len = (size_t) strlen(hd_day_buffer);
+			hd_day_buffer_str_len = (size_t) strlen(hd_day_str);
 			if ( hd_day_buffer_str_len > HEBREW_NUMBER_BUFFER_SIZE)
 				hd_day_buffer_str_len = HEBREW_NUMBER_BUFFER_SIZE - 1;
-			revstr(hd_day_buffer, hd_day_buffer_str_len);
+			revstr(hd_day_str, hd_day_buffer_str_len);
 		}
 		if  ( ( (opt.force_hebrew) || (hdate_is_hebrew_locale()) )  &&
 			( (h.hd_day < 11) || (h.hd_day == 20) || (h.hd_day == 30) ) )
 		{	// need to pad Hebrew dates 1-10, 20, 30
-			printf ("%s%s"," ",hd_day_buffer);
+			printf ("%s%s"," ",hd_day_str);
 		}
-		else printf ("%2s", hd_day_buffer);
+		else printf ("%2s", hd_day_str);
 
 		/*************************************************
 		*  Hebrew date entry - color cleanup
@@ -981,20 +961,16 @@ void print_day ( hdate_struct h, int month, option_list opt)
 		if ((h.hd_jd == opt.jd_today_h) || (opt.colorize))
 			printf (CODE_RESTORE_VIDEO);
 
-		/*************************************************
-		*  Hebrew date entry - force-hebrew cleanup
-		*************************************************/
-		//if (opt.force_hebrew) setenv("LANGUAGE", language, 1);
 	}
 
-	//free(hd_day_buffer);
+	if (hd_day_str != NULL) free(hd_day_str);
 }
 
 
 /*************************************************
 *  print a calendar week's entry (ie. seven columns)
 *************************************************/
-void print_week( int jd, int month, option_list opt)
+void print_week( int jd, const int month, const option_list opt)
 {
 #define long_parasha_name 0
 
@@ -1180,7 +1156,7 @@ void print_week( int jd, int month, option_list opt)
 /**************************************************
 *  print month table
 *************************************************/
-int print_calendar (int current_month, int current_year, option_list opt)
+int print_calendar ( const int current_month, const int current_year, const option_list opt)
 {
 	hdate_struct h;
 	int calendar_line;
@@ -1308,7 +1284,7 @@ int print_calendar (int current_month, int current_year, option_list opt)
 /****************************************************
 * print month header, month table, month footnotes
 ****************************************************/
-int print_month (int month, int year, option_list opt)
+int print_month ( const int month, const int year, const option_list opt)
 {
 	hdate_struct h;
 
@@ -1333,7 +1309,6 @@ int print_month (int month, int year, option_list opt)
 	if (opt.footnote)
 	{
 		jd_counter = h.hd_jd;
-		month = h.gd_mon;
 		while ( month == h.gd_mon )
 		{
 			holiday = hdate_get_holyday(&h, opt.diaspora);
@@ -1578,7 +1553,7 @@ void read_config_file(	FILE *config_file,
 /****************************************************
 * exit elegantly
 ****************************************************/
-void exit_main( option_list *opt, int exit_code)
+void exit_main( option_list *opt, const int exit_code)
 {
 	int i;
 	for (i=0; i<MAX_MENU_ITEMS; i++)
@@ -1596,7 +1571,7 @@ void exit_main( option_list *opt, int exit_code)
 * It was appropriate to make this a function, outside
 * of main, because of its dual use and dual reference
 ****************************************************/
-int hcal_parser( int switch_arg, option_list *opt,
+int hcal_parser( const int switch_arg, option_list *opt,
 					double *lat, int *opt_latitude,
 					double *lon, int *opt_Longitude,
 					int *tz, int long_option_index)
@@ -1644,7 +1619,7 @@ int hcal_parser( int switch_arg, option_list *opt,
 					if 	( (opt->candles >= MIN_CANDLES_MINUTES) &&
 						(opt->candles <= MAX_CANDLES_MINUTES) ) break;
 				}
-				print_parm_error(N_("--candles"));
+				print_parm_error("--candles");
 				error_detected++;
 			}
 			break;
@@ -1658,7 +1633,7 @@ int hcal_parser( int switch_arg, option_list *opt,
 					if 	( (opt->havdalah >= MIN_MOTZASH_MINUTES) &&
 						(opt->havdalah <= MAX_MOTZASH_MINUTES) ) break;
 				}
-				print_parm_error(N_("--havdalah"));
+				print_parm_error("--havdalah");
 				error_detected++;
 			}
 			break;
@@ -1700,7 +1675,7 @@ int hcal_parser( int switch_arg, option_list *opt,
 			print_parm_missing_error((char*) &optopt);
 		error_detected = TRUE;
 		break;
-	default: print_usage (); exit_main(opt, 0); break;
+	default: print_usage_hcal (); exit_main(opt, 0); break;
 	}
 	return error_detected;
 }
@@ -1905,7 +1880,8 @@ int main (int argc, char *argv[])
 	* It issues an exit(EXIT_CODE_BAD_PARMS) [==1]
 	* if it discovers, um, bad parameters
 	************************************************************/
-	validate_location(opt_latitude, opt_Longitude, &lat, &lon, &tz, opt.quiet_alerts, error_detected);
+	validate_location(opt_latitude, opt_Longitude, &lat, &lon, &tz,
+					opt.quiet_alerts, error_detected, print_usage_hcal);
 	opt.lat = lat;
 	opt.lon = lon;
 	opt.tz = tz;

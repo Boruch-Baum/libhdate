@@ -5,6 +5,7 @@ libhdate_la_CFLAGS =\
 lib_LTLIBRARIES = libhdate.la
 
 libhdate_la_SOURCES = \
+	deprecated.c\
 	hdate_strings.c\
 	hdate_julian.c\
 	hdate_holyday.c\

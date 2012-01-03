@@ -1,6 +1,8 @@
-/*  libhdate - Hebrew calendar library
+/*  libhdate - Hebrew calendar library: http://libhdate.sourceforge.net
  *
- *  Copyright (C) 1984-2003 Amos Shapir, 2004-2007  Yaacov Zamir <kzamir@walla.co.il>
+ *  Copyright (C) 2011-2012 Boruch Baum  <boruch-baum@users.sourceforge.net>
+ *                2004-2007 Yaacov Zamir <kzamir@walla.co.il>
+ *                1984-2003 Amos Shapir
  *  
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -52,6 +54,14 @@ extern "C"
 
 /** @def HEBREW_NUMBER_BUFFER_SIZE
   @brief for hdate_get_int_string_ and hdate_get_int_wstring
+  @note
+  How large should the buffer be? Hebrew year 10,999 would
+  be י'תתקצ"ט, eight characters, each two bytes, plus an
+  end-of-string delimiter, equals 17. This could effectively
+  yield a range extending to Hebrew year 11,899, י"א תתצ"ט,
+  due to the extra ק needed for the '900' century. However,
+  for readability, I would want a an extra space at that
+  point between the millenium and the century...
 */
 #define HEBREW_NUMBER_BUFFER_SIZE 17
 #define HEBREW_WNUMBER_BUFFER_SIZE 9
@@ -133,15 +143,20 @@ hdate_set_jd (hdate_struct *h, int jd);
 /*************************************************************/
 
 /**
- @brief get formated hebrew date.
+ @brief Return a string, with the hebrew date.
 
- return the short ( e.g. "1 Tishrey" ) or 
- long (e.g. "Tuesday 18 Tishrey 5763 Hol hamoed Sukot" ) formated date.
+ @return NULL pointer upon failure or, upon success, a pointer to a
+ string containing the short ( e.g. "1 Tishrey" ) or long (e.g. "Tuesday
+ 18 Tishrey 5763 Hol hamoed Sukot" ) formated date. You must free() the
+ pointer after use.
 
- @param h pointer this hdate struct.
- @param diaspora if true give diaspora holydays.
- @param s short flag.
- @return a static string of foramted date
+ @param h The hdate_struct of the date to print.
+ @param diaspora if true give diaspora holydays
+ @param short_format A short flag (true - returns a short string, false returns a long string).
+
+ @warning This was originally written using a local static string,
+          calling for output to be copied away.
+
 */
 char *
 hdate_get_format_date (hdate_struct const * h, int diaspora, int s);
@@ -152,17 +167,17 @@ hdate_get_format_date (hdate_struct const * h, int diaspora, int s);
  @param h pointer this hdate struct.
  @param diaspora if true give diaspora readings
  @return the number of parasha 1. Bereshit etc..
-   (55 trow 61 are joined strings e.g. Vayakhel Pekudei)
+   (55 through 61 are joined strings e.g. Vayakhel Pekudei)
 */
 int
 hdate_get_parasha (hdate_struct const * h, int diaspora);
 
 /**
- @brief get the number of hebrew holyday.
+ @brief get the number of hebrew holiday.
 
  @param h pointer this hdate struct.
- @param diaspora if true give diaspora holydays
- @return the number of holyday.
+ @param diaspora if true give diaspora holidays
+ @return the number of holiday.
 */
 int
 hdate_get_holyday (hdate_struct const * h, int diaspora);
@@ -173,80 +188,77 @@ hdate_get_holyday (hdate_struct const * h, int diaspora);
 /**
  @brief convert an integer to hebrew string. 
  
- @param n The int to convert
- @return a static string of the hebrew number UTF-8 (logical)
- @attention ( 0 < n < 10000)
- @attention free memory allocated at return pointer 
- @attention possibly will be DEPRECATED in favor of hdate_get_int_string_
+ @param n The int to convert ( 0 < n < 11000)
+ @return a string of the hebrew number UTF-8 (logical)
+ @warning DEPRECATION: This function is now just a wrapper for
+          hdate_string, and is subject to deprecation.
+		  Callers to this function must free() after using the memory
+		  pointed to by the return value.
+          The original function outputted to a local static string,
+          and suggested that the caller copied it away.
+		  [deprecation date 2011-12-28]
 */
 char *
 hdate_get_int_string (int n);
 
-/**
- @brief convert an integer to hebrew string. 
- 
- @param *dest pointer to a buffer of size HEBREW_NUMBER_BUFFER_SIZE
- @param n The int to convert
- @param opt_compressed don't include apostrophes and quotes
- @param hebrew_form (as opposed to arabic numerals)
- @return a static string of the hebrew number UTF-8 (logical)
- @attention ( 0 < n < 10000)
- @attention free memory allocated at return pointer 
-*/
-char *
-hdate_get_int_string_ (char *dest, int n, int opt_compressed, int hebrew_form);
 
 /**
- @brief get name of week day.
+ @brief Return a static string, with name of week day.
 
- @param day The number of the day 1..7 (1 - sun).
- @param s short flag 
-   true - returns a short string: sun, false returns: sunday.
- @return a static string of the day of the week
+ @param day_of_week The number of the day 1..7 (1 - sun).
+ @param short_form A short flag (true - sun; false - sunday).
+ @warning DEPRECATION: This function is now just a wrapper for
+          hdate_string, and is subject to deprecation.
+		  [deprecation date 2011-12-28]
 */
 char *
 hdate_get_day_string (int day, int s);
 
 /**
- @brief name of month.
+ @brief Return a static string, with name of month.
 
- @param month the number of the month 1..12 (1 - jan).
- @param s short flag.
- @return a static string of month name
+ @param month The number of the month 1..12 (1 - jan).
+ @param short_form A short flag.
+ @warning DEPRECATION: This function is now just a wrapper for
+          hdate_string, and is subject to deprecation.
+		  [deprecation date 2011-12-28]
 */
 char *
 hdate_get_month_string (int month, int s);
 
 /**
- @brief name of hebrew month.
+ @brief Return a static string, with name of hebrew month.
 
- @param month the number of the month 1..14 
-   (1 - tishre, 13 - adar 1, 14 - adar 2).
- @param s short flag.
- @return a static string of month name
+ @param month The number of the month 1..14 (1 - tishre, 13 - adar 1, 14 - adar 2).
+ @param short_form A short flag.
+ @warning DEPRECATION: This function is now just a wrapper for
+          hdate_string, and is subject to deprecation.
+		  [deprecation date 2011-12-28]
 */
 char *
 hdate_get_hebrew_month_string (int month, int s);
 
 /**
- @brief name of hebrew holyday.
+ @brief Name of hebrew holiday.
 
- @param holyday the holyday number.
- @param s short flag.
- @return a static string of holyday name
- @attention This function has been DEPRECATED and is currently
-just a wrapper for hdate_string
+ @param holiday The holiday number.
+ @param short_text A short flag. 0=true, !0=false
+ @warning DEPRECATION: This function is now just a wrapper for
+          hdate_string, and is subject to deprecation.
+		  [deprecation date 2011-12-28]
 */
 char *
 hdate_get_holyday_string (int holyday, int s);
 
 /**
- @brief name of parasha
+ @brief Name of Parasha
 
- @param parasha the number of parasha 1-Bereshit
-   (55 trow 61 are joined strings e.g. Vayakhel Pekudei)
- @param s short flag.
- @return a static string of parasha name
+ @param parasha The Number of Parasha 1-Bereshit
+	(55 through 61 are joined strings e.g. Vayakhel Pekudei)
+ @param short_form A short flag. 0=true, !0 = false
+ @warning DEPRECATION: This function is now just a wrapper for
+          hdate_string, and is subject to deprecation.
+		  [deprecation date 2011-12-28]
 */
 char *
 hdate_get_parasha_string (int parasha, int s);
@@ -255,7 +267,14 @@ hdate_get_parasha_string (int parasha, int s);
  @brief Return a static string, with the day in the omer
 
  @param omer day The day in the omer.
- @return a static string, with the day in the omer
+ @return a pointer to a string with the day in the omer. The caller
+         must free() the pointer after use.
+ @warning DEPRECATION: This function is now just a wrapper for
+          hdate_string, and is subject to deprecation.
+ @attention The prior version of this function returned a pointer to a
+          static string buffer. The current version returns a pointer to
+          a malloc()ed buffer and needs to be free()d after use.
+		  [deprecation date 2011-12-28]
 */
 char *
 hdate_get_omer_string (int omer_day);
@@ -617,49 +636,69 @@ int
 hdate_is_hebrew_locale();
 
 /**
- @brief Return a pointer to a static string
-
- @param type_of_string 1 = day of week, 2 = parshaot, 3 = month, 4 = holiday
- @param index
+ @brief   Return string values for hdate information
+ @return  a pointer to a string containing the information. In the cases
+          integers and omer, the strings will NOT be static, and the
+          caller must free() them after use. Returns a null pointer
+          upon failure.
+ @param type_of_string 	0 = integer, 1 = day of week, 2 = parshaot,
+						3 = hmonth, 4 = gmonth, 5 = holiday, 6 = omer
+ @param index			integer		( 0 < n < 11000)
+						day of week ( 0 < n <  8 )
+						parshaot	( 0 , n < 62 )
+						hmonth		( 0 < n < 15 )
+						gmonth		( 0 < n < 13 )
+						holiday		( 0 < n < 37 )
+						omer		( 0 < n < 50 )
  @param short_form   0 = short format
  @param hebrew_form  0 = not hebrew (native/embedded)
 */
 char* hdate_string( int type_of_string, int index, int short_form, int hebrew_form);
 
+/** @def HDATE_STRING_INT
+  @brief for function hdate_string: identifies string type: integer
+*/
+#define HDATE_STRING_INT     0
+
 /** @def HDATE_STRING_DOW
   @brief for function hdate_string: identifies string type: day of week 
 */
-#define HDATE_STRING_DOW     1
+#define HDATE_STRING_DOW       1
 
 /** @def HDATE_STRING_PARASHA
   @brief for function hdate_string: identifies string type: parasha
 */
-#define HDATE_STRING_PARASHA 2
+#define HDATE_STRING_PARASHA   2
 
 /** @def HDATE_STRING_HMONTH
   @brief for function hdate_string: identifies string type: hebrew_month
 */
-#define HDATE_STRING_HMONTH   3
+#define HDATE_STRING_HMONTH    3
 
 /** @def HDATE_STRING_GMONTH
   @brief for function hdate_string: identifies string type: gregorian_month
 */
-#define HDATE_STRING_GMONTH   4
+#define HDATE_STRING_GMONTH    4
 
 /** @def HDATE_STRING_HOLIDAY
   @brief for function hdate_string: identifies string type: holiday
 */
-#define HDATE_STRING_HOLIDAY 5
+#define HDATE_STRING_HOLIDAY   5
+
+/** @def HDATE_STRING_HOLIDAY
+  @brief for function hdate_string: identifies string type: holiday
+*/
+#define HDATE_STRING_OMER      6
 
 /** @def HDATE_STRING_SHORT
   @brief for function hdate_string: use short form, if one exists
 */
-#define HDATE_STRING_SHORT   0
+#define HDATE_STRING_SHORT   1
 
 /** @def HDATE_STRING_LONG
   @brief for function hdate_string: use long form
 */
-#define HDATE_STRING_LONG    1
+#define HDATE_STRING_LONG    0
 
 /** @def HDATE_STRING_HEBREW
   @brief for function hdate_string: use embedded hebrew string

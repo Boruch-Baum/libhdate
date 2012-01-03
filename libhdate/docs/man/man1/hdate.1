@@ -1,5 +1,5 @@
 .\" .UC 4
-.TH "HDATE" "1" "2011-11-21" "Linux" "libhdate"
+.TH "hdate" "1" "2012-01-01" "Linux" "libhdate"
 .SH "NAME"
 hdate \- displays Hebrew date information for a given Gregorian/Julian date
 .SH "SYNOPSIS"
@@ -119,7 +119,8 @@ insert parasha between day of week and day
 .TP
 .B \ \   --not-sunset-aware
 don't display next day if after sunset
-.SH LOCATIONS
+.SH NOTES
+.SS LOCATIONS
 If you want 
 .B hdate
 to display accurate time-of-day information,
@@ -176,8 +177,16 @@ Tiberias    32, 35, 2
 .RE
 Eilat       29, 34, 2
 .SH FILES
-.I\ ${XDG_CONFIG_HOME}/hdate/hdaterc
-.I\ ~/.config/hdate/hdaterc
+.SS CONFIG FILE
+This folder and file will be automatically created, and
+includes its own documentation, in-line:
+.RS 16
+.I ${XDG_CONFIG_HOME}/hcal/hcalrc
+.P
+.RE
+If ${XDG_CONFIG_HOME} is undefined:
+.RS 16
+.I ~/.config/hcal/hcalrc
 .SH "BUGS"
 .TP 10
 .B Accuracy
@@ -186,6 +195,12 @@ The accuracy of the astronomically-derived data will suffer from not accounting 
 .TP 10
 .B Timezones
 The timezone support is currenlty primitive and lacks support for daylight savings time transitions.
+.RE
+.TP 10
+.B Historical
+The software does not yet account for the phenomenon and complications of the "Gregorian transition" from the prior, Julian calendar, which effectively caused an instantaneous 'loss' of two weeks for all gentiles affected. Countries (eg. Poland, Spain and Italy) began adopting the Gregorian calendar on 8 Tishrei 5343 (4 October 1582CE), although many did not transition until the 56th century (1752 CE, eg. UK colonies, Sweden). Russia did not adopt the Gregorian calendar until 5678 (1918 CE) and Turkey did not until 5687 (December, 1926 CE). Many other countries made the transition on other dates. Keep in mind that Russia invaded part of Poland, undoing, for the interim, the Gregorian transition for (only) that part of Poland; Also important to remember in this regard is that Eretz Ysroel was part of the Turkish Ottoman empire until the British mandate (5677 (1917CE)). Until all this is accounted for adequately by this application, refer to '
+.B ncal -p
+\' for a basic table of country transitions. However, keep in mind that European borders underwent many changes during the 426 years in question, so the accuracy of your data will depend on accurate knowledge of whether any particular date at any specific location was Julian or Gregorian.
 .SH "EXAMPLES"
 1. Create an iCal calendar of the holidays of year 2025.
 .RS 6
@@ -197,10 +212,12 @@ The timezone support is currenlty primitive and lacks support for daylight savin
 .B       hdate -sR 4 2031 -l29 -L34 -z2
 .RE
 .SH "SEE ALSO"
-mlterm(1), hcal(1), hebcal(1), date(1), cal(1), remind(1), hdate.h(3), hdate_struct(3)
+mlterm(1), hcal(1), hebcal(1), date(1), ncal(1), cal(1), remind(1)
 .SH "AUTHORS"
 .RS 0
-Boruch Baum 2011. Yaacov Zamir 2005-2010. Text copied from Amos Shapir's hdate man file.
+Boruch Baum 2011-2012. Yaacov Zamir 2005-2010.
+.PP
+project page: http://libhdate.sourceforge.net
 .PP
 .BR hcal \ and \ hdate
 are part of the package

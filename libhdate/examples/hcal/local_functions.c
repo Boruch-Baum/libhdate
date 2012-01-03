@@ -1,4 +1,4 @@
-/* local_functions.c
+/* local_functions.c            http://libhdate.sourceforge.net
  * a collection of functions in support of both hcal.c and hdate.c
  * hcal.c  Hebrew calendar              (part of package libhdate)
  * hdate.c Hebrew date/times information(part of package libhdate)
@@ -6,7 +6,7 @@
  * compile:
  * gcc `pkg-config --libs --cflags libhdate` ocal_functions.c -o local_functions
  *
- * Copyright:  2011 (c) Boruch Baum
+ * Copyright:  2011-2012 (c) Boruch Baum
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -218,7 +218,7 @@ int check_for_sunset (hdate_struct * h, double lat, double lon, int timezone )
  *    source_len is the length of a string in source. This 
  *    length must be LESS than the size of the source buffer
 ***********************************************************/
-void revstr( char *source, size_t source_len)
+void revstr( char *source, const size_t source_len)
 {
 	#define H_CHAR_WIDTH 2
 
@@ -265,7 +265,8 @@ printf("\nrevstr: before free(tempbuff): sourcelen = %d, source = %s\n",source_l
 * 
 * type_flag (1-latitude, 2=longitude)
 ************************************************************/
-int parse_coordinate(int type_flag, char *input_string, double *coordinate, int *opt_found)
+int parse_coordinate( const int type_flag, char *input_string,
+						double *coordinate, int *opt_found)
 {
 //#define NEGATIVE_NUMBER_GLOB	"-[[:digit:]]?([[:digit:]]?([[:digit:]]))?(.+([[:digit:]]))"
 //#define NEGATIVE_DMS_GLOB		"-[[:digit:]]?([[:digit:]]?([[:digit:]]))?([:\"]?([012345])[[:digit:]]?([:'\"]?([012345])[[:digit:]]))"
@@ -449,7 +450,10 @@ int parse_timezone( char *input_string, int *tz)
 // originally, we did this only if we needed the information
 // now, because of sunset-awareness, we always perform these checks
 // if ( (opt.sun) || (opt.times) || (opt.candles) || (opt.havdalah) )
-void validate_location( int opt_latitude, int opt_Longitude, double *lat, double *lon, int *tz, int quiet_alerts, int error_detected)
+void validate_location( const int opt_latitude, const int opt_Longitude,
+						double *lat, double *lon,
+						int *tz, const int quiet_alerts, int error_detected,
+						void (*print_usage)() )
 {
 
 	/* latitude and longitude must be paired */
@@ -636,6 +640,7 @@ FILE* get_config_file(	const char* config_dir_name,
 		config_file = fopen(config_file_path, "a");
 		if (config_file == NULL) return;
 		fprintf(config_file, default_config_file_text);
+		error(0,0,"config file created: %s",config_file_path);
 		if (fclose(config_file) != 0) error(0,errno,"failure closing %s",config_file_name);
 	}
 

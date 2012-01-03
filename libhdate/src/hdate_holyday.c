@@ -1,6 +1,8 @@
-/*  libhdate - Hebrew calendar library
+/*  libhdate - Hebrew calendar library: http://libhdate.sourceforge.net
  *
- *  Copyright (C) 1984-2003 Amos Shapir, 2004-2008  Yaacov Zamir <kzamir@walla.co.il>
+ *  Copyright (C) 2011-2012 Boruch Baum  <boruch-baum@users.sourceforge.net>
+ *                2004-2007 Yaacov Zamir <kzamir@walla.co.il>
+ *                1984-2003 Amos Shapir
  *  
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -93,7 +95,7 @@ hdate_get_holyday (hdate_struct const * h, int diaspora)
 	};
 	
 	/* sanity check */
-	if (h->hd_mon < 1 || h->hd_mon > 14 || h->hd_day < 1 || h->hd_day > 31)
+	if (h->hd_mon < 1 || h->hd_mon > 14 || h->hd_day < 1 || h->hd_day > 30)
 		return 0;
 	
 	holyday = holydays_table[h->hd_mon - 1][h->hd_day - 1];

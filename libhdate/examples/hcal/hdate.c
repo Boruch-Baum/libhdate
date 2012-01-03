@@ -1,10 +1,10 @@
-/* hdate.c
+/* hdate.c            http://libhdate.sourceforge.net
  * Hebrew date/times information(part of package libhdate)
  *
  * compile:
  * gcc `pkg-config --libs --cflags libhdate` hdate.c -o hdate
  *
- * Copyright:  2011 (c) Baruch Baum, 2004 (c) Yaacov Zamir
+ * Copyright:  2011-2012 (c) Baruch Baum, 2004 (c) Yaacov Zamir
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,9 +21,8 @@
  */
 
 #define _GNU_SOURCE		// For mempcpy, asprintf
-#include <stdio.h>		// For printf
 #include <hdate.h>		// For hebrew date
-//include "../../src/hdate.h"
+//#include "../../src/hdate.h"
 #include <stdlib.h>		// For atoi, getenv, setenv
 #include <locale.h>		// For setlocale
 #include <getopt.h>		// For getopt_long
@@ -33,11 +32,6 @@
 
 #define DATA_WAS_NOT_PRINTED 0
 #define DATA_WAS_PRINTED 1
-
-// for hdate_get_int_string_
-#define NO_COMPRESS 0
-#define COMPRESS 1
-#define HEBREW_FORM 1
 
 // for opt.menu[MAX_MENU_ITEMS]
 #define MAX_MENU_ITEMS 10
@@ -52,6 +46,9 @@ static char * talit_text = N_("talit");
 static char * midday_text = N_("midday");
 static char * first_stars_text = N_("first_stars");
 static char * three_stars_text = N_("three_stars");
+static char * sun_hour_text = N_("sun_hour");
+static char * candles_text = N_("candle-lighting");
+static char * havdalah_text = N_("havdalah");
 
 typedef struct  {
 				int hebrew;
@@ -90,6 +87,15 @@ const char* hdate_config_file_text = N_("\
 # Your system administrator can set system-wide defaults for hcal by\n\
 # modifying file <not yet implemented>.\n\
 # You may override all defaults by changing the contents of this file.\n\
+#\n\
+# Version information\n\
+# Please do not alter the following line or place another uncommented\n\
+# line in front of it. The version definition may be used by subsequent\n\
+# versions of hdate to how to parse the file and determine whether\n\
+# additional information and options should be appended to the end of\n\
+# this file. If you find more than one instance of this line, you may \n\
+# replace the older with the newer\n\
+VERSION=2.00\n\
 #\n\
 # Location awareness\n\
 # hdate wants to accurately highlight the current Hebrew day, including\n\
@@ -210,14 +216,15 @@ int print_version ()
 /************************************************************
 * print usage information
 ************************************************************/
-void print_usage ()
+void print_usage_hdate ()
 {
 	printf ("%s\n",
 N_("Usage: hdate [options] [coordinates timezone] [[[day] month] year]\n\
        hdate [options] [coordinates timezone] [julian_day]\n\n\
        coordinates: -l [NS]yy[.yyy] -L [EW]xx[.xxx]\n\
                     -l [NS]yy[:mm[:ss]] -L [EW]xx[:mm[:ss]]\n\
-       timezone:    -z nn[( .nn | :mm )]\n"));
+       timezone:    -z nn[( .nn | :mm )]\n\
+Try \'hdate --help\' for more information"));
 }
 
 
@@ -226,7 +233,7 @@ N_("Usage: hdate [options] [coordinates timezone] [[[day] month] year]\n\
 ************************************************************/
 void print_help ()
 {
-	print_usage();
+	print_usage_hdate();
 
 	printf ("%s\n", N_("hdate - display Hebrew date information\nOPTIONS:\n\
    -b --bidi          prints hebrew in reverse (visual)\n\
@@ -282,7 +289,7 @@ void print_alert_sunset ()
 /************************************************************
 * generic print astronomical time
 ************************************************************/
-void print_astronomical_time( char *description, int timeval, int tz)
+void print_astronomical_time( const char *description, const int timeval, const int tz)
 {
 	if (timeval < 0) printf("%s: --:--\n", description);
 	else printf("%s: %02d:%02d\n", description,
@@ -293,7 +300,7 @@ void print_astronomical_time( char *description, int timeval, int tz)
 /************************************************************
 * generic print astronomical time for tablular output
 ************************************************************/
-void print_astronomical_time_tabular( int timeval, int tz)
+void print_astronomical_time_tabular( const int timeval, const int tz)
 {
 	if (timeval < 0) printf(",--:--");
 	else printf(",%02d:%02d",
@@ -358,8 +365,7 @@ int find_shabbat (hdate_struct * h, int opt_d)
 ************************************************************/
 int print_date (hdate_struct * h, hdate_struct * tomorrow, option_list opt, double lat, double lon)
 {
-//	char *language;				// system environment variable
-//	char *locale;				// system environment variable
+	char *motzash		= "";	// prefix for Saturday night
 	char *eve_before    = "";   // prefix if after sunset
 	char *for_day_of_g  = "";	// Hebrew prefix for day of week
 	char *apostrophe	= "";	// Hebrew suffix for day of week
@@ -369,11 +375,11 @@ int print_date (hdate_struct * h, hdate_struct * tomorrow, option_list opt, doub
 	char *for_day_of_h  = "";	// --force-yom
 	char *for_week_of   = "";	// --force-leshabbat --force-leseder
 	int  is_parasha_read;
+	int h_dow_form		= HDATE_STRING_SHORT;
 
 	char *hday_int_str, *hyear_int_str;
-	hday_int_str = malloc(HEBREW_NUMBER_BUFFER_SIZE);
-	hyear_int_str = malloc(HEBREW_NUMBER_BUFFER_SIZE);
-
+	hday_int_str = hdate_string(HDATE_STRING_INT, h->hd_day, HDATE_STRING_LONG, opt.hebrew);
+	hyear_int_str = hdate_string(HDATE_STRING_INT, h->hd_year, HDATE_STRING_LONG, opt.hebrew);
 
 /*
 #ifdef ENABLE_NLS
@@ -394,29 +400,31 @@ int print_date (hdate_struct * h, hdate_struct * tomorrow, option_list opt, doub
 	{
 		if (opt.hebrew)
 		{
-			eve_before = "אור ל";
+			if (h->hd_dw==7) motzash = "מוצ\"ש, ";
+			if (h->hd_dw==6) eve_before = "ליל";
+			else  eve_before = "אור ל";
 			if (!opt.yom) for_day_of_h="-";
 		}
 		else eve_before = N_("eve of ");
 	}
 
 
-
 	/************************************************************
 	* preliminary - prepare Hebrew prefixes if forcing any Hebrew
 	************************************************************/
-//	language=getenv("LANGUAGE"); // not sure this is really doing anything
 	if (opt.hebrew)
 	{
 		bet_h="ב";
 		/* preliminary - prepare Yom prefix */
 		if (opt.yom)
 		{
-			for_day_of_h="יום";
-			if (h->hd_dw!=7) apostrophe = "'";
+			if ( !((opt.print_tomorrow) && (h->hd_dw==6))) for_day_of_h="יום";
+			if  ( ((h->hd_dw!=7) || ((h->hd_dw==7) && (opt.print_tomorrow))) &&
+				( !((opt.print_tomorrow) && (h->hd_dw==6))) ) apostrophe = "'";
+			if ((h->hd_dw==6) && (opt.print_tomorrow)) h_dow_form = HDATE_STRING_LONG;
 			psik_mark=",";
 
-			if		(opt.leShabbat)
+			if (opt.leShabbat)
 				{
 				if (h->hd_dw==7)		for_week_of="פרשת";
 				else					for_week_of="לשבת";
@@ -444,15 +452,10 @@ int print_date (hdate_struct * h, hdate_struct * tomorrow, option_list opt, doub
 	************************************************************/
 	if (opt.iCal)
 	{
-		//if (opt.hebrew) setenv("LANGUAGE", "he_IL.UTF-8", 1);
-
-		printf ("%s%s %s%s ",
-				for_day_of_g,
-				hdate_get_int_string_ (hday_int_str, h->hd_day, NO_COMPRESS,opt.hebrew),
-				bet_h,
+		printf ("%s%s %s%s ", for_day_of_g,	hday_int_str, bet_h,
 				hdate_string( HDATE_STRING_HMONTH , h->hd_mon, opt.short_format, opt.hebrew));
 
-		printf ("%s", hdate_get_int_string_(hyear_int_str, h->hd_year, NO_COMPRESS,opt.hebrew));
+		printf ("%s", hyear_int_str);
 	}
 
 
@@ -470,13 +473,12 @@ int print_date (hdate_struct * h, hdate_struct * tomorrow, option_list opt, doub
 		}
 		else
 		{
-			//setenv("LANGUAGE", "he_IL.UTF-8", 1);
-			printf ("%s", hdate_get_int_string_(hday_int_str, h->hd_day, NO_COMPRESS,opt.hebrew));
+			printf ("%s", hday_int_str);
 		}
 
 		printf (" %s %s\n",
 			hdate_string( HDATE_STRING_HMONTH , h->hd_mon, opt.short_format, opt.hebrew),
-			hdate_get_int_string_(hyear_int_str, h->hd_year, NO_COMPRESS,opt.hebrew));
+			hyear_int_str);
 	}
 
 
@@ -520,11 +522,10 @@ int print_date (hdate_struct * h, hdate_struct * tomorrow, option_list opt, doub
 		************************************************************/
 		if (opt.hebrew)
 		{
-			//setenv("LANGUAGE", "he_IL.UTF-8", 1);
 			if (opt.yom)
 				{
-				hebrew_buffer1_len = asprintf(&hebrew_buffer1, "%s%s %s%s", eve_before,for_day_of_h,
-					hdate_string( HDATE_STRING_DOW, h->hd_dw, opt.short_format, opt.hebrew), apostrophe);
+				hebrew_buffer1_len = asprintf(&hebrew_buffer1, "%s%s%s %s%s", motzash, eve_before, for_day_of_h,
+					hdate_string( HDATE_STRING_DOW, h->hd_dw, h_dow_form, opt.hebrew), apostrophe);
 				if ((opt.leShabbat) || (opt.leSeder))
 				{
 					is_parasha_read = find_shabbat(h, opt.diaspora);
@@ -539,15 +540,17 @@ int print_date (hdate_struct * h, hdate_struct * tomorrow, option_list opt, doub
 		else hebrew_buffer1_len = asprintf(&hebrew_buffer1, "%s", eve_before);
 
 
+		hday_int_str  = hdate_string(HDATE_STRING_INT, h->hd_day,  HDATE_STRING_LONG, opt.hebrew);
+		hyear_int_str = hdate_string(HDATE_STRING_INT, h->hd_year, HDATE_STRING_LONG, opt.hebrew);
 		/************************************************************
 		* prepare buffers with Hebrew dd mmmm yyyy
 		************************************************************/
 		hebrew_buffer4_len =
 			asprintf (&hebrew_buffer4, "%s %s%s %s",
-				hdate_get_int_string_(hday_int_str, h->hd_day, NO_COMPRESS,opt.hebrew),
+				hday_int_str,
 				bet_h,
 				hdate_string( HDATE_STRING_HMONTH , h->hd_mon, opt.short_format, opt.hebrew),
-				hdate_get_int_string_(hyear_int_str, h->hd_year, NO_COMPRESS,opt.hebrew));
+				hyear_int_str);
 
 		/************************************************************
 		* prepare another GrUB - grand unified buffer
@@ -582,15 +585,10 @@ int print_date (hdate_struct * h, hdate_struct * tomorrow, option_list opt, doub
 
 
 	/************************************************************
-	* CLEANUP - restore default language environment variable *
-	************************************************************/
-	//setenv("LANGUAGE", language, 1); // not sure this is really doing anything
-
-	/************************************************************
 	* CLEANUP - free allocated memory
 	************************************************************/
-	free(hday_int_str);
-	free(hyear_int_str);
+	if (hday_int_str  != NULL)  free(hday_int_str);
+	if (hyear_int_str != NULL)  free(hyear_int_str);
 
 	return 0;
 }
@@ -664,14 +662,14 @@ int print_times (hdate_struct * h, double lat, double lon, int tz, int opt_i)
 /************************************************************
 * option 'o' - sefirat ha'omer
 ************************************************************/
-int print_omer (hdate_struct * h)
+int print_omer (hdate_struct * h, int const short_form, int const hebrew_form)
 {
 	int omer_day;
 
 	omer_day = hdate_get_omer_day(h);
 	if (omer_day != 0)
 	{
-		printf ("%s %s \n", N_("today is day"), hdate_get_omer_string (omer_day));
+		printf ("%s %s \n", N_("today is day"), hdate_string(HDATE_STRING_OMER, omer_day, short_form, hebrew_form));
 		return DATA_WAS_PRINTED;
 	}
 	else return DATA_WAS_NOT_PRINTED;
@@ -706,23 +704,23 @@ int print_candles (hdate_struct * h, double lat, double lon, int tz, option_list
 	int midday, sunset, first_stars, three_stars;
 
 	// check for friday - print knisat shabat
-	if (h->hd_dw == 6)
+	if ( (h->hd_dw == 6) && (opt.candles) )
 	{
 		// get times
 		hdate_get_utc_sun_time (h->gd_day, h->gd_mon, h->gd_year, lat, lon,
 								&sunrise, &sunset);
 
 		// FIXME - allow for further minhag variation
-		if (opt.candles != 1) sunset = sunset - opt.candles + tz;
-		else sunset = sunset + tz - DEFAULT_CANDLES_MINUTES;
+		if (opt.candles != 1) sunset = sunset - opt.candles;
+		else sunset = sunset - DEFAULT_CANDLES_MINUTES;
 
 		// print candlelighting times
-		printf ("candle-lighting: %02d:%02d\n", sunset / 60, sunset % 60);
+		print_astronomical_time( candles_text, sunset, tz);
 		return DATA_WAS_PRINTED;
 	}
 
 	// check for saturday - print motzay shabat
-	else if (h->hd_dw == 7)
+	else if ( (h->hd_dw == 7) && (opt.havdalah) )
 	{
 		// get times
 		hdate_get_utc_sun_time_full (h->gd_day, h->gd_mon, h->gd_year, lat,
@@ -731,11 +729,10 @@ int print_candles (hdate_struct * h, double lat, double lon, int tz, option_list
 									 &first_stars, &three_stars);
 
 		// FIXME - allow for further minhag variation
-		if (opt.havdalah != 1) three_stars = sunset + opt.havdalah + tz;
-		else three_stars = three_stars + tz;
+		if (opt.havdalah != 1) three_stars = sunset + opt.havdalah;
 
 		// print motzay shabat
-		printf ("Shabbat ends: %02d:%02d\n", three_stars / 60, three_stars % 60);
+		print_astronomical_time( havdalah_text, three_stars, tz);
 		return DATA_WAS_PRINTED;
 	}
 	else return DATA_WAS_NOT_PRINTED;
@@ -747,8 +744,10 @@ int print_candles (hdate_struct * h, double lat, double lon, int tz, option_list
 void print_tabular_header( option_list opt)
 {
 	printf("%s,%s",N_("Gregorian date"), N_("Hebrew Date"));
-	if (opt.times) printf(",%s,%s,%s,%s,%s,%s,%s",first_light_text,talit_text,sunrise_text,midday_text,sunset_text,first_stars_text,three_stars_text );
+	if (opt.times) printf(",%s,%s,%s,%s,%s,%s,%s,%s",first_light_text,talit_text,sunrise_text,midday_text,sunset_text,first_stars_text,three_stars_text,sun_hour_text );
 	else if (opt.sun) printf(",%s,%s",sunrise_text,sunset_text);
+	if (opt.candles) printf(",%s", candles_text);
+	if (opt.havdalah) printf(",%s", havdalah_text);
 	if (opt.holidays) printf(",%s",N_("holiday"));
 	if (opt.omer) printf(",%s",N_("omer count"));
 	if (opt.parasha) printf(",%s",N_("parashat"));
@@ -762,8 +761,14 @@ return;
 int print_tabular_day (hdate_struct * h, option_list opt,
 						double lat, double lon, int tz)
 {
-	int sun_hour, first_light, talit, sunrise;
-	int midday, sunset, first_stars, three_stars;
+	int sun_hour = -1;
+	int first_light = -1;
+	int talit = -1;
+	int sunrise = -1;
+	int midday = -1;
+	int sunset = -1;
+	int first_stars = -1;
+	int three_stars = -1;
 
 	hdate_struct tomorrow;
 	int data_printed = 0;
@@ -772,8 +777,12 @@ int print_tabular_day (hdate_struct * h, option_list opt,
 	int holiday = 0;
 	int omer_day = 0;
 
-	char *h_int_str;
-	h_int_str = malloc(HEBREW_NUMBER_BUFFER_SIZE);
+	char *hday_str  = NULL;
+	char *hyear_str = NULL;
+
+	// for bidi (revstr)
+	char *hebrew_buffer = NULL;
+	size_t hebrew_buffer_len = 0;
 
 	/************************************************************
 	* options -R, -H are restrictive filters, so if there is no
@@ -799,21 +808,44 @@ int print_tabular_day (hdate_struct * h, option_list opt,
 	/************************************************************
 	* begin - print Hebrew date
 	************************************************************/
+
+	// BUG - looks like a bug - why sunset awareness in tabular output?
 	if (opt.print_tomorrow)	hdate_set_jd (&tomorrow, (h->hd_jd)+1);
-	if ((!hdate_is_hebrew_locale()) && (!opt.hebrew))
-	{	/* non hebrew numbers */
-		printf ("%d", h->hd_day);
-	}
-	else /* Hebrew */
+
+	if (opt.bidi)
 	{
-		//setenv("LANGUAGE", "he_IL.UTF-8", 1);
-		printf ("%s", hdate_get_int_string_(h_int_str, h->hd_day, NO_COMPRESS,opt.hebrew));
+		hday_str  = hdate_string(HDATE_STRING_INT, h->hd_day,  HDATE_STRING_LONG, opt.hebrew);
+		hyear_str = hdate_string(HDATE_STRING_INT, h->hd_year, HDATE_STRING_LONG, opt.hebrew);
+		hebrew_buffer_len =
+			asprintf (&hebrew_buffer, "%s %s %s",
+				hday_str,
+				hdate_string( HDATE_STRING_HMONTH , h->hd_mon, opt.short_format, opt.hebrew),
+				hyear_str);
+		revstr(hebrew_buffer, hebrew_buffer_len);
+		printf ("%s", hebrew_buffer);
+		if (hebrew_buffer != NULL) free(hebrew_buffer);
 	}
-
-	printf (" %s ",
-		hdate_string( HDATE_STRING_HMONTH , h->hd_mon, HDATE_STRING_LONG, opt.hebrew));
-
-	printf ("%s", hdate_get_int_string_(h_int_str, h->hd_year, NO_COMPRESS,opt.hebrew));
+	else
+	{
+		// review sometime whether both checks are still necessary (see below for hyear)
+		//if ((!hdate_is_hebrew_locale()) && (!opt.hebrew))
+		//{	/* non hebrew numbers */
+		//	printf ("%d", h->hd_day);
+		//}
+		//else /* Hebrew */
+		//{
+			hday_str = hdate_string(HDATE_STRING_INT, h->hd_day, HDATE_STRING_LONG,opt.hebrew);
+			printf ("%s", hday_str);
+		//}
+	
+		printf (" %s ",
+			hdate_string( HDATE_STRING_HMONTH , h->hd_mon, HDATE_STRING_LONG, opt.hebrew));
+	
+		hyear_str = hdate_string(HDATE_STRING_INT, h->hd_year, HDATE_STRING_LONG,opt.hebrew);
+		printf ("%s", hyear_str);
+	}
+	if (hday_str  != NULL) free(hday_str);
+	if (hyear_str != NULL) free(hyear_str);
 	/************************************************************
 	* end - print Hebrew date
 	************************************************************/
@@ -842,6 +874,42 @@ int print_tabular_day (hdate_struct * h, option_list opt,
 		print_astronomical_time_tabular( sunrise, tz);
 		print_astronomical_time_tabular( sunset, tz);
 	}
+
+	if (opt.candles)
+	{
+		if ( (h->hd_dw != 6) && (!opt.only_if_parasha) ) sunset = -1; //printf(",");
+		else
+		{
+			if (sunset == -1) hdate_get_utc_sun_time (h->gd_day, h->gd_mon,
+									h->gd_year, lat, lon, &sunrise, &sunset);
+			if (opt.candles != 1) sunset = sunset - opt.candles;
+			else sunset = sunset- DEFAULT_CANDLES_MINUTES;
+		}
+		print_astronomical_time_tabular( sunset, tz);
+	}
+	
+	if (opt.havdalah)
+	{
+		if ( (h->hd_dw != 7)  && (!opt.only_if_parasha) ) three_stars = -1; //printf(",");
+		else
+		{
+			if (opt.havdalah != 1)
+			{
+				if (sunset == -1) hdate_get_utc_sun_time (h->gd_day, h->gd_mon,
+									h->gd_year, lat, lon, &sunrise, &sunset);
+				three_stars = sunset + opt.havdalah;
+			}
+			else
+			{
+				if(three_stars == -1) hdate_get_utc_sun_time_full (
+									h->gd_day, h->gd_mon, h->gd_year, lat,
+									lon, &sun_hour, &first_light, &talit,
+									&sunrise, &midday, &sunset,
+									&first_stars, &three_stars);
+			}
+		}
+		print_astronomical_time_tabular( three_stars, tz);
+	}
 	
 	if (opt.holidays && holiday)
 		printf (",%s",
@@ -850,14 +918,22 @@ int print_tabular_day (hdate_struct * h, option_list opt,
 	if (opt.omer)
 	{
 		omer_day = hdate_get_omer_day(h);
-		if (omer_day != 0) printf (",%s", hdate_get_omer_string (omer_day));
+		if (omer_day != 0) printf (",%d", omer_day);
 	}
 
 	if (opt.parasha && parasha)
-		printf (",%s",
-				hdate_string( HDATE_STRING_PARASHA, parasha, opt.short_format, opt.hebrew));
-
-	
+	{
+		if (!opt.bidi) printf (",%s",
+					hdate_string( HDATE_STRING_PARASHA, parasha, opt.short_format, opt.hebrew));
+		else
+		{
+			hebrew_buffer_len =	asprintf (&hebrew_buffer, "%s",
+					hdate_string( HDATE_STRING_PARASHA, parasha, opt.short_format, opt.hebrew));
+			revstr(hebrew_buffer, hebrew_buffer_len);
+			printf (",%s", hebrew_buffer);
+			if (hebrew_buffer != NULL) free(hebrew_buffer);
+		}
+	}
 	printf("\n");
 
 	if ((opt.print_tomorrow) && (data_printed) && (!opt.quiet_alerts)) print_alert_sunset();
@@ -937,7 +1013,7 @@ int print_day (hdate_struct * h, option_list opt,
 			hdate_string( HDATE_STRING_HOLIDAY, holiday, opt.short_format, opt.hebrew));
 		data_printed = DATA_WAS_PRINTED;
 	}
-	if (opt.omer) data_printed = data_printed | print_omer (h);
+	if (opt.omer) data_printed = data_printed | print_omer (h, opt.short_format, opt.hebrew);
 	if (opt.parasha && parasha)
 	{
 		printf ("%s  %s\n", N_("Parashat"),
@@ -1167,11 +1243,11 @@ int print_hyear (option_list opt, double lat, double lon, int tz, int year)
 	int month = 1;
 
 	char *h_int_str;
-	h_int_str = malloc(HEBREW_NUMBER_BUFFER_SIZE);
+	h_int_str = hdate_string(HDATE_STRING_INT, year,HDATE_STRING_LONG,opt.hebrew);
+	// FIXME - error check for NULL return value
 
 	/* print year header */
-	if (!opt.iCal && !opt.short_format)
-		printf ("%s:\n", hdate_get_int_string_(h_int_str, year,NO_COMPRESS,opt.hebrew));
+	if (!opt.iCal && !opt.short_format)	printf ("%s:\n", h_int_str);
 
 	/* print year months */
 	while (month < 13)
@@ -1542,7 +1618,7 @@ int hdate_parser( int switch_arg, option_list *opt,
 					if 	( (opt->candles >= MIN_CANDLES_MINUTES) &&
 						(opt->candles <= MAX_CANDLES_MINUTES) ) break;
 				}
-				print_parm_error(N_("--candles"));
+				print_parm_error("--candles"); // do not gettext!
 				error_detected++;
 			}
 			break;
@@ -1557,7 +1633,7 @@ int hdate_parser( int switch_arg, option_list *opt,
 					if 	( (opt->havdalah >= MIN_MOTZASH_MINUTES) &&
 						(opt->havdalah <= MAX_MOTZASH_MINUTES) ) break;
 				}
-				print_parm_error(N_("--havdalah"));
+				print_parm_error("--havdalah"); // do not gettext!
 				error_detected++;
 			}
 			break;
@@ -1613,7 +1689,7 @@ int hdate_parser( int switch_arg, option_list *opt,
 		error_detected = TRUE;
 		break;
 	default:
-		print_usage (); exit_main(opt,0); break;
+		print_usage_hdate (); exit_main(opt,0); break;
 	}
 
 	return error_detected;
@@ -1806,7 +1882,9 @@ int main (int argc, char *argv[])
 	* It issues an exit(EXIT_CODE_BAD_PARMS) [==1]
 	* if it discovers, um, bad parameters 
 	************************************************************/
-	validate_location(opt_latitude, opt_Longitude, &lat, &lon, &tz, opt.quiet_alerts, error_detected);
+	validate_location(opt_latitude, opt_Longitude,
+						&lat, &lon, &tz,
+						opt.quiet_alerts, error_detected, print_usage_hdate);
 	
 	/************************************************************
 	* option "s" is a subset of option "t"
