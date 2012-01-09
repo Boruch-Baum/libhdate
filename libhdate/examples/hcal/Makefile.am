@@ -12,7 +12,7 @@ hdate_LDFLAGS =
 hdate_DEPENDENCIES = $(DEPS)
 hdate_LDADD = $(ldadd)
 
-hcal_SOURCES = hcal.c 
+hcal_SOURCES = hcal.c
 hcal_LDFLAGS =
 hcal_DEPENDENCIES = $(DEPS)
 hcal_LDADD = $(ldadd)
@@ -20,4 +20,6 @@ hcal_LDADD = $(ldadd)
 endif
 
 libhdatedocdir = ${prefix}/share/doc/libhdate/examples/hcal
-libhdatedoc_DATA = hcal.c hdate.c
+libhdatedoc_DATA = hcal.c hdate.c local_functions.c
+
+EXTRA_DIST = $(libhdatedoc_DATA)
