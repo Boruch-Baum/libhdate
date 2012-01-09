@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ru\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-03 17:46-0500\n"
+"POT-Creation-Date: 2012-01-08 19:48-0500\n"
 "PO-Revision-Date: 2005-03-08 22:44-0200\n"
 "Last-Translator: Boeis Peterberg\n"
 "Language-Team: Russian\n"
@@ -650,12 +650,9 @@ msgid ""
 "# You may override all defaults by changing the contents of this file.\n"
 "#\n"
 "# Version information\n"
-"# Please do not alter the following line or place another uncommented\n"
-"# line in front of it. The version definition may be used by subsequent\n"
-"# versions of hcal to how to parse the file and determine whether\n"
-"# additional information and options should be appended to the end of\n"
-"# this file. If you find more than one instance of this line, you may \n"
-"# replace the older with the newer\n"
+"# This may be used by updates to hcal to determine how to parse the file\n"
+"# and whether additional information and options should be appended to\n"
+"# the end of this file.\n"
 "VERSION=2.00\n"
 "# Location awareness\n"
 "# hcal wants to accurately highlight the current Hebrew day, including\n"
@@ -770,28 +767,28 @@ msgid ""
 "# all the prior settings.\n"
 "# Only the first ten \"MENU=\" entries will be read. Each line will be\n"
 "# truncated at one hundred characters\n"
-"#MENU= -l -23.55 -L -46.61 -z -3 # parents in Sao Paolo\n"
-"#MENU= -l 32 -L 34 -z 2          # son in bnei brak\n"
-"#MENU= -l 43.71 -L -79.43 -z -5  # me in Toronto\n"
-"#MENU= -l 22.26 -L 114.15 -z 8   # supplier in Hong Kong\n"
+"#MENU= -l -23.55 -L -46.61 -z -3      # parents in Sao Paolo\n"
+"#MENU= -l 32 -L 34 -z 2               # son in bnei brak\n"
+"#MENU= -fbc -l 43.71 -L -79.43 -z -5  # me in Toronto\n"
+"#MENU= -l 22.26 -L 114.15 -z 8        # supplier in Hong Kong\n"
 msgstr ""
 
-#: examples/hcal/hcal.c:274
+#: examples/hcal/hcal.c:271
 msgid ""
 "hcal - Hebrew calendar\n"
-"version 2"
+"version 1.6"
 msgstr ""
 
-#: examples/hcal/hcal.c:284
+#: examples/hcal/hcal.c:281
 msgid ""
 "Usage: hcal [options] [coordinates timezone] ] [[month] year]\n"
 "       coordinates: -l [NS]yy[.xxx] -L [EW]xx[.xxx]\n"
 "                    -l [NS]yy[:mm[:ss]] -L [EW]xx[:mm[:ss]]\n"
-"       timezone:    -z nn[( .nn | :mm )]Try 'hcal --help' for more "
-"information"
+"       timezone:    -z nn[( .nn | :mm )]\n"
+"Try 'hcal --help' for more information"
 msgstr ""
 
-#: examples/hcal/hcal.c:298
+#: examples/hcal/hcal.c:295
 msgid ""
 "Hebrew calendar\n"
 "OPTIONS:\n"
@@ -827,31 +824,31 @@ msgid ""
 "easy selection."
 msgstr ""
 
-#: examples/hcal/hcal.c:1871
+#: examples/hcal/hcal.c:1868
 msgid ""
 "ALERT: options --parasha, --shabbat, --footnote are not supported in 'three-"
 "month' mode"
 msgstr ""
 
-#: examples/hcal/hcal.c:1943 examples/hcal/local_functions.c:92
+#: examples/hcal/hcal.c:1940 examples/hcal/local_functions.c:92
 #: examples/hcal/local_functions.c:99 examples/hcal/local_functions.c:112
-#: examples/hcal/local_functions.c:462 examples/hcal/local_functions.c:467
+#: examples/hcal/local_functions.c:486 examples/hcal/local_functions.c:491
 msgid "error"
 msgstr ""
 
-#: examples/hcal/hcal.c:1943
+#: examples/hcal/hcal.c:1940
 msgid "too many parameters received. expected  [[mm] [yyyy]"
 msgstr ""
 
-#: examples/hcal/hcal.c:1952 examples/hcal/hdate.c:1932
-#: examples/hcal/hdate.c:2006 examples/hcal/hdate.c:2103
+#: examples/hcal/hcal.c:1949 examples/hcal/hdate.c:1929
+#: examples/hcal/hdate.c:2003 examples/hcal/hdate.c:2100
 msgid "year"
 msgstr ""
 
-#: examples/hcal/hcal.c:1960 examples/hcal/hdate.c:2016
-#: examples/hcal/hdate.c:2019 examples/hcal/hdate.c:2073
-#: examples/hcal/hdate.c:2113 examples/hcal/hdate.c:2116
-#: examples/hcal/hdate.c:2135
+#: examples/hcal/hcal.c:1957 examples/hcal/hdate.c:2013
+#: examples/hcal/hdate.c:2016 examples/hcal/hdate.c:2070
+#: examples/hcal/hdate.c:2110 examples/hcal/hdate.c:2113
+#: examples/hcal/hdate.c:2132
 msgid "month"
 msgstr ""
 
@@ -883,7 +880,7 @@ msgstr ""
 msgid "three_stars"
 msgstr ""
 
-#: examples/hcal/hdate.c:49 examples/hcal/hdate.c:638
+#: examples/hcal/hdate.c:49 examples/hcal/hdate.c:635
 msgid "sun_hour"
 msgstr ""
 
@@ -909,12 +906,9 @@ msgid ""
 "# You may override all defaults by changing the contents of this file.\n"
 "#\n"
 "# Version information\n"
-"# Please do not alter the following line or place another uncommented\n"
-"# line in front of it. The version definition may be used by subsequent\n"
-"# versions of hdate to how to parse the file and determine whether\n"
-"# additional information and options should be appended to the end of\n"
-"# this file. If you find more than one instance of this line, you may \n"
-"# replace the older with the newer\n"
+"# This may be used by updates to hcal to determine how to parse the file\n"
+"# and whether additional information and options should be appended to\n"
+"# the end of this file.\n"
 "VERSION=2.00\n"
 "#\n"
 "# Location awareness\n"
@@ -1026,19 +1020,19 @@ msgid ""
 "# all the prior settings.\n"
 "# Only the first ten \"MENU=\" entries will be read. Each line will be\n"
 "# truncated at one hundred characters\n"
-"#MENU= -l -23.55 -L -46.61 -z -3 # parents in Sao Paolo\n"
-"#MENU= -l 32 -L 34 -z 2          # son in bnei brak\n"
-"#MENU= -l 43.71 -L -79.43 -z -5  # me in Toronto\n"
-"#MENU= -l 22.26 -L 114.15 -z 8   # supplier in Hong Kong\n"
+"#MENU= -bd -l -23.55 -L -46.61 -z -3 # parents in Sao Paolo\n"
+"#MENU= -b -l 32 -L 34 -z 2           # son in bnei brak\n"
+"#MENU= -bd -l 43.71 -L -79.43 -z -5  # me in Toronto\n"
+"#MENU= -bd -l 22.26 -L 114.15 -z 8   # supplier in Hong Kong\n"
 msgstr ""
 
-#: examples/hcal/hdate.c:212
+#: examples/hcal/hdate.c:209
 msgid ""
 "hdate - display Hebrew date information\n"
-"version 2"
+"version 1.6"
 msgstr ""
 
-#: examples/hcal/hdate.c:222
+#: examples/hcal/hdate.c:219
 msgid ""
 "Usage: hdate [options] [coordinates timezone] [[[day] month] year]\n"
 "       hdate [options] [coordinates timezone] [julian_day]\n"
@@ -1049,7 +1043,7 @@ msgid ""
 "Try 'hdate --help' for more information"
 msgstr ""
 
-#: examples/hcal/hdate.c:238
+#: examples/hcal/hdate.c:235
 msgid ""
 "hdate - display Hebrew date information\n"
 "OPTIONS:\n"
@@ -1088,52 +1082,52 @@ msgid ""
 "easy selection."
 msgstr ""
 
-#: examples/hcal/hdate.c:277
+#: examples/hcal/hdate.c:274
 msgid ""
 "ALERT: The information displayed is for today's Hebrew date.\n"
 "              Because it is now after sunset, that means the data is\n"
 "              for the Gregorian day beginning at midnight."
 msgstr ""
 
-#: examples/hcal/hdate.c:408
+#: examples/hcal/hdate.c:405
 msgid "eve of "
 msgstr ""
 
-#: examples/hcal/hdate.c:672
+#: examples/hcal/hdate.c:669
 msgid "today is day"
 msgstr ""
 
-#: examples/hcal/hdate.c:746
+#: examples/hcal/hdate.c:743
 msgid "Gregorian date"
 msgstr ""
 
-#: examples/hcal/hdate.c:746
+#: examples/hcal/hdate.c:743
 msgid "Hebrew Date"
 msgstr ""
 
-#: examples/hcal/hdate.c:751
+#: examples/hcal/hdate.c:748
 #, fuzzy
 msgid "holiday"
 msgstr "Пятница"
 
-#: examples/hcal/hdate.c:752
+#: examples/hcal/hdate.c:749
 msgid "omer count"
 msgstr ""
 
-#: examples/hcal/hdate.c:753
+#: examples/hcal/hdate.c:750
 msgid "parashat"
 msgstr ""
 
-#: examples/hcal/hdate.c:1019
+#: examples/hcal/hdate.c:1016
 msgid "Parashat"
 msgstr ""
 
-#: examples/hcal/hdate.c:2123 examples/hcal/hdate.c:2142
+#: examples/hcal/hdate.c:2120 examples/hcal/hdate.c:2139
 #, fuzzy
 msgid "day"
 msgstr "Май"
 
-#: examples/hcal/hdate.c:2171
+#: examples/hcal/hdate.c:2168
 msgid "too many arguments; after options max is dd mm yyyy"
 msgstr ""
 
@@ -1217,61 +1211,84 @@ msgstr ""
 msgid "using co-ordinates for the equator, at the center of time zone"
 msgstr ""
 
-#: examples/hcal/local_functions.c:294 examples/hcal/local_functions.c:308
-#: examples/hcal/local_functions.c:309
+#: examples/hcal/local_functions.c:318 examples/hcal/local_functions.c:332
+#: examples/hcal/local_functions.c:333
 msgid "l (latitude)"
 msgstr ""
 
-#: examples/hcal/local_functions.c:295
+#: examples/hcal/local_functions.c:319
 msgid "L (Longitue)"
 msgstr ""
 
-#: examples/hcal/local_functions.c:341 examples/hcal/local_functions.c:355
-#: examples/hcal/local_functions.c:356 examples/hcal/local_functions.c:387
+#: examples/hcal/local_functions.c:365 examples/hcal/local_functions.c:379
+#: examples/hcal/local_functions.c:380 examples/hcal/local_functions.c:411
 msgid "L (Longitude)"
 msgstr ""
 
-#: examples/hcal/local_functions.c:418
+#: examples/hcal/local_functions.c:442
 msgid "z (time zone)"
 msgstr ""
 
-#: examples/hcal/local_functions.c:438
+#: examples/hcal/local_functions.c:462
 msgid "z (timezone)"
 msgstr ""
 
-#: examples/hcal/local_functions.c:462
+#: examples/hcal/local_functions.c:486
 msgid "valid longitude parameter missing for given latitude"
 msgstr ""
 
-#: examples/hcal/local_functions.c:467
+#: examples/hcal/local_functions.c:491
 msgid "valid latitude parameter missing for given longitude"
 msgstr ""
 
-#: examples/hcal/local_functions.c:505
+#: examples/hcal/local_functions.c:529
 msgid "time zone value of"
 msgstr ""
 
-#: examples/hcal/local_functions.c:506
+#: examples/hcal/local_functions.c:530
 msgid "is incompatible with a longitude of"
 msgstr ""
 
-#: examples/hcal/local_functions.c:506
+#: examples/hcal/local_functions.c:530
 msgid "degrees"
 msgstr ""
 
-#: examples/hcal/local_functions.c:877
+#: examples/hcal/local_functions.c:638
+msgid ""
+"This seems to be to be your first time using this version.\n"
+"Please read the new documentation in the man page and config\n"
+"file. Attempting to create a config file ..."
+msgstr ""
+
+#: examples/hcal/local_functions.c:677
+msgid "failure attempting to create config file"
+msgstr ""
+
+#: examples/hcal/local_functions.c:681
+msgid "config file created"
+msgstr ""
+
+#: examples/hcal/local_functions.c:682
+msgid "failure closing"
+msgstr ""
+
+#: examples/hcal/local_functions.c:702
+msgid "memory allocation failure"
+msgstr ""
+
+#: examples/hcal/local_functions.c:916
 msgid "your custom menu options (from your config file)"
 msgstr ""
 
-#: examples/hcal/local_functions.c:883
+#: examples/hcal/local_functions.c:922
 msgid "ALERT: -m (--menu) option specified, but no menu items in config file"
 msgstr ""
 
-#: examples/hcal/local_functions.c:886
+#: examples/hcal/local_functions.c:925
 msgid "enter your selection, or <return> to continue"
 msgstr ""
 
-#: examples/hcal/local_functions.c:890
+#: examples/hcal/local_functions.c:929
 msgid "menu selection received was out of bounds"
 msgstr ""
 

@@ -150,12 +150,9 @@ const char* hcal_config_file_text = N_("\
 # You may override all defaults by changing the contents of this file.\n\
 #\n\
 # Version information\n\
-# Please do not alter the following line or place another uncommented\n\
-# line in front of it. The version definition may be used by subsequent\n\
-# versions of hcal to how to parse the file and determine whether\n\
-# additional information and options should be appended to the end of\n\
-# this file. If you find more than one instance of this line, you may \n\
-# replace the older with the newer\n\
+# This may be used by updates to hcal to determine how to parse the file\n\
+# and whether additional information and options should be appended to\n\
+# the end of this file.\n\
 VERSION=2.00\n\
 # Location awareness\n\
 # hcal wants to accurately highlight the current Hebrew day, including\n\
@@ -259,10 +256,10 @@ VERSION=2.00\n\
 # all the prior settings.\n\
 # Only the first ten \"MENU=\" entries will be read. Each line will be\n\
 # truncated at one hundred characters\n\
-#MENU= -l -23.55 -L -46.61 -z -3 # parents in Sao Paolo\n\
-#MENU= -l 32 -L 34 -z 2          # son in bnei brak\n\
-#MENU= -l 43.71 -L -79.43 -z -5  # me in Toronto\n\
-#MENU= -l 22.26 -L 114.15 -z 8   # supplier in Hong Kong\n\
+#MENU= -l -23.55 -L -46.61 -z -3      # parents in Sao Paolo\n\
+#MENU= -l 32 -L 34 -z 2               # son in bnei brak\n\
+#MENU= -fbc -l 43.71 -L -79.43 -z -5  # me in Toronto\n\
+#MENU= -l 22.26 -L 114.15 -z 8        # supplier in Hong Kong\n\
 ");
 
 
@@ -271,7 +268,7 @@ VERSION=2.00\n\
 *************************************************/
 int print_version ()
 {
-	printf ("%s\n", N_("hcal - Hebrew calendar\nversion 2"));
+	printf ("%s\n", N_("hcal - Hebrew calendar\nversion 1.6"));
 	return 0;
 }
 
@@ -284,7 +281,7 @@ void print_usage_hcal ()
 N_("Usage: hcal [options] [coordinates timezone] ] [[month] year]\n\
        coordinates: -l [NS]yy[.xxx] -L [EW]xx[.xxx]\n\
                     -l [NS]yy[:mm[:ss]] -L [EW]xx[:mm[:ss]]\n\
-       timezone:    -z nn[( .nn | :mm )]\
+       timezone:    -z nn[( .nn | :mm )]\n\
 Try \'hcal --help\' for more information"));
 }
 

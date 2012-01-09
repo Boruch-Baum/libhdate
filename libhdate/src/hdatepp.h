@@ -1,6 +1,8 @@
 /*  libhdate - Hebrew calendar library
  *
- *  Copyright (C) 1984-2003 Amos Shapir, 2004-2007  Yaacov Zamir <kzamir@walla.co.il>
+ *  Copyright (C) 2011-2012 Boruch Baum  <boruch-baum@users.sourceforge.net>
+ *                2004-2007 Yaacov Zamir <kzamir@walla.co.il>
+ *                1984-2003 Amos Shapir
  *  
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -32,12 +34,6 @@
  */
 namespace hdate 
 {
-	/**
-	 @brief Hdate class.
-	
-	 class for Hebrew/Gregorian date conversions
-	 */
-	class Hdate;
 		
 	/**
 	 @brief Hdate class.
@@ -120,13 +116,20 @@ namespace hdate
 		////////////////////////////////////////
 		
 		/**
-		 @brief get formated hebrew date.
+		 @brief Return a string, with the hebrew date.
 		
-		 return the short ( e.g. "1 Tishrey" ) or 
-		 long (e.g. "Tuesday 18 Tishrey 5763 Hol hamoed Sukot" ) formated date.
+		 @return NULL pointer upon failure or, upon success, a pointer to a
+		 string containing the short ( e.g. "1 Tishrey" ) or long (e.g. "Tuesday
+		 18 Tishrey 5763 Hol hamoed Sukot" ) formated date. You must free() the
+		 pointer after use.
 		
-		 @param s short flag.
-		 @return a static string of foramted date
+		 @param h The hdate_struct of the date to print.
+		 @param diaspora if true give diaspora holydays
+		 @param short_format A short flag (true - returns a short string, false returns a long string).
+		
+		 @warning This was originally written using a local static string,
+		          calling for output to be copied away.
+
 		*/
 		char *
 		get_format_date (int s)
@@ -135,58 +138,71 @@ namespace hdate
 		}
 		
 		/**
-		 @brief get name of week day.
+		 @brief Return a static string, with name of week day.
 		
-		 @param s short flag 
-		   true - returns a short string: sun, false returns: sunday.
-		 @return a static string of the day of the week
+		 @param day_of_week The number of the day 1..7 (1 - sun).
+		 @param short_form A short flag (true - sun; false - sunday).
+		 @warning DEPRECATION: This function is now just a wrapper for
+		          hdate_string, and is subject to deprecation.
+				  [deprecation date 2011-12-28]
 		*/
 		char *
-		get_day_of_week_string (int s)
+		get_day_of_week_string (int short_form)
 		{
-			return hdate_get_day_string (h->hd_dw, s);
+			//return hdate_get_day_string (h->hd_dw, s);
+			return hdate_string( HDATE_STRING_HMONTH, h->hd_dw, short_form, HDATE_STRING_LOCAL);	
 		}
 		
 		/**
-		 @brief get name month.
+		 @brief Return a static string, with name of month.
 		
-		 @param s short flag 
-		   true - returns a short string: Mar, false returns: March.
-		 @return a static string of month name
+		 @param month The number of the month 1..12 (1 - jan).
+		 @param short_form A short flag.
+		 @warning DEPRECATION: This function is now just a wrapper for
+		          hdate_string, and is subject to deprecation.
+				  [deprecation date 2011-12-28]
 		*/
 		char *
-		get_month_string (int s)
+		get_month_string (int short_form)
 		{
-			return hdate_get_month_string (h->gd_mon, s);
+			//return hdate_get_month_string (h->gd_mon, s);
+			return hdate_string( HDATE_STRING_GMONTH, h->gd_mon, short_form, HDATE_STRING_LOCAL);	
 		}
 		
 		/**
-		 @brief get name hebrew month.
+		 @brief Return a static string, with name of hebrew month.
 		
-		 @param s short flag 
-		   true - returns a short string.
-		 @return a static string of hebrew month name
+		 @param month The number of the month 1..14 (1 - tishre, 13 - adar 1, 14 - adar 2).
+		 @param short_form A short flag.
+		 @warning DEPRECATION: This function is now just a wrapper for
+		          hdate_string, and is subject to deprecation.
+				  [deprecation date 2011-12-28]
 		*/
 		char *
-		get_hebrew_month_string (int s)
+		get_hebrew_month_string (int short_form)
 		{
-			return hdate_get_hebrew_month_string (h->hd_mon, s);
+			//return hdate_get_hebrew_month_string (h->hd_mon, s);
+			return hdate_string( HDATE_STRING_HMONTH, h->hd_mon, short_form, HDATE_STRING_LOCAL);	
 		}
 		
 		/**
-		 @brief get name hebrew holiday.
+		 @brief Name of hebrew holiday.
 		
-		 @param s short flag 
-		   true - returns a short string.
-		 @return a static string of hebrew holiday name
+		 @param holiday The holiday number.
+		 @param short_text A short flag. 0=true, !0=false
+		 @warning DEPRECATION: This function is now just a wrapper for
+		          hdate_string, and is subject to deprecation.
+				  [deprecation date 2011-12-28]
 		*/
 		char *
 		get_holyday_string (int s)
 		{
-			int holyday;
+			int holiday;
 			
-			holyday = hdate_get_holyday (h, diaspora);
-			return hdate_get_holyday_string (holyday, s);
+			holiday = hdate_get_holyday (h, diaspora);
+			//return hdate_get_holyday_string (holyday, s);
+			return hdate_string( HDATE_STRING_HOLIDAY, holiday, HDATE_STRING_LONG, HDATE_STRING_LOCAL);	
+
 		}
 		
 		/**
@@ -215,11 +231,14 @@ namespace hdate
 		}
 		
 		/**
-		 @brief get name hebrew parasha.
+		 @brief Name of Parasha
 		
-		 @param s short flag 
-		   true - returns a short string.
-		 @return a static string of hebrew parash name
+		 @param parasha The Number of Parasha 1-Bereshit
+			(55 trow 61 are joined strings e.g. Vayakhel Pekudei)
+		 @param short_form A short flag. 0=true, !0 = false
+		 @warning DEPRECATION: This function is now just a wrapper for
+		          hdate_string, and is subject to deprecation.
+				  [deprecation date 2011-12-28]
 		*/
 		char *
 		get_parasha_string (int s)
@@ -227,31 +246,75 @@ namespace hdate
 			int parasha;
 			
 			parasha = hdate_get_parasha (h, diaspora);
-			return hdate_get_parasha_string (parasha, s);
+			//return hdate_get_parasha_string (parasha, s);
+			return hdate_string( HDATE_STRING_PARASHA, parasha, HDATE_STRING_LONG, HDATE_STRING_LOCAL);	
+
 		}
 		
 		/**
 		 @brief get name hebrew year.
-		
-		 @return a static string of hebrew year
+
+		 @param n The int to convert ( 0 < n < 11000)
+		 @return a string of the hebrew number UTF-8 (logical)
+		 @warning DEPRECATION: This function is now just a wrapper for
+		          hdate_string, and is subject to deprecation.
+				  Callers to this function must free() after using the memory
+				  pointed to by the return value.
+		          The original function outputted to a local static string,
+		          and suggested that the caller copied it away.
+				  [deprecation date 2011-12-28]
 		*/
 		char *
 		get_hebrew_year_string ()
 		{
-			return hdate_get_int_string (h->hd_year);
+			//return hdate_get_int_string (h->hd_year);
+			return hdate_string( HDATE_STRING_INT, h->hd_year, HDATE_STRING_LONG, HDATE_STRING_LOCAL);	
+
 		}
 		
 		/**
 		 @brief get name hebrew hebrew day of the month
 		
-		 @return a static string of hebrew day of the month
+		 @param n The int to convert ( 0 < n < 11000)
+		 @return a string of the hebrew number UTF-8 (logical)
+		 @warning DEPRECATION: This function is now just a wrapper for
+		          hdate_string, and is subject to deprecation.
+				  Callers to this function must free() after using the memory
+				  pointed to by the return value.
+		          The original function outputted to a local static string,
+		          and suggested that the caller copied it away.
+   				  [deprecation date 2011-12-28]
+
 		*/
 		char *
 		get_hebrew_day_string ()
 		{
-			return hdate_get_int_string (h->hd_day);
+			// return hdate_get_int_string (h->hd_day);
+			return hdate_string( HDATE_STRING_HMONTH, h->hd_day, HDATE_STRING_LONG, HDATE_STRING_LOCAL);	
 		}
-		
+
+		/**
+		 @brief   Return string values for hdate information
+		 @return  a pointer to a string containing the information. In the cases
+		          integers and omer, the strings will NOT be static, and the
+		          caller must free() them after use. Returns a null pointer
+		          upon failure.
+		 @param type_of_string 	0 = integer, 1 = day of week, 2 = parshaot,
+								3 = hmonth, 4 = gmonth, 5 = holiday, 6 = omer
+		 @param index			integer		( 0 < n < 11000)
+								day of week ( 0 < n <  8 )
+								parshaot	( 0 , n < 62 )
+								hmonth		( 0 < n < 15 )
+								gmonth		( 0 < n < 13 )
+								holiday		( 0 < n < 37 )
+								omer		( 0 < n < 50 )
+		 @param short_form   0 = short format
+		 @param hebrew_form  0 = not hebrew (native/embedded)
+		*/
+		char* get_string()
+		{
+			return hdate_string( type_of_string, index, short_form, hebrew_form);		
+		}
 		////////////////////////////////////////
 		////////////////////////////////////////
 		
@@ -611,9 +674,13 @@ namespace hdate
 		double longitude;
 		int tz;
 		hdate_struct *h;
+		int type_of_string;
+		int index;
+		int short_form;
+		int hebrew_form;
 	
 	};
-
-} // name space
+}
+ // name space
 
 #endif

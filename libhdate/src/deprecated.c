@@ -48,7 +48,7 @@ hdate_get_int_string (int const n)
 	int hebrew_form = HDATE_STRING_HEBREW;
 
 	if (!hdate_is_hebrew_locale()) hebrew_form = HDATE_STRING_LOCAL;
-	return hdate_string(HDATE_STRING_INT, n, HDATE_STRING_SHORT, hebrew_form);
+	return hdate_string( HDATE_STRING_INT, n, HDATE_STRING_SHORT, hebrew_form);
 }
 
 

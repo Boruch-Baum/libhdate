@@ -165,6 +165,30 @@ void set_default_location( int tz, double *lat, double *lon )
 {
 	/*	Temporarily, set some default lat/lon coordinates
 		for certain timezones */
+
+/**
+{ 00 }  ( Latitude : 31.78;  Longitude : 35.22;  Name : 'Jerusalem'     ),
+{ 01 }  ( Latitude : 32.07;  Longitude : 34.77;  Name : 'Tel Aviv-Jafa' ),
+{ 02 }  ( Latitude : 32.82;  Longitude : 34.99;  Name : 'Hifa'          ),
+{ 03 }  ( Latitude : 31.96;  Longitude : 34.80;  Name : 'Rishon Lezion' ),
+{ 04 }  ( Latitude : 31.80;  Longitude : 34.64;  Name : 'Ashdod'        ),
+{ 05 }  ( Latitude : 31.25;  Longitude : 34.80;  Name : 'Be''er Sheva'  ),
+{ 06 }  ( Latitude : 32.09;  Longitude : 34.88;  Name : 'Petach Tiqva'  ),
+{ 07 }  ( Latitude : 32.33;  Longitude : 34.86;  Name : 'Netanya'       ),
+{ 08 }  ( Latitude : 32.02;  Longitude : 34.76;  Name : 'Holon'         ),
+{ 09 }  ( Latitude : 32.09;  Longitude : 34.85;  Name : 'B''ene Beraq'  ),
+{ 10 }  ( Latitude : 32.02;  Longitude : 34.75;  Name : 'Bat Yam'       ),
+{ 11 }  ( Latitude : 32.08;  Longitude : 34.80;  Name : 'Ramat Gan'     ),
+{ 12 }  ( Latitude : 31.67;  Longitude : 34.56;  Name : 'Ashqelon'      ),
+{ 13 }  ( Latitude : 31.89;  Longitude : 34.80;  Name : 'Rehovot'       ),
+{ 14 }  ( Latitude : 32.17;  Longitude : 34.84;  Name : 'Herzeliyya'    ),
+{ 15 }  ( Latitude : 32.19;  Longitude : 34.91;  Name : 'Kfar Saba'     ),
+{ 16 }  ( Latitude : 32.45;  Longitude : 34.92;  Name : 'Hadera'        ),
+{ 17 }  ( Latitude : 32.19;  Longitude : 34.88;  Name : 'Ra''anana'     ),
+{ 18 }  ( Latitude : 31.96;  Longitude : 34.90;  Name : 'Lod'           ),
+{ 19 }  ( Latitude : 31.93;  Longitude : 34.86;  Name : 'Ramla'         )
+**/
+
 	switch (tz/60)
 	{
 	case -8:	*lat =  34.05;	*lon =-118.25;	break; // Los Angeles
@@ -606,6 +630,16 @@ int validate_hdate (int parameter_to_check, int day, int month, int year)
 	return FALSE;
 }
 
+/************************************************************
+* Greeting message to new version
+************************************************************/
+void greetings_to_version_16()
+{
+	error(0,0,"%s",N_("\
+This seems to be to be your first time using this version.\n\
+Please read the new documentation in the man page and config\n\
+file. Attempting to create a config file ..."));
+}
 
 
 /************************************************************
@@ -638,10 +672,14 @@ FILE* get_config_file(	const char* config_dir_name,
 	void create_config_file()
 	{
 		config_file = fopen(config_file_path, "a");
-		if (config_file == NULL) return;
+		if (config_file == NULL)
+		{
+			error(0, errno, "%s: %s", N_("failure attempting to create config file"), config_file_path);
+			return;
+		}
 		fprintf(config_file, default_config_file_text);
-		error(0,0,"config file created: %s",config_file_path);
-		if (fclose(config_file) != 0) error(0,errno,"failure closing %s",config_file_name);
+		error(0,0,"%s: %s",N_("config file created"), config_file_path);
+		if (fclose(config_file) != 0) error(0,errno,"%s %s",N_("failure closing"),config_file_name);
 	}
 
 	/************************************************************
@@ -661,7 +699,7 @@ FILE* get_config_file(	const char* config_dir_name,
 			config_dir_path = malloc(path_len);
 			if (config_dir_path == NULL)
 			{
-				error(0,errno,"memory allocation failure");
+				error(0,errno,"%s",N_("memory allocation failure"));
 				return FALSE;
 			}
 			snprintf(config_dir_path, path_len, "%s%s%s",
@@ -674,6 +712,7 @@ FILE* get_config_file(	const char* config_dir_name,
 				free(config_dir_path);
 				return FALSE;
 			}
+			greetings_to_version_16();
 			create_config_file();
 			free(config_dir_path);
 			return FALSE;
