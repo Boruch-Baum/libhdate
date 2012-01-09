@@ -1,50 +1,137 @@
-2012-01-08  gettextize  <bug-gnu-gettext@gnu.org>
+===========================================================================
+libhdate (1.6) - Boruch Baum <boruch-baum@users.sourceforge.net> 2012-01-09
+===========================================================================
 
-	* Makefile.am (SUBDIRS): Remove intl.
-	* configure.in (AC_OUTPUT): Remove intl/Makefile.
+hcal
+- introduced config file $XDG_CONFIG_HOME/hcal/hcalrc or ~/.config/hcal/hcalrc
+- add support for long options (eg --help, --version)
+- option --menu -m to prompt user for user-defined menu selections from config file
+- option --candles takes an optional numeric argument to modify the default minhag.
+  valid values are 17 < n < 91 minutes (before sunset)
+- option --havdalah takes an optional numeric argument to modify the default minhag.
+  valid values are 19 < n < 91 minutes (after sunset)
+- options to over-ride config file settings
+- remove dependency of Hebrew on locale environment variables
+- new feature: sunset-aware to highlight correct hebrew date
+- new option: shabbat times
+- new feature: location-awareness (options -l -L -z)
+- basic location-guessing (based upon time zone
+- coordinates may now also be in form degrees, minutes, seconds and be delimited by :, ', or "
+- coordinates may now include compass directions N, S, E, W.
+- time zone may now include fractional hours, or minutes (delimited by :, ', or ")
+- fixed missing symbols for holiday types
+- highlight current day in reverse video
+- option --no-reverse to suppress reverse video of current day
+- compress width of display on screen
+- print Gregorian and Hebrew months on one line
+-- BUG FIX: Ellul - Tishrei yyyy now correctly
+     prints Ellul yyyy - Tishrei yyyy+1
+- option three-month to display previous and next months with current
+- option three-month with year displays four rows, three columns
+- option parasha to display parshat hashavua next to each week
+- option colorize to display data in, um, color
+- BUGFIX - padding adjusted to properly justify single digit hebrew dates
+- BUGFIX - calculation of end of month on change of year was wrong
+- BUGFIX - inserted bounds checking
+- option footnote to explain the month's holidays
+- option force-hebrew for non-hebrew locales
+- basic diaspora-awareness based on system time-zone
+- option force-israel to override diaspora-awareness
+- option visual, bidi to display Hebrew in reverse
+- modifications html/css
 
-2012-01-08  gettextize  <bug-gnu-gettext@gnu.org>
+hdate
+- coordinates may now also be in form degrees, minutes, seconds and be delimited by :, ', or "
+- time zone may now include fractional hours, or minutes (delimited by :, ', or ")
+- coordinates may now include compass directions N, S, E, W.
+- improved parsing of config file to include coordinates, timezone
+- add support for long options
+- option --help
+- option --version
+- option --force-hebrew to force Hebrew characters for Hebrew dates in
+	non-Hebrew locales
+- options --yom, --leshabbat, --leseder for Hebrew prefixing
+- remove annoying leading comma from options s,t,o,r,c
+- remove annoying parentheses from sunrise/sunset times, candlelighting times
+- remove blank line outputs
+- insert prefix for omer
+- insert descriptions for sunrise/sunset, candlelighting, motzash
+- remove printing ordinal numbers for short(!) form output option
+- insert 'yom' as prefix to gregorian day of week in Hebrew locale
+- special/appropriate text for Fri/Sat evenings
+- BUGFIX remove gettext directives from improper instances (option literals)
+- update copyright info
+- add version information to config file
+- BUGFIX tabular display bidi
+- BUGFIX tabular display omer
+- add candle and havdalah times to tabular display
+- add function pointer to validate_location
+- tweaks to iCal output
+-- uCal_uid_counter changed to be a local variable. The setting of
+	this value was made more consistent with the iCal standard
+	rfc5545, section 3.8.4.7.
+-- iCal entry:  CLASS - put on new line
+- option --sunset-aware, prints tomorrow's Hebrew date and info (for today only) if after sunset
+- option --table, prints data in csv format, suitable for spreadsheets, awk, etc.
+- timezone: set default to system local tz
+-- set default lat/lon coordinates by tz
+-- add lat/lon/tz info for some cities
+- timezone: display warning message if timezone not set
+- BUG FIX: check valid ranges for parameters lat, lon, tz
+- BUG FIX: sanity-check tz versus longitude
+-- arbitrarily set sanity limit at delta 30 degrees
+- BUG FIX: hebrew incorrectly forced in short format
+- short-format style tweak
+- BUG FIX: Julian day would always print when selecting -R option
+- BUG FIX: parasha would always print when selecting -j option
+- BUG FIX: -R option would never work. would never print a parasha.
+- BUG FIX: Don't print negative astronomical times
+-- print instead --:--
+- BUG FIX: added print of sun_hour for -t option (it was half there already)
+- BUG FIX: changed min value for julian_day to 348022
+- BUG FIXES: inserted bounds checking for mm dd (incomplete)
+- improved error messages
+- option -q quiets non-fatal warning messages
+- option sunset-aware made default condition
+- option not-sunset-aware added (for the stubborn?)
+- made text messages compatible with GETTEXT for internationalization
+- BUGFIX - improved bounds checking
+- improve option parsing error detection
+- add long options for latitude, longitude, timezone
+- standardize use of get_int_string_ instead of get_int_string
+- option visual, bidi to display Hebrew in reverse
+- introduced config file $XDG_CONFIG_HOME/hdate/hdaterc or ~/.config/hdate/hdaterc
+- option --menu -m to prompt user for user-defined menu selections from config file
+- option --candles takes an optional numeric argument to modify the default minhag.
+  valid values are 17 < n < 91 minutes (before sunset)
+- option --havdalah takes an optional numeric argument to modify the default minhag.
+  valid values are 19 < n < 91 minutes (after sunset)
+- remove dependency of Hebrew on locale environment variables
 
-	* m4/iconv.m4: Upgrade to gettext-0.18.1.
-	* m4/codeset.m4: Upgrade to gettext-0.18.1.
-	* m4/fcntl-o.m4: New file, from gettext-0.18.1.
-	* m4/glibc2.m4: Upgrade to gettext-0.18.1.
-	* m4/glibc21.m4: Upgrade to gettext-0.18.1.
-	* m4/intdiv0.m4: Upgrade to gettext-0.18.1.
-	* m4/intl.m4: Upgrade to gettext-0.18.1.
-	* m4/intldir.m4: Upgrade to gettext-0.18.1.
-	* m4/intlmacosx.m4: Upgrade to gettext-0.18.1.
-	* m4/intmax.m4: Upgrade to gettext-0.18.1.
-	* m4/inttypes_h.m4: Upgrade to gettext-0.18.1.
-	* m4/inttypes-pri.m4: Upgrade to gettext-0.18.1.
-	* m4/lcmessage.m4: Upgrade to gettext-0.18.1.
-	* m4/lock.m4: Upgrade to gettext-0.18.1.
-	* m4/longlong.m4: Upgrade to gettext-0.18.1.
-	* m4/printf-posix.m4: Upgrade to gettext-0.18.1.
-	* m4/size_max.m4: Upgrade to gettext-0.18.1.
-	* m4/stdint_h.m4: Upgrade to gettext-0.18.1.
-	* m4/threadlib.m4: New file, from gettext-0.18.1.
-	* m4/uintmax_t.m4: Upgrade to gettext-0.18.1.
-	* m4/visibility.m4: Upgrade to gettext-0.18.1.
-	* m4/wchar_t.m4: Upgrade to gettext-0.18.1.
-	* m4/wint_t.m4: Upgrade to gettext-0.18.1.
-	* m4/xsize.m4: Upgrade to gettext-0.18.1.
-	* Makefile.am (SUBDIRS): Add intl.
-	* configure.in (AC_OUTPUT): Add intl/Makefile.
-	(AM_GNU_GETTEXT_VERSION): Bump to 0.18.1.
+libhdate
+- new function hdate_string
+- DEPRECATION: hdate_get_day_string is now only a wrapper for hdate_string
+- DEPRECATION: hdate_get_hebrew_month_string is now only a wrapper for hdate_string
+- DEPRECATION: hdate_get_holyday_string is now only a wrapper for hdate_string
+- DEPRECATION: hdate_get_month_string is now only a wrapper for hdate_string
+- DEPRECATION: hdate_get_parasha_string is now only a wrapper for hdate_string
+- DEPRECATION: hdate_get_omer_string is now only a wrapper for hdate_string
+- DEPRECATION: hdate_get_int_string_ is now only a wrapper for hdate_string
+- BUGFIX hdate_get_format_date no longer writes to static local buffers
+- callers to hdate_get_format_date must free() the space returned at ptr
+- BUGFIX made all functions const-correct and fixed resulting conflicts
+- BUGFIX corrected documentation for day of week string range 1-7 vs 0-6
 
-2011-12-27  gettextize  <bug-gnu-gettext@gnu.org>
+gettext
+- upgrade to gettext-0.18.1.
 
-	* m4/gettext.m4: Upgrade to gettext-0.18.1.
-	* m4/iconv.m4: Upgrade to gettext-0.18.1.
-	* m4/lib-ld.m4: Upgrade to gettext-0.18.1.
-	* m4/lib-link.m4: Upgrade to gettext-0.18.1.
-	* m4/lib-prefix.m4: Upgrade to gettext-0.18.1.
-	* m4/nls.m4: Upgrade to gettext-0.18.1.
-	* m4/po.m4: Upgrade to gettext-0.18.1.
-	* m4/progtest.m4: Upgrade to gettext-0.18.1.
-	* configure.in (AM_GNU_GETTEXT_VERSION): Bump to 0.18.1.
+================================================================
+end libhdate (1.6)
+================================================================
 
+
+
+=================
 libhdate (1.4.20)
 
   * Update pascal class example (Patch: Ido Kanner)
