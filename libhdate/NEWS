@@ -12,18 +12,6 @@ programs hcal and hdate. The changes to the underlying function library include
 a few minor bug fixes, deprecation of a series of string functions in favor
 of a single new one with better memory allocation, and hard-coding of core
 elements of the Hebrew localization so that Hebrew can be displayed in all
-locales.
-
-Some selected highlights:
-
-* config files for storing defaults
-* user-defined menus (defined in config file)
-* sunset awareness, based on coordinates given or system timezone and guesswork
-* optional easier entry of coordinates (N, S, E, W, dd:mm:ss)
-* minhag customization for Shabbat times
-* Hebrew information in Hebrew characters (for all locales)
-* hcal can display in 3-month mode, in color, with footnotes and Shabbat information
-* hdate can output data in csv format, suitable for spreadsheets, awk, etc.
-* hdate has many format enhancements
-
-2012-01-09 Boruch Baum <boruch-baum@users.sourceforge.net>
+locales. The documentation in the man pages and in the new configuration
+file should be sufficient. See the Changelog for more information than most of
+you probably want to know about the changes . . . :

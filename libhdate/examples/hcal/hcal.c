@@ -111,6 +111,7 @@ typedef struct {
 			int havdalah;
 			int no_reverse;
 			int three_month;
+			char* spacing;
 			int colorize;
 			int footnote;
 			int jd_today_g;
@@ -281,9 +282,18 @@ void print_usage_hcal ()
 N_("Usage: hcal [options] [coordinates timezone] ] [[month] year]\n\
        coordinates: -l [NS]yy[.xxx] -L [EW]xx[.xxx]\n\
                     -l [NS]yy[:mm[:ss]] -L [EW]xx[:mm[:ss]]\n\
-       timezone:    -z nn[( .nn | :mm )]\n\
-Try \'hcal --help\' for more information"));
+       timezone:    -z nn[( .nn | :mm )]"));
 }
+
+/**************************************************
+*  print "try --help" message
+*************************************************/
+void print_try_help_hcal ()
+{
+	printf ("%s\n",
+			N_("Try \'hcal --help\' for more information"));
+}
+
 
 /**************************************************
 *  print help
@@ -297,6 +307,7 @@ N_("Hebrew calendar\nOPTIONS:\n\
                       option --three-month as a default there\n\
    -3 --three-month   displays previous/next months\n\
                       side by side. requires 127 columns\n\
+      --spacing       quoted string to separate months in 3-month mode\n\
    -b --bidi          prints hebrew in reverse (visual)\n\
       --visual\n\
       --no-bidi       over-ride config file setting if you had set\n\
@@ -770,14 +781,14 @@ int print_header ( const int month, const int year, const option_list opt)
 		if (opt.three_month)
 		{
 			print_header_month_line_stdout(previous_month, opt.colorize, opt.force_hebrew, opt.bidi);
-			printf("  ");
+			printf("%s", opt.spacing);
 		}
 
 		print_header_month_line_stdout(current_month, opt.colorize, opt.force_hebrew, opt.bidi);
 
 		if (opt.three_month)
 		{
-			printf("  ");
+			printf("%s", opt.spacing);
 			print_header_month_line_stdout(next_month, opt.colorize, opt.force_hebrew, opt.bidi);
 		}
 	}
@@ -798,12 +809,12 @@ int print_header ( const int month, const int year, const option_list opt)
 		if (opt.three_month)
 		{
 			print_header_dow_line_stdout(opt.colorize);
-			printf("   ");
+			printf(" %s", opt.spacing);
 		}
 		print_header_dow_line_stdout(opt.colorize);
 		if (opt.three_month)
 		{
-			printf("   ");
+			printf(" %s", opt.spacing);
 			print_header_dow_line_stdout(opt.colorize);
 		}
 	}
@@ -1246,7 +1257,7 @@ int print_calendar ( const int current_month, const int current_year, const opti
 		{
 			print_week(jd_previous_month, previous_month, opt);
 			jd_previous_month = jd_previous_month + 7;
-			printf("  ");
+			printf("%s", opt.spacing);
 		}
 
 		print_week(jd_current_month, current_month, opt);
@@ -1255,7 +1266,7 @@ int print_calendar ( const int current_month, const int current_year, const opti
 
 		if (opt.three_month)
 		{
-			printf("  ");
+			printf("%s", opt.spacing);
 			print_week(jd_next_month, next_month, opt);
 			jd_next_month = jd_next_month + 7;
 		}
@@ -1634,6 +1645,7 @@ int hcal_parser( const int switch_arg, option_list *opt,
 				error_detected++;
 			}
 			break;
+/* --spacing */		case 26: opt->spacing = optarg; break;
 
 		} // end switch for long_options
 		break;
@@ -1672,7 +1684,11 @@ int hcal_parser( const int switch_arg, option_list *opt,
 			print_parm_missing_error((char*) &optopt);
 		error_detected = TRUE;
 		break;
-	default: print_usage_hcal (); exit_main(opt, 0); break;
+	default:
+		print_usage_hcal();
+		print_try_help_hcal();
+		exit_main(opt, 0);
+		break;
 	}
 	return error_detected;
 }
@@ -1711,6 +1727,7 @@ int main (int argc, char *argv[])
 	opt.havdalah = 0;
 	opt.no_reverse = 0;		// don't highlight today in reverse video
 	opt.three_month = 0;	// print previous and next months also
+	opt.spacing = NULL;		// horizontal spacing string in 3-month mode
 	opt.colorize = 0;		// display calendar in muted, more pleasing tones
 	opt.footnote = 0;		// display description of month's holidays
 	opt.force_hebrew = 0;	// force display of Hebrew data in Hebrew
@@ -1761,6 +1778,7 @@ int main (int argc, char *argv[])
 		{"menu",0,0,'m'},
 		{"candles",2,0,0},
 		{"havdalah",2,0,0},
+		{"spacing",2,0,0},
 		{0, 0, 0, 0}
 		};
 
@@ -1860,15 +1878,18 @@ int main (int argc, char *argv[])
 
 
 	/**************************************************
-	* sanity check - options compatability
+	* three month mode checks
 	*************************************************/
-	if	( (opt.three_month) &&
-		  ((opt.parasha) || (opt.shabbat) || (opt.footnote) ) )
+	if	(opt.three_month)
 	{
-		error(0,0,"%s", N_("ALERT: options --parasha, --shabbat, --footnote are not supported in 'three-month' mode"));
-		opt.parasha = 0;
-		opt.shabbat = 0;
-		opt.footnote = 0;
+		if ((opt.parasha) || (opt.shabbat) || (opt.footnote) )
+		{
+			error(0,0,"%s", N_("ALERT: options --parasha, --shabbat, --footnote are not supported in 'three-month' mode"));
+			opt.parasha = 0;
+			opt.shabbat = 0;
+			opt.footnote = 0;
+		}
+		if (opt.spacing == NULL) opt.spacing = &("  ");
 	}
 
 	/************************************************************
@@ -1878,7 +1899,8 @@ int main (int argc, char *argv[])
 	* if it discovers, um, bad parameters
 	************************************************************/
 	validate_location(opt_latitude, opt_Longitude, &lat, &lon, &tz,
-					opt.quiet_alerts, error_detected, print_usage_hcal);
+					opt.quiet_alerts, error_detected,
+					print_usage_hcal, print_try_help_hcal);
 	opt.lat = lat;
 	opt.lon = lon;
 	opt.tz = tz;

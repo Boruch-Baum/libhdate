@@ -1,3 +1,21 @@
+hcal
+- don't print "try --help" in help message!
+- option --spacing for 3-month mode (custom space setting)
+  eg. --spacing="  |  " or --spacing=""
+
+hdate
+- don't print "try --help" in help message!
+- additional times: sof zman kriyat shema, sof zman tefilah, mincha gedola, mincha ketana, plag hamincha, magen-avraham
+- three levels of verbosity to option 't' ( -t -tt -ttt )
+- option to fine-tune which individual times to print
+- four levels of quiet ( -q alerts, -qq gregorian, -qqq labels, -qqqq Hebrew date )
+- change long option --quiet-alerts to --quiet
+
+
+local_functions
+- print "coordinates not entered or invalid" before guessing
+
+
 ===========================================================================
 libhdate (1.6) - Boruch Baum <boruch-baum@users.sourceforge.net> 2012-01-09
 ===========================================================================

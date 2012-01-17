@@ -126,6 +126,8 @@ void print_parm_invalid_error( char *parm_name )
 ************************************************************/
 void print_alert_coordinate( char *city_name )
 {
+	error(0,0,"%s",
+			N_("ALERT: coordinates not entered or invalid..."));
 	error(0,0,"%s %s",
 			N_("ALERT: guessing... will use co-ordinates for"),
 			city_name);
@@ -477,7 +479,7 @@ int parse_timezone( char *input_string, int *tz)
 void validate_location( const int opt_latitude, const int opt_Longitude,
 						double *lat, double *lon,
 						int *tz, const int quiet_alerts, int error_detected,
-						void (*print_usage)() )
+						void (*print_usage)(), void (*print_try_help)() )
 {
 
 	/* latitude and longitude must be paired */
@@ -544,6 +546,7 @@ void validate_location( const int opt_latitude, const int opt_Longitude,
 	if (error_detected)
 	{
 		print_usage();
+		print_try_help();
 		exit(EXIT_CODE_BAD_PARMS);
 	}
 }
