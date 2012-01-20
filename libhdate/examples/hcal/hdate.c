@@ -1,5 +1,5 @@
 /* hdate.c            http://libhdate.sourceforge.net
- * Hebrew date/times information(part of package libhdate)
+ * Hebrew date/times information (part of package libhdate)
  *
  * compile:
  * gcc `pkg-config --libs --cflags libhdate` hdate.c -o hdate
@@ -62,6 +62,7 @@ static char * three_stars_text = N_("three_stars");
 static char * sun_hour_text = N_("sun_hour");
 static char * candles_text = N_("candle-lighting");
 static char * havdalah_text = N_("havdalah");
+static char * daf_yomi_text = N_("daf yomi");
 
 typedef struct  {
 				int hebrew;
@@ -99,6 +100,7 @@ typedef struct  {
 				int julian;
 				int diaspora;
 				int iCal;
+				int daf_yomi;
 				int menu;
 				char* menu_item[MAX_MENU_ITEMS];
 				} option_list;
@@ -225,6 +227,63 @@ VERSION=2.00\n\
 #MENU= -bd -l 43.71 -L -79.43 -z -5  # me in Toronto\n\
 #MENU= -bd -l 22.26 -L 114.15 -z 8   # supplier in Hong Kong\n\
 ");
+
+
+
+// Daf Yomi cycle began 02 March 2005 = Julian day 2453432
+#define DAF_YOMI_START 2453432
+#define DAF_YOMI_LEN      2711
+
+typedef struct {
+	int start_day;
+	int num_of_days;
+	char* e_masechet;
+	char* h_masechet; } limud_unit;
+
+static const limud_unit daf_yomi[] = {
+{   0,  63, N_("Berachot"), "ברכות" },
+{  63, 156, N_("Shabbat"), "שבת" },
+{ 219, 104, N_("Eiruvin"), "עירובין" },
+{ 323, 120, N_("Pesachim"), "פסחים" },
+{ 443,  21, N_("Shekalim"), "שקלים" },
+{ 464,  87, N_("Yoma"), "יומא" },
+{ 551,  55, N_("Sukkah"), "סוכה" },
+{ 606,  39, N_("Beitzah"), "ביצה" },
+{ 645,  34, N_("Rosh_HaShannah"), "ראש השנה" },
+{ 679,  30, N_("Taanit"), "תענית" },
+{ 709,  31, N_("Megillah"), "מגילה" },
+{ 740,  28, N_("Moed_Katan"), "מועד קטן" },
+{ 768,  26, N_("Chagigah"), "חגיגה" },
+{ 794, 121, N_("Yevamot"), "יבמות" },
+{ 915, 111, N_("Ketubot"), "כתובות" },
+{1026,  90, N_("Nedarim"), "נדרים" },
+{1116,  65, N_("Nazir"), "נזיר" },
+{1181,  48, N_("Sotah"), "סוטה" },
+{1229,  89, N_("Gittin"), "גיטין" },
+{1318,  81, N_("Kiddushin"), "קידושין" },
+{1399, 118, N_("Bava_Kamma"), "בבא קמא" },
+{1517, 118, N_("Bava_Metzia"), "בבא מציעא" },
+{1635, 175, N_("Bava_Batra"), "בבא בתרא" },
+{1810, 112, N_("Sanhedrin"), "סנהדרין" },
+{1922,  23, N_("Makkot"), "מכות" },
+{1945,  48, N_("Shevuot"), "שבועות" },
+{1993,  75, N_("Avodah_Zara"), "עבודה זרה" },
+{2068,  13, N_("Horayot"), "הוריות" },
+{2081, 119, N_("Zevachim"), "זבחים" },
+{2200, 109, N_("Menachot"), "מנחות" },
+{2309, 141, N_("Chullin"), "חולין" },
+{2450,  60, N_("Bechorot"), "בכורות" },
+{2510,  33, N_("Erchin"), "ערכין" },
+{2543,  33, N_("Temurah"), "תמורה" },
+{2576,  27, N_("Keritut"), "כריתות" },
+{2603,  20, N_("Meilah"), "מעילה" },
+{2623,   1, N_("Meilah-Kinnim"), "מעילה - קינים" },
+{2625,   2, N_("Kinnim"), "קינים" },
+{2626,   1, N_("Kinnim-Tamid"), "קינים - תמיד" },
+{2627,   8, N_("Tamid"), "תמיד" },
+{2635,   4, N_("Middot"), "מדות" },
+{2639,  72, N_("Niddah"), "נדה" },
+{2711,   0,    "",        ""} };
 
 
 /************************************************************
@@ -363,6 +422,75 @@ void print_astronomical_time_tabular( const int timeval, const int tz)
 }
 
 
+/************************************************************
+* get daf yomi information
+************************************************************/
+int daf_yomi_info( const int julian_day, int* daf, char** masechet, int force_hebrew)
+{
+	int index, i;
+
+	if (julian_day < 2453432) return FALSE;
+
+	index = (julian_day % DAF_YOMI_START) % DAF_YOMI_LEN;
+
+	for ( i=0; daf_yomi[i+1].start_day <= index ; i++) ;
+
+	// These masechaot ketanot don't all start at 2
+	if ( (index > 2622) && (index < 2639) ) *daf = index - 2601;
+	else *daf = index - daf_yomi[i].start_day + 2;
+
+	if (force_hebrew) *masechet = daf_yomi[i].h_masechet;
+	else *masechet = daf_yomi[i].e_masechet;
+	
+	return TRUE;
+}
+
+/************************************************************
+* get daf yomi information
+************************************************************/
+int print_daf_yomi( const int julian_day, const int force_hebrew, const int force_bidi, const int tabular_output )
+{
+	int daf;
+	char* masechet;
+
+	char *daf_str;
+	char *bidi_buffer, *bidi_buffer2;
+	int   bidi_buffer_len;
+
+	if (!daf_yomi_info( julian_day, &daf, &masechet, force_hebrew))
+		return DATA_WAS_NOT_PRINTED;
+
+	if (!force_hebrew)
+	{
+		if (!tabular_output)  printf("%s: %s %d\n", daf_yomi_text, masechet, daf);
+		else  printf(",%s %d", masechet, daf);
+	}
+	else
+	{
+		daf_str = hdate_string(HDATE_STRING_INT, daf, HDATE_STRING_LONG, force_hebrew);
+		if (!force_bidi)
+		{
+			if (!tabular_output) printf("%s: %s %s\n", daf_yomi_text, masechet, daf_str);
+			else printf(",%s %d", masechet, daf);
+		}
+		else
+		{
+			if (!tabular_output) printf("%s: ",daf_yomi_text);
+			else printf(",");
+			bidi_buffer_len = asprintf(&bidi_buffer, "%s %s", masechet, daf_str);
+			bidi_buffer2 = malloc(bidi_buffer_len+1);
+			mempcpy(bidi_buffer2, bidi_buffer, bidi_buffer_len);
+			bidi_buffer2[bidi_buffer_len]='\0';
+			revstr(bidi_buffer2, bidi_buffer_len);
+			printf("%s",bidi_buffer2);
+			if (!tabular_output) printf("\n");
+			if (bidi_buffer  != NULL)  free(bidi_buffer);
+			if (bidi_buffer2 != NULL)  free(bidi_buffer2);
+		}
+		if (daf_str  != NULL)  free(daf_str);
+	}
+	return DATA_WAS_PRINTED;
+}
 
 
 /************************************************************
@@ -665,11 +793,13 @@ int print_times ( hdate_struct * h, const double lat, const double lon, const in
 
 	if (opt.first_light) data_printed = data_printed | print_astronomical_time( opt.quiet, first_light_text, first_light, tz);
 	if (opt.talit)       data_printed = data_printed | print_astronomical_time( opt.quiet, talit_text, talit, tz);
-	if (opt.sunrise)    data_printed = data_printed | print_astronomical_time( opt.quiet, sunrise_text, sunrise, tz);
+	if (opt.sunrise)     data_printed = data_printed | print_astronomical_time( opt.quiet, sunrise_text, sunrise, tz);
 
 
 	// FIXME - these times will be moved into the libhdate api
-	// sof zman kriyat Shema
+	// sof zman kriyat Shema (verify that the Magen Avraham calculation is correct!)
+	if (opt.magen_avraham)
+						 data_printed = data_printed | print_astronomical_time( opt.quiet, magen_avraham_text, first_light + (3 * (first_stars - first_light) ), tz);
 	if (opt.shema)       data_printed = data_printed | print_astronomical_time( opt.quiet, shema_text, sunrise + (3 * sun_hour), tz);
 	// sof zman tefilah
 	if (opt.amidah)      data_printed = data_printed | print_astronomical_time( opt.quiet, amidah_text, sunrise + (4 * sun_hour), tz);
@@ -818,7 +948,7 @@ void print_tabular_header( const option_list opt)
 	if (opt.first_stars) printf(",%s",first_stars_text);
 	if (opt.three_stars) printf(",%s",three_stars_text);
 	if (opt.sun_hour) printf(",%s",sun_hour_text);
-
+	if (opt.daf_yomi) printf(",%s",daf_yomi_text);
 	if (opt.candles) printf(",%s", candles_text);
 	if (opt.havdalah) printf(",%s", havdalah_text);
 	if (opt.holidays) printf(",%s",N_("holiday"));
@@ -942,7 +1072,8 @@ int print_tabular_day (hdate_struct * h, const option_list opt,
 
 
 	// FIXME - these times will be moved into the libhdate api
-	// sof zman kriyat Shema
+	// sof zman kriyat Shema (verify that the Magen Avraham calculation is correct!)
+	if (opt.magen_avraham) print_astronomical_time_tabular( first_light + (3 * (first_stars - first_light) ), tz);
 	if (opt.shema) print_astronomical_time_tabular( sunrise + (3 * sun_hour), tz);
 	// sof zman tefilah
 	if (opt.amidah) print_astronomical_time_tabular( sunrise + (4 * sun_hour), tz);
@@ -966,6 +1097,8 @@ int print_tabular_day (hdate_struct * h, const option_list opt,
 	if (opt.first_stars) print_astronomical_time_tabular( first_stars, tz);
 	if (opt.three_stars) print_astronomical_time_tabular( three_stars, tz);
 	if (opt.sun_hour) print_astronomical_time_tabular(sun_hour, 0);
+
+	if (opt.daf_yomi) print_daf_yomi(h->hd_jd, opt.hebrew, opt.bidi, TRUE);
 
 	if (opt.candles)
 	{
@@ -1115,8 +1248,11 @@ int print_day (hdate_struct * h, const option_list opt,
 			hdate_string( HDATE_STRING_PARASHA, parasha, opt.short_format, opt.hebrew));
 		data_printed = DATA_WAS_PRINTED;
 	}
+	if (opt.daf_yomi) data_printed = data_printed | print_daf_yomi(h->hd_jd, opt.hebrew, opt.bidi, FALSE);
 	if (opt.candles || opt.havdalah) data_printed = data_printed | print_candles (h, lat, lon, tz, opt);
+
 	if ((opt.print_tomorrow) && (data_printed) && (!opt.quiet)) print_alert_sunset();
+	
 	/************************************************************
 	* end - print additional information for day
 	************************************************************/
@@ -1776,6 +1912,7 @@ int hdate_parser( int switch_arg, option_list *opt,
 /* --three-stars*/	case 44: opt->three_stars = 1; break;
 /* --magen-avraham*/case 45: opt->magen_avraham = 1; break;
 /* --sun-hour	*/	case 46: opt->sun_hour = 1; break;
+/* --daf-yomi   */	case 47: opt->daf_yomi = 1; break;
 		} // end switch for long_options
 		break;
 
@@ -1838,6 +1975,9 @@ int hdate_parser( int switch_arg, option_list *opt,
 ************************************************************/
 int main (int argc, char *argv[])
 {
+	// const static int heb_yr_upper_bound = 10999;
+	const static int heb_yr_lower_bound = 3000;
+	const static int jul_dy_lower_bound = 348021;
 
 	hdate_struct h;				/* The Hebrew date */
 	int c;
@@ -1893,6 +2033,7 @@ int main (int argc, char *argv[])
 	opt.julian = 0;				// -j option Julian day number
 	opt.diaspora = 0;			// -d option diaspora
 	opt.iCal = 0;				// -i option iCal
+	opt.daf_yomi = 0;
 	opt.omer = 0;				// -o option Sfirat Haomer
 
 	opt.menu = 0;				// -m print menus for user-selection
@@ -1958,6 +2099,7 @@ int main (int argc, char *argv[])
 			{"three-stars",0,0,0},
 	/* 45 */{"magen-avraham",0,0,0},
 			{"sun-hour",0,0,0},
+	/* 47 */{"daf-yomi",0,0,0},
 	/* eof*/{0, 0, 0, 0}
 		};
 
@@ -2117,7 +2259,7 @@ int main (int argc, char *argv[])
 		/************************************************************
 		* process single Julian day
 		************************************************************/
-		if (year > 348021)
+		if (year > jul_dy_lower_bound)
 		{
 			hdate_set_jd (&h, year);
 
@@ -2138,7 +2280,7 @@ int main (int argc, char *argv[])
 		/************************************************************
 		* process entire Hebrew year
 		************************************************************/
-		else if (year > 3000)
+		else if (year > heb_yr_lower_bound)
 		{
 			if (opt.tablular_output)
 			{
@@ -2191,7 +2333,7 @@ int main (int argc, char *argv[])
 		/************************************************************
 		* process entire Hebrew month
 		************************************************************/
-		if (year > 3000)
+		if (year > heb_yr_lower_bound)
 		{
 			/* begin bounds check for month */
 			if ((month <= 0) || (month > 14))
@@ -2288,7 +2430,7 @@ int main (int argc, char *argv[])
 		/************************************************************
 		* get Hebrew date
 		************************************************************/
-		if (year > 3000)
+		if (year > heb_yr_lower_bound)
 		{
 			/* begin bounds check for month */
 			if ((month <= 0) || (month > 14))

@@ -554,12 +554,20 @@ void validate_location( const int opt_latitude, const int opt_Longitude,
 
 /************************************************************
 * check validity of date parameters
+* 
+* returns FALSE ( 0) on error
+* returns TRUE  (!0) on success; In the case of
+*     CHECK_MONTH_PARM, the return value will be the length
+*     of the Hebrew year if a Hebrew validation was requested
+*     or 365 if a gregorian validation was requested.
 ************************************************************/
 #define CHECK_DAY_PARM   1
 #define CHECK_MONTH_PARM 2
 #define CHECK_YEAR_PARM  3
 int validate_hdate (int parameter_to_check, int day, int month, int year)
 {
+	const static int heb_yr_upper_bound = 10999;
+	const static int heb_yr_lower_bound = 3000;
 	hdate_struct h;
 	
 	if (year < 0) return FALSE;
@@ -572,9 +580,9 @@ int validate_hdate (int parameter_to_check, int day, int month, int year)
 		/************************************************************
 		* check day in Hebrew date
 		************************************************************/
-		if (year > 3000)
+		if (year > heb_yr_lower_bound)
 		{
-			if (year > 10999) return FALSE;
+			if (year > heb_yr_upper_bound) return FALSE;
 			hdate_set_hdate (&h, 1, 1, year);
 			if ((day < 1) || (day > 30) ||
 				((day > 29) && ((month==4) || (month==6) || (month==8) || (month=10) || (month==12) || (month==14))) ||
@@ -606,13 +614,13 @@ int validate_hdate (int parameter_to_check, int day, int month, int year)
 		/************************************************************
 		* check month in Hebrew date
 		************************************************************/
-		if (year > 3000)
+		if (year > heb_yr_lower_bound)
 		{
-			if (year > 10999) return FALSE;
+			if (year > heb_yr_upper_bound) return FALSE;
 			if ((month <= 0) || (month > 14)) return FALSE;
 			hdate_set_hdate (&h, 1, 1, year);
 			if ((h.hd_size_of_year <365) && (month >12)) return FALSE;
-			return TRUE;
+			return h.hd_size_of_year;
 		}
 
 		/************************************************************
@@ -621,12 +629,12 @@ int validate_hdate (int parameter_to_check, int day, int month, int year)
 		else
 		{
 			if ((month <= 0) || (month > 12)) return FALSE;
-			return TRUE;
+			return 365;
 		}
 		break;
 	
 	case CHECK_YEAR_PARM:
-		if (year > 10999) return FALSE;
+		if (year > heb_yr_upper_bound) return FALSE;
 		return TRUE;
 		break;
 	}

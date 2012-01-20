@@ -37,6 +37,12 @@
 
 #define HDATE_STRING_SHORT 1
 
+#define CALENDAR_WIDTH_WIDE   41
+#define CALENDAR_WIDTH_NARROW 20
+
+#define HEB_YR_LOWER_BOUND 3000
+
+
 // for opt.menu[MAX_MENU_ITEMS]
 #define MAX_MENU_ITEMS 10
 
@@ -102,6 +108,7 @@ static char holiday_flag[] = { '/', '+', '*', '~', '!', '@', '#', '$', '%', '^' 
 
 
 typedef struct {
+			int gregorian;
 			int html;
 			int external_css;
 			int diaspora;
@@ -112,6 +119,7 @@ typedef struct {
 			int no_reverse;
 			int three_month;
 			char* spacing;
+			char* separator;
 			int colorize;
 			int footnote;
 			int jd_today_g;
@@ -303,6 +311,8 @@ void print_help ()
 	print_usage_hcal();
 	printf ("%s\n",
 N_("Hebrew calendar\nOPTIONS:\n\
+   -0 --no-gregorian  default, print only Hebrew month information.\n\
+                      exists to override config file setting\n\
    -1 --one-month     over-ride config file setting if you had set\n\
                       option --three-month as a default there\n\
    -3 --three-month   displays previous/next months\n\
@@ -317,6 +327,8 @@ N_("Hebrew calendar\nOPTIONS:\n\
    -d --diaspora      use diaspora reading and holidays.\n\
    -f --footnote      print descriptive notes of holidays\n\
       --no-footnote   over-ride a footnote setting in your config file\n\
+   -g --gregorian     include gregorian corresponding days. -gg displays\n\
+                      a gregorian month with corresponding Hebrew days.\n\
    -h --html          output in html format to stdout\n\
    -H --hebrew        print hebrew information in Hebrew\n\
    -i                 use external css file \"./hcal.css\".\n\
@@ -532,28 +544,77 @@ void colorize_element ( const int element )
 /**************************************************
  *  print header - month line to stdout
  *************************************************/
-void print_header_month_line_stdout( const header_info header, const int colorize, const int force_hebrew, const int visual_bidi )
+void print_header_month_line_stdout( const header_info header, option_list opt )
 {
 	char *g_month, *h1_month, *h2_month;
 	char *h1_year = NULL;
 	char *h2_year = NULL;
-	size_t g_month_len, g_year_len, h1_month_len, h2_month_len, h1_year_len, h2_year_len;
 
+	size_t padding = 0;
+	size_t g_month_len, g_year_len, h1_month_len, h2_month_len, h1_year_len, h2_year_len;
+	int calendar_width = CALENDAR_WIDTH_WIDE;
+	#define DASH_WIDTH      3 // includes surrounding spaces
+	#define YEAR_WIDTH      5 // includes surrounding spaces
+	#define SPACE_WIDTH		1
 
 	char *hebrew_buffer, *hebrew_buffer_next;
 	size_t hebrew_buffer_len, literals_len;
 
-	int j;
-	size_t padding = 0;
-
-
 	/**************************************************
 	*  Print Gregorian month and year
 	*************************************************/
-	g_month = hdate_string( HDATE_STRING_GMONTH, header.g_month_1, HDATE_STRING_LONG, HDATE_STRING_LOCAL);
-	if (colorize) colorize_element(ELEMENT_MONTH_G);
-	printf ("%s %d", g_month, header.g_year_1);
-	if (colorize) printf(CODE_RESTORE_VIDEO);
+	if (opt.gregorian == 0)
+	{
+		g_month_len = 0;
+		g_year_len = 0;
+		calendar_width = CALENDAR_WIDTH_NARROW;
+	}
+	else
+	{
+		g_month = hdate_string( HDATE_STRING_GMONTH, header.g_month_1, HDATE_STRING_LONG, HDATE_STRING_LOCAL);
+		if (opt.colorize) colorize_element(ELEMENT_MONTH_G);
+		if ( (opt.gregorian != 1) || 
+			 ( (opt.gregorian == 1) && (header.g_month_1 == header.g_month_2) )|| 
+			 (header.g_year_1 != header.g_year_2) )
+			printf ("%s %d", g_month, header.g_year_1);
+		else printf ("%s", g_month);
+		
+		/*************************************************
+		*  padding info for gregorian date
+		*************************************************/
+		g_month_len = strlen(g_month);
+		g_year_len = YEAR_WIDTH;
+		switch (header.g_year_1)
+		{
+		case 1-9:		g_year_len  = 2; break;
+		case 10-99:		g_year_len  = 3; break;
+		case 100-999:	g_year_len  = 4; break;
+		}
+
+		if ( (opt.gregorian == 1) && (header.g_month_1 != header.g_month_2) )
+		{
+			g_month = hdate_string( HDATE_STRING_GMONTH, header.g_month_2, HDATE_STRING_LONG, HDATE_STRING_LOCAL);
+			printf (" - %s %d", g_month, header.g_year_2);
+
+			/*************************************************
+			*  padding info for gregorian date
+			*************************************************/
+			g_month_len = g_month_len + strlen(g_month) + DASH_WIDTH;
+			if (header.g_year_1 != header.g_year_2)
+			{
+				g_year_len = g_year_len + YEAR_WIDTH;
+				switch (header.g_year_1)
+				{
+				case 1-9:		g_year_len  = g_year_len - 3; break;
+				case 10-99:		g_year_len  = g_year_len - 2; break;
+				case 100-999:	g_year_len  = g_year_len - 1; break;
+				}
+			}
+
+		}
+		if (opt.colorize) printf(CODE_RESTORE_VIDEO);
+	}
+
 
 	/**************************************************
 	*  Print Hebrew month and year
@@ -570,29 +631,12 @@ void print_header_month_line_stdout( const header_info header, const int coloriz
 	*  and determining each's length.
 	*************************************************/
 
-	#define CALENDAR_WIDTH 41
-	#define DASH_WIDTH      3 // includes surrounding spaces
-	#define SPACE_WIDTH		1
-
-
-	/*************************************************
-	*  padding info for gregorian date
-	*************************************************/
-	g_month_len = strlen(g_month);
-	g_year_len = 4;
-	switch (header.g_year_1)
-	{
-	case 1-9:		g_year_len  = 1; break;
-	case 10-99:		g_year_len  = 2; break;
-	case 100-999:	g_year_len  = 3; break;
-	}
-
 
 	/**************************************************
 	*  collect padding info for Hebrew date
 	*************************************************/
-	h1_month = hdate_string( HDATE_STRING_HMONTH , header.h_month_1, HDATE_STRING_LONG, force_hebrew);
-	h1_year  = hdate_string( HDATE_STRING_INT, header.h_year_1, HDATE_STRING_SHORT, force_hebrew);
+	h1_month = hdate_string( HDATE_STRING_HMONTH , header.h_month_1, HDATE_STRING_LONG, opt.force_hebrew);
+	h1_year  = hdate_string( HDATE_STRING_INT, header.h_year_1, HDATE_STRING_SHORT, opt.force_hebrew);
 //printf("\nh1_month = %s; h1_year = %s, in-year = %d\n",h1_month,h1_year, header.h_year_1);exit(0);
 
 	h1_month_len = strlen(h1_month);
@@ -603,8 +647,8 @@ void print_header_month_line_stdout( const header_info header, const int coloriz
 	if (header.h_year_1 != header.h_year_2)
 	{
 
-		h2_month = hdate_string( HDATE_STRING_HMONTH , header.h_month_2, HDATE_STRING_LONG, force_hebrew);
-		h2_year = hdate_string(HDATE_STRING_INT, header.h_year_2, HDATE_STRING_LONG,force_hebrew);
+		h2_month = hdate_string( HDATE_STRING_HMONTH , header.h_month_2, HDATE_STRING_LONG, opt.force_hebrew);
+		h2_year = hdate_string(HDATE_STRING_INT, header.h_year_2, HDATE_STRING_SHORT,opt.force_hebrew);
 
 		h2_month_len = strlen(h2_month);
 		h2_year_len = strlen(h2_year);
@@ -629,7 +673,7 @@ void print_header_month_line_stdout( const header_info header, const int coloriz
 	}
 	else if (header.h_month_1 != header.h_month_2)
 	{
-		h2_month = hdate_string( HDATE_STRING_HMONTH , header.h_month_2, HDATE_STRING_LONG, force_hebrew);
+		h2_month = hdate_string( HDATE_STRING_HMONTH , header.h_month_2, HDATE_STRING_LONG, opt.force_hebrew);
 		h2_month_len = strlen(h2_month);
 		literals_len = DASH_WIDTH + SPACE_WIDTH;
 
@@ -657,26 +701,39 @@ void print_header_month_line_stdout( const header_info header, const int coloriz
 		hebrew_buffer[hebrew_buffer_len]='\0';
 	}
 
-	if (!force_hebrew)
-		padding = CALENDAR_WIDTH - g_month_len - g_year_len - hebrew_buffer_len ;
+	if (!opt.force_hebrew)
+		padding = calendar_width - g_month_len - g_year_len - hebrew_buffer_len ;
 	else
-		padding = CALENDAR_WIDTH - g_month_len - g_year_len - (hebrew_buffer_len/2) - literals_len +1;
+	{	
+		padding = calendar_width - g_month_len - g_year_len - ((hebrew_buffer_len+1)/2) - literals_len + 1;
+		if (opt.gregorian > 1)
+		{
+			if (header.h_month_1 != header.h_month_2)
+			{
+				padding = padding + 1;
+				if ((header.h_month_1 > 12) || 
+					(header.h_month_2 > 12)  ) padding = padding - 1;
+				if (header.h_year_1 != header.h_year_2)  padding = padding +1;
+			}
+			else if (header.h_month_1 > 12) padding = padding - 1;
+		}
+		if (hdate_is_hebrew_locale()) padding = padding + (g_month_len+1)/2;
+	}
 
-
-
-	/**************************************************
+	/****************************************************
 	*  print padding
-	*************************************************/
-	for (j = 1; j < padding; j++) printf(" ");
+	****************************************************/
+	if (opt.gregorian != 0) printf("%*s",padding," ");
+	else printf("%*s",((padding+2)/2)," ");
 
 
 	/**************************************************
 	*  Print Hebrew month and year
 	*************************************************/
-	if (colorize) colorize_element(ELEMENT_MONTH_H);
-	if (visual_bidi) revstr(hebrew_buffer, hebrew_buffer_len);
+	if (opt.colorize) colorize_element(ELEMENT_MONTH_H);
+	if (opt.bidi) revstr(hebrew_buffer, hebrew_buffer_len);
 	printf ("%s", hebrew_buffer);
-	if (colorize) printf(CODE_RESTORE_VIDEO);
+	if (opt.colorize) printf(CODE_RESTORE_VIDEO);
 
 
 	/**************************************************
@@ -686,31 +743,49 @@ void print_header_month_line_stdout( const header_info header, const int coloriz
 //	if (header.h_year_1 != header.h_year_2)	free(h2_year);
 	if (h2_year != NULL) free(h2_year);
 	free(hebrew_buffer);
+
+	/****************************************************
+	*  print padding
+	****************************************************/
+	if ( (opt.gregorian == 0) && (opt.three_month) ) 
+		printf("%*s",((padding-1)/2)," ");
 }
 
 
 /**************************************************
 *  print column headings for days of weeks
 **************************************************/
-void print_header_dow_line_stdout( const int colorize )
+void print_header_dow_line_stdout( const int colorize, const int gregorian )
 {
 	int column;
 
-	void print_dow_column( int column )
+	void print_dow_column( const int column )
 	{
+		int padding = 2;
+
 		if (hdate_is_hebrew_locale())
-		{		/* Hebrew heading is a single charcter per day */
-			printf ("%s%s%s", "  ",
+		{	// Hebrew heading is a single charcter per day
+			if (!gregorian) printf("%s%s"," ", hdate_string( HDATE_STRING_DOW, column, HDATE_STRING_SHORT, HDATE_STRING_HEBREW));
+			else printf ("%s%s%s", "  ",
 				hdate_string( HDATE_STRING_DOW, column, HDATE_STRING_SHORT, HDATE_STRING_HEBREW),
 				" ");
 		}
 		else
-		{		/* presume three character heading */
-			printf ("%s%3s", " ",
+		{
+			if (gregorian == 0)
+//				printf ("%s%c", " ",
+//					hdate_string( HDATE_STRING_DOW, column, HDATE_STRING_SHORT, HDATE_STRING_LOCAL));
+			{
+				putchar(' ');
+				putchar( *(hdate_string( HDATE_STRING_DOW, column, HDATE_STRING_SHORT, HDATE_STRING_LOCAL)));
+			}
+			else// presume three character heading
+				printf ("%s%3s", " ",
 				hdate_string( HDATE_STRING_DOW, column, HDATE_STRING_SHORT, HDATE_STRING_LOCAL));
 		}
 
-		if (column != 7) printf ("  ");
+		if ( (column == 7) || (!gregorian) ) padding = 1;
+		if ( (column != 7) || ( ( column == 7) && (gregorian) ) ) printf("%*s",padding," ");
 	}
 
 	if (colorize) colorize_element(ELEMENT_WEEKDAY_NAMES);
@@ -721,31 +796,78 @@ void print_header_dow_line_stdout( const int colorize )
 }
 
 
-
-/**************************************************
-*  calculate start/end month/year for a calendar
-**************************************************/
-header_info calculate_calendar_start_end (const int month, const int year)
+/********************************************************
+*  calculate the number of days in the Hebrew month
+*********************************************************/
+int length_of_hmonth( const int month, const int year_type )
 {
-	hdate_struct h;
-	header_info header;
-
-	hdate_set_gdate (&h, 1, month, year);
-	header.g_month_1 = h.gd_mon;
-	header.g_year_1 = h.gd_year;
-	header.h_month_1 = h.hd_mon;
-	header.h_year_1 = h.hd_year;
-
-
-	hdate_set_jd ( &h, hdate_gdate_to_jd ( 1, month % 12 + 1, ((month==12) ? year+1 : year) ) - 1  );
-	header.g_month_2 = h.gd_mon;
-	header.g_year_2 = h.gd_year;
-	header.h_month_2 = h.hd_mon;
-	header.h_year_2 = h.hd_year;
-
-	return header;
+	switch (month)
+	{
+	case 4: case 6: case 8: case 10: case 12: case 14: return 29;
+	case 2: switch (year_type) { case 1: case 2: case 8: case 9: case 10: case 3: case 4: case 11: return 29; }; break;
+	case 3: switch (year_type) { case 1: case 2: case 8: case 9: case 10: return 29; }; break;
+	}
+	return 30;
 }
 
+/********************************************************
+*  calculate the number of the previous Hebrew month
+*********************************************************/
+int hmonth_previous( const int month, const hdate_struct * h )
+{
+	if (month == 13)
+		return 5;
+	else if ( (month == 7) && (h->hd_size_of_year > 365) )
+		return 14;
+	else
+	return (month==1 ? 12 : month-1);
+}
+/********************************************************
+*  calculate the number of the next Hebrew month
+*********************************************************/
+int hmonth_next( const int month, const hdate_struct * h )
+{
+	if (month == 14)
+		return 7;
+	else if ( (month == 5) && (h->hd_size_of_year > 365) )
+		return 13;
+	else
+		return (month==12 ? 1 : month+1);
+
+}
+
+
+/**************************************************
+ *  print a horizontal border line in 3-month mode
+ *************************************************/
+void print_border( const option_list opt )
+{
+	int calendar_width = CALENDAR_WIDTH_WIDE;
+	int i;
+
+	if (!opt.gregorian) calendar_width = CALENDAR_WIDTH_NARROW;
+	if (opt.three_month == 1)
+	{
+		for (i=0 ; i < calendar_width; i++) printf("%s",opt.separator);
+		printf("%s", opt.spacing);
+		for (i=0 ; i < calendar_width; i++) printf("%s",opt.separator);
+		printf("%s", opt.spacing);
+		for (i=0 ; i < calendar_width; i++) printf("%s",opt.separator);
+		printf("\n");
+	}
+	else
+	{
+		if (opt.three_month == 12) printf("%*s%s", calendar_width," ", opt.spacing);
+		else
+		{
+			for (i=0 ; i < calendar_width; i++) printf("%s",opt.separator);
+			printf("%s", opt.spacing);
+		}
+		for (i=0 ; i < calendar_width; i++) printf("%s",opt.separator);
+		printf("%s\n", opt.spacing);
+	}
+	return;
+}
 
 /**************************************************
  *  print header - year and month
@@ -753,19 +875,131 @@ header_info calculate_calendar_start_end (const int month, const int year)
 int print_header ( const int month, const int year, const option_list opt)
 {
 	header_info previous_month, current_month, next_month;
+	hdate_struct h;
+	int calendar_width;
+	int fourteenth_month = FALSE;
 
+		/********************************************************
+		*  embedded sub-function:
+		*********************************************************/
+		header_info gcal_start_end( const int month, const int year )
+		{
+			header_info header;
 
-	/**********************************************************
+			hdate_set_gdate (&h, 1, month, year);
+			header.g_month_1 = h.gd_mon;
+			header.g_year_1 = h.gd_year;
+			header.h_month_1 = h.hd_mon;
+			header.h_year_1 = h.hd_year;
+		
+			hdate_set_jd ( &h, hdate_gdate_to_jd ( 1, month % 12 + 1, ((month==12) ? year+1 : year) ) - 1  );
+			header.g_month_2 = h.gd_mon;
+			header.g_year_2 = h.gd_year;
+			header.h_month_2 = h.hd_mon;
+			header.h_year_2 = h.hd_year;
+			
+			return header;
+		}
+
+		/********************************************************
+		*  embedded sub-function:
+		*********************************************************/
+		header_info hcal_start_end( const int month, const int year )
+		{
+			header_info header;
+
+			hdate_set_hdate (&h, 1, month, year);
+			header.g_month_1 = h.gd_mon;
+			header.g_year_1 = h.gd_year;
+			header.h_month_1 = h.hd_mon;
+			header.h_year_1 = h.hd_year;
+	
+			hdate_set_jd ( &h, h.hd_jd + length_of_hmonth( h.hd_mon, h.hd_year_type) -1  );
+			header.g_month_2 = h.gd_mon;
+			header.g_year_2 = h.gd_year;
+			header.h_month_2 = h.hd_mon;
+			header.h_year_2 = h.hd_year;
+			return header;
+		}
+	
+	/**************************************************************
+	*  begin function: print_header (year and month)
 	*  Preliminary - set dates for begining and end of calendar
-	**********************************************************/
-	current_month = calculate_calendar_start_end(month, year);
-	if (opt.three_month)
-	{
-		previous_month = calculate_calendar_start_end(
-					(month==1 ? 12 : month-1), (month==1 ? year-1 : year) );
-		next_month = calculate_calendar_start_end(
-					(month==12 ? 1 : month+1), (month==12 ? year+1: year) );
-	}
+	**************************************************************/
+
+		/*****************************************************
+		*         When opt.three_month == 12
+		* 
+		*  this is an inelegant way to identify the possible
+		*  fifth row of a calendar displaying three months
+		*  across. This can happen for a Hebrew calendar in a 
+		*  leap year, or for a calendar displaying gregorian
+		*  months for an entire Hebrew year. The possibilities
+		*  are to print one or two months on this line.
+		*****************************************************/
+		if (opt.gregorian == 0)
+		{
+			current_month.h_month_1 = month;
+			current_month.h_year_1 = year;
+			current_month.h_month_2 = month;
+			current_month.h_year_2 = year;
+			if ( (opt.three_month) && (opt.three_month != 12) )
+			{
+				if ( (month == 5) || (month == 7) )
+					hdate_set_hdate (&h, 1, month, year);
+
+				previous_month.h_month_1 = hmonth_previous( month, &h );
+				previous_month.h_year_1 = (month==1 ? year-1 : year);
+				previous_month.h_month_2 = previous_month.h_month_1;
+				previous_month.h_year_2 = previous_month.h_year_1;
+
+				next_month.h_month_1 = hmonth_next( month, &h );
+				next_month.h_year_1 = (month==12 ? year+1: year);
+				next_month.h_month_2 = next_month.h_month_1;
+				next_month.h_year_2 = next_month.h_year_1;
+			}
+		}
+		else if (opt.gregorian == 1)
+		{
+			current_month = hcal_start_end(month, year);
+			if ( (opt.three_month) && (opt.three_month != 12) )
+			{
+				if (month == 13)
+					previous_month = hcal_start_end(5, year);
+				else if ( (month == 7) && (h.hd_size_of_year > 355) )
+					previous_month = hcal_start_end(14, year);
+				else
+					previous_month = hcal_start_end((month==1 ? 12 : month-1), (month==1 ? year-1 : year));
+				if (month == 14)
+					next_month = hcal_start_end(7, year);
+				else if ( (month == 5) && (h.hd_size_of_year > 355) )
+					next_month = hcal_start_end( 13, year);
+				else
+					next_month = hcal_start_end((month==12 ? 1 : month+1), (month==12 ? year+1: year));
+			}
+		}
+		else
+		{
+			current_month = gcal_start_end(month, year);
+			if (h.hd_size_of_year > 355) fourteenth_month = TRUE;
+			if (opt.three_month)
+			{
+				if (opt.three_month != 12)
+				{
+					previous_month = gcal_start_end(
+							(month==1 ? 12 : month-1), (month==1 ? year-1 : year));
+					next_month = gcal_start_end(
+							(month==12 ? 1 : month+1), (month==12 ? year+1: year));
+				}
+				else
+				{
+					if (h.hd_size_of_year > 355) previous_month = current_month;
+					current_month  = gcal_start_end(
+							(month==12 ? 1 : month+1), (month==12 ? year+1: year));
+				}
+			}
+
+		}
 
 	/**************************************************
 	*  HTML output - month header line
@@ -780,16 +1014,24 @@ int print_header ( const int month, const int year, const option_list opt)
 	{
 		if (opt.three_month)
 		{
-			print_header_month_line_stdout(previous_month, opt.colorize, opt.force_hebrew, opt.bidi);
+			if  ( (opt.three_month == 12) && 
+				( (fourteenth_month == FALSE) || (opt.gregorian <2) ) )
+			{
+					if (!opt.gregorian) calendar_width = CALENDAR_WIDTH_NARROW;
+					else calendar_width = CALENDAR_WIDTH_WIDE;
+					printf("%*s",calendar_width," ");
+			}
+			else print_header_month_line_stdout(previous_month, opt);
 			printf("%s", opt.spacing);
 		}
 
-		print_header_month_line_stdout(current_month, opt.colorize, opt.force_hebrew, opt.bidi);
+		print_header_month_line_stdout(current_month, opt);
 
 		if (opt.three_month)
 		{
 			printf("%s", opt.spacing);
-			print_header_month_line_stdout(next_month, opt.colorize, opt.force_hebrew, opt.bidi);
+			if (opt.three_month != 12)
+				print_header_month_line_stdout(next_month, opt);
 		}
 	}
 
@@ -808,14 +1050,18 @@ int print_header ( const int month, const int year, const option_list opt)
 	{
 		if (opt.three_month)
 		{
-			print_header_dow_line_stdout(opt.colorize);
-			printf(" %s", opt.spacing);
+			if  ( (opt.three_month == 12) && 
+				( (fourteenth_month == FALSE) || (opt.gregorian <2) ) )
+				printf("%*s",calendar_width," ");
+			else print_header_dow_line_stdout(opt.colorize ,opt.gregorian);
+			printf("%s", opt.spacing);
 		}
-		print_header_dow_line_stdout(opt.colorize);
+		print_header_dow_line_stdout(opt.colorize ,opt.gregorian);
 		if (opt.three_month)
 		{
-			printf(" %s", opt.spacing);
-			print_header_dow_line_stdout(opt.colorize);
+			printf("%s", opt.spacing);
+			if (opt.three_month != 12)
+				print_header_dow_line_stdout(opt.colorize ,opt.gregorian);
 		}
 	}
 
@@ -875,11 +1121,6 @@ void print_day_html ( const hdate_struct h, const int month, const option_list o
 void print_day ( const hdate_struct h, const int month, const option_list opt)
 {
 
-	// for forcing Hebrew printing of Hebrew data
-	//char *language;
-
-	// char *hd_day_buffer[HEBREW_NUMBER_BUFFER_SIZE + 1];
-	// hd_day_buffer = malloc(HEBREW_NUMBER_BUFFER_SIZE + 1);
 	char *hd_day_str = NULL;
 
 	size_t hd_day_buffer_str_len;
@@ -887,17 +1128,18 @@ void print_day ( const hdate_struct h, const int month, const option_list opt)
 	int holiday_type;
 	holiday_type = hdate_get_holyday_type(hdate_get_holyday(&h, opt.diaspora));
 
-	/**************************************************
-	*  out of month - needs padding
-	*************************************************/
-	if (h.gd_mon != month) printf("     ");
-
-
-	/**************************************************
-	*  in month - print the data
-	*************************************************/
-	else
+	/*****************************************************
+	*  embedded sub-function: print_gregorian()
+	*     print the gregorian part of the day's entry,
+	*     and the holiday flag
+	*****************************************************/
+	void print_gregorian()
 	{
+		/*************************************************
+		*  holiday flag
+		*************************************************/
+		if (opt.gregorian == 1) printf ("%c", holiday_flag[holiday_type]);
+
 		/*************************************************
 		*  Gregorian date entry - color prefix
 		*************************************************/
@@ -909,7 +1151,7 @@ void print_day ( const hdate_struct h, const int month, const option_list opt)
 			else if (holiday_type) colorize_element(ELEMENT_HOLIDAY_DAY);
 			else            colorize_element(ELEMENT_WEEKDAY_G);
 		}
-
+	
 		/*************************************************
 		*  Gregorian date entry - the day of the month
 		*************************************************/
@@ -918,20 +1160,26 @@ void print_day ( const hdate_struct h, const int month, const option_list opt)
 		if ( (h.gd_day < 10) && (hdate_is_hebrew_locale()) )
 			 printf ("%d ", h.gd_day);
 		else printf ("%2d", h.gd_day);
-
+	
 		/*************************************************
 		*  Gregorian date entry - color cleanup
 		*************************************************/
 		if ((h.hd_jd == opt.jd_today_g) || (opt.colorize))
 			printf (CODE_RESTORE_VIDEO);
-
-
+	
+	
 		/*************************************************
 		*  holiday flag
 		*************************************************/
-		printf ("%c", holiday_flag[holiday_type]);
+		if (opt.gregorian > 1) printf ("%c", holiday_flag[holiday_type]);
+	}
 
-
+	/*****************************************************
+	*  embedded sub-function: print_hebrew()
+	*     print the Hebrew part of the day's entry,
+	*****************************************************/
+	void print_hebrew()
+	{
 		/*************************************************
 		*  Hebrew date entry - color prefix
 		*************************************************/
@@ -968,11 +1216,34 @@ void print_day ( const hdate_struct h, const int month, const option_list opt)
 		*************************************************/
 		if ((h.hd_jd == opt.jd_today_h) || (opt.colorize))
 			printf (CODE_RESTORE_VIDEO);
+	}
 
+	/*****************************************************
+	*  print_day() beginning of actual function
+	*****************************************************/
+
+	/**************************************************
+	*  out of month - needs padding
+	*************************************************/
+	if ( ( (opt.gregorian > 1)  && (h.gd_mon != month) ) ||
+	     ( (opt.gregorian == 1) && (h.hd_mon != month) ) )
+		printf("     ");
+	else if ( (opt.gregorian == 0) && (h.hd_mon != month) )
+		printf("  ");
+
+	/**************************************************
+	*  in month - print the data
+	*************************************************/
+	else
+	{
+		if (opt.gregorian > 1)  print_gregorian();
+		print_hebrew();
+		if (opt.gregorian == 1) print_gregorian();
 	}
 
 	if (hd_day_str != NULL) free(hd_day_str);
 }
+
 
 
 /*************************************************
@@ -996,10 +1267,6 @@ void print_week( int jd, const int month, const option_list opt)
 	int shabbat_name;
 	char *shabbat_name_str, *shabbat_name_buffer;
 	size_t shabbat_name_str_len;
-
-
-	// for forcing Hebrew printing of Hebrew data
-	//char *language;
 
 
 	/**************************************************
@@ -1151,7 +1418,6 @@ void print_week( int jd, const int month, const option_list opt)
 					free(shabbat_name_buffer);
 				}
 				else printf("  %s", shabbat_name_str);
-				//if (opt.force_hebrew) setenv("LANGUAGE", language, 1);
 				if (opt.colorize) printf (CODE_RESTORE_VIDEO);
 			}
 		}
@@ -1161,10 +1427,10 @@ void print_week( int jd, const int month, const option_list opt)
 
 
 
-/**************************************************
+/**************************************************************
 *  print month table
-*************************************************/
-int print_calendar ( const int current_month, const int current_year, const option_list opt)
+**************************************************************/
+int print_calendar ( int current_month, int current_year, const option_list opt)
 {
 	hdate_struct h;
 	int calendar_line;
@@ -1173,25 +1439,34 @@ int print_calendar ( const int current_month, const int current_year, const opti
 	int previous_year, next_year;
 	int jd_current_month, jd_previous_month, jd_next_month;
 
-	void how_many_calendar_lines( int month, int start_dow )
+	void how_many_calendar_lines()
 	{
-		switch (month)
+		if (opt.gregorian > 1)
 		{
-		case  4:
-		case  6:
-		case  9:
-		case 11:	if (start_dow == 7) max_calendar_lines = 6;
-					else if (max_calendar_lines == 4) max_calendar_lines = 5;
-					break;
-		case  1:
-		case  3:
-		case  5:
-		case  7:
-		case  8:
-		case 10:
-		case 12:	if (start_dow > 5) max_calendar_lines = 6;
-					else if (max_calendar_lines == 4) max_calendar_lines = 5;
-					break;
+			switch (h.gd_mon)
+			{
+			case  4: case  6: case  9: case 11:
+						if (h.hd_dw == 7) max_calendar_lines = 6;
+						else if (max_calendar_lines == 4) max_calendar_lines = 5;
+						break;
+			case  1: case  3: case  5: case  7: case  8: case 10: case 12:
+						if (h.hd_dw > 5) max_calendar_lines = 6;
+						else if (max_calendar_lines == 4) max_calendar_lines = 5;
+						break;
+			}
+		}
+		else
+		{
+			max_calendar_lines = 5;
+			switch (h.hd_mon)
+			{
+			case  1: switch (h.hd_year_type) { case 2: case 7: case 10: case 14: max_calendar_lines = 6; }; break;
+			case  2: switch (h.hd_year_type) { case 6: case 13:                  max_calendar_lines = 6; }; break;
+			case  5: switch (h.hd_year_type) { case 1: case 7: case 8: case 14:  max_calendar_lines = 6; }; break;
+			case  7: switch (h.hd_year_type) { case 4: case 11: case 12:         max_calendar_lines = 6; }; break;
+			case 11: switch (h.hd_year_type) { case 2: case 6: case 9:           max_calendar_lines = 6; }; break;
+			case 13: switch (h.hd_year_type) { case 10: case 13:                 max_calendar_lines = 6; }; break;
+			}
 		}
 	}
 
@@ -1200,9 +1475,13 @@ int print_calendar ( const int current_month, const int current_year, const opti
 	*  - Find the first sunday(s) of each calendar
 	*  - Find number of calendar lines
 	*********************************************************/
-	hdate_set_gdate (&h, 1, current_month, current_year);
+	if (opt.gregorian > 1)
+		hdate_set_gdate (&h, 1, current_month, current_year);
+	else
+		hdate_set_hdate (&h, 1, current_month, current_year);
 	jd_current_month = h.hd_jd - h.hd_dw + 1;
-	how_many_calendar_lines( h.gd_mon, h.hd_dw );
+	how_many_calendar_lines(jd_current_month);
+
 
 	/*********************************************************
 	*  three months, side-by-side
@@ -1212,39 +1491,63 @@ int print_calendar ( const int current_month, const int current_year, const opti
 		/*********************************************************
 		*  previous month
 		*********************************************************/
-		if (current_month == 1)
+		if (opt.gregorian < 2)
 		{
-			previous_month = 12;
-			previous_year = current_year - 1;
+			if (opt.three_month != 12) 
+			{
+				previous_month = hmonth_previous( current_month, &h );
+				previous_year = (current_month==1 ? current_year-1 : current_year);
+				hdate_set_hdate (&h, 1, previous_month, previous_year);
+				jd_previous_month = h.hd_jd - h.hd_dw + 1;
+			}
+			how_many_calendar_lines();
 		}
 		else
 		{
-			previous_month = current_month - 1;
-			previous_year = current_year;
+			if ( opt.three_month == 12)
+			{
+				if (h.hd_size_of_year >355)
+				{
+					previous_month = current_month;
+					previous_year = current_year;
+					jd_previous_month = jd_current_month;
+				}
+				current_month = (current_month==12 ? 1: current_month+1);
+				current_year = (current_month==12 ? current_year+1: current_year);
+				hdate_set_gdate (&h, 1, current_month, current_year);
+				jd_current_month = h.hd_jd - h.hd_dw + 1;
+			}
+			else
+			{
+				previous_month = (current_month==1 ? 12 : current_month-1);
+				previous_year  = (current_month==1 ? current_year-1 : current_year);
+				hdate_set_gdate (&h, 1, previous_month, previous_year);
+				jd_previous_month = h.hd_jd - h.hd_dw + 1;
+			}
+		how_many_calendar_lines();
 		}
-		hdate_set_gdate (&h, 1, previous_month, previous_year);
-		jd_previous_month = h.hd_jd - h.hd_dw + 1;
-		how_many_calendar_lines( h.gd_mon, h.hd_dw );
 
 		/*********************************************************
 		*  next month
 		*********************************************************/
-		if (current_month == 12)
+		if (opt.gregorian < 2)
 		{
-			next_month = 1;
-			next_year = current_year + 1;
+			if (current_month != 12)
+			{
+				next_month = hmonth_next( current_month, &h );
+				next_year = (current_month==12 ? current_year+1: current_year);
+				hdate_set_hdate (&h, 1, next_month, next_year);
+			}
 		}
 		else
 		{
-			next_month = current_month + 1;
-			next_year = current_year;
+			next_month = (current_month==12 ? 1 : current_month+1);
+			next_year  = (current_month==12 ? current_year+1: current_year);
+			hdate_set_gdate (&h, 1, next_month, next_year);
 		}
-		hdate_set_gdate (&h, 1, next_month, next_year);
 		jd_next_month = h.hd_jd - h.hd_dw + 1;
-		how_many_calendar_lines( h.gd_mon, h.hd_dw );
+		how_many_calendar_lines();
 	}
-
-
 
 	/**************************************************
 	*  maximum six lines of calendar
@@ -1267,8 +1570,11 @@ int print_calendar ( const int current_month, const int current_year, const opti
 		if (opt.three_month)
 		{
 			printf("%s", opt.spacing);
-			print_week(jd_next_month, next_month, opt);
-			jd_next_month = jd_next_month + 7;
+			if (opt.three_month != 12)
+			{
+				print_week(jd_next_month, next_month, opt);
+				jd_next_month = jd_next_month + 7;
+			}
 		}
 
 		if (opt.html) printf ("</tr>\n");
@@ -1294,21 +1600,29 @@ int print_calendar ( const int current_month, const int current_year, const opti
 ****************************************************/
 int print_month ( const int month, const int year, const option_list opt)
 {
+
 	hdate_struct h;
 
 	// following are for opt.footnote
 	int jd_counter, holiday;
-	//char *language; // for forcing Hebrew printing of footnote
+
+	/* check if hebrew year */
+	if (year > HEB_YR_LOWER_BOUND)
+		hdate_set_hdate (&h, 1, month, year);
+	else hdate_set_gdate (&h, 1, month, year);
 
 
-	/* check if hebrew year (year > 3000) */
-	if (year > 3000) hdate_set_hdate (&h, 1, month, year);
-	else			 hdate_set_gdate (&h, 1, month, year);
-
-
-	print_header (h.gd_mon, h.gd_year, opt);
-	print_calendar (h.gd_mon, h.gd_year, opt);
-	printf("\n");
+	if (opt.gregorian >1)
+	{
+		print_header (h.gd_mon, h.gd_year, opt);
+		print_calendar (h.gd_mon, h.gd_year, opt);
+	}
+	else
+	{
+		print_header (h.hd_mon, h.hd_year, opt);
+		print_calendar (h.hd_mon, h.hd_year, opt);
+	}
+	if (opt.separator == NULL) printf("\n");
 
 
 	/****************************************************
@@ -1317,20 +1631,13 @@ int print_month ( const int month, const int year, const option_list opt)
 	if (opt.footnote)
 	{
 		jd_counter = h.hd_jd;
-		while ( month == h.gd_mon )
+		while ( ( (opt.gregorian > 1) && (month == h.gd_mon ) ) ||
+				( (opt.gregorian < 2) && (month == h.hd_mon ) )  )
 		{
 			holiday = hdate_get_holyday(&h, opt.diaspora);
 			if (holiday)
 			{
 				print_day ( h, month, opt);
-				/*if (opt.force_hebrew)
-				{
-					// BUG - this isn't thread-safe
-					// --- and it may no longer be nexessary anywhere
-					// in the code now that I've embedded Hebrew
-					language=getenv("LANGUAGE");
-					setenv("LANGUAGE", "he_IL.UTF-8", 1);
-				}*/
 				if (opt.colorize)
 				{
 					if (opt.jd_today_h == h.hd_jd) colorize_element(ELEMENT_TODAY_HOLIDAY_NAME);
@@ -1366,7 +1673,6 @@ int print_month ( const int month, const int year, const option_list opt)
 										opt.force_hebrew));
 
 				if (opt.colorize) printf (CODE_RESTORE_VIDEO);
-				//if (opt.force_hebrew) setenv("LANGUAGE", language, 1);
 			}
 			jd_counter++;
 			hdate_set_jd (&h, jd_counter);
@@ -1646,17 +1952,24 @@ int hcal_parser( const int switch_arg, option_list *opt,
 			}
 			break;
 /* --spacing */		case 26: opt->spacing = optarg; break;
-
+/* --gregorian */	case 27: break;
+/* --no-gregorian */case 28: break;
+/* --borders      */case 29: opt->three_month = 1;
+							 opt->spacing = &(" | ");
+							 opt->separator = &("=");
+							 break;
 		} // end switch for long_options
 		break;
 
 
+	case '0': opt->gregorian = 0; break;
 	case '1': opt->three_month = 0; break;
 	case '3': opt->three_month = 1; break;
 	case 'b': opt->bidi = 1; opt->force_hebrew = 1; break;
 	case 'c': opt->colorize = 1; break;
 	case 'd': opt->diaspora = 1; break;
 	case 'f': opt->footnote = 1; break;
+	case 'g': opt->gregorian = opt->gregorian + 1; break;
 	case 'h': opt->html = 1; break;
 	case 'H': opt->force_hebrew = 1; break;
 	case 'I': opt->force_israel = 1; break;
@@ -1702,21 +2015,15 @@ int hcal_parser( const int switch_arg, option_list *opt,
 **************************************************/
 int main (int argc, char *argv[])
 {
+	int error_detected = FALSE;		// exit after reporting ALL bad parms
 
 	/* date */
+	hdate_struct h;
 	int month, year;
-
-	double lat = BAD_COORDINATE;	/* set to this value for error handling */
-	double lon = BAD_COORDINATE;	/* set to this value for error handling */
-	int tz = BAD_TIMEZONE;			/* -z option Time Zone, default to system local time */
-
-	int opt_latitude = 0;			/* -l option latitude */
-	int opt_Longitude = 0;			/* -L option longitude */
-
-	int error_detected = FALSE;		/* exit after reporting ALL bad parms */
-
+	static int num_of_months = 12;	// how many months in the year
 
 	option_list opt;
+	opt.gregorian = 0;		// -0 don't display any gregorian information
 	opt.bidi = 0;			// visual bidi, implies --force-hebrew
 	opt.html = 0;			// -h html format flag
 	opt.diaspora = 0;		// -d Diaspora holidays
@@ -1728,6 +2035,7 @@ int main (int argc, char *argv[])
 	opt.no_reverse = 0;		// don't highlight today in reverse video
 	opt.three_month = 0;	// print previous and next months also
 	opt.spacing = NULL;		// horizontal spacing string in 3-month mode
+	opt.separator = NULL;	// vertical separator string in 3-month mode
 	opt.colorize = 0;		// display calendar in muted, more pleasing tones
 	opt.footnote = 0;		// display description of month's holidays
 	opt.force_hebrew = 0;	// force display of Hebrew data in Hebrew
@@ -1738,6 +2046,11 @@ int main (int argc, char *argv[])
 	opt.lat = BAD_COORDINATE;
 	opt.lon = BAD_COORDINATE;
 	opt.tz = BAD_TIMEZONE;
+	double lat = BAD_COORDINATE;	// set to this value for error handling
+	double lon = BAD_COORDINATE;	// set to this value for error handling
+	int tz = BAD_TIMEZONE;			// -z option Time Zone, default to system local time
+	int opt_latitude = 0;			// -l option latitude
+	int opt_Longitude = 0;			// -L option longitude
 
 	opt.menu = 0;			// -m print menus for user-selection
 	int i;
@@ -1745,7 +2058,7 @@ int main (int argc, char *argv[])
 
 
 	// support for getopt short options
-	static char * short_options = "13bcdfhHiImpqsl:L:z:";
+	static char * short_options = "013bcdfghHiImpqsl:L:z:";
 
 	/* support for long options */
 	int long_option_index = 0;
@@ -1779,11 +2092,11 @@ int main (int argc, char *argv[])
 		{"candles",2,0,0},
 		{"havdalah",2,0,0},
 		{"spacing",2,0,0},
+		{"gregorian",0,0,'g'},
+		{"no-gregorian",0,0,'0'},
+		{"borders",0,0,0},
 		{0, 0, 0, 0}
 		};
-
-	/* hdate struct */
-	hdate_struct h;
 
 	// for config file user-defined menus
 	size_t	menu_len = 0;
@@ -1894,7 +2207,7 @@ int main (int argc, char *argv[])
 
 	/************************************************************
 	* function validate_location is defined in the include file
-	* ./location.include.c
+	* ./local_functions.c
 	* It issues an exit(EXIT_CODE_BAD_PARMS) [==1]
 	* if it discovers, um, bad parameters
 	************************************************************/
@@ -1939,8 +2252,16 @@ int main (int argc, char *argv[])
 			// call function only if not already called
 			// for sunset awareness, above.
 			hdate_set_gdate (&h, 0, 0, 0);	// today
-		month = h.gd_mon;
-		year = h.gd_year;
+		if (opt.gregorian > 1)
+		{
+			month = h.gd_mon;
+			year = h.gd_year;
+		}
+		else
+		{
+			month = h.hd_mon;
+			year = h.hd_year;
+		}
 	}
 	else
 	{
@@ -2009,11 +2330,60 @@ int main (int argc, char *argv[])
 	if (month == 0)
 	{
 		if (opt.three_month)
-			for (month=2; month<13; month=month+3) print_month (month, year, opt);
-		else for (month=1; month<13; month++)
 		{
-			print_month (month, year, opt);
- 			if ((opt.footnote) && month<12) printf("\n");
+			if (year > HEB_YR_LOWER_BOUND) hdate_set_hdate( &h, 1, 1, year);
+			else hdate_set_gdate( &h, 1, 1, year);
+
+			for (month=2; month<num_of_months; month=month+3)
+			{
+				if (opt.separator != NULL ) print_border( opt );
+				if ( (h.hd_size_of_year > 355 )  &&
+					 (year > HEB_YR_LOWER_BOUND) &&
+					 (month == 8)               )
+					month = 7;
+				print_month (month, year, opt);
+			}
+
+			if  ( (year > HEB_YR_LOWER_BOUND) &&
+				  ( (h.hd_size_of_year > 355 ) || (opt.gregorian > 1)) )
+			{
+				if (opt.separator != NULL ) print_border( opt );
+				opt.three_month = 12;
+				print_month (12, year, opt);
+			}
+			if (opt.separator != NULL )
+			{
+				if ( (h.hd_size_of_year > 355 ) && (opt.gregorian > 1) )
+					opt.three_month = 13;
+ 				print_border( opt );
+			}
+		}
+		else
+		{
+			if  ( opt.gregorian < 2 )
+				hdate_set_hdate( &h, 1, 1, year);
+			for (month=1; month<=num_of_months; month++)
+			{
+				if ( ( opt.gregorian < 2 )       &&
+					 ( h.hd_size_of_year > 355 ) )
+				{
+					if (month == 6) print_month(13, year, opt);
+					else if (month == 7)
+					{
+						print_month(14, year, opt);
+						printf("\n");
+						print_month (month, year, opt);
+					}
+					else print_month (month, year, opt);
+				}
+				else print_month (month, year, opt);
+	 			if ((opt.footnote) && (month<=num_of_months)) printf("\n");
+			}
+			if ( (opt.gregorian > 1) && (year > HEB_YR_LOWER_BOUND) )
+			{
+	 			if (opt.footnote) printf("\n");
+				print_month( 1, year+1, opt) ;
+			}
 		}
 	}
 

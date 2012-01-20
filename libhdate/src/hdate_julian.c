@@ -103,21 +103,22 @@ hdate_get_size_of_hebrew_year (int hebrew_year)
 /**
  @brief Return Hebrew year type based on size and first week day of year.
  
- year type | year length | Tishery 1 day of week
- | 1       | 353         | 2 
- | 2       | 353         | 7 
- | 3       | 354         | 3 
- | 4       | 354         | 5 
- | 5       | 355         | 2 
- | 6       | 355         | 5 
- | 7       | 355         | 7 
- | 8       | 383         | 2 
- | 9       | 383         | 5 
- |10       | 383         | 7 
- |11       | 384         | 3 
- |12       | 385         | 2 
- |13       | 385         | 5 
- |14       | 385         | 7 
+ |year| year |Tishrei 1|months|
+ |type| len  |day of wk|6-rows|
+ | 1  | 353  | 2       |  5   |
+ | 2  | 353  | 7       | 1,11 |
+ | 3  | 354  | 3       |      |
+ | 4  | 354  | 5       |  7   |
+ | 5  | 355  | 2       |      |
+ | 6  | 355  | 5       | 2,11 |
+ | 7  | 355  | 7       | 1,5  |
+ | 8  | 383  | 2       |   5  |
+ | 9  | 383  | 5       |  11  |
+ |10  | 383  | 7       | 1,13 |
+ |11  | 384  | 3       |  7   |
+ |12  | 385  | 2       |  7   |
+ |13  | 385  | 5       | 2,13 |
+ |14  | 385  | 7       |  1,5 |
  
  @param size_of_year Length of year in days
  @param new_year_dw First week day of year

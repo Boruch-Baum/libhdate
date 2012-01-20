@@ -1,3 +1,17 @@
+hdate
+- option (--daf-yomi)
+
+hcal
+- option (-0 --no-gregorian) Display only Hebrew calendar.
+  This is now the default condition.
+- option (-g --gregorian) Display a Hebrew month, with the
+  corresponding gregorian days
+- option (-gg) Display a gregorian month, with the
+  corresponding Hebrew days
+- option (--borders) displays a frame around calendars in
+  three-month mode
+----------------------------------------------------------------------------
+
 hcal
 - don't print "try --help" in help message!
 - option --spacing for 3-month mode (custom space setting)
