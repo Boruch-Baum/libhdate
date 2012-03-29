@@ -49,6 +49,7 @@
 
 
 // for colorization
+#define CODE_BOLD_VIDEO    "%c[1m", 27
 #define CODE_REVERSE_VIDEO "%c[7m", 27
 #define CODE_RESTORE_VIDEO "%c[m", 27
 #define CODE_BLACK         "%c[30m", 27
@@ -67,6 +68,7 @@
 #define CODE_BOLD_PURPLE   "%c[1;35m", 27
 #define CODE_BOLD_AQUA     "%c[1;36m", 27
 #define CODE_BOLD_WHITE    "%c[1;37m", 27
+#define CODE_BACK_BLUE     "%c[46m", 27
 #define ELEMENT_WEEKDAY_G      1
 #define ELEMENT_WEEKDAY_H      2
 #define ELEMENT_SHABBAT_DAY    3
@@ -108,7 +110,7 @@ static char holiday_flag[] = { '/', '+', '*', '~', '!', '@', '#', '$', '%', '^' 
 
 
 typedef struct {
-			int gregorian;
+			int gregorian;    // 0=Hebrew only, 1=Hebrew prime, else gregorian prime
 			int html;
 			int external_css;
 			int diaspora;
@@ -317,12 +319,14 @@ N_("Hebrew calendar\nOPTIONS:\n\
                       option --three-month as a default there\n\
    -3 --three-month   displays previous/next months\n\
                       side by side. requires 127 columns\n\
+      --borders       displays a frame around calendars in 3-month mode\n\
       --spacing       quoted string to separate months in 3-month mode\n\
    -b --bidi          prints hebrew in reverse (visual)\n\
       --visual\n\
       --no-bidi       over-ride config file setting if you had set\n\
       --no-visual     option -bidi as a default there\n\
-   -c --colorize      displays in calming, muted tones\n\
+   -c --colorize      displays in calming, muted tones. -cc will display\n\
+                      in bolder, and mildy irritating, colors\n\
       --no-color      over-ride a --colorize setting in your config file\n\
    -d --diaspora      use diaspora reading and holidays.\n\
    -f --footnote      print descriptive notes of holidays\n\
@@ -501,8 +505,9 @@ void print_header_dow_line_html()
 /*************************************************
 *  Display data in a more pleasing visual manner
 *************************************************/
-void colorize_element ( const int element )
+void colorize_element ( const int color_scheme, const int element )
 {
+	if ( color_scheme > 1 )  printf(CODE_BOLD_VIDEO);
 	switch (element) {
 	case ELEMENT_WEEKDAY_G: printf(CODE_LIGHT_GREY); break;
 	case ELEMENT_WEEKDAY_H: printf(CODE_LIGHT_BROWN); break;
@@ -520,23 +525,25 @@ void colorize_element ( const int element )
 	case ELEMENT_TODAY_HOLIDAY_DAY: printf(CODE_LIGHT_GREEN); break;
 	case ELEMENT_TODAY_HOLIDAY_NAME: printf(CODE_LIGHT_GREEN); break;
 	}
-/*	switch (element) {
-	case ELEMENT_WEEKDAY_G: printf(CODE_LIGHT_GREY); break;
-	case ELEMENT_WEEKDAY_H: printf(CODE_LIGHT_AQUA); break;
-	case ELEMENT_MONTH_G: printf(CODE_LIGHT_GREY); break;
-	case ELEMENT_MONTH_H: printf(CODE_LIGHT_AQUA); break;
-	case ELEMENT_WEEKDAY_NAMES: printf(CODE_LIGHT_GREEN); break;
-	case ELEMENT_SHABBAT_NAME: printf(CODE_BOLD_BLUE); break;
-	case ELEMENT_SHABBAT_DAY: printf(CODE_BOLD_BLUE); break;
-	case ELEMENT_HOLIDAY_DAY: printf(CODE_BOLD_BLUE); break;
-	case ELEMENT_SHABBAT_TIMES: printf(CODE_LIGHT_BROWN); break;
-	case ELEMENT_PARASHA: printf(CODE_LIGHT_GREEN); break;
-	case ELEMENT_THIS_SHABBAT_TIMES: printf(CODE_LIGHT_GREEN); break;
-	case ELEMENT_THIS_PARASHA: printf(CODE_LIGHT_GREEN); break;
-	case ELEMENT_HOLIDAY_NAME: printf(CODE_LIGHT_GREY); break;
-	case ELEMENT_TODAY_HOLIDAY_DAY: printf(CODE_LIGHT_GREEN); break;
-	case ELEMENT_TODAY_HOLIDAY_NAME: printf(CODE_LIGHT_GREEN); break;
-*/	
+
+/*	else switch (element) {
+	case ELEMENT_WEEKDAY_G: printf(CODE_BOLD_VIDEO); printf(CODE_LIGHT_GREY); break;
+	case ELEMENT_WEEKDAY_H: printf(CODE_BOLD_VIDEO); printf(CODE_LIGHT_BROWN); break;
+	case ELEMENT_MONTH_G: printf(CODE_BOLD_VIDEO); printf(CODE_LIGHT_GREY); break;
+	case ELEMENT_MONTH_H: printf(CODE_BOLD_VIDEO); printf(CODE_LIGHT_BROWN); break;
+	case ELEMENT_WEEKDAY_NAMES: printf(CODE_BOLD_VIDEO); printf(CODE_LIGHT_GREEN); break;
+	case ELEMENT_SHABBAT_NAME: printf(CODE_BOLD_VIDEO); printf(CODE_LIGHT_AQUA); break;
+	case ELEMENT_SHABBAT_DAY: printf(CODE_BOLD_VIDEO); printf(CODE_LIGHT_AQUA); break;
+	case ELEMENT_HOLIDAY_DAY: printf(CODE_BOLD_VIDEO); printf(CODE_LIGHT_AQUA); break;
+	case ELEMENT_SHABBAT_TIMES: printf(CODE_BOLD_VIDEO); printf(CODE_LIGHT_PURPLE); break;
+	case ELEMENT_PARASHA: printf(CODE_BOLD_VIDEO); printf(CODE_LIGHT_GREEN); break;
+	case ELEMENT_THIS_SHABBAT_TIMES: printf(CODE_BOLD_VIDEO); printf(CODE_LIGHT_GREEN); break;
+	case ELEMENT_THIS_PARASHA: printf(CODE_BOLD_VIDEO); printf(CODE_LIGHT_GREEN); break;
+	case ELEMENT_HOLIDAY_NAME: printf(CODE_BOLD_VIDEO); printf(CODE_LIGHT_GREY); break;
+	case ELEMENT_TODAY_HOLIDAY_DAY: printf(CODE_BOLD_VIDEO); printf(CODE_LIGHT_GREEN); break;
+	case ELEMENT_TODAY_HOLIDAY_NAME: printf(CODE_BOLD_VIDEO); printf(CODE_LIGHT_GREEN); break;
+	}
+*/
 }
 
 
@@ -572,7 +579,7 @@ void print_header_month_line_stdout( const header_info header, option_list opt )
 	else
 	{
 		g_month = hdate_string( HDATE_STRING_GMONTH, header.g_month_1, HDATE_STRING_LONG, HDATE_STRING_LOCAL);
-		if (opt.colorize) colorize_element(ELEMENT_MONTH_G);
+		if (opt.colorize) colorize_element(opt.colorize, ELEMENT_MONTH_G);
 		if ( (opt.gregorian != 1) || 
 			 ( (opt.gregorian == 1) && (header.g_month_1 == header.g_month_2) )|| 
 			 (header.g_year_1 != header.g_year_2) )
@@ -730,7 +737,7 @@ void print_header_month_line_stdout( const header_info header, option_list opt )
 	/**************************************************
 	*  Print Hebrew month and year
 	*************************************************/
-	if (opt.colorize) colorize_element(ELEMENT_MONTH_H);
+	if (opt.colorize) colorize_element(opt.colorize, ELEMENT_MONTH_H);
 	if (opt.bidi) revstr(hebrew_buffer, hebrew_buffer_len);
 	printf ("%s", hebrew_buffer);
 	if (opt.colorize) printf(CODE_RESTORE_VIDEO);
@@ -788,9 +795,9 @@ void print_header_dow_line_stdout( const int colorize, const int gregorian )
 		if ( (column != 7) || ( ( column == 7) && (gregorian) ) ) printf("%*s",padding," ");
 	}
 
-	if (colorize) colorize_element(ELEMENT_WEEKDAY_NAMES);
+	if (colorize) colorize_element(colorize, ELEMENT_WEEKDAY_NAMES);
 	for (column = 1; column < 7; column++) print_dow_column(column);
-	if (colorize) colorize_element(ELEMENT_SHABBAT_NAME);
+	if (colorize) colorize_element(colorize, ELEMENT_SHABBAT_NAME);
 	print_dow_column(7);
 	if (colorize) printf(CODE_RESTORE_VIDEO);
 }
@@ -1147,9 +1154,9 @@ void print_day ( const hdate_struct h, const int month, const option_list opt)
 				printf (CODE_REVERSE_VIDEO);
 		else if (opt.colorize)
 		{
-			if (h.hd_dw==7) colorize_element(ELEMENT_SHABBAT_DAY);
-			else if (holiday_type) colorize_element(ELEMENT_HOLIDAY_DAY);
-			else            colorize_element(ELEMENT_WEEKDAY_G);
+			if (h.hd_dw==7) colorize_element(opt.colorize, ELEMENT_SHABBAT_DAY);
+			else if (holiday_type) colorize_element(opt.colorize, ELEMENT_HOLIDAY_DAY);
+			else            colorize_element(opt.colorize, ELEMENT_WEEKDAY_G);
 		}
 	
 		/*************************************************
@@ -1187,9 +1194,9 @@ void print_day ( const hdate_struct h, const int month, const option_list opt)
 				printf (CODE_REVERSE_VIDEO);
 		else if (opt.colorize)
 		{
-			if (h.hd_dw==7) colorize_element(ELEMENT_SHABBAT_DAY);
-			else if (holiday_type) colorize_element(ELEMENT_HOLIDAY_DAY);
-			else            colorize_element(ELEMENT_WEEKDAY_H);
+			if (h.hd_dw==7) colorize_element(opt.colorize, ELEMENT_SHABBAT_DAY);
+			else if (holiday_type) colorize_element(opt.colorize, ELEMENT_HOLIDAY_DAY);
+			else            colorize_element(opt.colorize, ELEMENT_WEEKDAY_H);
 		}
 
 
@@ -1310,18 +1317,17 @@ void print_week( int jd, const int month, const option_list opt)
 	/**************************************************
 	*  print end of calendar line
 	*************************************************/
-	if ((!opt.html) && ( (h.gd_mon == month) || (h.gd_day < SHABBAT) ) )
+//	if ((!opt.html) && ( (h.gd_mon == month) || (h.gd_day < SHABBAT) ) )
+	if (!opt.html)
 	{
-
 		/********************************************************
 		*  determine whether this line gets special highlighting
 		********************************************************/
-		if ((opt.colorize)
-			&& ((opt.shabbat) || (opt.parasha))
+		if (   ((opt.shabbat) || (opt.parasha))
 			&& ((jd - 1) > opt.jd_today_h)
 			&& (((jd - 1) - opt.jd_today_h) < 7) )
 				this_week = TRUE;
-		else this_week = FALSE;
+		else	this_week = FALSE;
 
 		/*************************************************
 		*  print shabbat times
@@ -1338,11 +1344,12 @@ void print_week( int jd, const int month, const option_list opt)
 
 			if (opt.colorize)
 			{
-				if (this_week) colorize_element(ELEMENT_THIS_SHABBAT_TIMES);
-				else colorize_element(ELEMENT_SHABBAT_TIMES);
+				if (this_week) colorize_element(opt.colorize, ELEMENT_THIS_SHABBAT_TIMES);
+				else colorize_element(opt.colorize, ELEMENT_SHABBAT_TIMES);
 			}
+			else if (this_week) printf(CODE_BOLD_VIDEO);
 			printf ("  %02d:%02d", sunset / 60, sunset % 60);
-			if (opt.colorize) printf (CODE_RESTORE_VIDEO);
+			if ( (opt.colorize) || (this_week) ) printf (CODE_RESTORE_VIDEO);
 
 			printf(" - ");
 
@@ -1358,11 +1365,12 @@ void print_week( int jd, const int month, const option_list opt)
 
 			if (opt.colorize)
 			{
-				if (this_week) colorize_element(ELEMENT_THIS_SHABBAT_TIMES);
-				else colorize_element(ELEMENT_SHABBAT_TIMES);
+				if (this_week) colorize_element(opt.colorize, ELEMENT_THIS_SHABBAT_TIMES);
+				else colorize_element(opt.colorize, ELEMENT_SHABBAT_TIMES);
 			}
+			else if (this_week) printf(CODE_BOLD_VIDEO);
 			printf ("%02d:%02d", three_stars / 60, three_stars % 60);
-			if (opt.colorize) printf (CODE_RESTORE_VIDEO);
+			if ( (opt.colorize) || (this_week) ) printf (CODE_RESTORE_VIDEO);
 		}
 
 
@@ -1399,9 +1407,10 @@ void print_week( int jd, const int month, const option_list opt)
 			{
 				if (opt.colorize)
 				{
-					if (this_week) colorize_element(ELEMENT_THIS_PARASHA);
-					else colorize_element(ELEMENT_PARASHA);
+					if (this_week) colorize_element(opt.colorize, ELEMENT_THIS_PARASHA);
+					else colorize_element(opt.colorize, ELEMENT_PARASHA);
 				}
+				else if (this_week) printf(CODE_BOLD_VIDEO);
 				if (opt.bidi)
 				{
 					shabbat_name_str_len = strlen(shabbat_name_str);
@@ -1418,7 +1427,7 @@ void print_week( int jd, const int month, const option_list opt)
 					free(shabbat_name_buffer);
 				}
 				else printf("  %s", shabbat_name_str);
-				if (opt.colorize) printf (CODE_RESTORE_VIDEO);
+				if ( (opt.colorize) || (this_week) ) printf (CODE_RESTORE_VIDEO);
 			}
 		}
 	}
@@ -1640,8 +1649,8 @@ int print_month ( const int month, const int year, const option_list opt)
 				print_day ( h, month, opt);
 				if (opt.colorize)
 				{
-					if (opt.jd_today_h == h.hd_jd) colorize_element(ELEMENT_TODAY_HOLIDAY_NAME);
-					else colorize_element(ELEMENT_HOLIDAY_NAME);
+					if (opt.jd_today_h == h.hd_jd) colorize_element(opt.colorize, ELEMENT_TODAY_HOLIDAY_NAME);
+					else colorize_element(opt.colorize, ELEMENT_HOLIDAY_NAME);
 				}
 
 				if (opt.bidi)
@@ -1694,14 +1703,17 @@ void read_config_file(	FILE *config_file,
 						int*	tz )
 
 {
-	char	*input_string;
-	size_t	input_str_len = 100;	// WARNING: if you change this value
+	char	*input_string = NULL;
+	size_t	input_str_len;	// unnecessary to initialize, per man(3) getline
+//	size_t	input_str_len = 200;	// WARNING: if you change this value
 									// you will still have to also
 									// change a matching value below
 									// in the statement that includes:
 									// match_count = sscanf(input_string
-	char	*input_key = "";
-	char	*input_value = "";
+	char	*input_key;    // unnecessary to initialize, per man(3) sscanf
+//	char	*input_key = NULL;
+	char	*input_value;  // unnecessary to initialize, per man(3) sscanf
+//	char	*input_value = NULL;
 	int		line_count = 0;
 	int		menu_item = 0;
 	size_t	menu_len = 0;
@@ -1717,7 +1729,7 @@ void read_config_file(	FILE *config_file,
 								"FORCE_ISRAEL",
 								"PARASHA_NAMES",	// 6
 								"SHABBAT_INFO",
-								"FOOTNOTES",		// 8
+								"FOOTNOTE",		// 8
 								"FORCE_HEBREW",
 								"OUTPUT_BIDI",		//10
 								"SUPPRESS_REVERSE_VIDEO",
@@ -1731,25 +1743,30 @@ void read_config_file(	FILE *config_file,
 								"HAVDALAH"
 								};
 
-	input_string = malloc(input_str_len+1);
-	input_key    = malloc(input_str_len+1);
-	input_value  = malloc(input_str_len+1);
+//	input_string = malloc(input_str_len+1); unnecessary - done by getline
+//	input_key    = malloc(input_str_len+1); unnecessary - done by sscanf
+//	input_value  = malloc(input_str_len+1); unnecessary - done by sscanf
 	while ( end_of_input_file!=TRUE )
 	{
 		end_of_input_file = getline(&input_string, &input_str_len, config_file);
 		if ( end_of_input_file!=TRUE )
 		{
 			errno = 0;
-			// The '100' in the next statement is inelegant; it is meant to
-			// be the value of input_str_len. Alternatively, don't malloc
-			// input_value above, use the 'a' specifier here, and free(input_value)
-			// at the end of every successful read and evaluation
-			match_count = sscanf(input_string,"%[A-Z_]=%100[^\n]",input_key,input_value);
+			// BUG - FIXME please
+			// The '200' in the next statement is a bug; it is meant to
+			// be the value of input_str_len. It would be convenient to
+			// use the 'a' conversion specifier here; however, the man
+			// pages say that it's a non-standard extension specific to
+			// GNU. Let's play with the 'm' conversion specifier which
+			// on the one hand, is POSIX and GNU compliant, but on the
+			// other hand only for glibc 2.7+ and POSIX.1+
+//			match_count = sscanf(input_string,"%[A-Z_]=%200[^\n]",input_key,input_value);
+			match_count = sscanf(input_string,"%m[A-Z_]=%m[^\n]",&input_key,&input_value);
 			line_count++;
 			if (errno != 0) error(0,errno,"scan error at line %d", line_count);
 // DEBUG - 	printf("line number = %d, matches made = %d, key = %s, value = %s, string = %s",
 //					line_count, match_count, input_key, input_value, input_string);
-			if (match_count ==2)
+			if (match_count == 2)
 			{
 				for (i=0; i<num_of_keys; i++)
 				{
@@ -1854,12 +1871,14 @@ void read_config_file(	FILE *config_file,
 					break;	// if found a match don't continue for loop
 					}
 				}
+			free(input_value);
 			}
+			if (match_count > 0 ) free(input_key);
 		}
 	}
-	free(input_string);
-	free(input_key);
-	free(input_value);
+	if (input_string != NULL ) free(input_string);
+//	free(input_key);
+//	free(input_value);
 	return;
 }
 
@@ -1966,7 +1985,7 @@ int hcal_parser( const int switch_arg, option_list *opt,
 	case '1': opt->three_month = 0; break;
 	case '3': opt->three_month = 1; break;
 	case 'b': opt->bidi = 1; opt->force_hebrew = 1; break;
-	case 'c': opt->colorize = 1; break;
+	case 'c': opt->colorize = opt->colorize + 1; break;
 	case 'd': opt->diaspora = 1; break;
 	case 'f': opt->footnote = 1; break;
 	case 'g': opt->gregorian = opt->gregorian + 1; break;
@@ -2301,6 +2320,18 @@ int main (int argc, char *argv[])
 			exit_main(&opt, 0);
 		}
 	}
+
+
+/************************************************************
+* parse custom_holiday file
+************************************************************/
+config_file = get_config_file("/hcal", "/custom_days_rc", custom_days_file_text);
+if (config_file != NULL)
+{
+	parse_custom_days_file(config_file);
+	fclose(config_file);
+}
+
 
 
 /************************************************************

@@ -332,6 +332,7 @@ void print_help ()
       --candles       modify default minhag of 20 minutes. (17<n<91)\n\
       --havdalah      modify default minhag of 3 stars. (19<n<91 minutes)\n\
    -d --diaspora      use diaspora reading and holidays.\n\
+      --daf-yomi\n\
    -h --holidays      print holidays.\n\
    -H                 print only it is a holiday.\n\
    -i --ical          use iCal formated output.\n\
@@ -348,8 +349,8 @@ void print_help ()
    -s --sun           print sunrise/sunset times.\n\
    -S --short-format  print using short format.\n\
    -t                 print day times (three preset verbosity levels):\n\
-                      -t    first light, talit, sunrise,\n\
-                            midday, sunset, first stars, three stars.\n\
+                      -t    first light, talit, sunrise, midday,\n\
+                            sunset, first stars, three stars, sun hour.\n\
                       -tt   adds sof zman kriyat Shema, sof zman amidah,\n\
                             mincha gedolah, mincha ketana, plag hamincha\n\
                       -ttt  adds sof zman kriyat Shema per Magen Avraham\n\
@@ -799,7 +800,7 @@ int print_times ( hdate_struct * h, const double lat, const double lon, const in
 	// FIXME - these times will be moved into the libhdate api
 	// sof zman kriyat Shema (verify that the Magen Avraham calculation is correct!)
 	if (opt.magen_avraham)
-						 data_printed = data_printed | print_astronomical_time( opt.quiet, magen_avraham_text, first_light + (3 * (first_stars - first_light) ), tz);
+						 data_printed = data_printed | print_astronomical_time( opt.quiet, magen_avraham_text, first_light + (3 * ((first_stars - first_light)/12) ), tz);
 	if (opt.shema)       data_printed = data_printed | print_astronomical_time( opt.quiet, shema_text, sunrise + (3 * sun_hour), tz);
 	// sof zman tefilah
 	if (opt.amidah)      data_printed = data_printed | print_astronomical_time( opt.quiet, amidah_text, sunrise + (4 * sun_hour), tz);
@@ -1517,14 +1518,17 @@ void read_config_file(	FILE *config_file,
 						int*	opt_longitude,
 						int*	tz )
 {
-	char	*input_string;
-	size_t	input_str_len = 100;	// WARNING: if you change this value
+	char	*input_string = NULL;
+	size_t	input_str_len;	// unnecessary to initialize, per man(3) getline
+//	size_t	input_str_len = 200;	// WARNING: if you change this value
 									// you will still have to also
 									// change a matching value below
 									// in the statement that includes:
 									// match_count = sscanf(input_string
-	char	*input_key = "";
-	char	*input_value = "";
+	char	*input_key;    // unnecessary to initialize, per man(3) sscanf
+//	char	*input_key = NULL;
+	char	*input_value;  // unnecessary to initialize, per man(3) sscanf
+//	char	*input_value = NULL;
 	int		menu_item = 0;
 	size_t	menu_len = 0;
 	int		line_count = 0;
@@ -1560,9 +1564,9 @@ void read_config_file(	FILE *config_file,
 								"MENU"
 								};
 
-	input_string = malloc(input_str_len+1);
-	input_key    = malloc(input_str_len+1);
-	input_value  = malloc(input_str_len+1);
+//	input_string = malloc(input_str_len+1); unnecessary - done by getline
+//	input_key    = malloc(input_str_len+1); unnecessary - done by sscanf
+//	input_value  = malloc(input_str_len+1); unnecessary - done by sscanf
 
 	while ( end_of_input_file != TRUE )
 	{
@@ -1570,11 +1574,16 @@ void read_config_file(	FILE *config_file,
 		if ( end_of_input_file != TRUE )
 		{
 			errno = 0;
-			// The '100' in the next statement is inelegant; it is meant to
-			// be the value of input_str_len. Alternatively, don't malloc
-			// input_value above, use the 'a' specifier here, and free(input_value)
-			// at the end of every successful read and evaluation
-			match_count = sscanf(input_string,"%[A-Z_]=%100[^\n]",input_key,input_value);
+			// BUG - FIXME please
+			// The '200' in the next statement is a bug; it is meant to
+			// be the value of input_str_len. It would be convenient to
+			// use the 'a' conversion specifier here; however, the man
+			// pages say that it's a non-standard extension specific to
+			// GNU. Let's play with the 'm' conversion specifier which
+			// on the one hand, is POSIX and GNU compliant, but on the
+			// other hand only for glibc 2.7+ and POSIX.1+
+//			match_count = sscanf(input_string,"%[A-Z_]=%200[^\n]",input_key,input_value);
+			match_count = sscanf(input_string,"%m[A-Z_]=%m[^\n]",&input_key,&input_value);
 			line_count++;
 			if (errno != 0) error(0,errno,"scan error at line %d", line_count);
 			if (match_count ==2)
@@ -1774,12 +1783,14 @@ void read_config_file(	FILE *config_file,
 					break;	// if found a match don't continue for loop
 					}
 				}
+			free(input_value);
 			}
+			if (match_count > 0 ) free(input_key);
 		}
 	}
-	free(input_string);
-	free(input_key);
-	free(input_value);
+	if (input_string != NULL ) free(input_string);
+//	free(input_key);
+//	free(input_value);
 	return;	
 }
 
@@ -1976,7 +1987,7 @@ int hdate_parser( int switch_arg, option_list *opt,
 int main (int argc, char *argv[])
 {
 	// const static int heb_yr_upper_bound = 10999;
-	const static int heb_yr_lower_bound = 3000;
+	// const static int heb_yr_lower_bound = 3000;
 	const static int jul_dy_lower_bound = 348021;
 
 	hdate_struct h;				/* The Hebrew date */
@@ -2181,7 +2192,7 @@ int main (int argc, char *argv[])
 
 	/************************************************************
 	* function validate_location is defined in the include file
-	* ./location.include.c
+	* ./local_functions.c
 	* It issues an exit(EXIT_CODE_BAD_PARMS) [==1]
 	* if it discovers, um, bad parameters 
 	************************************************************/

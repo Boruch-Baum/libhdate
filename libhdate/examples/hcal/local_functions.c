@@ -75,6 +75,9 @@
 #define FALSE 0
 #define TRUE -1
 
+#define heb_yr_upper_bound 10999
+#define heb_yr_lower_bound 3000
+
 
 // support for options parsing
 #define MIN_CANDLES_MINUTES 18
@@ -82,6 +85,75 @@
 #define MAX_CANDLES_MINUTES 90
 #define MIN_MOTZASH_MINUTES 20
 #define MAX_MOTZASH_MINUTES 90
+
+
+const char* custom_days_file_text = N_("\
+# custom_days configuration file for package libhdate. Separate copies of\n\
+# this file are used by hcal (Hebrew calendar) and hdate (Hebrew date and\n\
+# times of day).\n\
+#\n# Should you mangle this file and wish to restore its default content,\n\
+# rename or delete this file and run hcal or hdate; each will automatically\n\
+# regenerate the default content.\n#\n\
+# Your system administrator can set system-wide defaults for this file by\n\
+# modifying file <not yet implemented>.\n\
+# You may override all defaults by changing the contents of this file.\n\
+#\n\
+# Format\n\
+# Each entry consists of 12 fields on a 'single' line, meaning that if you\n\
+# insist on splitting an entry over more than one line, use a '\' to mark\n\
+# the continuation. The fields are:\n\
+#  1) day_type - H for Hebrew calendar datees, Y for Yahrtzeits,\n\
+#                G for gregorian calendar dates. Additionally, types h\n\
+#                amd g are available for marking an event to occur on the\n\
+#                \'nth\' \'day_of_week\' of \'month\'.\n\
+#  2) start_year - the first year for this commemoration. If the day_type\n\
+#                field is G, this must be a gregorian year number;\n\
+#                otherwise, a Hebrew year number is expected.\n\
+#  3) month -    numbered 1 - 12 for Tishrei - Ellul. Adar I/II are 13, 14\n\
+#                I didn't really have to mention that 1 - 12 is Jan - Dec,\n\
+#                did I? Good.\n\
+#  4) day_of_month - must be zero for day_type h or g\n\
+# The following two fields are only for day_type h or g, and must be zero\n\
+# for day_type H, Y, and G.\n\
+#  5) \'nth\' -  eg. nth Shabbat in Adar, or nth Tuesday in April.\n\
+#  6) day_of_week\n\
+#  7) Hebrew_language_description - enclosed in quotes.\n\
+#  8) Hebrew_abbreviated_description - enclosed in quotes.\n\
+#  9) Loazi_language_description - enclosed in quotes.\n\
+# 10) Loazi_abbreviated_description - enclosed in quotes.\n\
+# The final three fields are only for day_type H or G, and must be zero\n\
+# otherwise. These fields allow the custom day to be advanced or postponed\n\
+# should it fall on a Friday, Shabbat, or Sunday. Values may be -3 to +3.\n\
+# 11) if_Shishi\n\
+# 12) if_Shabbat\n\
+# 13) if_Rishon\n\
+#\n\
+# Examples\n\
+H, 5700,  2,  6, 0, 0, \"יום הוקרת הפינגיונים עברי\", \"\",    \"Penguin Appreciation Day Heb_test\", \"\" ,  0,  0, 0\n\
+Y, 5710,  3, 12, 0, 0, \"יום זכרון הפינגיונים יארצ\", \"\",    \"Dead Penguin yar_test\",             \"\" ,  0,  0, 0\n\
+G, 1960,  1,  5, 0, 0, \"יום הוקרת הפינגיונים לועז\", \"\",    \"Penguin Appreciation Day Greg_test\", \"\",  0,  0, 0\n\
+h, 5730,  4,  0, 2, 5, \"יום הוקרת הפינגיונים עברי ב\", \"\",  \"Penguin Appreciation Day heb_test\", \"\" ,  0,  0, 0\n\
+g, 1980,  5,  0, 1, 2, \"יום הוקרת הפינגיונים לועז ב\", \"\",  \"Penguin Appreciation Day greg_test\", \"\",  0,  0, 0\n\
+H, 5750,  6,  8, 0, 0, \"פינגיונים מעדיפים יום ד\", \"\",      \"Penguins Appreciate Wednesday test\", \"\", -2, -3, 3\n\
+G, 2000,  7,  9, 0, 0, \"פינגיונים בעד סופ\"ש ארוך\", \"\",    \"Penguins want long weekends test\", \"\"  ,  0, -1, 1\n\
+# \n\
+");
+
+typedef struct {
+	int day_type;          // 0=H, 1=Y, 2=G, 3=h, 4=g
+	int start_year;
+	int month;
+	int day_of_month;
+	int nth;               //  1 <= n <=  4
+	int day_of_week;
+	char *heb_long_desc;
+	char *heb_abbr_desc;
+	char *eng_long_desc;
+	char *eng_abbr_desc;
+	int when_shishi;       // -3 <= n <= +3
+	int when_shabbat;      // -3 <= n <= +3
+	int when_rishon;       // -3 <= n <= +3
+				} custom_day;
 
 
 /************************************************************
@@ -566,8 +638,7 @@ void validate_location( const int opt_latitude, const int opt_Longitude,
 #define CHECK_YEAR_PARM  3
 int validate_hdate (int parameter_to_check, int day, int month, int year)
 {
-	const static int heb_yr_upper_bound = 10999;
-	const static int heb_yr_lower_bound = 3000;
+
 	hdate_struct h;
 	
 	if (year < 0) return FALSE;
@@ -651,6 +722,181 @@ This seems to be to be your first time using this version.\n\
 Please read the new documentation in the man page and config\n\
 file. Attempting to create a config file ..."));
 }
+
+
+/************************************************************
+* Parse "custom days" file
+* - yes, currently just a stub
+* - will parse for yahrtzeits, anniversaries, holidays, etc.
+************************************************************/
+// BUG - FIXME - The bounds checking for the days of the month is weak
+void parse_custom_days_file( FILE* config_file )
+{
+	char	*input_string = NULL;
+	size_t	input_str_len;
+
+	int		line_count = 0;
+	int		match_count;
+	int		end_of_input_file = FALSE;
+	int		error_found = FALSE;
+
+	char day_type;          // 0=H, 1=Y, 2=G, 3=h, 4=g
+	int start_year;
+	int month;
+	int day_of_month;
+	int nth;               //  1 <= n <=  4
+	int day_of_week;
+	char *heb_long_desc;
+	char *heb_abbr_desc;
+	char *eng_long_desc;
+	char *eng_abbr_desc;
+	int when_shishi;       // -3 <= n <= +3
+	int when_shabbat;      // -3 <= n <= +3
+	int when_rishon;       // -3 <= n <= +3
+
+	custom_day custom_days;
+
+	while ( end_of_input_file!=TRUE )
+	{
+		end_of_input_file = getline(&input_string, &input_str_len, config_file);
+		if ( end_of_input_file!=TRUE )
+		{
+			errno = 0;
+			match_count = sscanf(input_string,"%1c[gGhHY], %u, %u, %u, %u, %u, %m[^\n], %m[^\n], %m[^\n], %m[^\n], %i, %i, %i",
+				&day_type, &start_year, &month, &day_of_month, &nth, &day_of_week,
+				&heb_long_desc, &heb_abbr_desc, &eng_long_desc, &eng_abbr_desc,
+				&when_shishi, &when_shabbat, &when_rishon );
+			line_count++;
+			if (errno != 0) error(0,errno,"scan error at line %d", line_count);
+			// DEBUG - 	printf("line number = %d, matches made = %d", line_count, match_count);
+			switch (match_count)
+			{
+			case 13: // all fields scanned
+				switch (day_type)
+				{
+				case 'H': custom_days.day_type = 0; break;
+				case 'Y': custom_days.day_type = 1; break;
+				case 'G': custom_days.day_type = 2; break;
+				case 'h': custom_days.day_type = 3; break;
+				case 'g': custom_days.day_type = 4; break;
+				}
+
+				if  (strchr("Gg", day_type) != NULL )
+				{
+					if ( start_year < heb_yr_lower_bound ) custom_days.start_year = start_year;
+					else error_found = TRUE;
+				}
+				else
+				{
+					if ( start_year < heb_yr_upper_bound ) custom_days.start_year = start_year;
+					else error_found = TRUE;
+				}
+
+				if (!error_found)
+				{
+					if (month > 14) error_found = TRUE;
+					else if ( (strchr("gG", day_type) != NULL ) && (month > 12) ) error_found = TRUE;
+					else custom_days.month = month;
+				}
+				
+				if (!error_found)
+				{
+					if (day_of_month >31) error_found = TRUE;
+					else custom_days.day_of_month = day_of_month;
+				}
+
+				if ( (!error_found) && (strchr("gh", day_type) == NULL ) )
+				{
+					if ( (day_of_week >7) || (day_of_week == 0) ) error_found = TRUE;
+					else custom_days.day_of_week = day_of_week;
+					if ( (!error_found) && ( (nth > 4) || nth == 0) ) error_found = TRUE;
+					else custom_days.nth = nth;
+				}
+
+
+				if ( (!error_found) && (strchr("gh", day_type) != NULL ) )
+				{
+					if ( (when_shishi >= -3) && (when_shishi <= 3) )
+						custom_days.when_shishi = when_shishi;
+					else error_found = TRUE;
+					if ( (!error_found) && (when_shabbat >= -3) && (when_shabbat <= 3) )
+						custom_days.when_shabbat = when_shabbat;
+					else error_found = TRUE;
+					if ( (!error_found) && (when_rishon >= -3) && (when_rishon <= 3) )
+						custom_days.when_rishon = when_rishon;
+					else error_found = TRUE;
+				}
+
+				if (!error_found)
+				{
+					custom_days.heb_long_desc = heb_long_desc;
+					custom_days.heb_abbr_desc = heb_abbr_desc;
+					custom_days.eng_long_desc = eng_long_desc;
+					custom_days.eng_abbr_desc = eng_abbr_desc;
+				}
+
+				;;
+			case 10: free(eng_abbr_desc);
+			case  9: free(eng_long_desc);
+			case  8: free(heb_abbr_desc);
+			case  7: free(heb_long_desc);
+			case'*': ;
+			}
+		}
+	}
+	if (input_string != NULL ) free(input_string);
+	return;
+}
+
+
+
+
+
+/************************************************************
+* Generic read config key file
+* can be used in common for hcal and hdate config file by
+* passing a function argument with the line parsing
+* at line marked // parse_custom_line_here( input_key, input_value )
+************************************************************/
+void generic_read_config_key_file( FILE* config_file )
+{ ;
+	char	*input_string = NULL;
+	size_t	input_str_len;
+	char	*input_key;
+	char	*input_value;
+
+	int		line_count = 0;
+	int		match_count;
+	int		end_of_input_file = FALSE;
+
+	while ( end_of_input_file!=TRUE )
+	{
+		end_of_input_file = getline(&input_string, &input_str_len, config_file);
+		if ( end_of_input_file!=TRUE )
+		{
+			errno = 0;
+			match_count = sscanf(input_string,"%m[A-Z_]=%m[^\n]",&input_key,&input_value);
+			line_count++;
+			if (errno != 0) error(0,errno,"scan error at line %d", line_count);
+// DEBUG - 	printf("line number = %d, matches made = %d, key = %s, value = %s, string = %s",
+//					line_count, match_count, input_key, input_value, input_string);
+			if (match_count == 2)
+			{
+				// parse_custom_line_here( input_key, input_value )
+				free(input_value);
+			}
+			if (match_count > 0 ) free(input_key);
+		}
+	}
+	if (input_string != NULL ) free(input_string);
+	return;
+}
+
+
+
+
+
+
 
 
 /************************************************************

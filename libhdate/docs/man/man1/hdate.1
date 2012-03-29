@@ -59,6 +59,8 @@ and ends when three stars are out.
 .B \-d --diaspora
 use diaspora reading and holidays.
 .TP
+.B \ \ \ --daf-yomi
+.TP
 .B \-h --holidays
 print holidays.
 .TP
@@ -74,8 +76,8 @@ print Julian day number.
 .B \-o --omer
 print Sefirat Ha Omer
 .TP
-.B \-q --quiet-alerts
-quiet. suppress warning messages
+.B \-q --quiet
+suppress output, available in four levels. -q suppresses warning messages, -qq also suppresses the gregorian form of the requested Hebrew date, -qqq suppresses labels for times of day, -qqqq suppresses the Hebrew date (useful if all one wants is some time-of-day information).
 .TP
 .B \-r --parasha
 print weekly reading for Shabbat.
@@ -90,7 +92,61 @@ print sunrise/sunset times.
 print using short format.
 .TP
 .B \-t
-print day times: first light, talit, sunrise, mid day, sunset, first stars, three stars
+print day times, in a choice of three verbosity levels. A single 't' (-t) instructs output of: first light, talit, sunrise, mid day, sunset, first stars, three stars, and the length of that day's sun-hour. A second 't' (eg. -tt) adds end_Shema (GR"A), end_amidah, mincha_gedola, mincha_ketana, plag_hamincha. More than two 't's (eg -ttt) adds end_Shema (M"A).
+.RE
+.RS 7
+.B \ \ \ --first-light
+.RE
+.RS 7
+.B \ \ \ --alot
+.RE
+.RS 7
+.B \ \ \ --talit
+.RE
+.RS 7
+.B \ \ \ --netz
+.RE
+.RS 7
+.B \ \ \ --shema
+.RE
+.RS 7
+.B \ \ \ --magen-avraham
+.RE
+.RS 7
+.B \ \ \ --amidah
+.RE
+.RS 7
+.B \ \ \ --midday
+.RE
+.RS 7
+.B \ \ \ --noon
+.RE
+.RS 7
+.B \ \ \ --chatzot
+.RE
+.RS 7
+.B \ \ \ --mincha-gedola
+.RE
+.RS 7
+.B \ \ \ --mincha-ketana
+.RE
+.RS 7
+.B \ \ \ --plag-hamincha
+.RE
+.RS 7
+.B \ \ \ --shekia
+.RE
+.RS 7
+.B \ \ \ --tzeit-hakochavim
+.RE
+.RS 7
+.B \ \ \ --first-stars
+.RE
+.RS 7
+.B \ \ \ --three-stars
+.RE
+.RS 7
+.B \ \ \ --sun-hour
 .TP
 .B \-T --table
 print tabular output. All data for each requested day will be output on a single comma-delimited line.

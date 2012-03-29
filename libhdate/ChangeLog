@@ -1,5 +1,6 @@
 hdate
 - option (--daf-yomi)
+- BUGFIX - config file parsing memory allocation
 
 hcal
 - option (-0 --no-gregorian) Display only Hebrew calendar.
@@ -10,6 +11,14 @@ hcal
   corresponding Hebrew days
 - option (--borders) displays a frame around calendars in
   three-month mode
+- option -cc colorizes in in bolder, and mildy irritating,
+  colors
+- BUGFIX - config file parsing memory allocation
+
+local_functions
+- beginning of wor on feature to support "custom" days (eg. birthdays,\
+  yahrtzeits)
+
 ----------------------------------------------------------------------------
 
 hcal

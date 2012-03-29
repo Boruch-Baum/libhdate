@@ -34,11 +34,20 @@ will interpret the given date as a Hebrew date, and will display the calendar of
 .PP 
 .SH "OPTIONS"
 .TP 18
+.B  -0 --no-gregorian
+This is the default. It prints only Hebrew month information. The option exists only to override a posible contrary config file setting.
+.TP
 .B \-1 --one-month
 over-ride config file setting if you had set option --three-month as a default there
 .TP
 .B \-3 --three-month
 output previous/next months, side by side. requires 127 columns
+.TP 18
+.B \ \ \ --borders
+displays a frame around calendars in three-month mode
+.TP 18
+.B \ \ \ --spacing
+quoted string to separate months in three-month mode
 .TP
 .B \-b --bidi
 output Hebrew information in Hebrew , in reverse
@@ -57,7 +66,9 @@ output Hebrew information in Hebrew , in reverse
 \   option -bidi as a default there
 .TP 18
 .B \-c --colorize
-output in calming, muted tones
+output in calming, muted tones.
+.B -cc
+will display in bolder, and mildy irritating, colors.
 .RE
 .RS 7
 .B \ \ \ --no-color
@@ -73,6 +84,9 @@ output descriptive notes of holidays
 .B \ \ \ --no-footnote
 \ over-ride config file setting
 .TP 18
+.B \-g --gregorian
+include gregorian corresponding days. -gg displays a gregorian month with corresponding Hebrew days.
+.TP
 .B \-h --html
 output in html format to stdout
 .RE
