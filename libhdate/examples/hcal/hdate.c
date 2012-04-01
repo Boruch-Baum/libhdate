@@ -102,6 +102,7 @@ typedef struct  {
 				int iCal;
 				int daf_yomi;
 				int menu;
+				int afikomen;
 				char* menu_item[MAX_MENU_ITEMS];
 				} option_list;
 
@@ -361,7 +362,8 @@ void print_help ()
                       --netz         --mincha-gedola  --three-stars\n\
                       --shema        --mincha-ketana  --magen-avraham\n\
                       --amidah       --plag-hamincha  --sun-hour\n\
-   -T --table         tabular output, suitable for spreadsheets\n\n\
+   -T --table         tabular output, comman delimited, and most suitable\n\
+      --tabular       for piping or spreadsheets\n\n\
    -z --timezone nn   timezone, +/-UTC\n\
    -l --latitude yy   latitude yy degrees. Negative values are South\n\
    -L --longitude xx  longitude xx degrees. Negative values are West\n\n\
@@ -933,8 +935,9 @@ void print_tabular_header( const option_list opt)
 {
 	if (opt.quiet >= QUIET_DESCRIPTIONS) return;
 
-	printf("%s,%s",N_("Gregorian date"), N_("Hebrew Date"));
-
+	if (opt.quiet < QUIET_GREGORIAN) printf("%s,",N_("Gregorian date"));
+	printf("%s", N_("Hebrew Date"));
+	
 	if (opt.first_light) printf(",%s",first_light_text);
 	if (opt.talit) printf(",%s",talit_text);
 	if (opt.sunrise) printf(",%s",sunrise_text);
@@ -1074,7 +1077,7 @@ int print_tabular_day (hdate_struct * h, const option_list opt,
 
 	// FIXME - these times will be moved into the libhdate api
 	// sof zman kriyat Shema (verify that the Magen Avraham calculation is correct!)
-	if (opt.magen_avraham) print_astronomical_time_tabular( first_light + (3 * (first_stars - first_light) ), tz);
+	if (opt.magen_avraham) print_astronomical_time_tabular( first_light + (3 * ((first_stars - first_light)/12) ), tz);
 	if (opt.shema) print_astronomical_time_tabular( sunrise + (3 * sun_hour), tz);
 	// sof zman tefilah
 	if (opt.amidah) print_astronomical_time_tabular( sunrise + (4 * sun_hour), tz);
@@ -1924,6 +1927,7 @@ int hdate_parser( int switch_arg, option_list *opt,
 /* --magen-avraham*/case 45: opt->magen_avraham = 1; break;
 /* --sun-hour	*/	case 46: opt->sun_hour = 1; break;
 /* --daf-yomi   */	case 47: opt->daf_yomi = 1; break;
+/* --tabular	*/	case 48: break;
 		} // end switch for long_options
 		break;
 
@@ -1954,6 +1958,7 @@ int hdate_parser( int switch_arg, option_list *opt,
 	case 'L':
 		error_detected = error_detected + parse_coordinate(2, optarg, lon, opt_Longitude);
 		break;
+	case 'v': opt->afikomen = opt->afikomen + 1; break;
 	case 'z':
 		error_detected = error_detected + parse_timezone(optarg, tz);
 		break;
@@ -2048,12 +2053,15 @@ int main (int argc, char *argv[])
 	opt.omer = 0;				// -o option Sfirat Haomer
 
 	opt.menu = 0;				// -m print menus for user-selection
+
+	opt.afikomen = 0;			// Hebrew 'easter egg' (lehavdil)
+
 	int i;
 	for (i=0; i<MAX_MENU_ITEMS; i++) opt.menu_item[i] = NULL;
 
 
 	// support for getopt short options
-	static char * short_options = "bcdhHjimoqrRsStTl:L:z:";
+	static char * short_options = "bcdhHjimoqrRsStTvl:L:z:";
 
 	/**********************************************
 	* support for getopt long options
@@ -2092,25 +2100,26 @@ int main (int argc, char *argv[])
 	/* 26 */{"julian", 0, 0, 'j'},
 			{"diaspora", 0, 0, 'd'},
 	/* 28 */{"menu",0,0,'m'},
-			{"alot",0,0,0},
+	/* 29 */{"alot",0,0,0},
 	/* 30 */{"first-light",0,0,0},		
 	/* 31 */{"talit",0,0,0},
-			{"netz",0,0,0},
+	/* 32 */{"netz",0,0,0},
 	/* 33 */{"shema",0,0,0},
-			{"amidah",0,0,0},
+	/* 34 */{"amidah",0,0,0},
 	/* 35 */{"midday",0,0,0},
-			{"noon",0,0,0},
+	/* 36 */{"noon",0,0,0},
 	/* 37 */{"chatzot",0,0,0},
-			{"mincha-gedola",0,0,0},
+	/* 38 */{"mincha-gedola",0,0,0},
 	/* 39 */{"mincha-ketana",0,0,0},
-			{"plag-hamincha",0,0,0},
+	/* 40 */{"plag-hamincha",0,0,0},
 	/* 41 */{"shekia",0,0,0},
-			{"tzeit-hakochavim",0,0,0},
+	/* 42 */{"tzeit-hakochavim",0,0,0},
 	/* 43 */{"first-stars",0,0,0},
-			{"three-stars",0,0,0},
+	/* 44 */{"three-stars",0,0,0},
 	/* 45 */{"magen-avraham",0,0,0},
-			{"sun-hour",0,0,0},
+	/* 46 */{"sun-hour",0,0,0},
 	/* 47 */{"daf-yomi",0,0,0},
+	/* 48 */{"tabular",0,0,'T'},
 	/* eof*/{0, 0, 0, 0}
 		};
 
@@ -2139,6 +2148,7 @@ int main (int argc, char *argv[])
 		read_config_file(config_file, &opt, &lat, &opt_latitude, &lon, &opt_Longitude, &tz);
 		fclose(config_file);
 	}
+	opt.afikomen = 0; // only allow this option on the command line
 
 	/************************************************************
 	* parse command line
@@ -2152,6 +2162,22 @@ int main (int argc, char *argv[])
 									&lat, &opt_latitude,
 									&lon, &opt_Longitude,
 									&tz, long_option_index);
+
+	if (opt.afikomen)
+	{
+		switch(opt.afikomen)
+		{
+			case 1: printf("There are no easter eggs in this program. Go away.\n"); break;
+			case 2: printf("There is no Chanukah gelt in this program. Leave me alone.\n"); break;
+			case 3: printf("Nope, no Hamentashen either. Scram kid, your parents are calling you\n"); break;
+			case 4: printf("Nada. No cheesecake, no apples with honey, no pomegranate seeds. Happy?\n"); break;
+			case 5: printf("Afikomen? Afikomen! Ehrr... Huh?\n"); break;
+			case 6: printf("(grumble...) You win... (moo)\n"); break;
+			case 7: printf("Okay! enough already! MOO! MOO! MoooooH!\n\nSatisfied now?\n"); break;
+			default: printf("Etymology: Pesach\n   Derived from the ancient Egyptian word \"Feh Tzach\" meaning \"purchase a new toothbrush\" --based upon a hieroglyphic steele dating from the 23rd dynasty, depicting a procession of slaves engaging in various forms of oral hygiene.\n"); break;
+		}
+		return 0;
+	}
 
 	/**************************************************
 	* BEGIN - enable user-defined menu

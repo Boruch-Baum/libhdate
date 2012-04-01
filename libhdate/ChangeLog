@@ -1,4 +1,14 @@
 hdate
+- BUGFIX --magen-avraham in tabular output
+- BUGFIX tabular headers for levels of quiet
+- option --tabular, synonym for option --table
+- undocumented afikomen option
+
+hdate.1
+- update documentation
+----------------------------------------------------------------------------
+
+hdate
 - option (--daf-yomi)
 - BUGFIX - config file parsing memory allocation
 
@@ -16,8 +26,14 @@ hcal
 - BUGFIX - config file parsing memory allocation
 
 local_functions
-- beginning of wor on feature to support "custom" days (eg. birthdays,\
+- beginning of work on feature to support "custom" days (eg. birthdays,\
   yahrtzeits)
+
+hcal.1
+- update documentation
+
+hdate.1
+- update documentation
 
 ----------------------------------------------------------------------------
 

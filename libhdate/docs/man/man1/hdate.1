@@ -92,66 +92,55 @@ print sunrise/sunset times.
 print using short format.
 .TP
 .B \-t
-print day times, in a choice of three verbosity levels. A single 't' (-t) instructs output of: first light, talit, sunrise, mid day, sunset, first stars, three stars, and the length of that day's sun-hour. A second 't' (eg. -tt) adds end_Shema (GR"A), end_amidah, mincha_gedola, mincha_ketana, plag_hamincha. More than two 't's (eg -ttt) adds end_Shema (M"A).
+print day times (three verbosity levels):
+.RE
+.RS 25
+.B -t
+\  first light, talit, sunrise, mid day, sunset,
+.RE
+.RS 30
+first stars, three stars, and the length of that day's sun-hour.
+.RE
+.RS 25
+.B -tt
+adds end_Shema (GR"A), end_amidah, mincha_gedola,
+.RE
+.RS 30
+mincha_ketana, plag_hamincha.
+.RE
+.RS 25
+.B -ttt
+adds end_Shema (M"A).
+.P
+Instead of using the presets, customize with:
+.B --first-light --midday\ \ \ \ \ \ \ \ --shekia
+.RS 0
+.RE
+.B --alot\ \ \ \ \ \ \ \ --noon\ \ \ \ \ \ \ \ \ \ --tzeit-hakochavim
+.RS 0
+.RE
+.B --talit\ \ \ \ \ \ \ --chatzot\ \ \ \ \ \ \ --first-stars
+.RS 0
+.RE
+.B --netz\ \ \ \ \ \ \ \ --mincha-gedola --three-stars
+.RS 0
+.RE
+.B --shema\ \ \ \ \ \ \ --mincha-ketana --magen-avraham
+.RS 0
+.RE
+.B --amidah\ \ \ \ \ \ --plag-hamincha --sun-hour
 .RE
 .RS 7
-.B \ \ \ --first-light
-.RE
-.RS 7
-.B \ \ \ --alot
-.RE
-.RS 7
-.B \ \ \ --talit
-.RE
-.RS 7
-.B \ \ \ --netz
-.RE
-.RS 7
-.B \ \ \ --shema
-.RE
-.RS 7
-.B \ \ \ --magen-avraham
-.RE
-.RS 7
-.B \ \ \ --amidah
-.RE
-.RS 7
-.B \ \ \ --midday
-.RE
-.RS 7
-.B \ \ \ --noon
-.RE
-.RS 7
-.B \ \ \ --chatzot
-.RE
-.RS 7
-.B \ \ \ --mincha-gedola
-.RE
-.RS 7
-.B \ \ \ --mincha-ketana
-.RE
-.RS 7
-.B \ \ \ --plag-hamincha
-.RE
-.RS 7
-.B \ \ \ --shekia
-.RE
-.RS 7
-.B \ \ \ --tzeit-hakochavim
-.RE
-.RS 7
-.B \ \ \ --first-stars
-.RE
-.RS 7
-.B \ \ \ --three-stars
-.RE
-.RS 7
-.B \ \ \ --sun-hour
-.TP
+.TP 18
 .B \-T --table
-print tabular output. All data for each requested day will be output on a single comma-delimited line.
-Most suitable for piping, or export to spreadsheets\n\n\
-.TP
+print tabular output. All data for each requested day
+.RS 0
+.B \ \ \ --tabular
+\     will be output on a single comma-delimited line. Most
+.RS 18
+suitable for piping, or export to spreadsheets
+.RE
+.TP 18
 .B \-l --latitude
 [NS]yy[.yyy] decimal degrees, or [NS]yy[:mm[:ss]] degrees, minutes, seconds. Negative values are South
 .TP
