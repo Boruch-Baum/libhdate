@@ -202,7 +202,7 @@ hdate_get_translator_string ()
 						parshaot	( 0 , n < 62 )
 						hmonth		( 0 < n < 15 )
 						gmonth		( 0 < n < 13 )
-						holiday		( 0 < n < 37 )
+						holiday		( 0 < n < 38 )
 						omer		( 0 < n < 50 )
  @param short_form   0 = short format
  @param hebrew_form  0 = not hebrew (native/embedded)
@@ -390,48 +390,48 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 		 N_("Nov"), N_("Dec")},
 	};
 
-	static char *holidays[2][2][37] = {
+	static char *holidays[2][2][38] = {
 		{ // begin english
 		{ // begin english long
-		 N_("Rosh Hashana I"),	N_("Rosh Hashana II"),
-		 N_("Tzom Gedaliah"),	N_("Yom Kippur"),
-		 N_("Sukkot"),			N_("Hol hamoed Sukkot"),
-		 N_("Hoshana raba"),	N_("Simchat Torah"),
-		 N_("Chanukah"),		N_("Asara B'Tevet"),
-		 N_("Tu B'Shvat"),		N_("Ta'anit Esther"),
-		 N_("Purim"),			N_("Shushan Purim"),
-		 N_("Pesach"),			N_("Hol hamoed Pesach"),
-		 N_("Yom HaAtzma'ut"),	N_("Lag B'Omer"),
-		 N_("Erev Shavuot"),	N_("Shavuot"),
-		 N_("Tzom Tammuz"),		N_("Tish'a B'Av"),
-		 N_("Tu B'Av"),			N_("Yom HaShoah"),
-		 N_("Yom HaZikaron"),	N_("Yom Yerushalayim"),
-		 N_("Shmini Atzeret"),	N_("Pesach VII"),
-		 N_("Pesach VIII"),		N_("Shavuot II"),
-		 N_("Sukkot II"),		N_("Pesach II"),
-		 N_("Family Day"),		N_("Memorial day for fallen whose place of burial is unknown"), 
-		 N_("Yitzhak Rabin memorial day"), N_("Zeev Zhabotinsky day"),
-		 N_("Erev Yom Kippur")},
+/*  0 */ N_("Rosh Hashana (first day)"),	N_("Rosh Hashana (second day)"),
+		 N_("Tzom Gedaliah"),				N_("Yom Kippur"),
+/*  4 */ N_("Sukkot"),						N_("Hol hamoed Sukkot"),
+		 N_("Hoshana raba"),				N_("Simchat Torah"),
+/*  8 */ N_("Chanukah"),					N_("Asara B'Tevet"),
+		 N_("Tu B'Shvat"),					N_("Ta'anit Esther"),
+/* 12 */ N_("Purim"),						N_("Shushan Purim"),
+		 N_("Pesach"),						N_("Hol hamoed Pesach"),
+/* 16 */ N_("Yom HaAtzma'ut"),				N_("Lag B'Omer"),
+		 N_("Erev Shavuot"),				N_("Shavuot"),
+/* 20 */ N_("Tzom Tammuz"),					N_("Tish'a B'Av"),
+		 N_("Tu B'Av"),						N_("Yom HaShoah"),
+/* 24 */ N_("Yom HaZikaron"),				N_("Yom Yerushalayim"),
+		 N_("Shmini Atzeret"),				N_("Shevi'i shel Pesach"),
+/* 28 */ N_("Acharon shel Pesach"),			N_("Shavuot (second day)"),
+		 N_("Sukkot (second day)"),			N_("Pesach (second day)"),
+/* 32 */ N_("Family Day"),					N_("Memorial day for fallen whose place of burial is unknown"), 
+		 N_("Yitzhak Rabin memorial day"),	N_("Zeev Zhabotinsky day"),
+/* 36 */ N_("Erev Yom Kippur"),				N_("Erev Pesach")},
 		{ // begin english short
-		 N_("Rosh Hashana I"),	N_("Rosh Hashana II"),
-		 N_("Tzom Gedaliah"),	N_("Yom Kippur"),
-		 N_("Sukkot"),			N_("Hol hamoed Sukkot"),
-		 N_("Hoshana raba"),	N_("Simchat Torah"),
-		 N_("Chanukah"),		N_("Asara B'Tevet"),	/* 10 */
-		 N_("Tu B'Shvat"),		N_("Ta'anit Esther"),
-		 N_("Purim"),			N_("Shushan Purim"),
-		 N_("Pesach"),			N_("Hol hamoed Pesach"),
-		 N_("Yom HaAtzma'ut"),	N_("Lag B'Omer"),
-		 N_("Erev Shavuot"),	N_("Shavuot"),			/* 20 */
-		 N_("Tzom Tammuz"),		N_("Tish'a B'Av"),
-		 N_("Tu B'Av"),			N_("Yom HaShoah"),
-		 N_("Yom HaZikaron"),	N_("Yom Yerushalayim"),
-		 N_("Shmini Atzeret"),	N_("Pesach VII"),
-		 N_("Pesach VIII"),		N_("Shavuot II"),   /* 30 */
-		 N_("Sukkot II"),		N_("Pesach II"),	 
-		 N_("Family Day"),		N_("Memorial day for fallen whose place of burial is unknown"), 
-		 N_("Rabin memorial day"),	 N_("Zhabotinsky day"),
-		 N_("Erev Yom Kippur")}
+		 N_("Rosh Hashana (day 1)"),	N_("Rosh Hashana (day 2)"),
+		 N_("Tzom Gedaliah"),			N_("Yom Kippur"),
+		 N_("Sukkot"),					N_("Hol hamoed Sukkot"),
+		 N_("Hoshana raba"),			N_("Simchat Torah"),
+		 N_("Chanukah"),				N_("Asara B'Tevet"),	/* 10 */
+		 N_("Tu B'Shvat"),				N_("Ta'anit Esther"),
+		 N_("Purim"),					N_("Shushan Purim"),
+		 N_("Pesach"),					N_("Hol hamoed Pesach"),
+		 N_("Yom HaAtzma'ut"),			N_("Lag B'Omer"),
+		 N_("Erev Shavuot"),			N_("Shavuot"),			/* 20 */
+		 N_("Tzom Tammuz"),				N_("Tish'a B'Av"),
+		 N_("Tu B'Av"),					N_("Yom HaShoah"),
+		 N_("Yom HaZikaron"),			N_("Yom Yerushalayim"),
+		 N_("Shmini Atzeret"),			N_("Pesach (day 7)"),
+		 N_("Pesach (day 8)"),			N_("Shavuot (day 2)"),   /* 30 */
+		 N_("Sukkot (day 2)"),			N_("Pesach (day 2)"),	 
+		 N_("Family Day"),				N_("Memorial day for fallen whose place of burial is unknown"), 
+		 N_("Rabin memorial day"),		N_("Zhabotinsky day"),
+		 N_("Erev Yom Kippur"),			N_("Erev Pesach")}
 		},
 		{ // begin hebrew
 		{ // begin hebrew long
@@ -453,7 +453,7 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 		 "ב' סוכות",		 "ב' פסח",	 
 		 "יום המשפחה",		 "יום זכרון...", 
 		 "יום הזכרון ליצחק רבין","יום ז\'בוטינסקי",
-		 "עיוה\"כ"},
+		 "עיוה\"כ",			"ע\"פ"},
 		{ // begin hebrew short
 		 "א' ראש השנה",		"ב' ראש השנה",
 		 "צום גדליה",		"יום הכפורים",
@@ -473,7 +473,7 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 		 "שני של סוכות",	"שני של פסח",
 		 "יום המשפחה",		"יום זכרון...", 
 		 "יום הזכרון ליצחק רבין","יום ז\'בוטינסקי",
-		 "עיוה\"כ"}	}
+		 "עיוה\"כ",			"ערב פסח"}	}
 		};
 
 #ifdef ENABLE_NLS
@@ -501,7 +501,7 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 				if (index >= 1 && index <= 12)
 				return _(gregorian_months[short_form][index - 1]);
 				break;
-	case HDATE_STRING_HOLIDAY: if (index >= 1 && index <= 37)
+	case HDATE_STRING_HOLIDAY: if (index >= 1 && index <= 38)
 				return _(holidays[hebrew_form][short_form][index - 1]);
 				break;
 	case HDATE_STRING_OMER:
@@ -511,7 +511,12 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 					if (h_int_string == NULL) return NULL;
 					
 					return_string_len = asprintf(
-							&return_string, "%s %s", h_int_string, _("in the Omer"));
+//	This code is messy because a few lines up there is HDATE_STRING_LONG, but we are doing the short form
+//	so, no string "in the omer" here.
+//	The long version should be the complete nusach, in the form
+//	Today is n days [which is w weeks and d days in the omer						
+//							&return_string, "%s %s", h_int_string, _("in the Omer"));
+							&return_string, "%s", h_int_string);
 
 					free(h_int_string);
 

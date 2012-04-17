@@ -29,6 +29,7 @@
 #include <string.h>		// For strchr, mempcpy, asprintf
 
 #include "./local_functions.c"
+#include "./timezone_functions.c"
 
 #define DATA_WAS_NOT_PRINTED 0
 #define DATA_WAS_PRINTED 1
@@ -63,6 +64,12 @@ static char * sun_hour_text = N_("sun_hour");
 static char * candles_text = N_("candle-lighting");
 static char * havdalah_text = N_("havdalah");
 static char * daf_yomi_text = N_("daf yomi");
+
+static char *sof_achilat_chametz_ma_text  = N_("end_eating_chometz_(M\"A)");
+static char *sof_achilat_chametz_gra_text  = N_("end_eating_chometz_(GR\"A)");
+static char *sof_biur_chametz_ma_text  = N_("end_owning_chometz_(M\"A)");
+static char *sof_biur_chametz_gra_text  = N_("end_owning_chometz_(GR\"A)");
+
 
 typedef struct  {
 				int hebrew;
@@ -103,6 +110,10 @@ typedef struct  {
 				int daf_yomi;
 				int menu;
 				int afikomen;
+				int	end_eating_chometz_ma;
+				int end_eating_chometz_gra;
+				int end_owning_chometz_ma;
+				int end_owning_chometz_gra;
 				char* menu_item[MAX_MENU_ITEMS];
 				} option_list;
 
@@ -345,7 +356,7 @@ void print_help ()
                       -qq   also suppresses gregorian date\n\
                       -qqq  also suppresses labels and descripions\n\
                       -qqqq also suppresses Hebrew date\n\
-   -r --parasha       print weekly reading on saturday.\n\
+   -r --parasha       print weekly reading on Shabbat.\n\
    -R                 print only if there is a weekly reading on Shabbat.\n\
    -s --sun           print sunrise/sunset times.\n\
    -S --short-format  print using short format.\n\
@@ -362,6 +373,11 @@ void print_help ()
                       --netz         --mincha-gedola  --three-stars\n\
                       --shema        --mincha-ketana  --magen-avraham\n\
                       --amidah       --plag-hamincha  --sun-hour\n\
+                      \n\
+                      --sunrise      --sunset         --candle-lighting\n\
+                      --end-eating-chometz-ma   --end-eating-chometz-gra\n\
+                      --end-owning-chometz-ma   --end-owning-chometz-gra\n\
+	                  \n\
    -T --table         tabular output, comman delimited, and most suitable\n\
       --tabular       for piping or spreadsheets\n\n\
    -z --timezone nn   timezone, +/-UTC\n\
@@ -783,11 +799,12 @@ int print_date (hdate_struct * h, hdate_struct * tomorrow, option_list opt, cons
 /************************************************************
 * option 't' - day times
 ************************************************************/
-int print_times ( hdate_struct * h, const double lat, const double lon, const int tz, const option_list opt)
+int print_times ( hdate_struct * h, const double lat, const double lon, const int tz, const option_list opt, const int holiday)
 {
 	int sun_hour, first_light, talit, sunrise;
 	int midday, sunset, first_stars, three_stars;
 	int data_printed = 0;
+	int ma_sun_hour;
 
 	/* get times */
 	hdate_get_utc_sun_time_full (h->gd_day, h->gd_mon, h->gd_year, lat, lon,
@@ -806,6 +823,31 @@ int print_times ( hdate_struct * h, const double lat, const double lon, const in
 	if (opt.shema)       data_printed = data_printed | print_astronomical_time( opt.quiet, shema_text, sunrise + (3 * sun_hour), tz);
 	// sof zman tefilah
 	if (opt.amidah)      data_printed = data_printed | print_astronomical_time( opt.quiet, amidah_text, sunrise + (4 * sun_hour), tz);
+
+
+	// TODO - if an erev pesach time was explicitly requested (ie. NOT by -t option),
+	//		for a day that is not erev pesach, give the requested information, for the
+	//		coming erev pesach, along with a (detailed) message	explaining that the
+	//		requested day was not erev pesach. Also give the gregorian date of that
+	//		erev pesach if the user wanted gregorian output.
+	//		- however, if the explicit erev pesach time request was made with a command
+	//		line specifying a month range that includes erev pesach, or a year range,
+	//		then just use the code as is now (ie. ignore on days that are not erev pesach
+	// TODO - erev pesach times for tabular output
+	#define EREV_PESACH 38	// This is the 'holiday code' used in hdate_holyday.c and hdate_strings.c
+	if (holiday == EREV_PESACH)
+	{
+		ma_sun_hour = (first_stars - first_light)/12;
+		//	print_astronomical_time( opt.quiet, "Magen Avraham sun hour", ma_sun_hour, 0);
+		if (opt.end_eating_chometz_ma)
+			data_printed = data_printed | print_astronomical_time( opt.quiet, sof_achilat_chametz_ma_text, first_light + (4 * ma_sun_hour ), tz);
+		if (opt.end_eating_chometz_gra)
+			data_printed = data_printed | print_astronomical_time( opt.quiet, sof_achilat_chametz_gra_text, sunrise + (4 * sun_hour), tz);
+		if (opt.end_owning_chometz_ma)
+			data_printed = data_printed | print_astronomical_time( opt.quiet, sof_biur_chametz_ma_text, first_light + (5 * ma_sun_hour ), tz);
+		if (opt.end_owning_chometz_gra)
+			data_printed = data_printed | print_astronomical_time( opt.quiet, sof_biur_chametz_gra_text, sunrise + (5 * sun_hour), tz);
+	}
 
 
 	if (opt.midday)      data_printed = data_printed | print_astronomical_time( opt.quiet, midday_text, midday, tz);
@@ -852,14 +894,47 @@ int print_times ( hdate_struct * h, const double lat, const double lon, const in
 /************************************************************
 * option 'o' - sefirat ha'omer
 ************************************************************/
-int print_omer (hdate_struct * h, int const short_form, int const hebrew_form)
+// parameter hebrew_form is currently unnecessary, but retained
+// for future feature to force a fully hebrew string
+int print_omer (hdate_struct * h, int const short_form, int const hebrew_form, int const quietness_level)
 {
 	int omer_day;
 
 	omer_day = hdate_get_omer_day(h);
 	if (omer_day != 0)
 	{
-		printf ("%s %s \n", N_("today is day"), hdate_string(HDATE_STRING_OMER, omer_day, short_form, hebrew_form));
+		if (short_form)
+		{
+//			printf ("%s %s \n", N_("today is day"), hdate_string(HDATE_STRING_OMER, omer_day, short_form, hebrew_form));
+			if (quietness_level < 3) printf ("%s: ", N_("omer"));
+			printf("%s\n", hdate_string(HDATE_STRING_OMER, omer_day, short_form, HDATE_STRING_LOCAL));
+		}
+		else
+		{
+			if (omer_day == 1) printf ("%s ", N_("today is day"));
+			else printf ("%s ", N_("today is"));
+
+			printf("%s", hdate_string(HDATE_STRING_OMER, omer_day, short_form, HDATE_STRING_LOCAL));
+
+			if (omer_day > 1) printf(" %s", N_("days"));
+
+			if (omer_day > 6)
+			{
+				printf ("%s %s ", N_(", which is"),
+					hdate_string(HDATE_STRING_OMER, omer_day/7, short_form, HDATE_STRING_LOCAL));
+
+				if (omer_day < 14) printf ("%s", N_("week"));
+				else printf("%s", N_("weeks"));
+	
+				if (omer_day%7 != 0) printf (" %s %s %s", N_("and"),
+						hdate_string(HDATE_STRING_OMER, omer_day%7, short_form, HDATE_STRING_LOCAL),
+						N_("days"));
+
+				printf("%s", N_(","));
+			}
+
+			printf(" %s\n", N_("in the Omer"));
+		}
 		return DATA_WAS_PRINTED;
 	}
 	else return DATA_WAS_NOT_PRINTED;
@@ -870,6 +945,10 @@ int print_omer (hdate_struct * h, int const short_form, int const hebrew_form)
 /************************************************************
 * option 'r' - parashat hashavua
 ************************************************************/
+// now part of function print_day
+// this function name may be restored when/if bidi/force hebrew
+// becomes supported for option -r
+//
 /* int print_reading (hdate_struct * h, int opt.diaspora, int short_format, int opt_i)
 {
 	int reading;
@@ -1082,6 +1161,7 @@ int print_tabular_day (hdate_struct * h, const option_list opt,
 	// sof zman tefilah
 	if (opt.amidah) print_astronomical_time_tabular( sunrise + (4 * sun_hour), tz);
 
+	// TODO - erev pesach times (don't forget to also do tabular header line!)
 
 	if (opt.midday) print_astronomical_time_tabular( midday, tz);
 
@@ -1238,18 +1318,24 @@ int print_day (hdate_struct * h, const option_list opt,
 	* begin - print additional information for day
 	************************************************************/
 	if (opt.print_tomorrow) *h = tomorrow;
-	data_printed = data_printed | print_times (h, lat, lon, tz, opt);
+	data_printed = data_printed | print_times (h, lat, lon, tz, opt, holiday);
 	if (opt.holidays && holiday)
 	{
-		printf ("%s\n",
-			hdate_string( HDATE_STRING_HOLIDAY, holiday, opt.short_format, opt.hebrew));
+		if (opt.quiet < 3) printf ("%s: ", N_("holiday_today"));
+//		TODO - allow option to force hebrew here; This is not trivial as it entails bidi
+//				when the locale for the label is LTR.
+//		printf ("%s\n",	hdate_string( HDATE_STRING_HOLIDAY, holiday, opt.short_format, opt.hebrew));
+		printf ("%s\n",	hdate_string( HDATE_STRING_HOLIDAY, holiday, opt.short_format, 0));
 		data_printed = DATA_WAS_PRINTED;
 	}
-	if (opt.omer) data_printed = data_printed | print_omer (h, opt.short_format, opt.hebrew);
+	if (opt.omer) data_printed = data_printed | print_omer (h, opt.short_format, opt.hebrew, opt.quiet);
 	if (opt.parasha && parasha)
 	{
-		printf ("%s  %s\n", N_("Parashat"),
-			hdate_string( HDATE_STRING_PARASHA, parasha, opt.short_format, opt.hebrew));
+		if (opt.quiet < 3) printf ("%s: ", N_("parasha"));
+//		TODO - allow option to force hebrew here; This is not trivial as it entails bidi
+//				when the locale for the label is LTR.
+//		printf("%s\n", hdate_string( HDATE_STRING_PARASHA, parasha, opt.short_format, opt.hebrew));
+		printf("%s\n", hdate_string( HDATE_STRING_PARASHA, parasha, opt.short_format, 0));
 		data_printed = DATA_WAS_PRINTED;
 	}
 	if (opt.daf_yomi) data_printed = data_printed | print_daf_yomi(h->hd_jd, opt.hebrew, opt.bidi, FALSE);
@@ -1928,6 +2014,11 @@ int hdate_parser( int switch_arg, option_list *opt,
 /* --sun-hour	*/	case 46: opt->sun_hour = 1; break;
 /* --daf-yomi   */	case 47: opt->daf_yomi = 1; break;
 /* --tabular	*/	case 48: break;
+/* --end-eating-chometz-ma	*/	case 49: opt->end_eating_chometz_ma = 1; break;
+/* --end-eating-chometz-gra	*/	case 50: opt->end_eating_chometz_gra = 1; break;
+/* --end-owning-chometz-ma	*/	case 51: opt->end_owning_chometz_ma = 1; break;
+/* --end-owning-chometz-gra	*/	case 52: opt->end_owning_chometz_gra = 1; break;
+
 		} // end switch for long_options
 		break;
 
@@ -1979,9 +2070,6 @@ int hdate_parser( int switch_arg, option_list *opt,
 }
 
 
-
-
-
 /************************************************************
 *************************************************************
 *************************************************************
@@ -1991,6 +2079,10 @@ int hdate_parser( int switch_arg, option_list *opt,
 ************************************************************/
 int main (int argc, char *argv[])
 {
+
+//timezone_display_local_info();
+//exit(0);
+
 	// const static int heb_yr_upper_bound = 10999;
 	// const static int heb_yr_lower_bound = 3000;
 	const static int jul_dy_lower_bound = 348021;
@@ -2056,6 +2148,13 @@ int main (int argc, char *argv[])
 
 	opt.afikomen = 0;			// Hebrew 'easter egg' (lehavdil)
 
+	opt.end_eating_chometz_ma = 0;
+	opt.end_eating_chometz_gra = 0;
+	opt.end_owning_chometz_ma = 0;
+	opt.end_owning_chometz_gra = 0;
+
+
+
 	int i;
 	for (i=0; i<MAX_MENU_ITEMS; i++) opt.menu_item[i] = NULL;
 
@@ -2120,6 +2219,10 @@ int main (int argc, char *argv[])
 	/* 46 */{"sun-hour",0,0,0},
 	/* 47 */{"daf-yomi",0,0,0},
 	/* 48 */{"tabular",0,0,'T'},
+	/* 49 */{"end-eating-chometz-ma",0,0,0},
+	/* 50 */{"end-eating-chometz-gra",0,0,0},
+	/* 51 */{"end-owning-chometz-ma",0,0,0},
+	/* 52 */{"end-owning-chometz-gra",0,0,0},
 	/* eof*/{0, 0, 0, 0}
 		};
 
@@ -2174,7 +2277,8 @@ int main (int argc, char *argv[])
 			case 5: printf("Afikomen? Afikomen! Ehrr... Huh?\n"); break;
 			case 6: printf("(grumble...) You win... (moo)\n"); break;
 			case 7: printf("Okay! enough already! MOO! MOO! MoooooH!\n\nSatisfied now?\n"); break;
-			default: printf("Etymology: Pesach\n   Derived from the ancient Egyptian word \"Feh Tzach\" meaning \"purchase a new toothbrush\" --based upon a hieroglyphic steele dating from the 23rd dynasty, depicting a procession of slaves engaging in various forms of oral hygiene.\n"); break;
+			case 8: printf("Etymology: Pesach\n   Derived from the ancient Egyptian word \"Feh Tzach\" meaning \"purchase a new toothbrush\" --based upon a hieroglyphic steele dating from the 23rd dynasty, depicting a procession of slaves engaging in various forms of oral hygiene.\n"); break;
+			default:printf("You have reached Wit's End.\n"); break;
 		}
 		return 0;
 	}
@@ -2242,6 +2346,11 @@ int main (int argc, char *argv[])
 		opt.first_stars = 1;
 		opt.three_stars = 1;
 		opt.sun_hour = 1;
+		opt.end_eating_chometz_ma = 1;
+		opt.end_eating_chometz_gra = 1;
+		opt.end_owning_chometz_ma = 1;
+		opt.end_owning_chometz_gra = 1;
+		
 		if (opt.times > 1)
 		{
 			opt.shema = 1;

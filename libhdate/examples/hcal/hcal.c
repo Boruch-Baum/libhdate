@@ -762,7 +762,7 @@ void print_header_month_line_stdout( const header_info header, option_list opt )
 /**************************************************
 *  print column headings for days of weeks
 **************************************************/
-void print_header_dow_line_stdout( const int colorize, const int gregorian )
+void print_header_dow_line_stdout( const int colorize, const int gregorian, const int force_hebrew )
 {
 	int column;
 
@@ -770,7 +770,7 @@ void print_header_dow_line_stdout( const int colorize, const int gregorian )
 	{
 		int padding = 2;
 
-		if (hdate_is_hebrew_locale())
+		if (hdate_is_hebrew_locale() || force_hebrew)
 		{	// Hebrew heading is a single charcter per day
 			if (!gregorian) printf("%s%s"," ", hdate_string( HDATE_STRING_DOW, column, HDATE_STRING_SHORT, HDATE_STRING_HEBREW));
 			else printf ("%s%s%s", "  ",
@@ -1060,15 +1060,15 @@ int print_header ( const int month, const int year, const option_list opt)
 			if  ( (opt.three_month == 12) && 
 				( (fourteenth_month == FALSE) || (opt.gregorian <2) ) )
 				printf("%*s",calendar_width," ");
-			else print_header_dow_line_stdout(opt.colorize ,opt.gregorian);
+			else print_header_dow_line_stdout(opt.colorize ,opt.gregorian, opt.force_hebrew);
 			printf("%s", opt.spacing);
 		}
-		print_header_dow_line_stdout(opt.colorize ,opt.gregorian);
+		print_header_dow_line_stdout(opt.colorize ,opt.gregorian, opt.force_hebrew);
 		if (opt.three_month)
 		{
 			printf("%s", opt.spacing);
 			if (opt.three_month != 12)
-				print_header_dow_line_stdout(opt.colorize ,opt.gregorian);
+				print_header_dow_line_stdout(opt.colorize ,opt.gregorian, opt.force_hebrew);
 		}
 	}
 

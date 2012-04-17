@@ -62,7 +62,7 @@ hdate_get_holyday (hdate_struct const * h, int diaspora)
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 		{	/* Nisan */
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 15, 32, 16, 16, 16, 16,
+			0, 0, 0, 38, 15, 32, 16, 16, 16, 16,
 			28, 29, 0, 0, 0, 24, 24, 24, 0, 0},
 		{	/* Iyar */
 			0, 17, 17, 17, 17, 17, 0, 0, 0, 0,
@@ -178,6 +178,8 @@ hdate_get_holyday (hdate_struct const * h, int diaspora)
 			holyday = 0;
 		else
 		{
+			// if 27 Nissan is Fri, commemorate on prior Thursday
+			// if 27 Nissan is Sun, commemorate on following Monday
 			if ((h->hd_day == 26) && (h->hd_dw != 5))
 				holyday = 0;
 			if ((h->hd_day == 28) && (h->hd_dw != 2))
@@ -194,6 +196,7 @@ hdate_get_holyday (hdate_struct const * h, int diaspora)
 			holyday = 0;
 		else
 		{
+			// if 12 Cheshvan is Fri/Sat, commemorate on prior Thursday
 			if ((h->hd_day == 10 || h->hd_day == 11) && (h->hd_dw != 5))
 				holyday = 0;
 			if ((h->hd_day == 12) && (h->hd_dw == 6 || h->hd_dw == 7))
@@ -208,6 +211,7 @@ hdate_get_holyday (hdate_struct const * h, int diaspora)
 			holyday = 0;
 		else
 		{
+			// if 29 Tammuz is Shabbat, commemorate on following Sunday
 			if ((h->hd_day == 30) && (h->hd_dw != 1))
 				holyday = 0;
 			if ((h->hd_day == 29) && (h->hd_dw == 7))

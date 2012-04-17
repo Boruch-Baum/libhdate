@@ -1,3 +1,34 @@
+hcal
+- BUGFIX hebrew days_of_week header when forcing Hebrew
+
+hdate
+- add Erev Pesach times (end eat/own chometz) (GR"A, M"A)
+  but not yet in tabular mode
+- BUGFIX Omer complies with option --quiet-alerts
+- BUGFIX parasha (opt -r) complies with option --quiet-alerts
+- BUGFIX parasha (opt -r) not to force Hebrew
+- BUGFIX holidays (opt -h) complies with option --quiet-alerts
+- BUGFIX holidays (opt -h) not to force Hebrew
+- Omer long form includes weeks and days
+- Omer short form is just number
+- BUGFIX omer number to print in same locale as text
+
+hdate.1
+- update documentation
+
+hdate_strings.c
+- omer short form should not include string "in the omer"
+- changed long forms of some holidays
+- add holiday erev pesach
+
+hdate_holyday.c
+- add holiday erev pesach
+
+timezone_functions.c
+- new file added, not yet integrated
+
+----------------------------------------------------------------------------
+
 hdate
 - BUGFIX --magen-avraham in tabular output
 - BUGFIX tabular headers for levels of quiet
@@ -6,6 +37,7 @@ hdate
 
 hdate.1
 - update documentation
+
 ----------------------------------------------------------------------------
 
 hdate
