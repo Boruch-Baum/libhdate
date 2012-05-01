@@ -1,3 +1,36 @@
+hdate_strings.c
+- BUGFIX display of days of week
+- improved handling of nl_langinfo() calls
+
+timezone_functions.c
+- use $TZDIR when available
+- report use of zone.tab entry for coordinates
+
+local_functions.c
+- optimize code for setting default location
+  for option of using zone.tab entries
+- replace Honolulu with Sydney for timezone
+  10 default
+- improved precision of location coordinates
+- change timezone choice selection to minutes
+  from hours to enable Calcutta, Tehran, Caracas
+- add Calcutta, Tehran, Caracas as defaults
+  for their zones
+- BUGFIX change Moscow from default for TZ+3
+  to default for TZ+4
+
+hdate.1
+- update documentation
+- improved precision of location coordinates
+- add/change locations
+
+hcal.1
+- update documentation
+- improved precision of location coordinates
+- add/change locations
+
+----------------------------------------------------------------------------
+
 hdate_holyday.c
 - BUGFIX holiday types for erev yom tov
 
@@ -12,7 +45,7 @@ hdate_sun_time.c
 hdate.h
 - improve const correctness
 
-hdate_strings.
+hdate_strings.c
 - Improve internationalization by using nl_langinfo()
   for gregorian day_of_week and month strings
 - add erev sukkot

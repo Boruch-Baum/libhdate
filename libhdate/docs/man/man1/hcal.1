@@ -172,59 +172,66 @@ Use the -f (--footnote) option to have hcal describe what any particular day is 
 .SS LOCATIONS 
 If you want 
 .B hcal
-to display accurate Shabbat times, and to accurately advance the Hebrew 'today's date' indicator at sunset, 
+to display accurate time-of-day information,
 .B hcal
 requires location and time zone information in order to make astronomical calculations for a given date. If you don't provide ANY such information, 
 .B hcal
-uses your computer's local time zone information as an indicator, and either picks a city in that time zone, or defaults to the equator at the center of that time zone. If 
+tries to find out your computer's local time zone information as an indicator, and picks the 'primary' city in that time zone. If 
 .B hcal
-can't even retrieve time zone information from your computer, it defaults to Tel-Aviv. For other locations, use the 
+can't find local time zone information,
+.B hcal
+tries to find out your computer's GMT offset, and either picks from the list below the city in that time zone offset, or defaults to the equator at the center of that time zone offset. If 
+.B hcal
+can't even retrieve GMT offset information from your computer, it defaults to Tel-Aviv. For other locations, use the 
 .B -l -L
 option pair. For other timezones, use the 
 .B -z
 option. Co-ordinates and standard time zones for some common locations are listed below.
 .PP
-The current defaults include:
-.RS 9
-Timezone   Default city    Lattitude  Longitude
+The current defaults are:
+.RS 5
+tz                 Lat    Lon      tz              Lat     Lon
 .RE
-.RS 12
--5      New York City      40        \-74
+.RS 5
+-8   Los Angeles   34.05 -118.25    2    Tel-Aviv  32      34.75
 .RE
-.RS 12
- 0      London             51          0
+.RS 5
+-6   Mexico City   19.43  -99.13    3.5  Tehran    35.67   51.43
 .RE
-.RS 12
- 1      Paris              48          2
+.RS 5
+-5   New York City 40.75  -74       4    Moscow    55.75   37.62
 .RE
-.RS 12
- 2      Tel-Aviv           32         34
+.RS 5
+-4.5 Caracas       10.54  -66.93    5    Tashkent  41.27   69.22
 .RE
-.RS 12
- 3      Moscow             55         37
+.RS 5
+-3   Buenos Aires -34.61  -58.37    5.5  Calcutta  22.57   88.36
+.RE
+.RS 5
+ 0   London        51.5     0       8    Beijing   39.90  116.38
+.RE
+.RS 5
+ 1   Paris         48.86    2.34   10    Sydney   -33.87  151.21
 .RE
 .PP
 Useful locations and time zones
 .RS 6
-Jerusalem   31, 35, 2      Buenos Aires 34,  -58, -3
+2   Jerusalem     31.78   35.22    8   Hong Kong  22.26  114.15
 .RE
 .RS 6
-      Hong Kong    22,  114,  8
+2   Haifa         32.82   34.99   -6   Chicago    41.84  -87.67
 .RE
 .RS 6
-Haifa       32, 34, 2      Los Angeles  34, -118, -8
-.RE
+2   Beer Sheva    31.25   34.80   -3   Sao Paolo -23.52  -46.63
+.RE  
 .RS 6
-Beer Sheva  31, 34, 2      Sao Paolo    23, -46,  -3
-.RE
-.RS 6
-Ashdod      31, 34, 2      Toronto      43, -79   -5
+2   Ashdod        31.80   34.64   -5   Toronto    43.75  -79.38
 .RS 6
 .RE
-Tiberias    32, 35, 2      
+2   Tiberias      40.89   35.84    1   Antwerpen  51.22    4.42
 .RS 6
 .RE
-Eilat       29, 34, 2
+2   Eilat         29.56   34.95    3.5 Tehran     35.67   51.42
 .SH FILES
 .SS CONFIG FILE
 This folder and file will be automatically created, and

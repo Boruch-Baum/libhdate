@@ -42,7 +42,7 @@
 #include "./timezone_functions.c"
 
 
-// support for fnmatch
+/// support for fnmatch
 #define FNM_EXTMATCH	(1 << 5)
 #define FNM_NOFLAG		0
 
@@ -56,7 +56,15 @@
 #define NOT_USING_SYSTEM_TZ 0
 
 
-// copied from support.h in src dir
+// WARNING - I had here copied a set of NLS-related
+// compiler directives that I had originally copied
+// from support.h in src dir. Subsequently, I needed
+// that snippet for timezone_functions.c, so I
+// copied the snippet there. Thus, because (and as
+// long as) the file timezone_functions.c is
+// #included above, the following snippet should be
+// commented out
+/** // copied from support.h in src dir
 #ifdef ENABLE_NLS
 #  include <libintl.h>
 #  undef _
@@ -75,6 +83,8 @@
 #  define _(String) (String)
 #  define N_(String) (String)
 #endif
+**/
+
 
 #define FALSE 0
 #define TRUE -1
@@ -198,48 +208,10 @@ void print_parm_invalid_error( char *parm_name )
 
 
 /************************************************************
-* begin - alert message functions
-************************************************************/
-void print_alert_coordinate( char *city_name )
-{
-	error(0,0,"%s",
-			N_("ALERT: coordinates not entered or invalid..."));
-	error(0,0,"%s %s",
-			N_("ALERT: guessing... will use co-ordinates for"),
-			city_name);
-}
-
-void print_alert_default_location( int tz )
-{
-	switch (tz/60)
-	{
-	case -8:	print_alert_coordinate( N_("Los Angeles") ); break;
-	case -6:	print_alert_coordinate( N_("Mexico City") ); break;
-	case -5:	print_alert_coordinate( N_("New York City") ); break;
-//	case -5:	print_alert_coordinate( N_("Toronto") ); break;
-//	case -3:	print_alert_coordinate( N_("Sao Paolo") ); break;
-	case -3:	print_alert_coordinate( N_("Buenos Aires") ); break;
-	case  0:	print_alert_coordinate( N_("London") ); break;
-	case  1:	print_alert_coordinate( N_("Paris") ); break;
-	case  2:	print_alert_coordinate( N_("Tel-Aviv") ); break;
-	case  3:	print_alert_coordinate( N_("Moscow") ); break;
-	case  5:	print_alert_coordinate( N_("Tashkent") ); break;
-	case  8:	print_alert_coordinate( N_("Beijing") ); break;
-//	case  8:	print_alert_coordinate( N_("Hong Kong") ); break;
-	case -10:	print_alert_coordinate( N_("Honolulu") ); break;
-	default:	error(0,0,"%s \n%s", N_("Hmmm, ... hate to do this, really ..."), N_("using co-ordinates for the equator, at the center of time zone")); break;
-	}
-}
-/************************************************************
-* end - alert message functions
-************************************************************/
-
-
-
-/************************************************************
 * set default location
 ************************************************************/
-void set_default_location( const int tz, double *lat, double *lon, const int using_system_tz )
+void set_default_location( const int tz, double *lat, double *lon,
+						   const int using_system_tz, const int quiet_alerts )
 {
 
 	if (using_system_tz)
@@ -250,7 +222,7 @@ void set_default_location( const int tz, double *lat, double *lon, const int usi
 		if (sys_tz_string_ptr != NULL)
 		{
 			/// attempt to get coorinates from zone.tab file
-			if (get_lat_lon_from_tz_file( sys_tz_string_ptr, lat, lon ) ) return;
+			if (get_lat_lon_from_zonetab_file( sys_tz_string_ptr, lat, lon ) ) return;
 		}
 	}
 
@@ -261,7 +233,7 @@ void set_default_location( const int tz, double *lat, double *lon, const int usi
 /**
 { 00 }  ( Latitude : 31.78;  Longitude : 35.22;  Name : 'Jerusalem'     ),
 { 01 }  ( Latitude : 32.07;  Longitude : 34.77;  Name : 'Tel Aviv-Jafa' ),
-{ 02 }  ( Latitude : 32.82;  Longitude : 34.99;  Name : 'Hifa'          ),
+{ 02 }  ( Latitude : 32.82;  Longitude : 34.99;  Name : 'Haifa'          ),
 { 03 }  ( Latitude : 31.96;  Longitude : 34.80;  Name : 'Rishon Lezion' ),
 { 04 }  ( Latitude : 31.80;  Longitude : 34.64;  Name : 'Ashdod'        ),
 { 05 }  ( Latitude : 31.25;  Longitude : 34.80;  Name : 'Be''er Sheva'  ),
@@ -281,24 +253,31 @@ void set_default_location( const int tz, double *lat, double *lon, const int usi
 { 19 }  ( Latitude : 31.93;  Longitude : 34.86;  Name : 'Ramla'         )
 **/
 
-	switch (tz/60)
+	switch (tz)
 	{
-	case -8:	*lat =  34.05;	*lon =-118.25;	break; // Los Angeles
-	case -6:	*lat =  19.43;	*lon = -99.13;	break; // Mexico City
-	case -5:	*lat =  40.0;	*lon = -74.0;	break; // New York
-//	case -5:	*lat =  43.71;	*lon = -79.43;	break; // Toronto
-//	case -3:	*lat = -23.55;	*lon = -46.61;	break; // Sao Paolo
-	case -3:	*lat = -34.6;	*lon = -58.37;	break; // Buenos Aires
-	case  0:	*lat =  51.0;	*lon =   0.0;	break; // London
-	case  1:	*lat =  48.0;	*lon =   2.0;	break; // Paris
-	case  2:	*lat =  32.0;	*lon =  34.0;	break; // Tel aviv
-	case  3:	*lat =  55.0;	*lon =  37.0;	break; // Moscow
-	case  5:	*lat =  41.27;	*lon =  69.22;	break; // Tashkent
-	case  8:	*lat =  39.90;	*lon = 116.38;	break; // Beijing
-//	case  8:	*lat =  22.26;	*lon = 114.15;	break; // Hong Kong
-	case 10:	*lat =  21.30;	*lon = 157.82;	break; // Honolulu
-	default:	*lat =   0.0;	*lon =  tz * .25; break; // center of timeone:
-														 // .25 = (15 degrees) / 60 [because tz is in minutes, not hours]
+/** hours       minutes */
+/** -8 **/	case -480:	*lat =  34.05;	*lon =-118.25;	print_alert_coordinate( N_("Los Angeles") ); break;
+/** -6 **/	case -360:	*lat =  19.43;	*lon = -99.13;	print_alert_coordinate( N_("Mexico City") ); break;
+/** -5 **/	case -300:	*lat =  40.75;	*lon = -74.0;	print_alert_coordinate( N_("New York City") ); break;
+/** -5 **///case -300:	*lat =  43.71;	*lon = -79.43;	print_alert_coordinate( N_("Toronto") ); break;
+/** -5 **///case -300:	*lat = -23.55;	*lon = -46.61;	print_alert_coordinate( N_("Sao Paolo") ); break;
+/** -4.5 **/case -270:	*lat =  10.54;	*lon = -66.93;	print_alert_coordinate( N_("Caracas") ); break;
+/** -3 **/	case -180:	*lat = -34.61;	*lon = -58.37;	print_alert_coordinate( N_("Buenos Aires") ); break;
+/**  0 **/	case    0:	*lat =  51.5;	*lon =   0.0;	print_alert_coordinate( N_("London") ); break;
+/**  1 **/	case   60:	*lat =  48.86;	*lon =   2.39;	print_alert_coordinate( N_("Paris") ); break;
+/**  2 **/	case  120:	*lat =  32.0;	*lon =  34.75;	print_alert_coordinate( N_("Tel-Aviv") ); break;
+/**  3.5 **/case  210:	*lat =  35,67;	*lon =  51.43;	print_alert_coordinate( N_("Tehran") ); break;
+/**  4 **/	case  240:	*lat =  55.75;	*lon =  37.62;	print_alert_coordinate( N_("Moscow") ); break;
+/**  5 **/	case  300:	*lat =  41.27;	*lon =  69.22;	print_alert_coordinate( N_("Tashkent") ); break;
+/**  5.5 **/case  330:	*lat =  22.57;	*lon =  88.36;	print_alert_coordinate( N_("Calcutta") ); break;
+/**  8 **/	case  480:	*lat =  39.90;	*lon = 116.38;	print_alert_coordinate( N_("Beijing") ); break;
+/**  8 **///case  480:	*lat =  22.26;	*lon = 114.15;	print_alert_coordinate( N_("Hong Kong") );break;
+/** 10 **///case  600:	*lat =  21.30;	*lon = 157.82;	print_alert_coordinate( N_("Honolulu") );break;
+/** 10 **/	case  600:	*lat = -33.87;	*lon = 151.21;	print_alert_coordinate( N_("Sydney") );break;
+	default:	/// .25 = (15 degrees) / 60 [because tz is in minutes, not hours]
+				*lat =   0.0;	*lon =  tz * .25;
+				error(0,0,"%s \n%s", N_("Hmmm, ... hate to do this, really ..."),
+				N_("using co-ordinates for the equator, at the center of time zone")); break;
 	}
 	return;
 }
@@ -608,8 +587,10 @@ void validate_location( const int opt_latitude, const int opt_Longitude,
 			if (!quiet_alerts) print_alert_timezone( *tz );
 			if ( (*lat==BAD_COORDINATE) && (*lon==BAD_COORDINATE) )
 			{
-				if (!quiet_alerts) print_alert_default_location( *tz );
-				set_default_location( *tz, lat, lon, USING_SYSTEM_TZ );
+				// FIXME - print_alert_default_location only looks at my case-switch list
+				// and ignores a successful query of /etc/timezone & zone.tab
+				// now performed by set_default_location
+				set_default_location( *tz, lat, lon, USING_SYSTEM_TZ, quiet_alerts );
 			}
 			if (!quiet_alerts) printf("\n");
 		}
@@ -631,8 +612,7 @@ void validate_location( const int opt_latitude, const int opt_Longitude,
 			}
 			else
 			{
-				if (!quiet_alerts) print_alert_default_location( *tz );
-				set_default_location( *tz, lat, lon, NOT_USING_SYSTEM_TZ );
+				set_default_location( *tz, lat, lon, NOT_USING_SYSTEM_TZ, quiet_alerts );
 				if (!quiet_alerts) printf("\n");
 			}
 		}

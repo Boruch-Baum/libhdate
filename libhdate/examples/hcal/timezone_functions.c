@@ -21,17 +21,18 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#define _GNU_SOURCE		// For mempcpy, asprintf
+#define _GNU_SOURCE		/// For mempcpy, asprintf
 #define _POSIX_C_SOURCE 200809L
 
-#include <stdio.h>		// For printf, fopen, fclose, FILE
-#include <stdlib.h>		// For malloc, free
-#include <time.h>		// For time
-#include <error.h>		// For error
-#include <errno.h>		// For errno
-#include <unistd.h>		// for sleep
-#include <string.h>		// for memset, memcpy
-#include <sys/stat.h>	// for stat
+#include <stdio.h>		/// For printf, fopen, fclose, FILE
+#include <stdlib.h>		/// For malloc, free
+#include <time.h>		/// For time
+#include <error.h>		/// For error
+#include <errno.h>		/// For errno
+#include <unistd.h>		/// for sleep
+#include <string.h>		/// for memset, memcpy
+#include <sys/stat.h>	/// for stat
+#include <locale.h>		/// for setlocale
 
 #define FALSE 0
 #define TRUE -1
@@ -40,6 +41,26 @@
 #define TZIF2_FIELD_SIZE 8
 
 #define BAD_COORDINATE	999
+
+// copied from support.h in src dir
+#ifdef ENABLE_NLS
+#  include <libintl.h>
+#  undef _
+#  define _(String) dgettext (PACKAGE, String)
+#  ifdef gettext_noop
+#    define N_(String) gettext_noop (String)
+#  else
+#    define N_(String) (String)
+#  endif
+#else
+#  define textdomain(String) (String)
+#  define gettext(String) (String)
+#  define dgettext(Domain,Message) (Message)
+#  define dcgettext(Domain,Message,Type) (Message)
+#  define bindtextdomain(Domain,Directory) (Domain)
+#  define _(String) (String)
+#  define N_(String) (String)
+#endif
 
 
 /***************************************************
@@ -585,6 +606,11 @@ void timezone_display_local_info()
 	tza = getenv("TZ");
 	if (tza== NULL) printf("null\n\n");
 	else printf("%s\n\n",tza);
+	
+
+char* locale_ptr = setlocale(LC_TIME,"");
+char* tzdir_ptr = getenv("TZDIR");
+printf("locale string: %s\n tzdir string: %s\n\n", locale_ptr, tzdir_ptr);
 
 //	FIXME - use $TZDIR !
 	tz_file = fopen("/etc/localtime", "rb");
@@ -709,14 +735,29 @@ char* read_sys_tz_string_from_file()
 }
 
 
+
 /***********************************************************************
-* get_lat_lon_from_tz_file
+* print_alert_coordinate
+* 
+***********************************************************************/
+void print_alert_coordinate( const char *city_name )
+{
+	error(0,0,"%s",
+			N_("ALERT: coordinates not entered or invalid..."));
+	error(0,0,"%s %s",
+			N_("ALERT: guessing... will use co-ordinates for"),
+			city_name);
+}
+
+
+/***********************************************************************
+* get_lat_lon_from_zonetab_file
 * 
 * 
 * returns FALSE upon any failure.
 *  
 ***********************************************************************/
-int get_lat_lon_from_tz_file( const char* search_string, double *lat, double *lon )
+int get_lat_lon_from_zonetab_file( const char* search_string, double *lat, double *lon )
 {
 
 	double convert_from_dms( long in_val, int num_of_digits )
@@ -732,6 +773,11 @@ int get_lat_lon_from_tz_file( const char* search_string, double *lat, double *lo
 			return ( (double) (in_val/10000) ) + (double) ((in_val%10000)/100) /60 + (double) (in_val%100)/3600;
 	}
 
+
+	char*	tzdir_path;
+	char*	zonetab_path;
+	const char*	default_zonetab_path = "/usr/share/zoneinfo/zone.tab";
+
 	FILE*	tzfile;
 	char*	lat_and_lon = NULL;
 	char*	location = NULL;
@@ -744,8 +790,19 @@ int get_lat_lon_from_tz_file( const char* search_string, double *lat, double *lo
 	size_t	lat_end, lon_end;
 
 
-	// FIXME - This should be $TZDIR/zone,tab
-	tzfile = fopen("/usr/share/zoneinfo/zone.tab", "rb");
+	/** In Debian, the TZDIR is unset and the default is used
+	 ** but the POSIX spec allows for a flexible location of
+	 ** TZDIR. */
+	setlocale(LC_TIME,"");
+	tzdir_path = getenv("TZDIR");
+	if ((tzdir_path == NULL) ||
+		(asprintf( &zonetab_path, "%s/zone,tab", tzdir_path) == -1) )
+		tzfile = fopen(default_zonetab_path, "rb");
+	else
+	{
+		tzfile = fopen(zonetab_path, "rb");
+		free(zonetab_path);
+	}
 	if (tzfile == NULL)	return FALSE;
 
 	while ( (end_of_input_file!=TRUE) && (search_result_ptr == NULL) )
@@ -786,6 +843,8 @@ int get_lat_lon_from_tz_file( const char* search_string, double *lat, double *lo
 							number_string[lon_end+1] = '\0';
 
 							*lon = convert_from_dms ( atol(number_string), lon_end);
+							print_alert_coordinate(search_string);
+//							printf("lat %lf lon %lf\n\n", *lat, *lon);
 						}
 					}
 				}

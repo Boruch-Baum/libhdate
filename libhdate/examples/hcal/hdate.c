@@ -2244,8 +2244,8 @@ int main (int argc, char *argv[])
 {
 
 //test_mktime();
-timezone_display_local_info();
-exit(0);
+//timezone_display_local_info();
+//exit(0);
 
 	// const static int heb_yr_upper_bound = 10999;
 	// const static int heb_yr_lower_bound = 3000;

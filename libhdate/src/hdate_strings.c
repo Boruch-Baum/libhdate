@@ -43,7 +43,7 @@ hdate_is_hebrew_locale()
 	char *locale;
 	char *language;
 
-	/* Get the name of the current locale.  */
+	/// Get the name of the current locale.
 #ifdef ENABLE_NLS
 	locale = setlocale (LC_MESSAGES, NULL);
 	language = getenv ("LANGUAGE");
@@ -55,7 +55,7 @@ hdate_is_hebrew_locale()
 	if (!((locale && (locale[0] == 'h') && (locale[1] == 'e')) ||
 		  (language && (language[0] == 'h') && (language[1] == 'e'))))
 	{
-		/* not hebrew locale return false */
+		/// not hebrew locale return false
 		return 0;
 	}
 	
@@ -129,7 +129,7 @@ char * hdate_get_format_date (hdate_struct const *h, int const diaspora, int con
 				hdate_string( HDATE_STRING_HMONTH , h->hd_mon, HDATE_STRING_LONG, hebrew_format),
 				hyear_int_str);
 
-		/* if a day in the omer print it */
+		/// if a day in the omer print it
 		if (hebrew_buffer1_len != -1) omer_day = hdate_get_omer_day(h);
 		if (omer_day != 0)
 		{
@@ -141,7 +141,7 @@ char * hdate_get_format_date (hdate_struct const *h, int const diaspora, int con
 			hebrew_buffer1_len = hebrew_buffer2_len;
 		}
 		
-		/* if holiday print it */
+		/// if holiday print it
 		if (hebrew_buffer1_len != -1) holiday = hdate_get_holyday (h, diaspora);
 		if (holiday != 0)
 		{
@@ -170,7 +170,7 @@ hdate_get_version_string ()
 {
 	static char version[500];
 
-	/* make a "packge version" string */
+	/// make a "packge version" string
 //	snprintf (version, 500, "%s %s", PACKAGE, VERSION);
 
 	return (version);
@@ -235,6 +235,10 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 	/// type_of_string: integer and omer require allocated strings
 	char *return_string = NULL;
 	int return_string_len = -1;
+
+	/// for nl_langinfo calls for DOW an gregrorian months
+	int langinfo_parm;
+	char* langinfo_ptr;
 
 	#define H_CHAR_WIDTH 2
 	static char *digits[3][10] = {
@@ -518,22 +522,32 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 	 ** is that it seems nl_langinfo requires glibc/gcc constant literals
 	 ** so I have to ... **/				// FIXME - find a simpler way
 		switch (index * (short_form+1))
+	/** In case you're curious, compare the cases of this switch to those
+	 ** of the gregorian months. I'm attributing the difference to the
+	 ** presence of a third dimension in this array *//* and am afraid it
+		may result in a bug if compiled by a different compiler */
 			{
-			case  1: return nl_langinfo(DAY_1);		/// Sunday
-			case  2: return nl_langinfo(DAY_2);
-			case  3: return nl_langinfo(DAY_3);
-			case  4: return nl_langinfo(DAY_4);
-			case  5: return nl_langinfo(DAY_5);
-			case  6: return nl_langinfo(DAY_6);
-			case  7: return nl_langinfo(DAY_7);
-			case  8: return nl_langinfo(ABDAY_1);	/// Sun
-			case  9: return nl_langinfo(ABDAY_2);
-			case 10: return nl_langinfo(ABDAY_3);
-			case 11: return nl_langinfo(ABDAY_4);
-			case 12: return nl_langinfo(ABDAY_5);
-			case 13: return nl_langinfo(ABDAY_6);
-			case 14: return nl_langinfo(ABDAY_7);
+			case  1: langinfo_parm = DAY_1; break;		/// Sunday
+			case  3: langinfo_parm = DAY_2; break;
+			case  5: langinfo_parm = DAY_3; break;
+			case  7: langinfo_parm = DAY_4; break;
+			case  9: langinfo_parm = DAY_5; break;
+			case 11: langinfo_parm = DAY_6; break;
+			case 13: langinfo_parm = DAY_7; break;
+			case  2: langinfo_parm = ABDAY_1; break;	/// Sun
+			case  4: langinfo_parm = ABDAY_2; break;
+			case  6: langinfo_parm = ABDAY_3; break;
+			case  8: langinfo_parm = ABDAY_4; break;
+			case 10: langinfo_parm = ABDAY_5; break;
+			case 12: langinfo_parm = ABDAY_6; break;
+			case 14: langinfo_parm = ABDAY_7; break;
 			}
+		langinfo_ptr = nl_langinfo(langinfo_parm);
+	/** nl_langinfo may return a pointer to a null string if it does
+	 ** not have the requeste value. In such a case return the English
+	 ** (or possibly gettext ?) string **/
+		if ( strcmp(langinfo_ptr, "") == 0 ) return _(days[hebrew_form][short_form][index - 1]);
+		else return langinfo_ptr;
 		}
 		break;
 	case HDATE_STRING_PARASHA: if (index >= 1 && index <= 61)
@@ -553,31 +567,37 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 	 ** so I have to ... **/				// FIXME - find a simpler way
 		switch (index * (short_form+1))
 			{
-			case  1: return nl_langinfo(MON_1);		/// January
-			case  2: return nl_langinfo(MON_2);
-			case  3: return nl_langinfo(MON_3);
-			case  4: return nl_langinfo(MON_4);
-			case  5: return nl_langinfo(MON_5);
-			case  6: return nl_langinfo(MON_6);
-			case  7: return nl_langinfo(MON_7);
-			case  8: return nl_langinfo(MON_8);
-			case  9: return nl_langinfo(MON_9);
-			case 10: return nl_langinfo(MON_10);
-			case 11: return nl_langinfo(MON_11);
-			case 12: return nl_langinfo(MON_12);
-			case 13: return nl_langinfo(ABMON_1);	/// Jan
-			case 14: return nl_langinfo(ABMON_2);
-			case 15: return nl_langinfo(ABMON_3);
-			case 16: return nl_langinfo(ABMON_4);
-			case 17: return nl_langinfo(ABMON_5);
-			case 18: return nl_langinfo(ABMON_6);
-			case 19: return nl_langinfo(ABMON_7);
-			case 20: return nl_langinfo(ABMON_8);
-			case 21: return nl_langinfo(ABMON_9);
-			case 22: return nl_langinfo(ABMON_10);
-			case 23: return nl_langinfo(ABMON_11);
-			case 24: return nl_langinfo(ABMON_12);
+			case  1: langinfo_parm = MON_1; break;		/// January
+			case  2: langinfo_parm = MON_2; break;
+			case  3: langinfo_parm = MON_3; break;
+			case  4: langinfo_parm = MON_4; break;
+			case  5: langinfo_parm = MON_5; break;
+			case  6: langinfo_parm = MON_6; break;
+			case  7: langinfo_parm = MON_7; break;
+			case  8: langinfo_parm = MON_8; break;
+			case  9: langinfo_parm = MON_9; break;
+			case 10: langinfo_parm = MON_10; break;
+			case 11: langinfo_parm = MON_11; break;
+			case 12: langinfo_parm = MON_12; break;
+			case 13: langinfo_parm = ABMON_1; break;	/// Jan
+			case 14: langinfo_parm = ABMON_2; break;
+			case 15: langinfo_parm = ABMON_3; break;
+			case 16: langinfo_parm = ABMON_4; break;
+			case 17: langinfo_parm = ABMON_5; break;
+			case 18: langinfo_parm = ABMON_6; break;
+			case 19: langinfo_parm = ABMON_7; break;
+			case 20: langinfo_parm = ABMON_8; break;
+			case 21: langinfo_parm = ABMON_9; break;
+			case 22: langinfo_parm = ABMON_10; break;
+			case 23: langinfo_parm = ABMON_11; break;
+			case 24: langinfo_parm = ABMON_12; break;
 			}
+		langinfo_ptr = nl_langinfo(langinfo_parm);
+	/** nl_langinfo may return a pointer to a null string if it does
+	 ** not have the requeste value. In such a case return the English
+	 ** (or possibly gettext ?) string **/
+		if ( strcmp(langinfo_ptr, "") == 0 ) return _(gregorian_months[short_form][index - 1]);
+		else return langinfo_ptr;
 		break;
 	case HDATE_STRING_HOLIDAY: if (index >= 0 && index <= 39)
 				return _(holidays[hebrew_form][short_form][index]);
@@ -607,7 +627,7 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 	case HDATE_STRING_INT:
 				if ((index > 0) && (index < 11000))
 				{
-					// not hebrew form - return the number in decimal form
+					/// not hebrew form - return the number in decimal form
 					if (!hebrew_form)
 					{
 						return_string_len = asprintf (&return_string, "%d", index);
@@ -615,7 +635,7 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 						return return_string;
 					}
 
-					// HEBREW_NUMBER_BUFFER_SIZE 17	defined in hdate.h
+					/// HEBREW_NUMBER_BUFFER_SIZE 17	defined in hdate.h
 					return_string = malloc(HEBREW_NUMBER_BUFFER_SIZE);
 					if (return_string == NULL) return NULL;
 					
@@ -648,7 +668,7 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 					if (n > 0)
 						strncat (return_string, digits[0][n], H_CHAR_WIDTH);
 						
-				 	// possibly add the ' and " to hebrew numbers	
+				 	/// possibly add the ' and " to hebrew numbers	
 					if (!short_form)
 					{
 						return_string_len = strlen (return_string);
