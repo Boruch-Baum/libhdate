@@ -25,7 +25,7 @@ optionally be footnoted.
 .B hcal
 tries to be sunset-aware in order to correctly highlight the
 current Hebrew date, and can also display Shabbat times and
-parshiot. See the section LOCATION, below.
+parshiot. See the section LOCATIONS, below.
 .PP
 .B INPUTTING A HEBREW DATE:
 If the year provided is greater than 3000,
@@ -41,7 +41,7 @@ This is the default. It prints only Hebrew month information. The option exists 
 over-ride config file setting if you had set option --three-month as a default there
 .TP
 .B \-3 --three-month
-output previous/next months, side by side. requires 127 columns
+print previous/next months, side by side. requires 127 columns
 .TP 18
 .B \ \ \ --borders
 displays a frame around calendars in three-month mode
@@ -50,7 +50,7 @@ displays a frame around calendars in three-month mode
 quoted string to separate months in three-month mode
 .TP
 .B \-b --bidi
-output Hebrew information in Hebrew , in reverse
+print Hebrew information in Hebrew , in reverse
 .RE
 .RS 7
 .B \ \ \ --visual
@@ -66,7 +66,7 @@ output Hebrew information in Hebrew , in reverse
 \   option -bidi as a default there
 .TP 18
 .B \-c --colorize
-output in calming, muted tones.
+print in calming, muted tones.
 .B -cc
 will display in bolder, and mildy irritating, colors.
 .RE
@@ -78,24 +78,25 @@ will display in bolder, and mildy irritating, colors.
 use diaspora reading and holidays. Only relevant if hcal is using location information indicating an Israeli timezone
 .TP
 .B \-f --footnote
-output descriptive notes of holidays
+print descriptive notes of holidays
 .RE
 .RS 7
 .B \ \ \ --no-footnote
 \ over-ride config file setting
 .TP 18
 .B \-g --gregorian
-include gregorian corresponding days. -gg displays a gregorian month with corresponding Hebrew days.
+include gregorian corresponding days. -gg displays a gregorian month with corresponding Hebrew days. Specifying option -g
+with a gregorian date is equivalent to requesting the Hebrew month in which the first day of that specified gregorian month appears.
 .TP
 .B \-h --html
-output in html format to stdout
+print in html format to stdout
 .RE
 .RS 7
 .B \ \ \ --no-html
 \     over-ride config file setting
 .TP 18
 .B \-H --hebrew
-output Hebrew information in Hebrew, in 'logical' sequence. If this displays in reverse for you, use option -b
+print Hebrew information in Hebrew, in 'logical' sequence. If this displays in reverse for you, use option -b
 .TP
 .B \-I --israel
 override a diaspora default. Only relevant if hcal is using location information indicating other than an Israeli timezone
@@ -107,10 +108,10 @@ use external css file "./hcal.css" for html output
 do not highlight today's date
 .TP
 .B \-p --parasha
-output week's parasha on each calendar row
+print week's parasha on each calendar row
 .TP
 .B \-s --shabbat
-output Shabbat times and parshiot
+print Shabbat times and parshiot
 .TP
 .B \-l --latitude
 [NS]yy[.yyy] decimal degrees, or [NS]yy[:mm[:ss]] degrees, minutes, seconds. Negative values are South
@@ -148,7 +149,7 @@ Gregorian and Hebrew dates, as follows:
 .RE
 .RS
 .B @
-\ Tzomot
+\ fasting day
 .RE
 .RS
 .B $
@@ -208,7 +209,7 @@ Useful locations and time zones
 Jerusalem   31, 35, 2      Buenos Aires 34,  -58, -3
 .RE
 .RS 6
-Tel Aviv    32, 34, 2      Hong Kong    22,  114,  8
+      Hong Kong    22,  114,  8
 .RE
 .RS 6
 Haifa       32, 34, 2      Los Angeles  34, -118, -8
@@ -246,7 +247,7 @@ The timezone support is currenlty primitive and lacks support for daylight savin
 .RE
 .TP 10
 .B Historical
-The software does not yet account for the phenomenon and complications of the "Gregorian transition" from the prior, Julian calendar, which effectively caused an instantaneous 'loss' of two weeks for all gentiles affected. Countries (eg. Poland, Spain and Italy) began adopting the Gregorian calendar on 8 Tishrei 5343 (4 October 1582CE), although many did not transition until the 56th century (1752 CE, eg. UK colonies, Sweden). Russia did not adopt the Gregorian calendar until 5678 (1918 CE) and Turkey did not until 5687 (December, 1926 CE). Many other countries made the transition on other dates. Keep in mind that Russia invaded part of Poland, undoing, for the interim, the Gregorian transition for (only) that part of Poland; Also important to remember in this regard is that Eretz Ysroel was part of the Turkish Ottoman empire until the British mandate (5677 (1917CE)). Until all this is accounted for adequately by this application, refer to '
+The software does not yet account for the phenomenon and complications of the "Gregorian transition" from the prior, Julian calendar, which effectively caused an instantaneous 'loss' of two weeks for all gentiles affected. Countries (eg. Poland, Spain and Italy) began adopting the Gregorian calendar on 8 Tishrei 5343 (4 October 1582 CE), although many did not transition until the 56th century (1752 CE, eg. UK colonies, Sweden). Russia did not adopt the Gregorian calendar until 5678 (1918 CE) and Turkey did not until 5687 (December, 1926 CE). Many other countries made the transition on other dates. Keep in mind that Russia invaded part of Poland, undoing, for the interim, the Gregorian transition for (only) that part of Poland; Also important to remember in this regard is that Eretz Ysroel was part of the Turkish Ottoman empire until the British mandate (5677 (1917 CE)). Until all this is accounted for adequately by this application, refer to '
 .B ncal -p
 \' for a basic table of country transitions. However, keep in mind that European borders underwent many changes during the 426 years in question, so the accuracy of your data will depend on accurate knowledge of whether any particular date at any specific location was Julian or Gregorian.
 .SH "EXAMPLES"

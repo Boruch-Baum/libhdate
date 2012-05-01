@@ -413,7 +413,7 @@ hdate_jd_to_hdate (int jd, int *day, int *month, int *year, int *jd_tishrey1, in
  @return the days from 1 jan
 */
 int
-hdate_get_day_of_year (int day, int month, int year);
+hdate_get_day_of_year (const int day, const int month, const int year);
 
 /**
  @brief utc sun times for altitude at a gregorian date
@@ -436,8 +436,34 @@ hdate_get_day_of_year (int day, int month, int year);
  @param sunset return the utc sunset in minutes
 */
 void
-hdate_get_utc_sun_time_deg (int day, int month, int year, 
-	double latitude, double longitude, double deg, int *sunrise, int *sunset);
+hdate_get_utc_sun_time_deg (const int day, const int month, const int year, 
+							const double latitude, const double longitude, const double deg,
+							int *sunrise, int *sunset);
+
+/**
+ @brief utc sun times for altitude at a gregorian date - higher precision
+
+ Returns the sunset and sunrise times in minutes from 00:00 (utc time)
+ if sun altitude in sunrise is deg degrees.
+ This function only works for altitudes sun really is.
+ If the sun never get to this altitude, the returned sunset and sunrise values 
+ will be negative. This can happen in low altitude when latitude is 
+ nearing the poles in winter times, the sun never goes very high in 
+ the sky there.
+
+ @param day this day of month
+ @param month this month
+ @param year this year
+ @param longitude longitude to use in calculations
+ @param latitude latitude to use in calculations
+ @param deg degrees of sun's altitude (0 -  Zenith .. 90 - Horizon)
+ @param sunrise return the utc sunrise in seconds
+ @param sunset return the utc sunset in seconds
+*/
+void
+hdate_get_utc_sun_time_deg_seconds ( const int day, const int month, const int year,
+							 const double latitude, const double longitude, const double deg,
+							 int *sunrise, int *sunset);
 
 /**
  @brief utc sunrise/set time for a gregorian date
@@ -453,8 +479,9 @@ hdate_get_utc_sun_time_deg (int day, int month, int year,
  @param sunset return the utc sunset in minutes after midnight (00:00)
 */
 void
-hdate_get_utc_sun_time (int day, int month, int year, 
-	double latitude, double longitude, int *sunrise, int *sunset);
+hdate_get_utc_sun_time (const int day, const int month, const int year, 
+						const double latitude, const double longitude,
+						int *sunrise, int *sunset);
 
 /**
  @brief utc sunrise/set time for a gregorian date
@@ -474,7 +501,8 @@ hdate_get_utc_sun_time (int day, int month, int year,
  @param three_stars return the utc shlosha cochavim in minutes
 */
 void
-hdate_get_utc_sun_time_full (int day, int month, int year, double latitude, double longitude, 
+hdate_get_utc_sun_time_full (const int day, const int month, const int year,
+	const double latitude, const double longitude, 
 	int *sun_hour, int *first_light, int *talit, int *sunrise,
 	int *midday, int *sunset, int *first_stars, int *three_stars);
 

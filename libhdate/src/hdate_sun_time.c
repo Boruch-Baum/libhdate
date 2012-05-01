@@ -39,7 +39,7 @@
  @return the days from 1 jan
 */
 int
-hdate_get_day_of_year (int day, int month, int year)
+hdate_get_day_of_year (const int day, const int month, const int year)
 {
 	int jd;
 	
@@ -56,14 +56,97 @@ hdate_get_day_of_year (int day, int month, int year)
 }
 
 /**
+ @brief utc sun times for altitude at a gregorian date - higher precision
+
+ Returns the sunset and sunrise times in minutes from 00:00 (utc time)
+ if sun altitude in sunrise is deg degrees.
+ This function only works for altitudes sun really is.
+ If the sun never get to this altitude, the returned sunset and sunrise values 
+ will be negative. This can happen in low altitude when latitude is 
+ nearing the poles in winter times, the sun never goes very high in 
+ the sky there.
+
+ @param day this day of month
+ @param month this month
+ @param year this year
+ @param longitude longitude to use in calculations
+ @param latitude latitude to use in calculations
+ @param deg degrees of sun's altitude (0 -  Zenith .. 90 - Horizon)
+ @param sunrise return the utc sunrise in seconds
+ @param sunset return the utc sunset in seconds
+*/
+void
+hdate_get_utc_sun_time_deg_seconds ( const int day, const int month, const int year,
+							 const double latitude, const double longitude, const double deg,
+							 int *sunrise, int *sunset)
+{
+	double gamma;		/* location of sun in yearly cycle in radians */
+	double eqtime;		/* diffference betwen sun noon and clock noon */
+	double decl;		/* sun declination */
+	double hour_angle;	/* solar hour angle */
+	double sunrise_angle = M_PI * deg / 180.0; /* sun angle at sunrise/set */
+	double latitude_radians = M_PI * latitude / 180.0; /* ratio is 2pi/360 */
+
+	
+	int day_of_year;
+	
+	/* get the day of year */
+	day_of_year = hdate_get_day_of_year (day, month, year);
+	
+	/* get radians of sun orbit around earth =) */
+	gamma = 2.0 * M_PI * ((double)(day_of_year - 1) / 365.0);
+	
+	/* get the diff betwen suns clock and wall clock in minutes */
+	eqtime = 229.18 * (0.000075 + 0.001868 * cos (gamma)
+		- 0.032077 * sin (gamma) - 0.014615 * cos (2.0 * gamma)
+		- 0.040849 * sin (2.0 * gamma));
+	// FIXME - figure out the math above and convert it to directly
+	// calculate seconds. For now, ...
+	eqtime = eqtime * 60;
+	
+	/* calculate sun's declination at the equator in radians */
+	decl = 0.006918 - 0.399912 * cos (gamma) + 0.070257 * sin (gamma)
+		- 0.006758 * cos (2.0 * gamma) + 0.000907 * sin (2.0 * gamma)
+		- 0.002697 * cos (3.0 * gamma) + 0.00148 * sin (3.0 * gamma);
+	
+		
+	/* the sun real time diff from noon at sunset/rise in radians */
+	errno = 0;
+	hour_angle = acos (cos (sunrise_angle) / (cos (latitude_radians) * cos (decl))
+				- tan (latitude_radians) * tan (decl));
+	
+	/* check for too high altitudes and return negative values */
+	if (errno == EDOM)
+	{
+		*sunrise = -720;
+		*sunset = -720;
+		return;
+	}
+	
+	// when we used minutes, ratio was 1440min/2pi
+	// hour_angle = 720.0 * hour_angle / M_PI;
+	// now, using seconds, ratio should be 86400sec/2pi
+	hour_angle = 43200.0 * hour_angle / M_PI;
+	
+	// get sunset/rise times in utc wall clock in minutes from 00:00 time
+	//*sunrise = (int)(720.0 - 4.0 * longitude - hour_angle - eqtime);
+	//*sunset = (int)(720.0 - 4.0 * longitude + hour_angle - eqtime);
+	// get sunset/rise times in utc wall clock in SECONDS from 00:00 time
+	*sunrise = (int)(43200.0 - 240.0 * longitude - hour_angle - eqtime);
+	*sunset = (int)(43200.0 - 240.0 * longitude + hour_angle - eqtime);
+	
+	return;
+}
+
+/**
  @brief utc sun times for altitude at a gregorian date
 
  Returns the sunset and sunrise times in minutes from 00:00 (utc time)
- if sun altitude in sunrise is deg degries.
- This function only works for altitudes sun realy is.
+ if sun altitude in sunrise is deg degrees.
+ This function only works for altitudes sun really is.
  If the sun never get to this altitude, the returned sunset and sunrise values 
  will be negative. This can happen in low altitude when latitude is 
- nearing the pols in winter times, the sun never goes very high in 
+ nearing the poles in winter times, the sun never goes very high in 
  the sky there.
 
  @param day this day of month
@@ -76,56 +159,15 @@ hdate_get_day_of_year (int day, int month, int year)
  @param sunset return the utc sunset in minutes
 */
 void
-hdate_get_utc_sun_time_deg (int day, int month, int year, double latitude, double longitude, double deg, int *sunrise, int *sunset)
+hdate_get_utc_sun_time_deg ( const int day, const int month, const int year,
+							 const double latitude, const double longitude, const double deg,
+							 int *sunrise, int *sunset)
 {
-	double gama; /* location of sun in yearly cycle in radians */
-	double eqtime; /* diffference betwen sun noon and clock noon */
-	double decl; /* sun declanation */
-	double ha; /* solar hour engle */
-	double sunrise_angle = M_PI * deg / 180.0; /* sun angle at sunrise/set */
-	
-	int day_of_year;
-	
-	/* get the day of year */
-	day_of_year = hdate_get_day_of_year (day, month, year);
-	
-	/* get radians of sun orbit around erth =) */
-	gama = 2.0 * M_PI * ((double)(day_of_year - 1) / 365.0);
-	
-	/* get the diff betwen suns clock and wall clock in minutes */
-	eqtime = 229.18 * (0.000075 + 0.001868 * cos (gama)
-		- 0.032077 * sin (gama) - 0.014615 * cos (2.0 * gama)
-		- 0.040849 * sin (2.0 * gama));
-	
-	/* calculate suns declanation at the equater in radians */
-	decl = 0.006918 - 0.399912 * cos (gama) + 0.070257 * sin (gama)
-		- 0.006758 * cos (2.0 * gama) + 0.000907 * sin (2.0 * gama)
-		- 0.002697 * cos (3.0 * gama) + 0.00148 * sin (3.0 * gama);
-	
-	/* we use radians, ratio is 2pi/360 */
-	latitude = M_PI * latitude / 180.0;
-	
-	/* the sun real time diff from noon at sunset/rise in radians */
-	errno = 0;
-	ha = acos (cos (sunrise_angle) / (cos (latitude) * cos (decl)) - tan (latitude) * tan (decl));
-	
-	/* check for too high altitudes and return negative values */
-	if (errno == EDOM)
-	{
-		*sunrise = -720;
-		*sunset = -720;
-		
-		return;
-	}
-	
-	/* we use minutes, ratio is 1440min/2pi */
-	ha = 720.0 * ha / M_PI;
-	
-	/* get sunset/rise times in utc wall clock in minutes from 00:00 time */
-	*sunrise = (int)(720.0 - 4.0 * longitude - ha - eqtime);
-	*sunset = (int)(720.0 - 4.0 * longitude + ha - eqtime);
-	
-	return;
+
+	hdate_get_utc_sun_time_deg_seconds ( day, month, year, latitude, longitude, deg,
+							 sunrise, sunset);
+	*sunrise = (*sunrise + 30)/60;
+	*sunset = (*sunset + 30)/60;
 }
 
 /**
@@ -140,7 +182,9 @@ hdate_get_utc_sun_time_deg (int day, int month, int year, double latitude, doubl
  @parm sunset return the utc sunset in minutes
 */
 void
-hdate_get_utc_sun_time (int day, int month, int year, double latitude, double longitude, int *sunrise, int *sunset)
+hdate_get_utc_sun_time (const int day, const int month, const int year,
+						const double latitude, const double longitude,
+						int *sunrise, int *sunset)
 {
 	hdate_get_utc_sun_time_deg (day, month, year, latitude, longitude, 90.833, sunrise, sunset);
 	
@@ -165,7 +209,8 @@ hdate_get_utc_sun_time (int day, int month, int year, double latitude, double lo
  @parm three_stars return the utc shlosha cochavim in minutes
 */
 void
-hdate_get_utc_sun_time_full (int day, int month, int year, double latitude, double longitude, 
+hdate_get_utc_sun_time_full (const int day, const int month, const int year,
+	const double latitude, const double longitude, 
 	int *sun_hour, int *first_light, int *talit, int *sunrise,
 	int *midday, int *sunset, int *first_stars, int *three_stars)
 {

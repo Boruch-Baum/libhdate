@@ -22,10 +22,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <langinfo.h> /// for nl_langinfo()
+#include <locale.h>   /// for set_locale()
 
-#ifdef ENABLE_NLS
-#include <locale.h>
-#endif
+//#ifdef ENABLE_NLS
+//#include <locale.h>
+//#endif
 
 #include "hdate.h"
 #include "support.h"
@@ -209,30 +211,29 @@ hdate_get_translator_string ()
 */
 
 // TODO - Number days of chol hamoed, and maybe have an entry for shabbat chol hamoed
-// DONE - (I hope) change short to be = 1 long = 0, and switch order of data structures
-//        this way user app opt.short = 0/FALSE will work as a parameter to pass here
+/// DONE - (I hope) change short to be = 1 long = 0, and switch order of data structures
+///        this way user app opt.short = 0/FALSE will work as a parameter to pass here
 
-// These definitions are in hdate.h
-//
-// HDATE_STRING_INT     0
-// HDATE_STRING_DOW     1
-// HDATE_STRING_PARASHA 2
-// HDATE_STRING_HMONTH  3
-// HDATE_STRING_GMONTH  4
-// HDATE_STRING_HOLIDAY 5
-// HDATE_STRING_OMER    6
-// HDATE STRING_SHORT   1
-// HDATE_STRING_LONG    0
-// HDATE_STRING_HEBREW  1
-// HDATE_STRING_LOCAL   0
+/// These definitions are in hdate.h
+///
+/// HDATE_STRING_INT     0
+/// HDATE_STRING_DOW     1
+/// HDATE_STRING_PARASHA 2
+/// HDATE_STRING_HMONTH  3
+/// HDATE_STRING_GMONTH  4
+/// HDATE_STRING_HOLIDAY 5
+/// HDATE_STRING_OMER    6
+/// HDATE STRING_SHORT   1
+/// HDATE_STRING_LONG    0
+/// HDATE_STRING_HEBREW  1
+/// HDATE_STRING_LOCAL   0
 char* hdate_string( int const type_of_string, int const index, int const input_short_form, int const input_hebrew_form)
 {
 	int short_form = 0;
 	int hebrew_form = 0;
 
-	// type_of_string: integer and omer require allocated strings
-	char *return_string = NULL; 
-	char *h_int_string = NULL;
+	/// type_of_string: integer and omer require allocated strings
+	char *return_string = NULL;
 	int return_string_len = -1;
 
 	#define H_CHAR_WIDTH 2
@@ -243,25 +244,25 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 	};
 
 	static char *days[2][2][7] = {
-		{ // begin english
-		{ // begin english long
+		{ /// begin english
+		{ /// begin english long
 		N_("Sunday"), N_("Monday"), N_("Tuesday"), N_("Wednesday"),
 		 N_("Thursday"), N_("Friday"), N_("Saturday")},
-		{ // begin english short
+		{ /// begin english short
 		 N_("Sun"), N_("Mon"), N_("Tue"), N_("Wed"), N_("Thu"),
 		 N_("Fri"), N_("Sat")}
 		},
-		{ // begin hebrew
-		{ // begin hebrew long
+		{ /// begin hebrew
+		{ /// begin hebrew long
 		"ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"},
-		{ // begin hebrew short
+		{ /// begin hebrew short
 		"א", "ב", "ג", "ד", "ה", "ו", "ש"}
 		}
 		};
 
 	static char *parashaot[2][2][62] = {
-		{ // begin english
-		{ // begin english long
+		{ /// begin english
+		{ /// begin english long
 		 N_("none"),		N_("Bereshit"),		N_("Noach"),
 		 N_("Lech-Lecha"),	N_("Vayera"),		N_("Chayei Sara"),
 		 N_("Toldot"),		N_("Vayetzei"),		N_("Vayishlach"),
@@ -284,7 +285,7 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 		 N_("Vayakhel-Pekudei"),N_("Tazria-Metzora"),	N_("Achrei Mot-Kedoshim"),
 		 N_("Behar-Bechukotai"),N_("Chukat-Balak"),	N_("Matot-Masei"),
 		 N_("Nitzavim-Vayeilech")},
-		{ // begin english short
+		{ /// begin english short
 		 N_("none"),		N_("Bereshit"),		N_("Noach"),
 		 N_("Lech-Lecha"),	N_("Vayera"),		N_("Chayei Sara"),
 		 N_("Toldot"),		N_("Vayetzei"),		N_("Vayishlach"),
@@ -308,8 +309,8 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 		 N_("Behar-Bechukotai"),N_("Chukat-Balak"),	N_("Matot-Masei"),
 		 N_("Nitzavim-Vayeilech")}
 		},
-		{ // begin hebrew
-		{ // begin hebrew long
+		{ /// begin hebrew
+		{ /// begin hebrew long
 		 "none",		"בראשית",		"נח",
 		 "לך לך",		"וירא",			"חיי שרה",
 		 "תולדות",		"ויצא",			"וישלח",
@@ -330,9 +331,9 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 		 "נצבים",		"וילך",			"האזינו",
 		 "וזאת הברכה",	/* 54 */
 		 "ויקהל-פקודי",	"תזריע-מצורע",	"אחרי מות-קדושים",
-		 "בהר-בחוקתי",	"חוקת-בלק",		"מטות מסעי",
+		 "בהר-בחוקתי",	"חוקת-בלק",		"מטות-מסעי",
 		 "נצבים-וילך"},
-		{ // begin hebrew short
+		{ /// begin hebrew short
 		 "none",		"בראשית",		"נח",
 		 "לך לך",		"וירא",			"חיי שרה",
 		 "תולדות",		"ויצא",			"וישלח",
@@ -353,29 +354,29 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 		 "נצבים",		"וילך",			"האזינו",
 		 "וזאת הברכה",	/* 54 */
 		 "ויקהל-פקודי",	"תזריע-מצורע",	"אחרי מות-קדושים",
-		 "בהר-בחוקתי",	"חוקת-בלק",		"מטות מסעי",
+		 "בהר-בחוקתי",	"חוקת-בלק",		"מטות-מסעי",
 		 "נצבים-וילך"}
 		}
 		};
 
 	static char *hebrew_months[2][2][14] = {
-		{ // begin english
-		{ // begin english long
+		{ /// begin english
+		{ /// begin english long
 		 N_("Tishrei"), N_("Cheshvan"), N_("Kislev"), N_("Tevet"),
 		 N_("Sh'vat"), N_("Adar"), N_("Nisan"), N_("Iyyar"),
 		 N_("Sivan"), N_("Tammuz"), N_("Av"), N_("Elul"), N_("Adar I"),
 		 N_("Adar II")},
-		{ // begin english short
+		{ /// begin english short
 		 N_("Tishrei"), N_("Cheshvan"), N_("Kislev"), N_("Tevet"),
 		 N_("Sh'vat"), N_("Adar"), N_("Nisan"), N_("Iyyar"),
 		 N_("Sivan"), N_("Tammuz"), N_("Av"), N_("Elul"), N_("Adar I"),
 		 N_("Adar II")}
 		},
-		{ // begin hebrew
-		{ // begin hebrew long
+		{ /// begin hebrew
+		{ /// begin hebrew long
 		 "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר", "ניסן", "אייר",
 		  "סיון", "תמוז", "אב", "אלול", "אדר א", "אדר ב" },
-		{ // begin hebrew short
+		{ /// begin hebrew short
 		 "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר", "ניסן", "אייר",
 		  "סיון", "תמוז", "אב", "אלול", "אדר א", "אדר ב" }}
 		};
@@ -390,29 +391,32 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 		 N_("Nov"), N_("Dec")},
 	};
 
-	static char *holidays[2][2][38] = {
-		{ // begin english
-		{ // begin english long
-/*  0 */ N_("Rosh Hashana (first day)"),	N_("Rosh Hashana (second day)"),
+	static char *holidays[2][2][40] = {
+		{ /// begin english
+		{ /// begin english long
+/*  0 */ N_("regular weekday, no holiday"),
+/*  1 */ N_("Rosh Hashana (first day)"),	N_("Rosh Hashana (second day)"),
 		 N_("Tzom Gedaliah"),				N_("Yom Kippur"),
-/*  4 */ N_("Sukkot"),						N_("Hol hamoed Sukkot"),
+/*  5 */ N_("Sukkot"),						N_("Hol hamoed Sukkot"),
 		 N_("Hoshana raba"),				N_("Simchat Torah"),
-/*  8 */ N_("Chanukah"),					N_("Asara B'Tevet"),
+/*  9 */ N_("Chanukah"),					N_("Asara B'Tevet"),
 		 N_("Tu B'Shvat"),					N_("Ta'anit Esther"),
-/* 12 */ N_("Purim"),						N_("Shushan Purim"),
+/* 13 */ N_("Purim"),						N_("Shushan Purim"),
 		 N_("Pesach"),						N_("Hol hamoed Pesach"),
-/* 16 */ N_("Yom HaAtzma'ut"),				N_("Lag B'Omer"),
+/* 17 */ N_("Yom HaAtzma'ut"),				N_("Lag B'Omer"),
 		 N_("Erev Shavuot"),				N_("Shavuot"),
-/* 20 */ N_("Tzom Tammuz"),					N_("Tish'a B'Av"),
+/* 21 */ N_("Tzom Tammuz"),					N_("Tish'a B'Av"),
 		 N_("Tu B'Av"),						N_("Yom HaShoah"),
-/* 24 */ N_("Yom HaZikaron"),				N_("Yom Yerushalayim"),
+/* 25 */ N_("Yom HaZikaron"),				N_("Yom Yerushalayim"),
 		 N_("Shmini Atzeret"),				N_("Shevi'i shel Pesach"),
-/* 28 */ N_("Acharon shel Pesach"),			N_("Shavuot (second day)"),
+/* 29 */ N_("Acharon shel Pesach"),			N_("Shavuot (second day)"),
 		 N_("Sukkot (second day)"),			N_("Pesach (second day)"),
-/* 32 */ N_("Family Day"),					N_("Memorial day for fallen whose place of burial is unknown"), 
+/* 33 */ N_("Family Day"),					N_("Memorial day for fallen whose place of burial is unknown"), 
 		 N_("Yitzhak Rabin memorial day"),	N_("Zeev Zhabotinsky day"),
-/* 36 */ N_("Erev Yom Kippur"),				N_("Erev Pesach")},
-		{ // begin english short
+/* 37 */ N_("Erev Yom Kippur"),				N_("Erev Pesach"),
+/* 39 */ N_("Erev_Sukkot")},
+		{ /// begin english short
+/*  0 */ N_("regular day"),
 		 N_("Rosh Hashana (day 1)"),	N_("Rosh Hashana (day 2)"),
 		 N_("Tzom Gedaliah"),			N_("Yom Kippur"),
 		 N_("Sukkot"),					N_("Hol hamoed Sukkot"),
@@ -431,30 +435,12 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 		 N_("Sukkot (day 2)"),			N_("Pesach (day 2)"),	 
 		 N_("Family Day"),				N_("Memorial day for fallen whose place of burial is unknown"), 
 		 N_("Rabin memorial day"),		N_("Zhabotinsky day"),
-		 N_("Erev Yom Kippur"),			N_("Erev Pesach")}
+		 N_("Erev Yom Kippur"),			N_("Erev Pesach"),
+		 N_("Erev_Sukkot")}
 		},
-		{ // begin hebrew
-		{ // begin hebrew long
-		 "א ר\"ה",		 "ב' ר\"ה",
-		 "צום גדליה",		 "יוה\"כ",
-		 "סוכות",		 "חוה\"מ סוכות",
-		 "הוש\"ר",		 "שמח\"ת",
-		 "חנוכה",		 "י' בטבת",	/* 10 */
-		 "ט\"ו בשבט",		 "תענית אסתר",
-		 "פורים",		 "שושן פורים",
-		 "פסח",			 "חוה\"מ פסח",
-		 "יום העצמאות",		 "ל\"ג בעומר",
-		 "ערב שבועות",		 "שבועות",	/* 20 */
-		 "צום תמוז",		 "ט' באב",
-		 "ט\"ו באב",		 "יום השואה",
-		 "יום הזכרון",		 "יום י-ם",
-		 "שמיני עצרת",		 "ז' פסח",
-		 "אחרון של פסח",	 "ב' שבועות",   /* 30 */
-		 "ב' סוכות",		 "ב' פסח",	 
-		 "יום המשפחה",		 "יום זכרון...", 
-		 "יום הזכרון ליצחק רבין","יום ז\'בוטינסקי",
-		 "עיוה\"כ",			"ע\"פ"},
-		{ // begin hebrew short
+		{ /// begin hebrew
+		{ /// begin hebrew long
+		 "יום חול",
 		 "א' ראש השנה",		"ב' ראש השנה",
 		 "צום גדליה",		"יום הכפורים",
 		 "סוכות",		"חול המועד סוכות",
@@ -473,53 +459,147 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 		 "שני של סוכות",	"שני של פסח",
 		 "יום המשפחה",		"יום זכרון...", 
 		 "יום הזכרון ליצחק רבין","יום ז\'בוטינסקי",
-		 "עיוה\"כ",			"ערב פסח"}	}
+		 "עיוה\"כ",			"ערב פסח",
+		 "ערב סוכות"},
+		{ /// begin hebrew short
+		 "חול",
+		 "א ר\"ה",		 "ב' ר\"ה",
+		 "צום גדליה",		 "יוה\"כ",
+		 "סוכות",		 "חוה\"מ סוכות",
+		 "הוש\"ר",		 "שמח\"ת",
+		 "חנוכה",		 "י' בטבת",	/* 10 */
+		 "ט\"ו בשבט",		 "תענית אסתר",
+		 "פורים",		 "שושן פורים",
+		 "פסח",			 "חוה\"מ פסח",
+		 "יום העצמאות",		 "ל\"ג בעומר",
+		 "ערב שבועות",		 "שבועות",	/* 20 */
+		 "צום תמוז",		 "ט' באב",
+		 "ט\"ו באב",		 "יום השואה",
+		 "יום הזכרון",		 "יום י-ם",
+		 "שמיני עצרת",		 "ז' פסח",
+		 "אחרון של פסח",	 "ב' שבועות",   /* 30 */
+		 "ב' סוכות",		 "ב' פסח",	 
+		 "יום המשפחה",		 "יום זכרון...", 
+		 "יום הזכרון ליצחק רבין","יום ז\'בוטינסקי",
+		 "עיוה\"כ",			"ע\"פ",
+		 "ערב סוכות"}	}
 		};
+
+	/// This next is for counting days, weeks, or months
+	static char *count_days[23] = {
+		"שני", "אחד", "שניים", "שלשה", "ארבעה",	"חמשה",
+		"ששה", "שבעה", "שמונה",	"תשעה",	"עשרה", "עשר",
+		"עשרים", "שלשים", "ארבעים",
+		};
+
+	static char *vav = "ו";
 
 #ifdef ENABLE_NLS
 	bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
 	bind_textdomain_codeset (PACKAGE, "UTF-8");
 #endif
 
-	// validate parameters
+	/// validate parameters
 	if (input_short_form != 0) short_form = 1;
 	if (input_hebrew_form != 0) hebrew_form = 1;
 
 	switch (type_of_string)
 	{
 	case HDATE_STRING_DOW: if (index >= 1 && index <= 7)
+		{
+	/** Use our local data structure and very limited set of gettext po
+	 ** translations only if the host OS does not have, or fails to set,
+	 ** the locale for time and date data. The exception for Hebrew is
+	 ** because a) it's expected to be used by users in all locales; and
+	 ** b) it's much 'cheap'er than setting and resetting the locale **/
+		if ((setlocale(LC_TIME,"") == NULL) || hebrew_form )
 				return _(days[hebrew_form][short_form][index - 1]);
-				break;
+	/** The bore of this code 'improvement' to enable full internationalization
+	 ** is that it seems nl_langinfo requires glibc/gcc constant literals
+	 ** so I have to ... **/				// FIXME - find a simpler way
+		switch (index * (short_form+1))
+			{
+			case  1: return nl_langinfo(DAY_1);		/// Sunday
+			case  2: return nl_langinfo(DAY_2);
+			case  3: return nl_langinfo(DAY_3);
+			case  4: return nl_langinfo(DAY_4);
+			case  5: return nl_langinfo(DAY_5);
+			case  6: return nl_langinfo(DAY_6);
+			case  7: return nl_langinfo(DAY_7);
+			case  8: return nl_langinfo(ABDAY_1);	/// Sun
+			case  9: return nl_langinfo(ABDAY_2);
+			case 10: return nl_langinfo(ABDAY_3);
+			case 11: return nl_langinfo(ABDAY_4);
+			case 12: return nl_langinfo(ABDAY_5);
+			case 13: return nl_langinfo(ABDAY_6);
+			case 14: return nl_langinfo(ABDAY_7);
+			}
+		}
+		break;
 	case HDATE_STRING_PARASHA: if (index >= 1 && index <= 61)
 				return _(parashaot[hebrew_form][short_form][index]);
 				break;
-	case HDATE_STRING_HMONTH:
-				if (index >= 1 && index <= 14)
+	case HDATE_STRING_HMONTH: if (index >= 1 && index <= 14)
 				return _(hebrew_months[hebrew_form][short_form][index - 1]);
 				break;
-	case HDATE_STRING_GMONTH:
-				if (index >= 1 && index <= 12)
+	case HDATE_STRING_GMONTH: if (index >= 1 && index <= 12)
+	/** Use our local data structure and very limited set of gettext po
+	 ** translations only if the host OS does not have, or fails to set,
+	 ** the locale for time and date data. **/
+		if (setlocale(LC_TIME,"") == NULL)
 				return _(gregorian_months[short_form][index - 1]);
-				break;
-	case HDATE_STRING_HOLIDAY: if (index >= 1 && index <= 38)
-				return _(holidays[hebrew_form][short_form][index - 1]);
+	/** The bore of this code 'improvement' to enable full internationalization
+	 ** is that it seems nl_langinfo requires glibc/gcc constant literals
+	 ** so I have to ... **/				// FIXME - find a simpler way
+		switch (index * (short_form+1))
+			{
+			case  1: return nl_langinfo(MON_1);		/// January
+			case  2: return nl_langinfo(MON_2);
+			case  3: return nl_langinfo(MON_3);
+			case  4: return nl_langinfo(MON_4);
+			case  5: return nl_langinfo(MON_5);
+			case  6: return nl_langinfo(MON_6);
+			case  7: return nl_langinfo(MON_7);
+			case  8: return nl_langinfo(MON_8);
+			case  9: return nl_langinfo(MON_9);
+			case 10: return nl_langinfo(MON_10);
+			case 11: return nl_langinfo(MON_11);
+			case 12: return nl_langinfo(MON_12);
+			case 13: return nl_langinfo(ABMON_1);	/// Jan
+			case 14: return nl_langinfo(ABMON_2);
+			case 15: return nl_langinfo(ABMON_3);
+			case 16: return nl_langinfo(ABMON_4);
+			case 17: return nl_langinfo(ABMON_5);
+			case 18: return nl_langinfo(ABMON_6);
+			case 19: return nl_langinfo(ABMON_7);
+			case 20: return nl_langinfo(ABMON_8);
+			case 21: return nl_langinfo(ABMON_9);
+			case 22: return nl_langinfo(ABMON_10);
+			case 23: return nl_langinfo(ABMON_11);
+			case 24: return nl_langinfo(ABMON_12);
+			}
+		break;
+	case HDATE_STRING_HOLIDAY: if (index >= 0 && index <= 39)
+				return _(holidays[hebrew_form][short_form][index]);
 				break;
 	case HDATE_STRING_OMER:
 				if (index > 0 && index < 50)
 				{
-					h_int_string = hdate_string(HDATE_STRING_INT, index, HDATE_STRING_LONG, hebrew_form);
-					if (h_int_string == NULL) return NULL;
-					
-					return_string_len = asprintf(
-//	This code is messy because a few lines up there is HDATE_STRING_LONG, but we are doing the short form
-//	so, no string "in the omer" here.
-//	The long version should be the complete nusach, in the form
-//	Today is n days [which is w weeks and d days in the omer						
-//							&return_string, "%s %s", h_int_string, _("in the Omer"));
-							&return_string, "%s", h_int_string);
-
-					free(h_int_string);
-
+					if (index < 11)
+					{
+						if (index == 2)  return_string_len = asprintf(&return_string, "%s ", count_days[0]);
+						else return_string_len = asprintf(&return_string, "%s ", count_days[index]);
+					}
+					else
+					{
+						if ((index%10) == 0)
+							return_string_len = asprintf(&return_string, "%s ", count_days[(index/10)+10]);
+						else if (index < 20)
+							return_string_len = asprintf(&return_string, "%s %s ",
+													count_days[(index%10)], count_days[10]);
+						else return_string_len = asprintf(&return_string, "%s %s%s ",
+														count_days[(index%10)], vav, count_days[(index/10)+10]);
+					}
 					if (return_string_len != -1) return return_string;
 				}
 				return NULL;
@@ -586,7 +666,7 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 				}
 				return NULL;
 				break;
-	} // end of switch(type_of_string)
+	} /// end of switch(type_of_string)
 
 	return NULL;
 }

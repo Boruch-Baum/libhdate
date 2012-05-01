@@ -1,9 +1,88 @@
+hdate_holyday.c
+- BUGFIX holiday types for erev yom tov
+
+hdate_sun_time.c
+- improve const correctness
+- new function hdate_get_utc_sun_time_deg_seconds
+  to improve precision from minutes to seconds
+- function hdate_get_utc_sun_time_deg converted
+  to be a wrapper for hdate_get_utc_sun_time_deg_seconds
+  and 
+
+hdate.h
+- improve const correctness
+
+hdate_strings.
+- Improve internationalization by using nl_langinfo()
+  for gregorian day_of_week and month strings
+- add erev sukkot
+- BUGFIX short and long versions of holiday strings
+  had been reversed
+- BUGFIX parsha matot-ma'asei string
+- add string for regular_day (ie. no holiday)
+- adjust holiday indexing to correspond with cases
+  in hdate_get_holydaay_type
+
+hdate
+- FUNCTIONALITY CHANGE to option --omer:
+  -o   prints just the numeric data
+  -oo  prints a short text message
+  -ooo prints a long message, including weeks and
+      remainder days
+  --laomer forces -ooo in Hebrew with lamed
+  --baomer forces -ooo in Hebrew with bet
+- improve accuracy of sun_hour and its derived
+  calculations
+- FUNCTIONALITY CHANGE sun_hour displays as hh:mm:ss
+- FUNCTIONALITY CHANGE short option -s changed from
+  --sun (rise and set) to --shabbat / --shabbat-times
+- FUNCTIONALITY CHANGE short option -c deprecate. It
+  had been "candles", a reference to Shabbat start
+  and end times, now provided by short option -s
+- add long options --times-of-day and --day-times
+  synonomous to the existing short option -t
+- new feature: location-awareness sets diaspora option
+  (for differences in holidays and weekly readings)
+  true or false, but only if not explicitly set by
+  user or config file.
+- new option --israel, to explicitly suppress a
+  --diaspora setting made in the config file or set
+  by location-awareness.
+- BUGFIX apply bidi to month header label when 
+  printing batch data for an entire month
+
+hcal
+- BUGFIX bidi column alignment for parshiot, holidays
+  and footnotes
+- BUGFIX footnotes appear when using -g option and
+  gregorian date
+
+hdate.1
+- update documentation
+
+hcal.1
+- update documentation
+
+timezone_functions.c
+- parse tzfile in formats TZif1 and TZif2
+- get coordinates from zone.tab file
+- get system timezone from /etc/timezone
+
+local_functions.c
+- revstr() support to enable bidi column alignment
+  for parshiot, holidays and footnotes
+- improve location awareness by trying to get
+  system timezone name from /etc/timezone and
+  that timezones coordinate date from
+  /usr/share/zoneinfo/zone.tab
+
+----------------------------------------------------------------------------
+
 hcal
 - BUGFIX hebrew days_of_week header when forcing Hebrew
 
 hdate
 - add Erev Pesach times (end eat/own chometz) (GR"A, M"A)
-  but not yet in tabular mode
 - BUGFIX Omer complies with option --quiet-alerts
 - BUGFIX parasha (opt -r) complies with option --quiet-alerts
 - BUGFIX parasha (opt -r) not to force Hebrew
@@ -12,6 +91,10 @@ hdate
 - Omer long form includes weeks and days
 - Omer short form is just number
 - BUGFIX omer number to print in same locale as text
+- BUGFIX --magen-avraham in tabular output
+- BUGFIX tabular headers for levels of quiet
+- option --tabular, synonym for option --table
+- undocumented afikomen option
 
 hdate.1
 - update documentation
@@ -23,20 +106,6 @@ hdate_strings.c
 
 hdate_holyday.c
 - add holiday erev pesach
-
-timezone_functions.c
-- new file added, not yet integrated
-
-----------------------------------------------------------------------------
-
-hdate
-- BUGFIX --magen-avraham in tabular output
-- BUGFIX tabular headers for levels of quiet
-- option --tabular, synonym for option --table
-- undocumented afikomen option
-
-hdate.1
-- update documentation
 
 ----------------------------------------------------------------------------
 

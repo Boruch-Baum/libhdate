@@ -4,7 +4,7 @@
  * hdate.c Hebrew date/times information(part of package libhdate)
  *
  * compile:
- * gcc `pkg-config --libs --cflags libhdate` ocal_functions.c -o local_functions
+ * gcc `pkg-config --libs --cflags libhdate` local_functions.c -o local_functions
  *
  * Copyright:  2011-2012 (c) Boruch Baum
  *
@@ -39,6 +39,8 @@
 #include <getopt.h>		// For optarg, optind
 #include <stdio.h>		// For printf, fopen, fclose, fprintf, snprintf. FILE
 
+#include "./timezone_functions.c"
+
 
 // support for fnmatch
 #define FNM_EXTMATCH	(1 << 5)
@@ -50,6 +52,8 @@
 
 #define EXIT_CODE_BAD_PARMS	1
 
+#define USING_SYSTEM_TZ    -1
+#define NOT_USING_SYSTEM_TZ 0
 
 
 // copied from support.h in src dir
@@ -235,8 +239,22 @@ void print_alert_default_location( int tz )
 /************************************************************
 * set default location
 ************************************************************/
-void set_default_location( int tz, double *lat, double *lon )
+void set_default_location( const int tz, double *lat, double *lon, const int using_system_tz )
 {
+
+	if (using_system_tz)
+	{
+		char *sys_tz_string_ptr;
+		/// attempt to read name of system time zone
+		sys_tz_string_ptr = read_sys_tz_string_from_file();
+		if (sys_tz_string_ptr != NULL)
+		{
+			/// attempt to get coorinates from zone.tab file
+			if (get_lat_lon_from_tz_file( sys_tz_string_ptr, lat, lon ) ) return;
+		}
+	}
+
+
 	/*	Temporarily, set some default lat/lon coordinates
 		for certain timezones */
 
@@ -315,10 +333,13 @@ int check_for_sunset (hdate_struct * h, double lat, double lon, int timezone )
  *    source is a pointer to a writeable buffer.
  *    source_len is the length of a string in source. This 
  *    length must be LESS than the size of the source buffer
+ *  returns:
+ *    the number of printable characters in the string.
 ***********************************************************/
-void revstr( char *source, const size_t source_len)
+int revstr( char *source, const size_t source_len)
 {
 	#define H_CHAR_WIDTH 2
+	int retval = 0;
 
 #define DEBUG 0
 #if DEBUG
@@ -336,6 +357,7 @@ printf("\nrevstr: entry: sourcelen = %d, source = %s\n",source_len, source);
 
 	for (i=(source_len-1), j=0; j < source_len; i--, j++)
 	{
+		retval++;
 		if (isprint(source[i])) temp_buff[j] = source[i];
 		else
 		{
@@ -350,7 +372,7 @@ printf("\nrevstr: entry: sourcelen = %d, source = %s\n",source_len, source);
 printf("\nrevstr: before free(tempbuff): sourcelen = %d, source = %s\n",source_len, source);
 #endif
 	free(temp_buff);
-	return;
+	return retval;
 }
 
 
@@ -543,18 +565,18 @@ int parse_timezone( char *input_string, int *tz)
 
 /************************************************************
 * validate location parameters - lat, lon, tz
+*  originally, this was only for hdate, now also for hcal
+*  originally, we did this only if we needed the information
+*  now, because of sunset-awareness, we always perform these checks
+*  if ( (opt.sun) || (opt.times) || (opt.candles) || (opt.havdalah) )
 ************************************************************/
-// originally, this was only for hdate, now also for hcal
-// originally, we did this only if we needed the information
-// now, because of sunset-awareness, we always perform these checks
-// if ( (opt.sun) || (opt.times) || (opt.candles) || (opt.havdalah) )
 void validate_location( const int opt_latitude, const int opt_Longitude,
 						double *lat, double *lon,
 						int *tz, const int quiet_alerts, int error_detected,
 						void (*print_usage)(), void (*print_try_help)() )
 {
 
-	/* latitude and longitude must be paired */
+	/// latitude and longitude must be paired
 	if ( (opt_latitude) && (!opt_Longitude) )
 	{
 		error(0,0,"%s: %s", N_("error"), N_("valid longitude parameter missing for given latitude"));
@@ -569,34 +591,36 @@ void validate_location( const int opt_latitude, const int opt_Longitude,
 
 	if (!error_detected)
 	{
-		// if no timezone entered, choose guess method
+		/// if no timezone entered, choose guess method
 		if (*tz==BAD_TIMEZONE)
 		{
-			// system timezone is in seconds, but we deal in minutes
+			/// system timezone is in seconds, but we deal in minutes
 			tzset();
 			*tz = timezone /-60;
 
 			if ( (opt_latitude) && (opt_Longitude) && ( ((*lon/15)-(*tz/60)) > DELTA_LONGITUDE ) )
 			{
-				/*  reject system local timezone, because it's
-					too far from the longitude explicitly provided
-					by the user; guess based on longitude entered */
+				/**  reject system local timezone, because it's
+				 *   too far from the longitude explicitly provided
+				 *   by the user; guess based on longitude entered */
 				*tz = (*lon /15) * 60;
 			}
 			if (!quiet_alerts) print_alert_timezone( *tz );
 			if ( (*lat==BAD_COORDINATE) && (*lon==BAD_COORDINATE) )
 			{
 				if (!quiet_alerts) print_alert_default_location( *tz );
-				set_default_location( *tz, lat, lon );
+				set_default_location( *tz, lat, lon, USING_SYSTEM_TZ );
 			}
-			printf("\n");
+			if (!quiet_alerts) printf("\n");
 		}
 		else
-		{	/* we have timezone, what about latitude and longitude? */
+		{	/**	we have timezone explicitly declared, either by the
+			 ** user or in the config file. Now, what about latitude
+			 ** and longitude? */
 			if ( (opt_Longitude) && (opt_latitude) )
 			{
-				// sanity-check longitude versus timezone
-				// timezone is in minutes
+				/// sanity-check longitude versus timezone
+				/// timezone is in minutes
 				if ( abs( ( (*tz/60) * 15 ) - *lon ) > DELTA_LONGITUDE )
 				{
 					error(0,0,"%s %d:%d %s %.3f %s",
@@ -608,8 +632,8 @@ void validate_location( const int opt_latitude, const int opt_Longitude,
 			else
 			{
 				if (!quiet_alerts) print_alert_default_location( *tz );
-				set_default_location( *tz, lat, lon );
-				printf("\n");
+				set_default_location( *tz, lat, lon, NOT_USING_SYSTEM_TZ );
+				if (!quiet_alerts) printf("\n");
 			}
 		}
 	}

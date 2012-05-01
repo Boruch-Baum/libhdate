@@ -97,14 +97,14 @@ static char holiday_flag[] = { '/', '+', '*', '~', '!', '@', '#', '$', '%', '^' 
 /*  Holiday types: (reference hdate_holyday.c)
 	/ - 0 - Regular day
 	+ - 1 - Yom tov (plus yom kippor)
-	* - 2 - Erev yom kippur
+	^ - 2 - Erev yom kippur, Erev Pesach, Erev Shavuot
 	~ - 3 - Hol hamoed
 	! - 4 - Hanuka and purim
 	@ - 5 - Tzomot
 	# - 6 - Independance day and Yom yerushalaim
 	$ - 7 - Lag baomer ,Tu beav, Tu beshvat
 	% - 8 - Tzahal and Holocaust memorial days
-	^ - 9 - National days
+	* - 9 - National days (default)
 */
 
 
@@ -137,6 +137,16 @@ typedef struct {
 			int menu;
 			char* menu_item[MAX_MENU_ITEMS];
 				} option_list;
+
+
+/// for option --borders
+char* default_borders_spacing = " | ";
+char* default_borders_separator = "=";
+
+
+/// for option --three-month
+char* default_spacing = "  ";
+
 
 typedef struct {
 			int g_month_1;
@@ -1258,23 +1268,25 @@ void print_day ( const hdate_struct h, const int month, const option_list opt)
 *************************************************/
 void print_week( int jd, const int month, const option_list opt)
 {
-#define long_parasha_name 0
+	#define long_parasha_name 0
 
 	hdate_struct h;
 
 	int calendar_column;
 
-	// for opt.shabbat
+	/// for opt.shabbat
 	int sun_hour, first_light, talit, sunrise;
 	int midday, sunset, first_stars, three_stars;
 	int this_week;
 	hdate_struct yom_shishi;
 
-	// for opt.parasha
+	/// for opt.parasha
 	int shabbat_name;
 	char *shabbat_name_str, *shabbat_name_buffer;
 	size_t shabbat_name_str_len;
 
+	/// for bidi column alignment
+	int print_len;
 
 	/**************************************************
 	*  for each column of calendar
@@ -1334,7 +1346,7 @@ void print_week( int jd, const int month, const option_list opt)
 		*************************************************/
 		if (opt.shabbat)
 		{
-			// candlelighting times
+			/// candlelighting times
 			hdate_get_utc_sun_time (yom_shishi.gd_day, yom_shishi.gd_mon, yom_shishi.gd_year,
 									opt.lat, opt.lon, &sunrise, &sunset);
 
@@ -1353,7 +1365,7 @@ void print_week( int jd, const int month, const option_list opt)
 
 			printf(" - ");
 
-			// motzay shabat time
+			/// motzay shabat time
 			hdate_get_utc_sun_time_full (h.gd_day, h.gd_mon, h.gd_year, opt.lat,
 										 opt.lon, &sun_hour, &first_light, &talit,
 										 &sunrise, &midday, &sunset,
@@ -1383,14 +1395,6 @@ void print_week( int jd, const int month, const option_list opt)
 			/*************************************************
 			*  print shabbat name - force-hebrew setup
 			*************************************************/
-			// BUG - this isn't thread-safe
-			/*if (opt.force_hebrew)
-			{
-				language=getenv("LANGUAGE");
-				setenv("LANGUAGE", "he_IL.UTF-8", 1);
-			}*/
-
-
 			shabbat_name = hdate_get_parasha (&h, opt.diaspora);
 			if (shabbat_name) shabbat_name_str =
 					hdate_string( HDATE_STRING_PARASHA, shabbat_name,
@@ -1411,22 +1415,22 @@ void print_week( int jd, const int month, const option_list opt)
 					else colorize_element(opt.colorize, ELEMENT_PARASHA);
 				}
 				else if (this_week) printf(CODE_BOLD_VIDEO);
+
 				if (opt.bidi)
 				{
 					shabbat_name_str_len = strlen(shabbat_name_str);
 					shabbat_name_buffer = malloc(shabbat_name_str_len+1);
 					memcpy(shabbat_name_buffer, shabbat_name_str, shabbat_name_str_len);
 					shabbat_name_buffer[shabbat_name_str_len] = '\0';
-					revstr(shabbat_name_buffer, shabbat_name_str_len);
+					print_len = revstr(shabbat_name_buffer, shabbat_name_str_len);
 
-					// padding - FIXME - spaces are single-byte, while
-					// the Hebrew characters are two bytes
-					const int margin_max = 15;
-					printf("%*s%s", (margin_max - shabbat_name_str_len/2)," ", shabbat_name_buffer);
+					#define SHABBAT_MARGIN_MAX 16
+					printf("%*s%s", (SHABBAT_MARGIN_MAX - print_len)," ", shabbat_name_buffer);
 
 					free(shabbat_name_buffer);
 				}
 				else printf("  %s", shabbat_name_str);
+
 				if ( (opt.colorize) || (this_week) ) printf (CODE_RESTORE_VIDEO);
 			}
 		}
@@ -1612,10 +1616,13 @@ int print_month ( const int month, const int year, const option_list opt)
 
 	hdate_struct h;
 
-	// following are for opt.footnote
-	int jd_counter, holiday;
+	/// for opt.footnote
+	int jd_counter, holiday, footnote_month;
 
-	/* check if hebrew year */
+	/// for bidi column alignmnet
+	int print_len;
+
+	/// check if hebrew year
 	if (year > HEB_YR_LOWER_BOUND)
 		hdate_set_hdate (&h, 1, month, year);
 	else hdate_set_gdate (&h, 1, month, year);
@@ -1640,13 +1647,15 @@ int print_month ( const int month, const int year, const option_list opt)
 	if (opt.footnote)
 	{
 		jd_counter = h.hd_jd;
-		while ( ( (opt.gregorian > 1) && (month == h.gd_mon ) ) ||
-				( (opt.gregorian < 2) && (month == h.hd_mon ) )  )
+		if (opt.gregorian < 2) footnote_month = h.hd_mon;
+		else footnote_month = month;
+		while ( ( (opt.gregorian > 1) && (footnote_month == h.gd_mon ) ) ||
+				( (opt.gregorian < 2) && (footnote_month == h.hd_mon ) )  )
 		{
 			holiday = hdate_get_holyday(&h, opt.diaspora);
 			if (holiday)
 			{
-				print_day ( h, month, opt);
+				print_day ( h, footnote_month, opt);
 				if (opt.colorize)
 				{
 					if (opt.jd_today_h == h.hd_jd) colorize_element(opt.colorize, ELEMENT_TODAY_HOLIDAY_NAME);
@@ -1666,12 +1675,10 @@ int print_month ( const int month, const int year, const option_list opt)
 					holiday_buffer = malloc(holiday_str_len+1);
 					memcpy(holiday_buffer, holiday_str, holiday_str_len);
 					holiday_buffer[holiday_str_len] = '\0';
-					revstr(holiday_buffer, holiday_str_len);
+					print_len = revstr(holiday_buffer, holiday_str_len);
 
-					// padding - FIXME - spaces are single-byte, while
-					// the Hebrew characters are two bytes
-					const int margin_max = 16; // 15 fails because of jabotinsky in july
-					printf("%*s%s\n", (margin_max - holiday_str_len/2)," ", holiday_buffer);
+					#define FOOTNOTE_MARGIN_MAX 20
+					printf("%*s%s\n", (FOOTNOTE_MARGIN_MAX - print_len)," ", holiday_buffer);
 
 					free(holiday_buffer);
 				}
@@ -1974,10 +1981,10 @@ int hcal_parser( const int switch_arg, option_list *opt,
 /* --gregorian */	case 27: break;
 /* --no-gregorian */case 28: break;
 /* --borders      */case 29: opt->three_month = 1;
-							 opt->spacing = &(" | ");
-							 opt->separator = &("=");
+							 opt->spacing = default_borders_spacing;
+							 opt->separator = default_borders_separator;
 							 break;
-		} // end switch for long_options
+		} /// end switch for long_options
 		break;
 
 
@@ -2221,7 +2228,7 @@ int main (int argc, char *argv[])
 			opt.shabbat = 0;
 			opt.footnote = 0;
 		}
-		if (opt.spacing == NULL) opt.spacing = &("  ");
+		if (opt.spacing == NULL) opt.spacing = default_spacing;
 	}
 
 	/************************************************************
