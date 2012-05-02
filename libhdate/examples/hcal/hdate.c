@@ -38,18 +38,18 @@
 #define DATA_WAS_NOT_PRINTED 0
 #define DATA_WAS_PRINTED 1
 
-// for opt.menu[MAX_MENU_ITEMS]
+/// for opt.menu[MAX_MENU_ITEMS]
 #define MAX_MENU_ITEMS 10
 
 
-// quiet levels
-#define QUIET_ALERTS         1 // suppress only alert messages
-#define QUIET_GREGORIAN      2 // suppress also gregorian date
-#define QUIET_DESCRIPTIONS   3 // suppress also time labels
-#define QUIET_HEBREW         4 // suppress also Hebrew date
+/// quiet levels
+#define QUIET_ALERTS         1 /// suppress only alert messages
+#define QUIET_GREGORIAN      2 /// suppress also gregorian date
+#define QUIET_DESCRIPTIONS   3 /// suppress also time labels
+#define QUIET_HEBREW         4 /// suppress also Hebrew date
 
 
-char *debug_var;				// system environment variable
+char *debug_var;				/// system environment variable
 
 static char * sunrise_text = N_("sunrise");
 static char * sunset_text  = N_("sunset");
@@ -247,8 +247,8 @@ VERSION=2.00\n\
 ");
 
 
-
-// Daf Yomi cycle began 02 March 2005 = Julian day 2453432
+// TODO - move daf yomi and limud yomi into libhdate api
+/// Daf Yomi cycle began 02 March 2005 = Julian day 2453432
 #define DAF_YOMI_START 2453432
 #define DAF_YOMI_LEN      2711
 
@@ -302,6 +302,19 @@ static const limud_unit daf_yomi[] = {
 {2635,   4, N_("Middot"), "מדות" },
 {2639,  72, N_("Niddah"), "נדה" },
 {2711,   0,    "",        ""} };
+
+
+static const char* afikomen[9] = {
+	N_("There are no easter eggs in this program. Go away."),
+	N_("There is no Chanukah gelt in this program. Leave me alone."),
+	N_("Nope, no Hamentashen either. Scram kid, your parents are calling you"),
+	N_("Nada. No cheesecake, no apples with honey, no pomegranate seeds. Happy?"),
+	N_("Afikomen? Afikomen! Ehrr... Huh?"),
+	N_("(grumble...) You win... (moo)"),
+	N_("Okay! enough already! MOO! MOO! MoooooH!\n\nSatisfied now?"),
+	N_("Etymology: Pesach\n   Derived from the ancient Egyptian word \"Feh Tzach\" meaning \"purchase a new toothbrush\" --based upon a hieroglyphic steele dating from the 23rd dynasty, depicting a procession of slaves engaging in various forms of oral hygiene."),
+	N_("You have reached Wit's End.")};
+
 
 
 /************************************************************
@@ -2251,21 +2264,24 @@ int main (int argc, char *argv[])
 	// const static int heb_yr_lower_bound = 3000;
 	const static int jul_dy_lower_bound = 348021;
 
-	hdate_struct h;				/* The Hebrew date */
+	/// The Hebrew date structure
+	hdate_struct h;
 	int c;
 
-	int day;					/* The Gregorian date */
-	int month;
-	int year;
+	/// The user-input date (Hebrew or gregorian)
+	#define BAD_DATE_VALUE -1
+	int day   = BAD_DATE_VALUE;
+	int month = BAD_DATE_VALUE;
+	int year  = BAD_DATE_VALUE;
 
-	double lat = BAD_COORDINATE;	/* set to this value for error handling */
-	double lon = BAD_COORDINATE;	/* set to this value for error handling */
-	int tz = BAD_TIMEZONE;			/* -z option Time Zone, default to system local time */
+	double lat = BAD_COORDINATE;	/// set to this value for error handling
+	double lon = BAD_COORDINATE;	/// set to this value for error handling
+	int tz = BAD_TIMEZONE;			/// -z option Time Zone, default to system local time
 
-	int opt_latitude = 0;			/* -l option latitude */
-	int opt_Longitude = 0;			/* -L option longitude */
+	int opt_latitude = 0;			/// -l option latitude
+	int opt_Longitude = 0;			/// -L option longitude
 	
-	int error_detected = FALSE;		/* exit after reporting ALL bad parms */
+	int error_detected = FALSE;		/// exit after reporting ALL bad parms
 
 
 	option_list opt;
@@ -2277,9 +2293,9 @@ int main (int argc, char *argv[])
 	opt.tablular_output = 0;
 	opt.not_sunset_aware = 0;
 	opt.quiet = 0;
-	opt.print_tomorrow = 0;		/*	This isn't a command line option;
-									It here to restrict sunset_aware to
-									single-day outputs */
+	opt.print_tomorrow = 0;		/**	This isn't a command line option;
+									It's here to restrict sunset_aware
+									to single-day outputs */
 	opt.first_light = 0;
 	opt.talit = 0;
 	opt.sunrise = 0;
@@ -2305,36 +2321,31 @@ int main (int argc, char *argv[])
 	opt.julian = 0;				/// -j option Julian day number
 	opt.diaspora = -1;			/// -d option diaspora, if not explicitly set by user or config file
 								/// to 0/1 will be set based on timezone/location awareness guess.
-
 	opt.iCal = 0;				/// -i option iCal
-
 	opt.daf_yomi = 0;
-
 	opt.omer = 0;				/// -o option Sfirat Haomer
 	opt.la_omer = 0;			/// use lame instead of bet
-
 	opt.menu = 0;				/// -m print menus for user-selection
-
 	opt.afikomen = 0;			/// Hebrew 'easter egg' (lehavdil)
-
 	opt.end_eating_chometz_ma = 0;
 	opt.end_eating_chometz_gra = 0;
 	opt.end_owning_chometz_ma = 0;
 	opt.end_owning_chometz_gra = 0;
 
 
+	/// for user-defined menus (to be read from config file)
+	size_t	menu_len = 0;
+	int menu_index;
+	char *menuptr, *optptr;
+	/// initialize user menu items
 	int i;
 	for (i=0; i<MAX_MENU_ITEMS; i++) opt.menu_item[i] = NULL;
 
 
-	// support for getopt short options
+	/// support for getopt short options
 	static char * short_options = "bcdhHjimoqrRsStTvl:L:z:";
 
-	/**********************************************
-	* support for getopt long options
-	* note: other (long) options will be defined
-	* globally at beginning of this file
-	* ********************************************/
+	/// support for getopt long options
 	int long_option_index = 0;
 	static struct option long_options[] = {
 	//          name,  has_arg, flag, val
@@ -2400,36 +2411,22 @@ int main (int argc, char *argv[])
 		};
 
 
-	// for config file user-defined menus
-	size_t	menu_len = 0;
-	int menu_index;
-	char *menuptr, *optptr;
-
-
-	/************************************************************
-	* init locale
-	*
-	* see hcal.c for the full lecture...
-	* 
-	************************************************************/
+	/// init locale - see hcal.c for the full lecture...
+	//  TODO - verify that I'm not needlessly doing this again (and again...)
 	setlocale (LC_ALL, "");
 
 
-	/************************************************************
-	* parse config file
-	************************************************************/
+	/// parse config file
 	FILE *config_file = get_config_file("/hdate", "/hdaterc", hdate_config_file_text);
 	if (config_file != NULL)
 	{
 		read_config_file(config_file, &opt, &lat, &opt_latitude, &lon, &opt_Longitude, &tz);
 		fclose(config_file);
 	}
-	opt.afikomen = 0; // only allow this option on the command line
 
-	/************************************************************
-	* parse command line
-	************************************************************/
-	opterr = 0; // we'll do our own error reporting
+
+	/// parse command line
+	opterr = 0; /// we'll do our own error reporting
  	while ((c = getopt_long(argc, argv,
 							short_options, long_options,
 							&long_option_index)) != -1)
@@ -2441,20 +2438,11 @@ int main (int argc, char *argv[])
 
 	if (opt.afikomen)
 	{
-		switch(opt.afikomen)
-		{
-			case 1: printf("There are no easter eggs in this program. Go away.\n"); break;
-			case 2: printf("There is no Chanukah gelt in this program. Leave me alone.\n"); break;
-			case 3: printf("Nope, no Hamentashen either. Scram kid, your parents are calling you\n"); break;
-			case 4: printf("Nada. No cheesecake, no apples with honey, no pomegranate seeds. Happy?\n"); break;
-			case 5: printf("Afikomen? Afikomen! Ehrr... Huh?\n"); break;
-			case 6: printf("(grumble...) You win... (moo)\n"); break;
-			case 7: printf("Okay! enough already! MOO! MOO! MoooooH!\n\nSatisfied now?\n"); break;
-			case 8: printf("Etymology: Pesach\n   Derived from the ancient Egyptian word \"Feh Tzach\" meaning \"purchase a new toothbrush\" --based upon a hieroglyphic steele dating from the 23rd dynasty, depicting a procession of slaves engaging in various forms of oral hygiene.\n"); break;
-			default:printf("You have reached Wit's End.\n"); break;
-		}
-		return 0;
+		if (opt.afikomen > 9) opt.afikomen = 9;
+		printf("%s\n", afikomen[opt.afikomen-1]);
+		exit(0);
 	}
+
 
 	/**************************************************
 	* BEGIN - enable user-defined menu
@@ -2487,6 +2475,8 @@ int main (int argc, char *argv[])
 			}
 		}
 	}
+	/// only allow this option on the command line
+	opt.afikomen = 0;
 	/**************************************************
 	* END   - enable user-defined menu
 	*************************************************/
@@ -2506,11 +2496,9 @@ int main (int argc, char *argv[])
 						print_usage_hdate, print_try_help_hdate);
 
 
-	/************************************************************
-	* diaspora-awareness  -  this needs to get more sophisticated
-	* in step with increased sophistication in location and time-
-	* zone awareness.
-	************************************************************/
+	/// diaspora-awareness
+	//  TODO - this needs to get more sophisticated in step with
+	//  increased sophistication in location and timezone awareness.
 	if (opt.diaspora == -1)
 	{
 		if (tz == 2) opt.diaspora = 0;
@@ -2557,7 +2545,7 @@ int main (int argc, char *argv[])
 	if (argc == optind)
 	{
 
-		/* set date for today */
+		/// set date for today
 		hdate_set_gdate (&h, 0, 0, 0);
 
 		if (opt.tablular_output)
@@ -2580,10 +2568,10 @@ int main (int argc, char *argv[])
 	************************************************************/
 	else if (argc == (optind + 1))
 	{
-		/* get year */
+		/// get year
 		year = atoi (argv[optind]);
 
-		/* handle error */
+		/// handle error
 		if (year <= 0) { print_parm_error(N_("year")); exit_main(&opt,0); }
 
 
@@ -2654,10 +2642,12 @@ int main (int argc, char *argv[])
 	else if (argc == (optind + 2))
 	{
 
-		year = atoi (argv[optind + 1]);
-		month = atoi (argv[optind]);
+		if (!parse_date( argv[optind], argv[optind+1], "", &year, &month, &day, 2))
+			exit_main(&opt,0);
 
-		/* handle errors */
+
+		/// handle errors
+		// Hmm... suspicious. why so little checking here ...
 		if (year <= 0) { print_parm_error(N_("year")); exit_main(&opt,0); }
 
 
@@ -2666,13 +2656,17 @@ int main (int argc, char *argv[])
 		************************************************************/
 		if (year > heb_yr_lower_bound)
 		{
-			/* begin bounds check for month */
+			/// The parse_date function returns Hebrew month values in
+			/// the range 101 - 114
+			if (month > 100) month = month - 100;
+
+			/// begin bounds check for month
 			if ((month <= 0) || (month > 14))
 				{ print_parm_error(N_("month")); exit_main(&opt,0); }
 			hdate_set_hdate (&h, 1, 1, year);
 			if ((h.hd_size_of_year <365) && (month >12))
 				{ print_parm_error(N_("month")); exit_main(&opt,0); }
-			/* end bounds check for month */
+			/// end bounds check for month
 
 
 			if (opt.tablular_output)
@@ -2750,9 +2744,12 @@ int main (int argc, char *argv[])
 	************************************************************/
 	else if (argc == (optind + 3))
 	{
-		year = atoi (argv[optind + 2]);
-		month = atoi (argv[optind + 1]);
-		day = atoi (argv[optind]);
+		if (!parse_date( argv[optind], argv[optind+1], argv[optind+2], &year, &month, &day, 3))
+			exit_main(&opt,0);
+
+		//year = atoi (argv[optind + 2]);
+		//month = atoi (argv[optind + 1]);
+		//day = atoi (argv[optind]);
 
 		/* handle error */
 		if (year <= 0) { print_parm_error(N_("year")); exit_main(&opt,0); }
@@ -2763,13 +2760,18 @@ int main (int argc, char *argv[])
 		************************************************************/
 		if (year > heb_yr_lower_bound)
 		{
-			/* begin bounds check for month */
+			/// The parse_date function returns Hebrew month values in
+			/// the range 101 - 114
+			if (month > 100) month = month - 100;
+
+			/// begin bounds check for month
 			if ((month <= 0) || (month > 14))
 				{ print_parm_error(N_("month")); exit_main(&opt,0); }
 			hdate_set_hdate (&h, 1, 1, year);
 			if ((h.hd_size_of_year <365) && (month >12))
 				{ print_parm_error(N_("month")); exit_main(&opt,0); }
-			/* end bounds check for month */
+			/// end bounds check for month
+
 
 			if ((day <= 0) || (day > 30) ||
 				((day > 29) && ((month==4) || (month==6) || (month==8) || (month=10) || (month==12) || (month==14))) ||

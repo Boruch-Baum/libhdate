@@ -628,6 +628,7 @@ void validate_location( const int opt_latitude, const int opt_Longitude,
 }
 
 
+
 /************************************************************
 * check validity of date parameters
 * 
@@ -715,6 +716,155 @@ int validate_hdate (int parameter_to_check, int day, int month, int year)
 	}
 	return FALSE;
 }
+
+
+/************************************************************
+* parse_date
+* 
+* be flexible:
+*	Allow yyyy mm OR mm yyyy - check strlen
+*	Allow yyyy MMM OR MMM yyyy even with a 2-digit year
+* 
+* currently returns TRUE always, but if it encounters an
+* obvious error, it reports the error and calls exit()
+************************************************************/
+int parse_date( const char* parm_a, const char* parm_b, const char* parm_c,
+					 int* ret_year, int* ret_month, int* ret_day, const int parm_cnt )
+{
+	int a_span, b_span, c_span, a_len, b_len, c_len;
+	const char* digits = "0123456789";
+
+	switch (parm_cnt)
+	{
+	case 3:	c_span = strspn(parm_c, digits); c_len  = strlen(parm_c);
+	case 2:	b_span = strspn(parm_b, digits); b_len  = strlen(parm_b);
+	case 1: a_span = strspn(parm_a, digits); a_len  = strlen(parm_a); break;
+	default: return FALSE;
+	}
+
+	if (a_len == a_span) /// parm 'a' is numeric
+	{
+		*ret_year = atoi(parm_a);
+		if (parm_cnt == 1) return TRUE;
+		if (*ret_year > 999)  /// parm 'a' is a year
+		// TODO - verify 999 in terms of bounds checking elsewhere !!
+		{
+			if (b_len == b_span)	/// parm 'b' is numeric
+			{
+				*ret_month = atoi(parm_b);
+				if ( (*ret_month > 31 ) ||
+				     ((parm_cnt == 2) && (*ret_month > 14 )) )
+				     { print_parm_error(N_("month")); return FALSE; }
+				if (parm_cnt == 2) return TRUE;
+				if (c_len != c_span)	/// parm 'c' is not numeric
+				{
+					*ret_day = *ret_month;
+					*ret_month = hdate_parse_month_text_string(parm_c);
+				}
+				else
+				{
+					if (*ret_month > 14)
+					{
+						*ret_day = *ret_month;
+						*ret_month = atoi(parm_c);
+					}
+					*ret_day = atoi(parm_c);
+				}
+			}
+			else					/// parm 'b' is not numeric
+			{
+				*ret_month = hdate_parse_month_text_string(parm_b);
+				if ((parm_cnt == 2) || (ret_month == 0)) return *ret_month;
+				if (c_len != c_span) return FALSE; /// parm 'c' is not numeric
+				*ret_day = atoi(parm_c);
+				// relying on later bounds checking for day of month
+			}
+		}
+		else if (b_len == b_span)	/// parm 'a' can't be a year AND parm 'b' is numeric
+		{
+			if (parm_cnt == 2)
+			{
+				/// if parm 'a' can't be a month, then we definitely have an error
+				if (*ret_year > 14 ) { print_parm_error(N_("month")); return FALSE; }
+				*ret_month = *ret_year;
+				*ret_year = atoi(parm_b);
+				// relying on later bounds checking for year
+			}
+			else
+			{
+				/// if parm 'a' can't be a month or day, then we definitely have an error
+				if (*ret_year > 31 ) { print_parm_error(N_("month")); return FALSE; }
+				if (*ret_year > 14 )
+				{
+					// parm 'a' can only be a day
+					*ret_day = *ret_year;
+					*ret_month = atoi(parm_b);
+					// TODO - verify 1000 in terms of bounds checking elsewhere !!
+					if (*ret_month > 999 )
+					{
+						*ret_year = *ret_month;
+						///parm c must be month
+						if (c_len == c_span) *ret_month = atoi(parm_c);
+						else *ret_month = hdate_parse_month_text_string(parm_c);
+					}
+					else if (*ret_month < 15 )
+					{
+						///parm_c must be year
+						if (c_len != c_span)  { print_parm_error(N_("year")); return FALSE; }
+						*ret_year = atoi(parm_c);
+					}
+					else { print_parm_error(N_("month")); return FALSE; }
+				}
+				else /// parm 'a' may be a day or month; parm 'b' is numeric
+				{
+					*ret_day = *ret_year;
+					*ret_month = atoi(parm_b);
+					// TODO - verify 1000 in terms of bounds checking elsewhere !!
+					if (*ret_month > 999 )
+					{
+						*ret_year = *ret_month;
+						if (c_len == c_span) *ret_month = atoi(parm_c);
+						else *ret_month = hdate_parse_month_text_string(parm_c);
+					}
+					else
+					{
+						if ( (*ret_month > 31) ||
+						   ( (*ret_month > 14) && (*ret_day > 14) ) )
+						   { print_parm_error(N_("month")); return FALSE; }
+						/// parm 'c' must be a year
+						if (c_len != c_span) { print_parm_error(N_("year")); return FALSE; }
+						*ret_year = atoi(parm_c);
+					}
+				}
+				
+			}
+		}
+	}
+	else /// parm 'a' is not numeric - might be month, in text
+	{
+		if (parm_cnt == 1)  { print_parm_error(N_("year")); return FALSE; }
+		*ret_month = hdate_parse_month_text_string(parm_a);
+		if (!ret_month) { print_parm_error(N_("month")); return FALSE; }
+		/// parm 'a' successful return from parse_month_text_string
+		if (b_len != b_span)  { print_parm_error(N_("year")); return FALSE; }	/// parm 'b' is not numeric
+		*ret_year = atoi(parm_b);
+		if (parm_cnt == 2)
+		{
+			/// if only 2 parms, parm 'b' must be year
+			// check sanity of 1000 as bounds for year
+			if (*ret_year < 1000 ){ print_parm_error(N_("year")); return FALSE; }
+			return TRUE;
+		}
+		else if (*ret_year > 31 )  { print_parm_error(N_("year")); return FALSE; }	/// parm 'b' is not numeric
+		*ret_day = *ret_year;
+		/// parm 'c' must be year
+		if (c_len != c_span) { print_parm_error(N_("year")); return FALSE; }; /// parm 'c' is not numeric
+		*ret_year = atoi(parm_c);
+	}
+return TRUE;
+}
+
+
 
 /************************************************************
 * Greeting message to new version

@@ -32,6 +32,50 @@
 #include "hdate.h"
 #include "support.h"
 
+
+
+// FIXME - The long and short versions of this next array are
+//         identical. Why two sets? Are we considering that a
+//         localization might have differences between the 
+//         long and short versions?  I doubt it ...
+static char *hebrew_months[2][2][14] = {
+	{ /// begin english
+	{ /// begin english long
+	 N_("Tishrei"), N_("Cheshvan"), N_("Kislev"), N_("Tevet"),
+	 N_("Sh'vat"), N_("Adar"), N_("Nisan"), N_("Iyyar"),
+	 N_("Sivan"), N_("Tammuz"), N_("Av"), N_("Elul"), N_("Adar I"),
+	 N_("Adar II")},
+	{ /// begin english short
+	 N_("Tishrei"), N_("Cheshvan"), N_("Kislev"), N_("Tevet"),
+	 N_("Sh'vat"), N_("Adar"), N_("Nisan"), N_("Iyyar"),
+	 N_("Sivan"), N_("Tammuz"), N_("Av"), N_("Elul"), N_("Adar I"),
+	 N_("Adar II")}
+	},
+	{ /// begin hebrew
+	{ /// begin hebrew long
+	 "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר", "ניסן", "אייר",
+	  "סיון", "תמוז", "אב", "אלול", "אדר א", "אדר ב" },
+	{ /// begin hebrew short
+	 "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר", "ניסן", "אייר",
+	  "סיון", "תמוז", "אב", "אלול", "אדר א", "אדר ב" }}
+	};
+
+// FIXME - The english array should not be necessary because
+//         we can/should rely on the system locale and
+//         nl_langinfo()
+static char *gregorian_months[2][12] = {
+	{N_("January"), N_("February"), N_("March"),
+	 N_("April"), N_("May"), N_("June"),
+	 N_("July"), N_("August"), N_("September"),
+	 N_("October"), N_("November"), N_("December")},
+	{N_("Jan"), N_("Feb"), N_("Mar"), N_("Apr"), N_("May"),
+	 N_("Jun"), N_("Jul"), N_("Aug"), N_("Sep"), N_("Oct"),
+	 N_("Nov"), N_("Dec")},
+};
+
+
+
+
 /**
  @brief helper function to find hebrew locale
  
@@ -184,11 +228,11 @@ hdate_get_version_string ()
 char *
 hdate_get_translator_string ()
 {
-	/* if untranslated return null */
+	/// if untranslated return null
 	if (strcmp (_("translator"), "translator") == 0)
 		return NULL;
 
-	/* return the translator name */
+	/// return the translator name
 	return _("translator");
 }
 
@@ -247,6 +291,9 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 		{" ", "ק", "ר", "ש", "ת"}
 	};
 
+	// FIXME - The english array should not be necessary because
+	//         we can/should rely on the system locale and
+	//         nl_langinfo()
 	static char *days[2][2][7] = {
 		{ /// begin english
 		{ /// begin english long
@@ -363,37 +410,6 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 		}
 		};
 
-	static char *hebrew_months[2][2][14] = {
-		{ /// begin english
-		{ /// begin english long
-		 N_("Tishrei"), N_("Cheshvan"), N_("Kislev"), N_("Tevet"),
-		 N_("Sh'vat"), N_("Adar"), N_("Nisan"), N_("Iyyar"),
-		 N_("Sivan"), N_("Tammuz"), N_("Av"), N_("Elul"), N_("Adar I"),
-		 N_("Adar II")},
-		{ /// begin english short
-		 N_("Tishrei"), N_("Cheshvan"), N_("Kislev"), N_("Tevet"),
-		 N_("Sh'vat"), N_("Adar"), N_("Nisan"), N_("Iyyar"),
-		 N_("Sivan"), N_("Tammuz"), N_("Av"), N_("Elul"), N_("Adar I"),
-		 N_("Adar II")}
-		},
-		{ /// begin hebrew
-		{ /// begin hebrew long
-		 "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר", "ניסן", "אייר",
-		  "סיון", "תמוז", "אב", "אלול", "אדר א", "אדר ב" },
-		{ /// begin hebrew short
-		 "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר", "ניסן", "אייר",
-		  "סיון", "תמוז", "אב", "אלול", "אדר א", "אדר ב" }}
-		};
-
-	static char *gregorian_months[2][12] = {
-		{N_("January"), N_("February"), N_("March"),
-		 N_("April"), N_("May"), N_("June"),
-		 N_("July"), N_("August"), N_("September"),
-		 N_("October"), N_("November"), N_("December")},
-		{N_("Jan"), N_("Feb"), N_("Mar"), N_("Apr"), N_("May"),
-		 N_("Jun"), N_("Jul"), N_("Aug"), N_("Sep"), N_("Oct"),
-		 N_("Nov"), N_("Dec")},
-	};
 
 	static char *holidays[2][2][40] = {
 		{ /// begin english
@@ -689,4 +705,59 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 	} /// end of switch(type_of_string)
 
 	return NULL;
+}
+
+
+
+/************************************************************
+* hdate_parse_month_text_string
+* 
+* compares a string to system locale's month strings and to 
+* Hebrew month strings. It does not rely only on gettext/po,
+* and should work for ALL localizations worldwide for which
+* nl_langinfo() calls work.
+*
+* returns month number 1 - 12 for gregorian
+*                      1 - 14 for Hebrew
+* returns 0 on failure
+************************************************************/
+// Better idea maybe: return 101 - 114 for Hebrew
+int hdate_parse_month_text_string( const char* month_text )
+{
+	setlocale(LC_TIME,"");
+	/** The bore of this code 'improvement' to enable full internationalization
+	 ** is that it seems nl_langinfo requires glibc/gcc constant literals
+	 ** so I have to ... **/			// FIXME - find a simpler way
+
+	const int months[24] = {
+		MON_1, MON_2, MON_3, MON_4, MON_5, MON_6, 
+		MON_7, MON_8, MON_9, MON_10, MON_11, MON_12, 
+		ABMON_1, ABMON_2, ABMON_3, ABMON_4, ABMON_5, ABMON_6, 
+		ABMON_7, ABMON_8, ABMON_9, ABMON_10, ABMON_11, ABMON_12 };
+
+	int i;
+	
+	for (i=0; i<24; i++)
+		if ( strcmp( month_text, nl_langinfo(months[i])) == 0 )
+			return (i%12)+1;
+
+	/// Maybe the user entered a Hebrew month
+	for (i=0; i<14; i++)
+		if (( strcmp( month_text, hebrew_months[0][0][i]) == 0 ) ||
+			( strcmp( month_text, hebrew_months[1][0][i]) == 0 ) )
+			/// This checks the latin and Hebrew character strings
+			/// It ignores the 'short' versions because they are
+			/// in practice identical to the 'long' versions
+			return (i%14)+101;
+
+	// This REALLY should not be necessary ...
+	/** nl_langinfo may return a pointer to a null string if it does
+	 ** not have the requested value. In such a case return the English
+	 ** (or possibly gettext ?) string **/
+	for (i=0; i<14; i++)
+		if (( strcmp( month_text, gregorian_months[0][i]) == 0 ) ||
+			( strcmp( month_text, gregorian_months[1][i]) == 0 ) )
+			return (i%12)+1;
+
+	return 0;
 }

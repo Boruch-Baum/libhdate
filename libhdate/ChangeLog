@@ -1,3 +1,25 @@
+local_functions.c
+- new function parse_date to allow flexible
+  user input of dates, including user choice
+  of sequence for y m or m y, text months in
+  system locale or Hebrew, and NOT YET !!!     maybe two-digit
+  years.
+
+hdate_strings.c
+- new function hdate_parse_month_text_string
+- had to globalize scope of arrays
+  *hebrew_months and *gregorian_months so
+  multiple functions could use them
+
+hdate.h
+- define hdate_parse_month_text_string
+
+hdate.c
+- use parse_date for user input of month/year
+- misc. code cleanups
+
+----------------------------------------------------------------------------
+
 hdate_strings.c
 - BUGFIX display of days of week
 - improved handling of nl_langinfo() calls

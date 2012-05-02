@@ -738,6 +738,18 @@ char* hdate_string( int type_of_string, int index, int short_form, int hebrew_fo
 */
 #define HDATE_STRING_LOCAL   0
 
+/**
+ @brief   compares a string to system locale's month strings and to 
+          Hebrew month strings. It does not rely only on gettext/po,
+          and should work for ALL localizations worldwide for which
+          nl_langinfo() calls work.
+
+ @return  1 - 12 for successful match to a gregorian month
+          101 - 114 for successful match to Hebrew month
+          0 for failure
+ @param month_text  pointer to string to check
+*/
+int hdate_parse_month_text_string( const char* month_text );
 
 
 #ifdef __cplusplus
