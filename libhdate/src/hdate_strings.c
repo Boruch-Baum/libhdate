@@ -33,6 +33,17 @@
 #include "support.h"
 
 
+/** These are the glibc/gcc constant literals required for
+ ** nl_langinfo(), to get internationalization ... **/
+static const int langinfo_months[24] = {
+	MON_1, MON_2, MON_3, MON_4, MON_5, MON_6, 
+	MON_7, MON_8, MON_9, MON_10, MON_11, MON_12, 
+	ABMON_1, ABMON_2, ABMON_3, ABMON_4, ABMON_5, ABMON_6, 
+	ABMON_7, ABMON_8, ABMON_9, ABMON_10, ABMON_11, ABMON_12 };
+static const int langinfo_days[14] = {
+	DAY_1, DAY_2, DAY_3, DAY_4, DAY_5, DAY_6, DAY_7,
+	ABDAY_1, ABDAY_2, ABDAY_3, ABDAY_4, ABDAY_5, ABDAY_6, ABDAY_7 };
+
 
 // FIXME - The long and short versions of this next array are
 //         identical. Why two sets? Are we considering that a
@@ -281,7 +292,6 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 	int return_string_len = -1;
 
 	/// for nl_langinfo calls for DOW an gregrorian months
-	int langinfo_parm;
 	char* langinfo_ptr;
 
 	#define H_CHAR_WIDTH 2
@@ -414,7 +424,7 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 	static char *holidays[2][2][40] = {
 		{ /// begin english
 		{ /// begin english long
-/*  0 */ N_("regular weekday, no holiday"),
+/*  0 */ N_("regular weekday (no holiday)"),
 /*  1 */ N_("Rosh Hashana (first day)"),	N_("Rosh Hashana (second day)"),
 		 N_("Tzom Gedaliah"),				N_("Yom Kippur"),
 /*  5 */ N_("Sukkot"),						N_("Hol hamoed Sukkot"),
@@ -534,31 +544,10 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 	 ** b) it's much 'cheap'er than setting and resetting the locale **/
 		if ((setlocale(LC_TIME,"") == NULL) || hebrew_form )
 				return _(days[hebrew_form][short_form][index - 1]);
-	/** The bore of this code 'improvement' to enable full internationalization
-	 ** is that it seems nl_langinfo requires glibc/gcc constant literals
-	 ** so I have to ... **/				// FIXME - find a simpler way
-		switch (index * (short_form+1))
-	/** In case you're curious, compare the cases of this switch to those
-	 ** of the gregorian months. I'm attributing the difference to the
-	 ** presence of a third dimension in this array *//* and am afraid it
-		may result in a bug if compiled by a different compiler */
-			{
-			case  1: langinfo_parm = DAY_1; break;		/// Sunday
-			case  3: langinfo_parm = DAY_2; break;
-			case  5: langinfo_parm = DAY_3; break;
-			case  7: langinfo_parm = DAY_4; break;
-			case  9: langinfo_parm = DAY_5; break;
-			case 11: langinfo_parm = DAY_6; break;
-			case 13: langinfo_parm = DAY_7; break;
-			case  2: langinfo_parm = ABDAY_1; break;	/// Sun
-			case  4: langinfo_parm = ABDAY_2; break;
-			case  6: langinfo_parm = ABDAY_3; break;
-			case  8: langinfo_parm = ABDAY_4; break;
-			case 10: langinfo_parm = ABDAY_5; break;
-			case 12: langinfo_parm = ABDAY_6; break;
-			case 14: langinfo_parm = ABDAY_7; break;
-			}
-		langinfo_ptr = nl_langinfo(langinfo_parm);
+	/** If setlocale() returns a string, then the system has information
+	 ** that nl_langinfo can use to give us a localized string. **/
+		langinfo_ptr = nl_langinfo(langinfo_days[ ( (short_form*7)) + (index-1) ]);
+		
 	/** nl_langinfo may return a pointer to a null string if it does
 	 ** not have the requeste value. In such a case return the English
 	 ** (or possibly gettext ?) string **/
@@ -578,39 +567,14 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 	 ** the locale for time and date data. **/
 		if (setlocale(LC_TIME,"") == NULL)
 				return _(gregorian_months[short_form][index - 1]);
-	/** The bore of this code 'improvement' to enable full internationalization
-	 ** is that it seems nl_langinfo requires glibc/gcc constant literals
-	 ** so I have to ... **/				// FIXME - find a simpler way
-		switch (index * (short_form+1))
-			{
-			case  1: langinfo_parm = MON_1; break;		/// January
-			case  2: langinfo_parm = MON_2; break;
-			case  3: langinfo_parm = MON_3; break;
-			case  4: langinfo_parm = MON_4; break;
-			case  5: langinfo_parm = MON_5; break;
-			case  6: langinfo_parm = MON_6; break;
-			case  7: langinfo_parm = MON_7; break;
-			case  8: langinfo_parm = MON_8; break;
-			case  9: langinfo_parm = MON_9; break;
-			case 10: langinfo_parm = MON_10; break;
-			case 11: langinfo_parm = MON_11; break;
-			case 12: langinfo_parm = MON_12; break;
-			case 13: langinfo_parm = ABMON_1; break;	/// Jan
-			case 14: langinfo_parm = ABMON_2; break;
-			case 15: langinfo_parm = ABMON_3; break;
-			case 16: langinfo_parm = ABMON_4; break;
-			case 17: langinfo_parm = ABMON_5; break;
-			case 18: langinfo_parm = ABMON_6; break;
-			case 19: langinfo_parm = ABMON_7; break;
-			case 20: langinfo_parm = ABMON_8; break;
-			case 21: langinfo_parm = ABMON_9; break;
-			case 22: langinfo_parm = ABMON_10; break;
-			case 23: langinfo_parm = ABMON_11; break;
-			case 24: langinfo_parm = ABMON_12; break;
-			}
-		langinfo_ptr = nl_langinfo(langinfo_parm);
+	/** This code improvement is to enable full internationalization
+	 ** using nl_langinfo(), which requires glibc/gcc constant literals
+	 ** so I've defined an array 'langinfo_months' with the list, for
+	 ** all month full names an abbreviations **/
+		langinfo_ptr = nl_langinfo(langinfo_months[ ((index-1) * (short_form+1)) ]);
+
 	/** nl_langinfo may return a pointer to a null string if it does
-	 ** not have the requeste value. In such a case return the English
+	 ** not have the requested value. In such a case return the English
 	 ** (or possibly gettext ?) string **/
 		if ( strcmp(langinfo_ptr, "") == 0 ) return _(gregorian_months[short_form][index - 1]);
 		else return langinfo_ptr;
@@ -717,34 +681,30 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 * and should work for ALL localizations worldwide for which
 * nl_langinfo() calls work.
 *
-* returns month number 1 - 12 for gregorian
-*                      1 - 14 for Hebrew
+* returns month number   1 -  12 for gregorian
+*                      101 - 114 for Hebrew
 * returns 0 on failure
 ************************************************************/
 // Better idea maybe: return 101 - 114 for Hebrew
 int hdate_parse_month_text_string( const char* month_text )
 {
+	/** This next call is supposed to guarantee that, if a locale
+	 ** exists, that the time spec for it is set. This is to enable
+	 ** full internationalization using nl_langinfo() **/
 	setlocale(LC_TIME,"");
-	/** The bore of this code 'improvement' to enable full internationalization
-	 ** is that it seems nl_langinfo requires glibc/gcc constant literals
-	 ** so I have to ... **/			// FIXME - find a simpler way
-
-	const int months[24] = {
-		MON_1, MON_2, MON_3, MON_4, MON_5, MON_6, 
-		MON_7, MON_8, MON_9, MON_10, MON_11, MON_12, 
-		ABMON_1, ABMON_2, ABMON_3, ABMON_4, ABMON_5, ABMON_6, 
-		ABMON_7, ABMON_8, ABMON_9, ABMON_10, ABMON_11, ABMON_12 };
 
 	int i;
 	
+	/// Check for a match against the list of month strings for the
+	/// user's locale (both full month names and abbreviations)
 	for (i=0; i<24; i++)
-		if ( strcmp( month_text, nl_langinfo(months[i])) == 0 )
+		if ( strcasecmp( month_text, nl_langinfo(langinfo_months[i])) == 0 )
 			return (i%12)+1;
 
 	/// Maybe the user entered a Hebrew month
 	for (i=0; i<14; i++)
-		if (( strcmp( month_text, hebrew_months[0][0][i]) == 0 ) ||
-			( strcmp( month_text, hebrew_months[1][0][i]) == 0 ) )
+		if (( strcasecmp( month_text, hebrew_months[0][0][i]) == 0 ) ||
+			( strcasecmp( month_text, hebrew_months[1][0][i]) == 0 ) )
 			/// This checks the latin and Hebrew character strings
 			/// It ignores the 'short' versions because they are
 			/// in practice identical to the 'long' versions
@@ -755,8 +715,8 @@ int hdate_parse_month_text_string( const char* month_text )
 	 ** not have the requested value. In such a case return the English
 	 ** (or possibly gettext ?) string **/
 	for (i=0; i<14; i++)
-		if (( strcmp( month_text, gregorian_months[0][i]) == 0 ) ||
-			( strcmp( month_text, gregorian_months[1][i]) == 0 ) )
+		if (( strcasecmp( month_text, gregorian_months[0][i]) == 0 ) ||
+			( strcasecmp( month_text, gregorian_months[1][i]) == 0 ) )
 			return (i%12)+1;
 
 	return 0;

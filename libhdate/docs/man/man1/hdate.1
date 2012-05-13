@@ -1,48 +1,55 @@
+.\"                                      Hey, vim: ft=nroff
 .\" .UC 4
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
 .TH "hdate" "1" "2012-01-01" "Linux" "libhdate"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7). Also refer to groff(7).
 .SH "NAME"
 hdate \- displays Hebrew date information for a given Gregorian/Julian date
 .SH "SYNOPSIS"
 .B hdate
-[options] [coordinates [timezone]] [[[dd] mm] yyyy]
+.RI [ options "] [" coordinates "] [" timezone "] [" datespec ]
 .P
 .B hdate
-[options] [coordinates [timezone]] [ julian_day ]
+.RI [ options "] [" coordinates "] [" timezone "] [" julian_day ]
 .TP
-coordinates: -l [NS]yy[.yyy] -L [EW]xx[.xxx]
+.IR coordinates\: " \fB-l\fP [N|S]" yy [. yyy "] " "    \fB-L\fP" " [E|W]" xx [. xxx ]
+.RE
+.RS 19
+.RI "\fB-l\fP [N|S]" yy [: mm [: ss "]] \fB-L\fP [E|W]" xx [: mm [: ss ]]
 .RE
 .RS 7
-             -l [NS]yy[:mm[:ss]] -L [EW]xx[:mm[:ss]]
+.IR "timezone:   \fB-z\fP nn" "[(."nn |: mm ")]"
 .RE
 .RS 7
-timezone:    -z nn[( .nn | :mm )]
+.IR datespec ":   see section \fBACCEPTABLE DATE FORMATS\fP"
 .PP
 .SH "DESCRIPTION"
-.B hdate
-translates the specified date to the Hebrew calendar and optionally displays further
-information about that Hebrew date, including holidays and astronomical-related times
-(see section LOCATIONS, below). If no arguments are given, it displays information for
-the current date. If a single numeric argument is given, it will be interpreted as a
-year, and 
-.B hdate
-will output the requested information for 
-.I all 
-days of that year. If two numeric arguments are given, it will be interpreted as mm yyyy, and
-.B hdate
-will output the requested information for 
-.I all 
-days of that month.
+\fBhdate\fP provides the date according to the Hebrew calendar, that day's corresponding date according to the gregorian calendar, and optionally providess further information about that Hebrew date, including holidays and astronomical-related times (see section \fBLOCATIONS\fP, below). If no arguments are given, \fBhdate\fP provides information for the current date. If a single numeric argument is given, \fBhdate\fP interprets it as a year, and provides the requested information for \fIall\fP days of that year. If two arguments are given, \fBhdate\fP interprets them  as a month and a year, and provides the requested information for \fIall\fP days of that month.
 .PP 
 .B INPUTTING A HEBREW DATE:
-If the year provided is greater than 3000,
-.B hdate
-will interpret the given date as a Hebrew date, and will display information for the corresponding Gregorian date. Hebrew months are expected to be passed as numbers 1-12 for Tishrei - Elul; Adar I and Adar II are expected to be passed as months 13 and 14.
+\fBhdate\fP interprets year values greater than 3000 as Hebrew dates. Numeric Hebrew months are interpreted as 1-12 for Tishrei - Elul; 13 and 14 for Adar I and Adar II.
 .PP
 .B INPUTTING A JULIAN DAY:
-If a single numeric argument is provided, and it is greater than 348021, 
-.B hdate 
-will interpret it as the "Julian day number" and will display information for the corresponding Hebrew date.
-.PP 
+If a single numeric argument is provided, and that argument is \fIgreater\fP than 348021, \fBhdate\fP interprets it as a "julian day number" and provides information for that Julian day's corresponding Hebrew date. See section \fBJULIAN DAY\fP.
+.PP
+.B ACCEPTABLE DATE FORMATS:
+Prior versions of \fBhdate\fP insisted on the numeric date format
+.RI [ yyyy [ mm [ dd ]]].
+\fBhdate\fP now accepts numeric date elements in any easily discernable order. \fBhdate\fP now accepts Hebrew month names, and gregorian month names in both full and abbreviated formats. Gregorian month names may be entered in either your locale's language or in English. Hebrew month names may be entered in either Hebrew characters or in transliteration to Latin characters. When receiving a \fIdatespec\fP of three two-digit elements, \fBhdate\fP will make an effort to interpret the correct one as a two-digit Hebrew year in the current (58th) century. Refer to \fBEXAMPLES\fP below.
+.PP
 .SH "OPTIONS"
 .TP 18
 .B \-b --bidi
@@ -62,10 +69,10 @@ force diaspora readings and holidays.
 .B \ \ \ --daf-yomi
 .TP
 .B \-h --holidays
-print holiday name if day is a holiday.
+print holiday name if day is a holiday, and print \fIcustom day\fP name if day is marked as a \fIcustom day\fP. See section \fBHOLIDAYS AND CUSTOM DAYS\fi.
 .TP
 .B \-H 
-Print only if day is a holiday, and print the holiday name.
+print only if day is a holiday or a \fIcustom day\fP, and print the name of that holiday or \fIcustom day\fP.
 .TP
 .B \-i --ical 
 use iCal formatted output.
@@ -77,38 +84,35 @@ print Julian day number.
 print Sefirat Ha Omer, number of days only.
 .RE
 .RS 25
-.B -oo
-"today is n days in the omer"
+.BR -oo " 'today is n days in the omer'"
 .RE
 .RS 25
-.B -ooo
-the full text, with weeks and remainder days
+.BR -ooo " the full text, with weeks and remainder days"
 .RE
 .RS 10
-.B --ba-omer
-\     full omer text, as 
-.B -ooo
-, in Hebrew
+.BR --ba-omer "      full omer text, as " -ooo ", in Hebrew"
 .RE
 .RS 10
-.B --la-omer
-\     full omer text, as 
-.B -ooo
-, in Hebrew
+.BR --la-omer "      full omer text, as " -ooo ", in Hebrew"
+.RE
+.RS 7
+.TP
+.BR "\-q --quiet" "        suppress output, available in four levels:"
+.RE
+.RS 10
+.BR "--quiet-alerts       -q" "    suppresses warning messages"
+.RE
+.RS 10
+.BR "--quiet-gregorian    -qq" "   also suppresses the gregorian date"
+.RE
+.RS 10
+.BR "--quiet-descriptions -qqq" "  also suppresses data labels"
+.RE
+.RS 10
+.BR "--quiet-hebrew       -qqqq" " also suppresses the Hebrew date"
 .RE
 .RS 7
 .TP 18
-.B \-q --quiet
-suppress output, available in four levels. 
-.B -q
-suppresses warning messages, 
-.B -qq
-also suppresses the gregorian form of the requested Hebrew date, 
-.B -qqq
-suppresses labels for times of day,
-.B -qqqq
-suppresses the Hebrew date (useful if all one wants is some time-of-day information).
-.TP
 .B \-r --parasha
 print weekly reading if day is Shabbat.
 .TP
@@ -154,45 +158,45 @@ and the length of that day's sun-hour.
 .RE
 .RS 18
 .B -tt
-\ adds end_Shema (GR"A), end_amidah,
+\ adds end_Shema_(GR"A), end_amidah,
 .RE
 .RS 23
 mincha_gedola, mincha_ketana, plag_hamincha.
 .RE
 .RS 18
 .B -ttt
-adds end_Shema (M"A).
+adds end_Shema_(M"A).
 .P
 Instead of using the presets, customize with:
-.B --first-light --midday\ \ \ \ \ \ \ \ --shekia
+.B "--first-light --midday        --shekia"
 .RS 0
 .RE
-.B --alot\ \ \ \ \ \ \ \ --noon\ \ \ \ \ \ \ \ \ \ --tzeit-hakochavim
+.B "--alot        --noon          --tzeit-hakochavim"
 .RS 0
 .RE
-.B --talit\ \ \ \ \ \ \ --chatzot\ \ \ \ \ \ \ --first-stars
+.B "--talit       --chatzot       --first-stars"
 .RS 0
 .RE
-.B --netz\ \ \ \ \ \ \ \ --mincha-gedola --three-stars
+.B "--netz        --mincha-gedola --three-stars"
 .RS 0
 .RE
-.B --shema\ \ \ \ \ \ \ --mincha-ketana --magen-avraham
+.B "--shema       --mincha-ketana --magen-avraham"
 .RS 0
 .RE
-.B --amidah\ \ \ \ \ \ --plag-hamincha --sun-hour
+.B "--amidah      --plag-hamincha --sun-hour"
 
 .RS 0
 .RE
-.B --sunrise\ \ \ \ \ --sunset
+.B "--sunrise     --sunset"
 .RS 0
 .RE
-.B --end-eating-chometz-ma   --end-eating-chometz-gra
+.B "--end-eating-chometz-ma   --end-eating-chometz-gra"
 .RS 0
 .RE
-.B --end-owning-chometz-ma   --end-owning-chometz-gra
+.B "--end-owning-chometz-ma   --end-owning-chometz-gra"
 .RE
 .TP 18
-.B \-T --table
+.B  -T --table
 print tabular output. All data for each requested day
 .RS 0
 .B \ \ \ --tabular
@@ -202,13 +206,14 @@ suitable for piping, or export to spreadsheets
 .RE
 .TP 18
 .B \-l --latitude
-[NS]yy[.yyy] decimal degrees, or [NS]yy[:mm[:ss]] degrees, minutes, seconds. Negative values are South
+.RI [ NS ] yy [. yyy "] decimal degrees, or [" NS ] yy [: mm [: ss "]] degrees, minutes, seconds. Negative values are South"
 .TP
 .B \-L --longitude
-[EW]xx[.xxx] decimal degrees, or [EW]xx[:mm[:ss]] degrees, minutes, seconds. Negative values are West
+.RI [ EW ] xx [. xxx "] decimal degrees, or [" EW ] xx [: mm [: ss "]] degrees, minutes, seconds. Negative values are West"
 .TP
 .B \-z --timezone
-\+/-UTC. Notation may  be in decimal hours ( hh[.hh] ) or hours, minutes ( hh[:mm] )
+\+/-UTC. Notation may  be in decimal hours
+.RI ( hh [. hh "]) or hours, minutes (" hh [: mm ])
 .TP
 .B \ \   --hebrew
 forces Hebrew to print in Hebrew characters
@@ -226,27 +231,11 @@ insert parasha between day of week and day
 don't display next day if after sunset
 .SH NOTES
 .SS LOCATIONS
-If you want 
-.B hdate
-to display accurate time-of-day information,
-.B hdate
-requires location and time zone information in order to make astronomical calculations for a given date. If you don't provide ANY such information, 
-.B hdate
-tries to find out your computer's local time zone information as an indicator, and picks the 'primary' city in that time zone. If 
-.B hdate
-can't find local time zone information,
-.B hdate
-tries to find out your computer's GMT offset, and either picks from the list below the city in that time zone offset, or defaults to the equator at the center of that time zone offset. If 
-.B hdate
-can't even retrieve GMT offset information from your computer, it defaults to Tel-Aviv. For other locations, use the 
-.B -l -L
-option pair. For other timezones, use the 
-.B -z
-option. Co-ordinates and standard time zones for some common locations are listed below.
+If you want \fBhdate\fP to display accurate time-of-day information, \fBhdate\fP requires location and time zone information in order to make astronomical calculations for a given date. If you don't provide \fIany\fP such information, \fBhdate\fP tries to find out your computer's local time zone information as an indicator, and picks the 'primary' city in that time zone. If \fBhdate\fP can't find local time zone information, \fBhdate\fP tries to find out your computer's GMT offset, and either picks from the list below the city in that time zone offset, or defaults to the equator at the center of that time zone offset. If \fBhdate\fP can't even retrieve GMT offset information from your computer, it defaults to Tel-Aviv. For other locations, use the \fB-l -L\fP option pair. For other timezones, use the \fB-z\fP option. Co-ordinates and standard time zones for some common locations are listed below.
 .PP
 The current defaults are:
 .RS 5
-tz                 Lat    Lon      tz              Lat     Lon
+.I "tz                 Lat    Lon      tz              Lat     Lon"
 .RE
 .RS 5
 -8   Los Angeles   34.05 -118.25    2    Tel-Aviv  32      34.75
@@ -272,6 +261,9 @@ tz                 Lat    Lon      tz              Lat     Lon
 .PP
 Useful locations and time zones
 .RS 6
+.I "tz                 Lat    Lon      tz              Lat     Lon
+.RE
+.RS 6
 2   Jerusalem     31.78   35.22    8   Hong Kong  22.26  114.15
 .RE
 .RS 6
@@ -287,18 +279,31 @@ Useful locations and time zones
 2   Tiberias      40.89   35.84    1   Antwerpen  51.22    4.42
 .RS 6
 .RE
-2   Eilat         29.56   34.95    3.5 Tehran     35.67   51.42
+2   Eilat         29.56   34.95        
+.SS HOLIDAYS AND CUSTOM DAYS
+By default, if you ask \fBhdate\fI to display holiday names (options \fB-h\fP or \fB--holidays\fP), \fBhdate\fP uses \fBlibhdate\fP's data set of the traditional 'shulchan aruch' Hebrew holidays. \fBhdate\fP also creates a user-modifiable config file, \fIcustom_days\fP, for any other personal or national days a user might want to mark. The config file contains detailed in-line documentation, and allows for simple definitions of \fIcustom days\fP by either the Hebrew or gregorian calendar; by either calendar day of month or \fIn\fPth \fIday of week\fP of month; and provides a simple method of specifying how/whether to advance/postpone a \fIcustom day\fP should it occur just before, on, or just after the Shabbat.
+.SS JULIAN DAY
+The julian day system is not directly related to the Julian calendar. Rather, it was introduced by astronomers for scientific use to provide a single system of dates that could be used when working with different calendars and to unify different historical chronologies. Julian day number (JDN) zero corresponds to January 1, 4713 BCE Greenwich noon, according to the "julian proleptic calendar".
+.SS TABULAR OUTPUT
+.RB "When invoked with option " -T " ( " --table " or " --tabular " ), " hdate
+outputs the requested data for any single day in comma-delimited format, with no intervening spaces. The only exception is that holidays and custom_days are delimited from \fIeach other\fP with semi-colons, because there may be more than one of those entries for any given day. When invoked for a month (no \fIdd\fP supplied) or a year (no \fIdd\fP or \fIdd\fP supplied), data for separate days are new-line-delimited. The first line of tabular output is a header line, describing each field being output, and delimited in the same way as the data line(s). Output of the header line can be suppressed using option
+.BR -qqq " ( " --quiet-descriptions " )."
 .SH FILES
-.SS CONFIG FILE
-This folder and file will be automatically created, and
-includes its own documentation, in-line:
-.RS 16
-.I ${XDG_CONFIG_HOME}/hcal/hcalrc
+.SS CONFIG FILES
+The config files and their parent folder will be automatically created. Each file includes its own documentation, in-line. Should you ever wish to restore a config file to its original text, rename or delete your current one; \fBhdate\fP will create a replacement automatically on its next invocation. Both \fBhdate\fP and \fBhcal\fP make use of identically formatted \fIcustom_days\fP files, so you may freely copy that file from one config folder to the other, or use a symbolic link so both programs will always use the same \fIcustom_days\fP information.
+
+.RS 5
+.RI ${ XDG_CONFIG_HOME } /hdate/hdaterc
+
+.RI ${ XDG_CONFIG_HOME } /hdate/custom_days
 .P
 .RE
-If ${XDG_CONFIG_HOME} is undefined:
-.RS 16
-.I ~/.config/hcal/hcalrc
+If ${\fIXDG_CONFIG_HOME\fP} is undefined:
+
+.RS 5
+.I ~/.config/hdate/hdaterc
+
+.I ~/.config/hdate/custom_days
 .SH "BUGS"
 .TP 10
 .B Accuracy
@@ -310,9 +315,7 @@ The timezone support is currenlty primitive and lacks support for daylight savin
 .RE
 .TP 10
 .B Historical
-The software does not yet account for the phenomenon and complications of the "Gregorian transition" from the prior, Julian calendar, which effectively caused an instantaneous 'loss' of two weeks for all gentiles affected. Countries (eg. Poland, Spain and Italy) began adopting the Gregorian calendar on 8 Tishrei 5343 (4 October 1582 CE), although many did not transition until the 56th century (1752 CE, eg. UK colonies, Sweden). Russia did not adopt the Gregorian calendar until 5678 (1918 CE) and Turkey did not until 5687 (December, 1926 CE). Many other countries made the transition on other dates. Keep in mind that Russia invaded part of Poland, undoing, for the interim, the Gregorian transition for (only) that part of Poland; Also important to remember in this regard is that Eretz Ysroel was part of the Turkish Ottoman empire until the British mandate (5677 (1917 CE)). Until all this is accounted for adequately by this application, refer to '
-.B ncal -p
-\' for a basic table of country transitions. However, keep in mind that European borders underwent many changes during the 426 years in question, so the accuracy of your data will depend on accurate knowledge of whether any particular date at any specific location was Julian or Gregorian.
+The software does not yet account for the phenomenon and complications of the "Gregorian transition" from the prior, julian calendar, which effectively caused an instantaneous 'loss' of two weeks for all gentiles affected. Countries (eg. Poland, Spain and Italy) began adopting the Gregorian calendar on 8 Tishrei 5343 (4 October 1582 CE), although many did not transition until the 56th century (1752 CE, eg. UK colonies, Sweden). Russia did not adopt the Gregorian calendar until 5678 (1918 CE) and Turkey did not until 5687 (December, 1926 CE). Many other countries made the transition on other dates. Keep in mind that Russia invaded part of Poland, undoing, for the interim, the Gregorian transition for (only) that part of Poland; Also important to remember in this regard is that Eretz Ysroel was part of the Turkish Ottoman empire until the British mandate (5677 (1917 CE)). Until all this is accounted for adequately by this application, refer to '\fBncal -p\fP' for a basic table of country transitions. However, keep in mind that European borders underwent many changes during the 426 years in question, so the accuracy of your data will depend on accurate knowledge of whether any particular date at any specific location was Julian or Gregorian.
 .SH "EXAMPLES"
 1. Create an iCal calendar of the holidays of year 2025.
 .RS 6
@@ -324,17 +327,13 @@ The software does not yet account for the phenomenon and complications of the "G
 .B       hdate -sR 4 2031 -l29 -L34 -z2
 .RE
 .SH "SEE ALSO"
-mlterm(1), hcal(1), hebcal(1), date(1), ncal(1), cal(1), remind(1)
+.BR mlterm "(1), " hdate "(1) ," hebcal "(1), " date "(1), " ncal "(1), " cal "(1), " remind (1)
 .SH "AUTHORS"
 .RS 0
 Boruch Baum 2011-2012. Yaacov Zamir 2005-2010.
 .PP
 project page: http://libhdate.sourceforge.net
 .PP
-.BR hcal \ and \ hdate
-are part of the package
-.B libhdate
-, a small C/C++ library for Hebrew dates, holidays, and reading
-sequences (parashiot). It uses the source code from Amos Shapir's
-"hdate" package, as fixed and patched by Nadav Har'El. The Torah
+\fBhcal\fP and \fBhdate\fP are part of the package \fBlibhdate\fP, a small C/C++ library for Hebrew dates, holidays, and reading
+sequences (parashiot). It uses the source code from Amos Shapir's "hdate" package, as fixed and patched by Nadav Har'El. The Torah
 reading sequence tables were contributed by Zvi Har'El.

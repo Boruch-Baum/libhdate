@@ -365,6 +365,13 @@ hdate_set_gdate (hdate_struct * h, int d, int m, int y)
 	if (!h) return NULL;
 	
 	/* check for null dates (kobi) */
+	// FIXME !!
+	/* I don't get it. This sets the returnval to the hdate_struct
+	 * for today, without checking that y is also zero. If even
+	 * just one of the parameters is valid, shouldn't we honor
+	 * that? (and possibly return the hdate_struct for the first
+	 * day that could be valid) (baruch)
+	 */
 	if ((d == 0) || (m == 0))
 	{
 		struct tm *tm;

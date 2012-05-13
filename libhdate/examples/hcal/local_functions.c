@@ -1,4 +1,4 @@
-/* local_functions.c            http://libhdate.sourceforge.net
+/** local_functions.c            http://libhdate.sourceforge.net
  * a collection of functions in support of both hcal.c and hdate.c
  * hcal.c  Hebrew calendar              (part of package libhdate)
  * hdate.c Hebrew date/times information(part of package libhdate)
@@ -25,27 +25,27 @@
 /**************************************************
 *   functions to support hcal and hdate
 **************************************************/
-#define _GNU_SOURCE		// For mempcpy, asprintf
+#define _GNU_SOURCE		/// For mempcpy, asprintf
 
-#include <hdate.h>		// For hebrew date
-//include "../../src/hdate.h"
-#include <stdlib.h>		// For atoi, malloc
-#include <error.h>		// For error
-#include <errno.h>		// For errno
-#include <time.h>		// For time
-#include <ctype.h>		// for isprint
-#include <fnmatch.h>	// For fnmatch
-#include <string.h>		// For mempcpy
-#include <getopt.h>		// For optarg, optind
-#include <stdio.h>		// For printf, fopen, fclose, fprintf, snprintf. FILE
+include <hdate.h>		/// For hebrew date
+//#include "../../src/hdate.h"
+#include <stdlib.h>		/// For atoi, malloc
+#include <error.h>		/// For error
+#include <errno.h>		/// For errno
+#include <time.h>		/// For time
+#include <ctype.h>		/// for isprint
+#include <fnmatch.h>	/// For fnmatch
+#include <string.h>		/// For mempcpy
+#include <getopt.h>		/// For optarg, optind
+#include <stdio.h>		/// For printf, fopen, fclose, fprintf, snprintf. FILE
 
 #include "./timezone_functions.c"
-
 
 /// support for fnmatch
 #define FNM_EXTMATCH	(1 << 5)
 #define FNM_NOFLAG		0
 
+#define BAD_DATE_VALUE -1
 #define BAD_COORDINATE	999
 #define BAD_TIMEZONE	999
 #define DELTA_LONGITUDE 30
@@ -89,11 +89,11 @@
 #define FALSE 0
 #define TRUE -1
 
-#define heb_yr_upper_bound 10999
-#define heb_yr_lower_bound 3000
+#define HEB_YR_UPPER_BOUND 10999
+#define HEB_YR_LOWER_BOUND 3000
+#define JUL_DY_LOWER_BOUND 348021
 
-
-// support for options parsing
+/// support for options parsing
 #define MIN_CANDLES_MINUTES 18
 #define DEFAULT_CANDLES_MINUTES 20
 #define MAX_CANDLES_MINUTES 90
@@ -101,73 +101,134 @@
 #define MAX_MOTZASH_MINUTES 90
 
 
+/// for custom days text string
+#define MAX_STRING_SIZE_LONG  40
+#define MAX_STRING_SIZE_SHORT 15
+
+
 const char* custom_days_file_text = N_("\
-# custom_days configuration file for package libhdate. Separate copies of\n\
-# this file are used by hcal (Hebrew calendar) and hdate (Hebrew date and\n\
-# times of day).\n\
-#\n# Should you mangle this file and wish to restore its default content,\n\
+# custom_days configuration file for package libhdate.\n\n\
+# Separate copies of this file are used by hcal (Hebrew calendar) and\n\
+# hdate (Hebrew date and times of day).\n\n\
+# Should you mangle this file and wish to restore its default content,\n\
 # rename or delete this file and run hcal or hdate; each will automatically\n\
-# regenerate the default content.\n#\n\
+# regenerate the default content.\n\n\
 # Your system administrator can set system-wide defaults for this file by\n\
 # modifying file <not yet implemented>.\n\
-# You may override all defaults by changing the contents of this file.\n\
-#\n\
+# You may override all defaults by changing the contents of this file.\n\n\
+# How to handle events scheduled for dates that don't occur in all\n\
+# calendar years:\n\
+#    0 - Do not mark the event in such a calendar year\n\
+#    1 - Mark the event the following day\n\
+#   -1 - Mark the event the prior day\n\
+#CHESHVAN_30 = 1\n\
+CHESHVAN_30 = 1\n\
+#KISLEV_30   = 1\n\
+KISLEV_30   = 1\n\
+#FEBRUARY_29 =-1\n\
+FEBRUARY_29 =-1\n\n\
+# How to handle events scheduled for Adar II in a year without Adar II\n\
+#    0 - Do not mark the event in such a calendar year\n\
+#    1 - Mark the event in Nissan\n\
+#   -1 - Mark the event the Adar\n\
+#ADAR_II = -1\n\
+ADAR_II = -1\n\n\
+# How to handle events scheduled for Adar in a year with two Adars\n\
+#    1 - Mark the event in Adar I\n\
+#    2 - Mark the event in Adar II\n\
+#ADAR_IN_LEAP_YEAR = 2\n\
+ADAR_IN_LEAP_YEAR = 2\n\n\
 # Format\n\
-# Each entry consists of 12 fields on a 'single' line, meaning that if you\n\
-# insist on splitting an entry over more than one line, use a '\' to mark\n\
-# the continuation. The fields are:\n\
-#  1) day_type - H for Hebrew calendar datees, Y for Yahrtzeits,\n\
-#                G for gregorian calendar dates. Additionally, types h\n\
-#                amd g are available for marking an event to occur on the\n\
-#                \'nth\' \'day_of_week\' of \'month\'.\n\
+# Each entry consists of 13 fields on a single 'logical' line, meaning that\n\
+# if you insist on splitting an entry over more than one physical line, use\n\
+# a '\' to mark the continuation. The fields are:\n\
+#  1) day_type - H for Hebrew calendar dates, G for gregorian calendar dates.\n\
+#                Additionally, types h and g are available for marking an\n\
+#                event to occur on the \'nth\' \'day_of_week\' of \'month\'.\n\
 #  2) start_year - the first year for this commemoration. If the day_type\n\
 #                field is G, this must be a gregorian year number;\n\
 #                otherwise, a Hebrew year number is expected.\n\
 #  3) month -    numbered 1 - 12 for Tishrei - Ellul. Adar I/II are 13, 14\n\
 #                I didn't really have to mention that 1 - 12 is Jan - Dec,\n\
 #                did I? Good.\n\
-#  4) day_of_month - must be zero for day_type h or g\n\
+#  4) day_of_month - must be zero for day_type h or g\n#\n\
 # The following two fields are only for day_type h or g, and must be zero\n\
-# for day_type H, Y, and G.\n\
+# for day_type H and G.\n\
 #  5) \'nth\' -  eg. nth Shabbat in Adar, or nth Tuesday in April.\n\
-#  6) day_of_week\n\
-#  7) Hebrew_language_description - enclosed in quotes.\n\
-#  8) Hebrew_abbreviated_description - enclosed in quotes.\n\
-#  9) Loazi_language_description - enclosed in quotes.\n\
-# 10) Loazi_abbreviated_description - enclosed in quotes.\n\
-# The final three fields are only for day_type H or G, and must be zero\n\
-# otherwise. These fields allow the custom day to be advanced or postponed\n\
-# should it fall on a Friday, Shabbat, or Sunday. Values may be -3 to +3.\n\
-# 11) if_Shishi\n\
-# 12) if_Shabbat\n\
-# 13) if_Rishon\n\
+#  6) day_of_week\n#\n\
+# The following four fields are NOT to be enclosed in quotes. Each is comma\n\
+# delimited, like all the other fields. Fields exceeding the maximum allowed\n\
+# length will be truncated. All four fields are mandatory and must have at\n\
+# one printable character. Commas and semi-colons are prohibited in order not\n\
+# to confuse tabular output (option -T --tabular). Tabular data is output in\n\
+# comma-delimited format. Because it is possible to have more than one\n\
+# holiday and custom_day on the same calendar date, hdate outputs tabular data\n\
+# between holiday and custom_day fields using a semi-colon delimiter.\n\
+#  7) Hebrew_language_description     - max 40 chars\n\
+#  8) Hebrew_abbreviated_description  - max 15 chars\n\
+#  9) Loazi_language_description      - max 40 chars\n\
+# 10) Loazi_abbreviated_description   - max 15 chars\n#\n\
+# The next three fields allow the custom day to be advanced or postponed\n\
+# should that day occur on a Friday, Shabbat, or Sunday - in the cases of\n\
+# day_types H or G. Values are the number of days to advance or postpone the\n\
+# commemoration, in the range -9 to +9. For day_types h or g, the plan is that,\n\
+# in a future release, these fields will allow the custom day to be advanced\n\
+# or postponed should that day occur on an erev khag, khag, or motzei khag.\n\
+# 11) if_Shishi    (if_erev_khag)\n\
+# 12) if_Shabbat   (if_khag)\n\
+# 13) if_Rishon    (if_motzei_khag)\n\
+# The final four fields are advancement/postponement values for the remaining\n\
+# days of the week  - for the cases of day_types H or G. Values are the number\n\
+# of days to advance or postpone the commemoration, in the range -9 to +9. For\n\
+# day_types h or g, the plan is that, in a future release, these fields will\n\
+# allow the custom day to be advanced or postponed should that day occur on the\n\
+# two days prior to erev khag or after motzei khag.\n\
+# 14) if_day_2     (if_2_days_after_khag)\n\
+# 15) if_day_3     (if_3_days_after_khag)\n\
+# 16) if_day_4     (if_3_days_prior_khag)\n\
+# 17) if_day_5     (if_2_days_prior_khag)\n\
 #\n\
 # Examples\n\
-H, 5700,  2,  6, 0, 0, \"יום הוקרת הפינגיונים עברי\", \"\",    \"Penguin Appreciation Day Heb_test\", \"\" ,  0,  0, 0\n\
-Y, 5710,  3, 12, 0, 0, \"יום זכרון הפינגיונים יארצ\", \"\",    \"Dead Penguin yar_test\",             \"\" ,  0,  0, 0\n\
-G, 1960,  1,  5, 0, 0, \"יום הוקרת הפינגיונים לועז\", \"\",    \"Penguin Appreciation Day Greg_test\", \"\",  0,  0, 0\n\
-h, 5730,  4,  0, 2, 5, \"יום הוקרת הפינגיונים עברי ב\", \"\",  \"Penguin Appreciation Day heb_test\", \"\" ,  0,  0, 0\n\
-g, 1980,  5,  0, 1, 2, \"יום הוקרת הפינגיונים לועז ב\", \"\",  \"Penguin Appreciation Day greg_test\", \"\",  0,  0, 0\n\
-H, 5750,  6,  8, 0, 0, \"פינגיונים מעדיפים יום ד\", \"\",      \"Penguins Appreciate Wednesday test\", \"\", -2, -3, 3\n\
-G, 2000,  7,  9, 0, 0, \"פינגיונים בעד סופ\"ש ארוך\", \"\",    \"Penguins want long weekends test\", \"\"  ,  0, -1, 1\n\
+# ========\n\
+# 1] One following minhag ashkenaz for selichot can mark the first night of\n\
+#    selichot as follows:\n\
+H, 3001,  1,  1, 0, 0, יום ראשון של סליחות, סליחות יום א', First night of selichot, Selichot I,-5,-6,-7,-8,-9,-3,-4\n\
+# 2] To mark the Shabbat prior to a yahrtzeit (for various customs)\n\
+H, 5741,  6, 27, 0, 0, שבת זכרון של פלוני, זכרון פלוני, Shabbat yahrtzeit for xxxx, Shabbat yahrtzeit,-6,-7,-1,-2,-3,-4,-5\n\
+#\n\
+# DEBUG TESTS - REMOVE PRIOR TO RELEASE\n\
+# =====================================\n\
+H, 5700,  2,  6, 0, 0, יום הוקרת הפינגיונים עברי,   _, Penguin Appreciation Day Heb test,  _,  0,  0, 0, 0, 0, 0, 0\n\
+H, 5700,  2,  6, 0, 0, יום הוקרת הפינגיונים עברי,   _, Duplicate day Heb test,             _,  0,  0, 0, 0, 0, 0, 0\n\
+G, 1960,  1,  5, 0, 0, יום הוקרת הפינגיונים לועז,   _, Penguin Appreciation Day Greg test, _,  0,  0, 0, 0, 0, 0, 0\n\
+G, 1960,  1,  5, 0, 0, יום הוקרת הפינגיונים לועז,   _, Duplicate day Greg test,            _,  0,  0, 0, 0, 0, 0, 0\n\
+h, 5730,  4,  0, 2, 5, יום הוקרת הפינגיונים עברי ב, _, Penguin Appreciation Day heb test,  _,  0,  0, 0, 0, 0, 0, 0\n\
+g, 1980,  5,  0, 1, 2, יום הוקרת הפינגיונים לועז ב, _, Penguin Appreciation Day greg test, _,  0,  0, 0, 0, 0, 0, 0\n\
+H, 5750,  6,  8, 0, 0, פינגיונים מעדיפים יום ד,     _, Penguins Appreciate Wednesday test, _, -2, -3, 3, 0, 0, 0, 0\n\
+G, 2000,  7,  1, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
+");
+/* DEBUG - realloc seg faults ! - read_custom_days_file( ~line 1420
+G, 2000,  7,  2, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
+G, 2000,  7,  3, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
+G, 2000,  7,  4, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
+G, 2000,  7,  5, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
+G, 2000,  7,  6, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
+G, 2000,  7,  7, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
+G, 2000,  7,  8, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
+G, 2000,  7,  9, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
+G, 2000,  7, 10, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
+G, 2000,  7, 11, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
+G, 2000,  7, 12, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
+G, 2000,  7, 13, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
+G, 2000,  7, 14, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
+G, 2000,  7, 15, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
+G, 2000,  7, 16, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
+G, 2000,  7, 17, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
+G, 2000,  7, 18, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
+G, 2000,  7, 19, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
 # \n\
 ");
-
-typedef struct {
-	int day_type;          // 0=H, 1=Y, 2=G, 3=h, 4=g
-	int start_year;
-	int month;
-	int day_of_month;
-	int nth;               //  1 <= n <=  4
-	int day_of_week;
-	char *heb_long_desc;
-	char *heb_abbr_desc;
-	char *eng_long_desc;
-	char *eng_abbr_desc;
-	int when_shishi;       // -3 <= n <= +3
-	int when_shabbat;      // -3 <= n <= +3
-	int when_rishon;       // -3 <= n <= +3
-				} custom_day;
+*/
 
 
 /************************************************************
@@ -199,7 +260,6 @@ void print_parm_invalid_error( char *parm_name )
 			N_("option"), parm_name, N_("is not a valid option"));
 }
 
-
 /************************************************************
 * end - error message functions
 ************************************************************/
@@ -214,6 +274,8 @@ void set_default_location( const int tz, double *lat, double *lon,
 						   const int using_system_tz, const int quiet_alerts )
 {
 
+	char* location;
+	
 	if (using_system_tz)
 	{
 		char *sys_tz_string_ptr;
@@ -222,7 +284,7 @@ void set_default_location( const int tz, double *lat, double *lon,
 		if (sys_tz_string_ptr != NULL)
 		{
 			/// attempt to get coorinates from zone.tab file
-			if (get_lat_lon_from_zonetab_file( sys_tz_string_ptr, lat, lon ) ) return;
+			if (get_lat_lon_from_zonetab_file( sys_tz_string_ptr, lat, lon, quiet_alerts ) ) return;
 		}
 	}
 
@@ -256,29 +318,30 @@ void set_default_location( const int tz, double *lat, double *lon,
 	switch (tz)
 	{
 /** hours       minutes */
-/** -8 **/	case -480:	*lat =  34.05;	*lon =-118.25;	print_alert_coordinate( N_("Los Angeles") ); break;
-/** -6 **/	case -360:	*lat =  19.43;	*lon = -99.13;	print_alert_coordinate( N_("Mexico City") ); break;
-/** -5 **/	case -300:	*lat =  40.75;	*lon = -74.0;	print_alert_coordinate( N_("New York City") ); break;
-/** -5 **///case -300:	*lat =  43.71;	*lon = -79.43;	print_alert_coordinate( N_("Toronto") ); break;
-/** -5 **///case -300:	*lat = -23.55;	*lon = -46.61;	print_alert_coordinate( N_("Sao Paolo") ); break;
-/** -4.5 **/case -270:	*lat =  10.54;	*lon = -66.93;	print_alert_coordinate( N_("Caracas") ); break;
-/** -3 **/	case -180:	*lat = -34.61;	*lon = -58.37;	print_alert_coordinate( N_("Buenos Aires") ); break;
-/**  0 **/	case    0:	*lat =  51.5;	*lon =   0.0;	print_alert_coordinate( N_("London") ); break;
-/**  1 **/	case   60:	*lat =  48.86;	*lon =   2.39;	print_alert_coordinate( N_("Paris") ); break;
-/**  2 **/	case  120:	*lat =  32.0;	*lon =  34.75;	print_alert_coordinate( N_("Tel-Aviv") ); break;
-/**  3.5 **/case  210:	*lat =  35,67;	*lon =  51.43;	print_alert_coordinate( N_("Tehran") ); break;
-/**  4 **/	case  240:	*lat =  55.75;	*lon =  37.62;	print_alert_coordinate( N_("Moscow") ); break;
-/**  5 **/	case  300:	*lat =  41.27;	*lon =  69.22;	print_alert_coordinate( N_("Tashkent") ); break;
-/**  5.5 **/case  330:	*lat =  22.57;	*lon =  88.36;	print_alert_coordinate( N_("Calcutta") ); break;
-/**  8 **/	case  480:	*lat =  39.90;	*lon = 116.38;	print_alert_coordinate( N_("Beijing") ); break;
-/**  8 **///case  480:	*lat =  22.26;	*lon = 114.15;	print_alert_coordinate( N_("Hong Kong") );break;
-/** 10 **///case  600:	*lat =  21.30;	*lon = 157.82;	print_alert_coordinate( N_("Honolulu") );break;
-/** 10 **/	case  600:	*lat = -33.87;	*lon = 151.21;	print_alert_coordinate( N_("Sydney") );break;
+/** -8 **/	case -480:	*lat =  34.05;	*lon =-118.25;	location = N_("Los Angeles"); break;
+/** -6 **/	case -360:	*lat =  19.43;	*lon = -99.13;	location = N_("Mexico City"); break;
+/** -5 **/	case -300:	*lat =  40.75;	*lon = -74.0;	location = N_("New York City"); break;
+/** -5 **///case -300:	*lat =  43.71;	*lon = -79.43;	location = N_("Toronto"); break;
+/** -5 **///case -300:	*lat = -23.55;	*lon = -46.61;	location = N_("Sao Paolo"); break;
+/** -4.5 **/case -270:	*lat =  10.54;	*lon = -66.93;	location = N_("Caracas"); break;
+/** -3 **/	case -180:	*lat = -34.61;	*lon = -58.37;	location = N_("Buenos Aires"); break;
+/**  0 **/	case    0:	*lat =  51.5;	*lon =   0.0;	location = N_("London"); break;
+/**  1 **/	case   60:	*lat =  48.86;	*lon =   2.39;	location = N_("Paris"); break;
+/**  2 **/	case  120:	*lat =  32.0;	*lon =  34.75;	location = N_("Tel-Aviv"); break;
+/**  3.5 **/case  210:	*lat =  35,67;	*lon =  51.43;	location = N_("Tehran"); break;
+/**  4 **/	case  240:	*lat =  55.75;	*lon =  37.62;	location = N_("Moscow"); break;
+/**  5 **/	case  300:	*lat =  41.27;	*lon =  69.22;	location = N_("Tashkent"); break;
+/**  5.5 **/case  330:	*lat =  22.57;	*lon =  88.36;	location = N_("Calcutta"); break;
+/**  8 **/	case  480:	*lat =  39.90;	*lon = 116.38;	location = N_("Beijing"); break;
+/**  8 **///case  480:	*lat =  22.26;	*lon = 114.15;	location = N_("Hong Kong");break;
+/** 10 **///case  600:	*lat =  21.30;	*lon = 157.82;	location = N_("Honolulu");break;
+/** 10 **/	case  600:	*lat = -33.87;	*lon = 151.21;	location = N_("Sydney");break;
 	default:	/// .25 = (15 degrees) / 60 [because tz is in minutes, not hours]
 				*lat =   0.0;	*lon =  tz * .25;
-				error(0,0,"%s \n%s", N_("Hmmm, ... hate to do this, really ..."),
-				N_("using co-ordinates for the equator, at the center of time zone")); break;
+				if (!quiet_alerts) error(0,0,"%s \n%s", N_("Hmmm, ... hate to do this, really ..."),
+				N_("using co-ordinates for the equator, at the center of time zone")); return; break;
 	}
+	if (!quiet_alerts) print_alert_coordinate(location);
 	return;
 }
 
@@ -392,7 +455,7 @@ int parse_coordinate( const int type_flag, char *input_string,
 	{
 		if		(type_flag == 1) print_parm_missing_error(N_("l (latitude)"));
 		else if (type_flag == 2) print_parm_missing_error(N_("L (Longitue)"));
-		return TRUE; // error_detected = TRUE; ie failure
+		return TRUE; /// error_detected = TRUE; ie failure
 	}
 
 	/************************************************************
@@ -406,7 +469,7 @@ int parse_coordinate( const int type_flag, char *input_string,
 			if (fnmatch("-*", input_string, FNM_NOFLAG)==0)
 				 print_parm_missing_error(N_("l (latitude)"));
 			else print_parm_error(N_("l (latitude)"));
-			return TRUE; // error_detected = TRUE; ie failure
+			return TRUE; /// error_detected = TRUE; ie failure
 		}
 
 
@@ -435,10 +498,10 @@ int parse_coordinate( const int type_flag, char *input_string,
 		if(	(*coordinate > -90) && (*coordinate < 90) )
 		{
 			*opt_found = 1;
-			return FALSE; // error_detected = FALSE; ie. success
+			return FALSE; /// error_detected = FALSE; ie. success
 		}
 		print_parm_error(N_("L (Longitude)"));
-		return TRUE; // error_detected = TRUE; ie failure
+		return TRUE; /// error_detected = TRUE; ie failure
 	}
 
 
@@ -453,7 +516,7 @@ int parse_coordinate( const int type_flag, char *input_string,
 			if (fnmatch("-*", input_string, FNM_NOFLAG)==0)
 				 print_parm_missing_error(N_("L (Longitude)"));
 			else print_parm_error(N_("L (Longitude)"));
-			return TRUE; // error_detected = TRUE; ie failure
+			return TRUE; /// error_detected = TRUE; ie failure
 		}
 
 
@@ -481,14 +544,14 @@ int parse_coordinate( const int type_flag, char *input_string,
 		if(	(*coordinate > -180) && (*coordinate < 180) )
 		{
 			*opt_found = 1;
-			return FALSE; // error_detected = FALSE; ie. success
+			return FALSE; /// error_detected = FALSE; ie. success
 		}
 		print_parm_error(N_("L (Longitude)"));
-		return TRUE; // error_detected = TRUE; ie failure
+		return TRUE; /// error_detected = TRUE; ie failure
 	}
 
 printf("INTERNAL ERROR: coordinate parse\n");
-return TRUE; // error_detected = TRUE; ie failure
+return TRUE; /// error_detected = TRUE; ie failure
 }
 
 /************************************************************
@@ -530,13 +593,13 @@ int parse_timezone( char *input_string, int *tz)
 				else			*tz = *tz + fractional_part;
 		}
 
-		if( (*tz > -720) && (*tz < 720) ) // 720 minutes in 12 hours
+		if( (*tz > -720) && (*tz < 720) ) /// 720 minutes in 12 hours
 		{
-			return FALSE; // error_detected = FALSE; ie. success
+			return FALSE; /// error_detected = FALSE; ie. success
 		}
 		else print_parm_error(N_("z (timezone)"));
 	}
-	return TRUE; // error_detected = TRUE; ie failure
+	return TRUE; /// error_detected = TRUE; ie failure
 }
 
 
@@ -617,8 +680,7 @@ void validate_location( const int opt_latitude, const int opt_Longitude,
 			}
 		}
 	}
-
-	/* exit after reporting all bad parameters found */
+	/// exit after reporting all bad parameters found */
 	if (error_detected)
 	{
 		print_usage();
@@ -628,24 +690,67 @@ void validate_location( const int opt_latitude, const int opt_Longitude,
 }
 
 
+/*****************************************************************
+* get custom day pointer
+* 
+* returns the pointer to the nth string in string_list
+* or NULL on error.
+*****************************************************************/
+
+char* get_custom_day_ptr(const int index, char* string_list_ptr)
+{
+/*	TODO - consider simplifying this, at the expense of some more memory usage
+//        by either adding an array of explicit pointers to the custom_day text string
+//        or by making those strings start at fixed intervalsint i;
+	char* ret_ptr;
+	if (index == 0) return string_list_ptr;
+	for (i=0;i<index;i++)
+	{
+		ret_ptr = rawmemchr( string_list_ptr, '\0');
+		string_list_ptr = ret_ptr + sizeof(char);
+	}
+*/
+	return string_list_ptr + sizeof(int) + (sizeof(char) * ((int) *string_list_ptr) * index);
+}
+
 
 /************************************************************
 * check validity of date parameters
+* 
+* parameters:
+*     h_set - TRUE/FALSE indicating whether to trust that
+*          parameter 'h' is properly populated. If it is
+*          set false, this function can be expected to 
+*          populate it with values for the beginning of
+*          the year_type being validated.
+*     h - hdate_struct with information for the requested
+*          year's 1 Tishrei. It is used only when validating
+*          Hebrew days or months, and if it is not set, this
+*          function will set it, and subsequent calls can
+*          depend on it.
 * 
 * returns FALSE ( 0) on error
 * returns TRUE  (!0) on success; In the case of
 *     CHECK_MONTH_PARM, the return value will be the length
 *     of the Hebrew year if a Hebrew validation was requested
 *     or 365 if a gregorian validation was requested.
+* 
+*     Also, in the case of a TRUE return from a check of a 
+*     Hebrew day or month, the hdate_struct pointed to in the
+*     final parameter will be set to the values for the first
+*     day of that Hebrew year.
+* 
+* SEE ALSO parse_date for identification of these input
+*     parameters.
 ************************************************************/
 #define CHECK_DAY_PARM   1
 #define CHECK_MONTH_PARM 2
 #define CHECK_YEAR_PARM  3
-int validate_hdate (int parameter_to_check, int day, int month, int year)
+int validate_hdate (const int parameter_to_check,
+					const int day, const int month, const int year,
+					int h_set, hdate_struct* h)
 {
 
-	hdate_struct h;
-	
 	if (year < 0) return FALSE;
 	
 	switch (parameter_to_check)
@@ -656,14 +761,14 @@ int validate_hdate (int parameter_to_check, int day, int month, int year)
 		/************************************************************
 		* check day in Hebrew date
 		************************************************************/
-		if (year > heb_yr_lower_bound)
+		if (year > HEB_YR_LOWER_BOUND)
 		{
-			if (year > heb_yr_upper_bound) return FALSE;
-			hdate_set_hdate (&h, 1, 1, year);
+			if (year > HEB_YR_UPPER_BOUND) return FALSE;
+			if (!h_set) hdate_set_hdate (h, 1, 1, year);
 			if ((day < 1) || (day > 30) ||
-				((day > 29) && ((month==4) || (month==6) || (month==8) || (month=10) || (month==12) || (month==14))) ||
-				(((h.hd_size_of_year==353) || (h.hd_size_of_year==383)) && ((month==2) || (month==3)) && (day >29)) ||
-				(((h.hd_size_of_year==354) || (h.hd_size_of_year==384)) && (month==2) && (day>29)) )			
+				((day > 29) && ((month==4) || (month==6) || (month==8) || (month==10) || (month==12) || (month==14))) ||
+				(((h->hd_size_of_year==353) || (h->hd_size_of_year==383)) && ((month==2) || (month==3)) && (day >29)) ||
+				(((h->hd_size_of_year==354) || (h->hd_size_of_year==384)) && (month==2) && (day>29)) )			
 				return FALSE;
 			return TRUE;
 		}
@@ -676,8 +781,10 @@ int validate_hdate (int parameter_to_check, int day, int month, int year)
 			if ((day < 1) || 
 				((day > 31) && ((month==1) || (month==3) || (month==5) || (month==7) || (month==8) || (month==10) ||(month==12))) ||
 				((day > 30) && ((month==4) || (month==6) || (month==9) || (month==11))) ||
-				((day > 29) && (month==2) && ((year%4)==0)) ||
-				((day > 28) && (month==2) && ((year%4)!=0))
+				((month==2) && (   (day > 29)                    ||
+								 ( (day > 28) &&
+								   (     ((year%4)  !=0) ||
+									  (  ((year%100)==0) && ((year%400)!=0)   )   )   )  )  )
 			   )
 				return FALSE;
 			return TRUE;
@@ -690,13 +797,13 @@ int validate_hdate (int parameter_to_check, int day, int month, int year)
 		/************************************************************
 		* check month in Hebrew date
 		************************************************************/
-		if (year > heb_yr_lower_bound)
+		if (year > HEB_YR_LOWER_BOUND)
 		{
-			if (year > heb_yr_upper_bound) return FALSE;
+			if (year > HEB_YR_UPPER_BOUND) return FALSE;
 			if ((month <= 0) || (month > 14)) return FALSE;
-			hdate_set_hdate (&h, 1, 1, year);
-			if ((h.hd_size_of_year <365) && (month >12)) return FALSE;
-			return h.hd_size_of_year;
+			if (!h_set) hdate_set_hdate (h, 1, 1, year);
+			if ((h->hd_size_of_year <365) && (month >12)) return FALSE;
+			return h->hd_size_of_year;
 		}
 
 		/************************************************************
@@ -710,7 +817,7 @@ int validate_hdate (int parameter_to_check, int day, int month, int year)
 		break;
 	
 	case CHECK_YEAR_PARM:
-		if (year > heb_yr_upper_bound) return FALSE;
+		if (year > HEB_YR_UPPER_BOUND) return FALSE;
 		return TRUE;
 		break;
 	}
@@ -727,31 +834,71 @@ int validate_hdate (int parameter_to_check, int day, int month, int year)
 * 
 * currently returns TRUE always, but if it encounters an
 * obvious error, it reports the error and calls exit()
+* 
+* The logic here is fuzzy and imprecise, and does not cover
+* all cases (at least yet). For example, day parameters are
+* always evaluated for the gregorian 31-day possibility, and
+* the month parameters are always evaluated for the Hebrew
+* 14-month possiblity (yes, 13 months, but libhdate internally
+* treats ADAR I/II as months 13/14).
+* 
+* SEE ALSO: validate_hdate for bounds checking of these values
 ************************************************************/
 int parse_date( const char* parm_a, const char* parm_b, const char* parm_c,
 					 int* ret_year, int* ret_month, int* ret_day, const int parm_cnt )
 {
-	int a_span, b_span, c_span, a_len, b_len, c_len;
+	int a_span, b_span, c_span, a_len, b_len, c_len, b_val, c_val;
 	const char* digits = "0123456789";
+
+	/****************************************************
+	 * The Constant BASE_YEAR is for parsing a two-digit
+	 * year value. Because this is a Hebrew library with
+	 * Hebrew utilities, we default to a Hebrew year and
+	 * presume that the user input and desire is for a
+	 * Hebrew context.
+	 ***************************************************/
+	#define BASE_YEAR 5700
 
 	switch (parm_cnt)
 	{
-	case 3:	c_span = strspn(parm_c, digits); c_len  = strlen(parm_c);
+	case 3:	c_span = strspn(parm_c, digits);
+			c_len  = strlen(parm_c);
+			if (c_len == c_span)
+			{
+				c_val = atoi(parm_c);
+				if (c_val > HEB_YR_UPPER_BOUND)
+				{
+					print_parm_error(N_("year"));
+					return FALSE;
+				}
+			} /// and fall through ...
 	case 2:	b_span = strspn(parm_b, digits); b_len  = strlen(parm_b);
+			if (b_len == b_span)
+			{
+				b_val = atoi(parm_b);
+				if (b_val > HEB_YR_UPPER_BOUND)
+				{
+					print_parm_error(N_("year"));
+					return FALSE;
+				}
+			} /// and fall through ...
 	case 1: a_span = strspn(parm_a, digits); a_len  = strlen(parm_a); break;
 	default: return FALSE;
 	}
 
+
 	if (a_len == a_span) /// parm 'a' is numeric
 	{
 		*ret_year = atoi(parm_a);
+		if (*ret_year > HEB_YR_UPPER_BOUND) { print_parm_error(N_("year")); return FALSE;}
 		if (parm_cnt == 1) return TRUE;
+
 		if (*ret_year > 999)  /// parm 'a' is a year
 		// TODO - verify 999 in terms of bounds checking elsewhere !!
 		{
 			if (b_len == b_span)	/// parm 'b' is numeric
 			{
-				*ret_month = atoi(parm_b);
+				*ret_month = b_val;
 				if ( (*ret_month > 31 ) ||
 				     ((parm_cnt == 2) && (*ret_month > 14 )) )
 				     { print_parm_error(N_("month")); return FALSE; }
@@ -766,9 +913,9 @@ int parse_date( const char* parm_a, const char* parm_b, const char* parm_c,
 					if (*ret_month > 14)
 					{
 						*ret_day = *ret_month;
-						*ret_month = atoi(parm_c);
+						*ret_month = c_val;
 					}
-					*ret_day = atoi(parm_c);
+					*ret_day = c_val;
 				}
 			}
 			else					/// parm 'b' is not numeric
@@ -776,64 +923,98 @@ int parse_date( const char* parm_a, const char* parm_b, const char* parm_c,
 				*ret_month = hdate_parse_month_text_string(parm_b);
 				if ((parm_cnt == 2) || (ret_month == 0)) return *ret_month;
 				if (c_len != c_span) return FALSE; /// parm 'c' is not numeric
-				*ret_day = atoi(parm_c);
+				*ret_day = c_val;
 				// relying on later bounds checking for day of month
 			}
 		}
-		else if (b_len == b_span)	/// parm 'a' can't be a year AND parm 'b' is numeric
-		{
+		else if (b_len == b_span)	/// parm 'a' isn't a four-digit year AND parm 'b' is numeric
+		{   
+			b_val = b_val;
+			if (b_val > HEB_YR_UPPER_BOUND) { print_parm_error(N_("year")); return FALSE;}
+
 			if (parm_cnt == 2)
 			{
-				/// if parm 'a' can't be a month, then we definitely have an error
-				if (*ret_year > 14 ) { print_parm_error(N_("month")); return FALSE; }
-				*ret_month = *ret_year;
-				*ret_year = atoi(parm_b);
+				/// if parm 'a' can't be a month, then let's see if it's a two-digit year
+				if (*ret_year > 14 )
+				{
+					*ret_month = b_val;
+					if ( (*ret_month > 14) || (*ret_year > 99))	{print_parm_error(N_("month")); return FALSE; }
+					*ret_year = *ret_year + BASE_YEAR;
+					return TRUE;
+				}
 				// relying on later bounds checking for year
+				*ret_month = *ret_year;
+				*ret_year = b_val;
 			}
 			else
 			{
-				/// if parm 'a' can't be a month or day, then we definitely have an error
-				if (*ret_year > 31 ) { print_parm_error(N_("month")); return FALSE; }
+				/// if parm 'a' can't be a month or day ...
+				if (*ret_year > 31 )
+				{
+					/// maybe it's a two digit year
+					if (*ret_year > 99 ) { print_parm_error(N_("month")); return FALSE; }
+				  	*ret_year = *ret_year + BASE_YEAR;
+				  	/// continue parsing month and day
+					*ret_month = b_val;
+					if (*ret_month > 31 ) 
+					     { print_parm_error(N_("month")); return FALSE; }
+					if (c_len != c_span)	/// parm 'c' is not numeric
+					{
+						*ret_day = *ret_month;
+						*ret_month = hdate_parse_month_text_string(parm_c);
+					}
+					else
+					{
+						if (*ret_month > 14)
+						{
+							*ret_day = *ret_month;
+							*ret_month = c_val;
+						}
+					*ret_day = c_val;
+					}
+				  	return TRUE;
+				}
+				/// parm 'a' could only be a day
 				if (*ret_year > 14 )
 				{
-					// parm 'a' can only be a day
 					*ret_day = *ret_year;
-					*ret_month = atoi(parm_b);
-					// TODO - verify 1000 in terms of bounds checking elsewhere !!
-					if (*ret_month > 999 )
+					*ret_month = b_val;
+					if (*ret_month > 31 )
 					{
+						// TODO - verify 1000 in terms of bounds checking elsewhere !!
+						if (*ret_month < 1000 ) *ret_month = *ret_month + BASE_YEAR;
 						*ret_year = *ret_month;
 						///parm c must be month
-						if (c_len == c_span) *ret_month = atoi(parm_c);
+						if (c_len == c_span) *ret_month = c_val;
 						else *ret_month = hdate_parse_month_text_string(parm_c);
 					}
 					else if (*ret_month < 15 )
 					{
 						///parm_c must be year
 						if (c_len != c_span)  { print_parm_error(N_("year")); return FALSE; }
-						*ret_year = atoi(parm_c);
+						*ret_year = c_val;
 					}
 					else { print_parm_error(N_("month")); return FALSE; }
 				}
 				else /// parm 'a' may be a day or month; parm 'b' is numeric
 				{
 					*ret_day = *ret_year;
-					*ret_month = atoi(parm_b);
-					// TODO - verify 1000 in terms of bounds checking elsewhere !!
-					if (*ret_month > 999 )
+					*ret_month = b_val;
+					if (*ret_month > 31 )
 					{
+						// TODO - verify 1000 in terms of bounds checking elsewhere !!
+						if (*ret_month < 1000 ) *ret_month = *ret_month + BASE_YEAR;
 						*ret_year = *ret_month;
-						if (c_len == c_span) *ret_month = atoi(parm_c);
+						if (c_len == c_span) *ret_month = c_val;
 						else *ret_month = hdate_parse_month_text_string(parm_c);
 					}
 					else
 					{
-						if ( (*ret_month > 31) ||
-						   ( (*ret_month > 14) && (*ret_day > 14) ) )
+						if ( ( (*ret_month > 14) && (*ret_day > 14) ) )
 						   { print_parm_error(N_("month")); return FALSE; }
 						/// parm 'c' must be a year
 						if (c_len != c_span) { print_parm_error(N_("year")); return FALSE; }
-						*ret_year = atoi(parm_c);
+						*ret_year = c_val;
 					}
 				}
 				
@@ -847,19 +1028,38 @@ int parse_date( const char* parm_a, const char* parm_b, const char* parm_c,
 		if (!ret_month) { print_parm_error(N_("month")); return FALSE; }
 		/// parm 'a' successful return from parse_month_text_string
 		if (b_len != b_span)  { print_parm_error(N_("year")); return FALSE; }	/// parm 'b' is not numeric
-		*ret_year = atoi(parm_b);
+		*ret_year = b_val;
 		if (parm_cnt == 2)
 		{
 			/// if only 2 parms, parm 'b' must be year
+			if (*ret_year < 100) *ret_year = *ret_year + BASE_YEAR;
 			// check sanity of 1000 as bounds for year
-			if (*ret_year < 1000 ){ print_parm_error(N_("year")); return FALSE; }
+			else if (*ret_year < 1000 )
+				{print_parm_error(N_("year")); return FALSE;}
 			return TRUE;
 		}
-		else if (*ret_year > 31 )  { print_parm_error(N_("year")); return FALSE; }	/// parm 'b' is not numeric
-		*ret_day = *ret_year;
-		/// parm 'c' must be year
-		if (c_len != c_span) { print_parm_error(N_("year")); return FALSE; }; /// parm 'c' is not numeric
-		*ret_year = atoi(parm_c);
+		else /// parm_cnt == 3
+		{
+			if (c_len != c_span)
+				 /// both parms 'b' and 'c' are not numeric
+				 { print_parm_error(N_("year")); return FALSE; };
+			if (*ret_year > 31) /// parm 'b' can't be a day
+			{
+				/// parm 'b' can't be a year either = error
+				if (*ret_year < 100) *ret_year = *ret_year + BASE_YEAR;
+				// check sanity of 1000 as bounds for year
+				else if (*ret_year < 1000 )
+					{print_parm_error(N_("year")); return FALSE;}
+				if (c_val > 31) return FALSE;
+				*ret_day = c_val;
+				return TRUE;
+			}
+			*ret_day = *ret_year;
+			*ret_year = c_val;
+			if (*ret_year > 999) return TRUE;
+			else if (*ret_year < 100) *ret_year = *ret_year + BASE_YEAR;
+			else return FALSE;
+		}
 	}
 return TRUE;
 }
@@ -871,140 +1071,414 @@ return TRUE;
 ************************************************************/
 void greetings_to_version_16()
 {
-	error(0,0,"%s",N_("\
+	printf("%s\n",N_("\
 This seems to be to be your first time using this version.\n\
-Please read the new documentation in the man page and config\n\
-file. Attempting to create a config file ..."));
+Please read the new documentation in the man page and config file.\n\
+Press <enter> to continue."));
+	getchar();
+}
+
+
+
+
+/************************************************************
+* read_custom_days_file() - parse 'custom days' file
+*      scans the custom_days file once.
+*      For every legitimate parse, determines if that custom day
+*      is in the requested date range.
+*      If so,
+*      1   gets the julian_day_number and store it in a malloc'ed array
+*      2   use asprintf to append/realloc one of the four description
+*          strings for that entry to a second buffer (which will also
+*          need to be freed)
+*      whether to use a line delimiter or a NULL between strings?
+*      Put the pointer to the final jdn_list (or NULL) in jdn_list_ptr
+*      Put the pointer to the final string_list (or NULL) in string_list_ptr
+*      return the number of items found
+************************************************************/
+//	TODO - handle CHESHVAN_30, KISLEV_30, FEBRUARY_29, ADAR_II, ADAR_IN_LEAP_YEAR
+//  TODO - advancements/postponements for day_types h/g when erev khag, khag, or motzei khag (in the
+int read_custom_days_file(
+			FILE* config_file,
+			int** jdn_list_ptr, char** string_list_ptr,
+			const int d_todo, const int m_todo, const int y_todo,
+			const char calendar_type,
+			hdate_struct h1,
+			const int text_short_form, const int text_hebrew_form)
+{
+///Values defined in libhdate (hdate_strings.c)
+/// #define HDATE STRING_SHORT   1
+/// #define HDATE_STRING_LONG    0
+/// #define HDATE_STRING_HEBREW  1
+/// #define HDATE_STRING_LOCAL   0
+
+	char*	input_string = NULL;
+	size_t	input_str_len;
+
+	int		line_count = 0; // remove. for debugging only.
+	int		match_count;
+	int		end_of_input_file = FALSE;
+	int		number_of_items = 0;
+	char	custom_day_type = '\0'; 		/// H, G, h, g
+	int		custom_start_year = 0;
+	int		custom_month = 0;
+	int		custom_day_of_month = 0;
+	int		custom_nth = 0 ;				/// 1 <= n <=  5
+	int		custom_day_of_week = 0;
+	char*	heb_long_desc = NULL;
+	char*	heb_abbr_desc = NULL;
+	char*	eng_long_desc = NULL;
+	char*	eng_abbr_desc = NULL;
+
+	/// adj[] - array defining weekend adjustments
+	/// only elements 0,5,6 of this array will be used
+	/// valid values are -3 <= n <= 3
+	#define WHEN_SHISHI  5
+	#define WHEN_SHABBAT 6
+	#define WHEN_RISHON  0
+	int adj[7] = {0,0,0,0,0,0,0};
+
+	int jd;
+	hdate_struct temp_h;
+
+	char* new_jdn_list_ptr;
+	char* print_ptr;
+	size_t print_len;
+	char* new_string_ptr;
+	size_t string_list_buffer_size = sizeof(int); /// The first atom of this buffer is the array element size
+	size_t string_list_index = 0;
+	#define LIST_INCREMENT        10
+
+
+	/************************************************************
+	* sub-procedure for read_custom_days_file()
+	* bounds check the fields for advancing/postponing
+	* a custom_day
+	************************************************************/
+	int validate_adjustment( int i )
+	{
+		if ( (i<-3) || (i>3) ) return FALSE;
+		return TRUE;
+	}
+
+	/************************************************************
+	* sub-procedure for read_custom_days_file()
+	************************************************************/
+	void free_my_mallocs()
+	{
+		if (heb_long_desc != NULL) {free(heb_long_desc);heb_long_desc = NULL;}
+		if (heb_abbr_desc != NULL) {free(heb_abbr_desc);heb_abbr_desc = NULL;}
+		if (eng_long_desc != NULL) {free(eng_long_desc);eng_long_desc = NULL;}
+		if (eng_abbr_desc != NULL) {free(eng_abbr_desc);eng_abbr_desc = NULL;}
+	}
+
+
+	/************************************************************
+	* begin main section of procedure read_custom_days_file()
+	************************************************************/
+	*jdn_list_ptr = NULL;
+	*string_list_ptr = NULL;
+
+	/// set the size of each element in the text buffer array
+	if   (text_short_form)	print_len = MAX_STRING_SIZE_SHORT;
+	else 					print_len = MAX_STRING_SIZE_LONG;
+
+	while ( end_of_input_file != TRUE )
+	{
+		free_my_mallocs();
+		end_of_input_file = getline(&input_string, &input_str_len, config_file);
+		if ( end_of_input_file != TRUE)
+		{
+			errno = 0;
+			match_count = sscanf(input_string, "%1[gGhHY], %u, %u, %u, %u, %u, %m[^,] , %m[^,] , %m[^,] , %m[^,] , %i, %i, %i",
+				&custom_day_type, &custom_start_year, &custom_month, &custom_day_of_month, &custom_nth, &custom_day_of_week,
+				&heb_long_desc, &heb_abbr_desc, &eng_long_desc, &eng_abbr_desc,
+				&adj[WHEN_SHISHI], &adj[WHEN_SHABBAT], &adj[WHEN_RISHON] );
+			line_count++;
+			if (errno != 0)
+			{
+				error(0,errno,"scan error at line %d", line_count);
+				exit(0); // FIXME - why so fatal?
+			}
+			/* DEBUG  	if (match_count)
+				printf("line number = %d, matches made = %d\n\tday_type = %c start_year = %d month = %d, day_of_month = %d\n\tnth = %d day_of_week = %d\n\t%s\n\t%s\n\t%s\n\t%s\n\tif_fri = %d if_sbt = %d if_sun = %d\n\n",
+					line_count, match_count, custom_day_type, custom_start_year, custom_month, custom_day_of_month, custom_nth, custom_day_of_week,
+					heb_long_desc, heb_abbr_desc, eng_long_desc, eng_abbr_desc,
+					adj[WHEN_SHISHI], adj[WHEN_SHABBAT], adj[WHEN_RISHON]); */
+
+			if (match_count != 13) continue;
+
+			/************************************************************
+			* At this point, we have successfully scanned/parsed a line
+			* and are ready to begin sanity and bounds checking. The
+			* switch() validates all of the parameters scanned/parsed,
+			* converts the custom_day to the julian_day_number of the
+			* relevant year, and applies any advancement/postponement
+			* for shishi-Shab-motzash.
+			************************************************************/
+			switch ( custom_day_type )
+			{
+			case 'G':
+				if ((!validate_hdate(CHECK_YEAR_PARM, custom_day_of_month, custom_month, custom_start_year, TRUE, &h1))  ||
+					(!validate_hdate(CHECK_MONTH_PARM, custom_day_of_month, custom_month, h1.gd_year, TRUE, &h1)       ) ||
+					(!validate_hdate(CHECK_DAY_PARM, custom_day_of_month, custom_month, h1.gd_year, TRUE, &h1)         ) ||
+					(!validate_adjustment(adj[WHEN_SHISHI] ))   ||
+					(!validate_adjustment(adj[WHEN_SHABBAT]))   ||
+					(!validate_adjustment(adj[WHEN_RISHON] ))      )
+					continue;
+				hdate_set_gdate( &temp_h, custom_day_of_month, custom_month, h1.gd_year);
+				jd = temp_h.hd_jd + adj[temp_h.hd_dw-1];
+				if (adj[temp_h.hd_dw-1]) hdate_set_jd(&temp_h, jd);
+				if ( (!d_todo) && (y_todo > HEB_YR_LOWER_BOUND) && (y_todo != temp_h.hd_year) )
+				{
+					hdate_set_gdate( &temp_h, custom_day_of_month, custom_month, h1.gd_year+1);
+					jd = temp_h.hd_jd + adj[temp_h.hd_dw-1];
+					if (adj[temp_h.hd_dw-1]) hdate_set_jd(&temp_h, jd);
+				}
+				break;
+			case 'H':
+				if ((!validate_hdate(CHECK_YEAR_PARM, custom_day_of_month, custom_month, custom_start_year, TRUE, &h1))  ||
+					(!validate_hdate(CHECK_MONTH_PARM, custom_day_of_month, custom_month, h1.hd_year, TRUE, &h1)       ) ||
+					(!validate_hdate(CHECK_DAY_PARM, custom_day_of_month, custom_month, h1.hd_year, TRUE, &h1)         ) ||
+					(!validate_adjustment(adj[WHEN_SHISHI]))   ||
+					(!validate_adjustment(adj[WHEN_SHABBAT]))  ||
+					(!validate_adjustment(adj[WHEN_RISHON]))     )
+					continue;
+				hdate_set_hdate( &temp_h, custom_day_of_month, custom_month, h1.hd_year);
+				jd = temp_h.hd_jd + adj[temp_h.hd_dw-1];
+				if (adj[temp_h.hd_dw-1]) hdate_set_jd(&temp_h, jd);
+				if ( (!d_todo) && (y_todo <= HEB_YR_LOWER_BOUND) && (y_todo != temp_h.gd_year) )
+				{
+					hdate_set_hdate( &temp_h, custom_day_of_month, custom_month, h1.hd_year+1); //?
+					jd = temp_h.hd_jd + adj[temp_h.hd_dw-1];
+					if (adj[temp_h.hd_dw-1]) hdate_set_jd(&temp_h, jd);
+				}
+				break;
+			case 'g':
+				if ((!validate_hdate(CHECK_YEAR_PARM, custom_day_of_month, custom_month, custom_start_year, TRUE, &h1))  ||
+					(!validate_hdate(CHECK_MONTH_PARM, 1, custom_month, h1.gd_year, TRUE, &h1)                         ) ||
+					(custom_nth < 1) || (custom_nth > 5) ||
+					(custom_day_of_week < 1) || (custom_day_of_week > 7) )
+					continue;
+				hdate_set_gdate( &temp_h, 1, custom_month, h1.gd_year);
+				jd = temp_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - temp_h.hd_dw);
+				hdate_set_jd(&temp_h, jd);
+				if ((custom_nth==5) && ( custom_month != temp_h.gd_mon))
+				{
+					if ( (!d_todo) && (y_todo > HEB_YR_LOWER_BOUND) && (y_todo != temp_h.hd_year) )
+					{
+						hdate_set_gdate( &temp_h, 1, custom_month, h1.gd_year+1);
+						jd = temp_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - temp_h.hd_dw);
+						hdate_set_jd(&temp_h, jd);
+						if ((custom_nth==5) && ( custom_month != temp_h.gd_mon)) continue;
+					}
+					else continue;
+				}
+				else if ( (!d_todo) && (y_todo > HEB_YR_LOWER_BOUND) && (y_todo != temp_h.hd_year) )
+				{
+					hdate_set_gdate( &temp_h, 1, custom_month, h1.gd_year+1);
+					jd = temp_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - temp_h.hd_dw);
+					hdate_set_jd(&temp_h, jd);
+					if ((custom_nth==5) && ( custom_month != temp_h.gd_mon)) continue;
+				}
+				// perform adjustments and verify (again!?!)
+				break;
+			case 'h':
+				if ((!validate_hdate(CHECK_YEAR_PARM, custom_day_of_month, custom_month, custom_start_year, TRUE, &h1) ) ||
+					(!validate_hdate(CHECK_MONTH_PARM, 1, custom_month, h1.hd_year, TRUE, &h1)                          )||
+					(custom_nth < 1) || (custom_nth > 5) ||
+					(custom_day_of_week < 1) || (custom_day_of_week > 7) )
+					continue;
+				hdate_set_hdate( &temp_h, 1, custom_month, h1.hd_year);
+				jd = temp_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - temp_h.hd_dw);
+				hdate_set_jd(&temp_h, jd);
+				if ((custom_nth==5) && ( custom_month != temp_h.hd_mon))
+				{
+					if ( (!d_todo) && (y_todo <= HEB_YR_LOWER_BOUND) && (y_todo != temp_h.gd_year) )
+					{
+						hdate_set_hdate( &temp_h, 1, custom_month, h1.hd_year+1);
+						jd = temp_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - temp_h.hd_dw);
+						hdate_set_jd(&temp_h, jd);
+						if ((custom_nth==5) && ( custom_month != temp_h.hd_mon)) continue;
+					}
+					else continue;
+				}
+				else if ( (!d_todo) && (y_todo <= HEB_YR_LOWER_BOUND) && (y_todo != temp_h.gd_year) )
+				{
+					hdate_set_hdate( &temp_h, 1, custom_month, h1.hd_year+1);
+					jd = temp_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - temp_h.hd_dw);
+					hdate_set_jd(&temp_h, jd);
+					if ((custom_nth==5) && ( custom_month != temp_h.hd_mon)) continue;
+				}
+				// perform adjustments and verify (again!?!)
+				break;
+			default:
+				// report system error; possibly intentionally crash
+				break;
+			}
+//printf("parsed. d=%d, m=%d, y=%d, temp_h.hd_year=%d temp_h.gd_year=%d\n",d_todo,m_todo,y_todo,temp_h.hd_year,temp_h.gd_year);
+			/************************************************************
+			* At this point, we have computed the jd of the occurrence
+			* of the parsed line's custom_day for the year in question.
+			* Now we range check it against the interval being processed
+			* - either a single day, single month, or single year. This
+			* is non-trivial because the interval and the parse line may
+			* have been denominated in different calendars.
+			* We are depending upon h1, a parameter passed to us, being
+			* the correct hdate_struct for the first day of the interval.
+			* We compute the hdate_struct for our jd (if hadn't already
+			* been done in the switch for sanity and bounds checking) and
+			* compare its values to the interval parameters passed to us
+			************************************************************/
+			if (d_todo)
+			{
+				/// interval is a single day
+				if (jd != h1.hd_jd) continue;
+			}
+			else
+			{
+				/// our custom_day is too early
+				if (jd < h1.hd_jd) continue;
+
+				if (m_todo)
+				{
+					/// interval is for an entire month
+					if (y_todo > HEB_YR_LOWER_BOUND)
+					{
+						if ( m_todo != temp_h.hd_mon) continue;
+					}
+					else if ( m_todo != temp_h.gd_mon) continue;
+				}
+				else
+				{
+					/// (!m) interval is for an entire year
+					if (y_todo > HEB_YR_LOWER_BOUND)
+					{
+						if (y_todo != temp_h.hd_year) continue;
+					}
+					else if ( y_todo != temp_h.gd_year) continue;
+				}
+			}
+//printf("this item appropriate to store\n");
+
+			/************************************************************
+			* If we get this far, we can add this custom day to the list
+			* to be returned, and be confident that it will be needed and
+			* used.
+			* 1] increment number of items in list
+			* 2] add the day's jdn to our malloc'ed array
+			* 3] determine which of the four text strings are desired
+			* 		(Heb/Local Long/Short)
+			* 4] realloc/append the text string to string_list
+			* 
+			* Values defined in libhdate (hdate_strings.c)
+			*	HDATE STRING_SHORT   1
+			*	HDATE_STRING_LONG    0
+			*	HDATE_STRING_HEBREW  1
+			*	HDATE_STRING_LOCAL   0
+			************************************************************/
+			/// manage target buffer size
+			if (!(number_of_items%LIST_INCREMENT))
+			{
+//printf("about to alloc for jdn. current pointer address: %ld\n", (long)*jdn_list_ptr);
+				new_jdn_list_ptr = realloc(*jdn_list_ptr, sizeof(int)*(number_of_items + LIST_INCREMENT));
+				if (new_jdn_list_ptr == NULL)
+				{
+					/// realloc has failed. However, the original pointer and
+					/// all its data are supposed to be fine. For now, let's
+					/// silently abort reading the file because, in practice
+					/// if we've really exhausted memory, we're about to
+					/// seriouly crash anyway
+					// TODO - consider issuing a warning / aborting
+					free_my_mallocs(); // the four string pointers
+					return number_of_items;
+				}
+				else
+				{
+					*jdn_list_ptr = (int*) new_jdn_list_ptr;
+//printf("alloc for jdn succeeded. current pointer address: %ld\n", (long)*jdn_list_ptr);
+				}
+			}
+
+//printf("about to store jdn (number of items = %d)\n",number_of_items);
+			/// store the custom_day's jdn
+			memcpy(*jdn_list_ptr+(sizeof(int)*number_of_items),&jd,sizeof(int));
+
+
+			/// decide which text string to store
+			if (text_short_form)
+			{
+				if (text_hebrew_form) print_ptr = heb_abbr_desc;
+				else print_ptr = eng_abbr_desc;
+			}
+			else
+			{
+				if (text_hebrew_form) print_ptr = heb_long_desc;
+				else print_ptr = eng_long_desc;
+			}
+
+
+			/// manage target buffer size
+			if (!(number_of_items%LIST_INCREMENT))
+			{
+				string_list_buffer_size = string_list_buffer_size +
+						sizeof(char) * ( (print_len+1) * LIST_INCREMENT);
+//printf("about to alloc %d bytes for text. current pointer address: %ld\n", string_list_buffer_size, (long) *string_list_ptr);
+				new_string_ptr = realloc(*string_list_ptr, string_list_buffer_size);
+//printf("realloc exited\n");
+				if (new_string_ptr == NULL)
+				{
+					/// realloc has failed. However, the original pointer and
+					/// all its data are supposed to be fine. For now, let's
+					/// silently abort reading the file because, in practice
+					/// if we've really exhausted memory, we're about to
+					/// seriouly crash anyway
+					// TODO - consider issuing a warning / aborting
+					free_my_mallocs(); // the four string pointers
+					return number_of_items;
+				}
+				else
+				{
+					*string_list_ptr = new_string_ptr;
+//printf("realloc succeeded. current pointer address: %ld\n", (long) *string_list_ptr);
+					// FIXME - should only have to do this once,
+					//         upon the initial m(re)alloc.
+					**string_list_ptr = print_len + 1;
+				}
+			}
+//printf("about to store text at index %d, print_len=%d\n",string_list_index,print_len);
+			/// store the custom_day's text_string
+			memcpy(*string_list_ptr + sizeof(int) + (sizeof(char)*string_list_index), print_ptr, print_len);
+			string_list_index = string_list_index + print_len + 1;
+//printf("index is now %d\n",string_list_index);
+			memset(*string_list_ptr + sizeof(int) + (sizeof(char)*(string_list_index-1)), '\0', 1);
+			number_of_items++;
+		}
+	}
+
+	return number_of_items;
 }
 
 
 /************************************************************
-* Parse "custom days" file
-* - yes, currently just a stub
-* - will parse for yahrtzeits, anniversaries, holidays, etc.
+* test_print_custom_days
+* 
+* This is a debug routine
 ************************************************************/
-// BUG - FIXME - The bounds checking for the days of the month is weak
-void parse_custom_days_file( FILE* config_file )
+void test_print_custom_days(int custom_days_cnt, int* jdn_list_ptr, char* string_list_ptr)
 {
-	char	*input_string = NULL;
-	size_t	input_str_len;
-
-	int		line_count = 0;
-	int		match_count;
-	int		end_of_input_file = FALSE;
-	int		error_found = FALSE;
-
-	char day_type;          // 0=H, 1=Y, 2=G, 3=h, 4=g
-	int start_year;
-	int month;
-	int day_of_month;
-	int nth;               //  1 <= n <=  4
-	int day_of_week;
-	char *heb_long_desc;
-	char *heb_abbr_desc;
-	char *eng_long_desc;
-	char *eng_abbr_desc;
-	int when_shishi;       // -3 <= n <= +3
-	int when_shabbat;      // -3 <= n <= +3
-	int when_rishon;       // -3 <= n <= +3
-
-	custom_day custom_days;
-
-	while ( end_of_input_file!=TRUE )
+	printf("entered test print routine\nnumber of custom_days = %d\n",custom_days_cnt);
+	int i, print_len, day, month, year;
+	print_len = (int) *string_list_ptr;
+	string_list_ptr = string_list_ptr + sizeof(int);
+	for (i=0; i<custom_days_cnt; i++)
 	{
-		end_of_input_file = getline(&input_string, &input_str_len, config_file);
-		if ( end_of_input_file!=TRUE )
-		{
-			errno = 0;
-			match_count = sscanf(input_string,"%1c[gGhHY], %u, %u, %u, %u, %u, %m[^\n], %m[^\n], %m[^\n], %m[^\n], %i, %i, %i",
-				&day_type, &start_year, &month, &day_of_month, &nth, &day_of_week,
-				&heb_long_desc, &heb_abbr_desc, &eng_long_desc, &eng_abbr_desc,
-				&when_shishi, &when_shabbat, &when_rishon );
-			line_count++;
-			if (errno != 0) error(0,errno,"scan error at line %d", line_count);
-			// DEBUG - 	printf("line number = %d, matches made = %d", line_count, match_count);
-			switch (match_count)
-			{
-			case 13: // all fields scanned
-				switch (day_type)
-				{
-				case 'H': custom_days.day_type = 0; break;
-				case 'Y': custom_days.day_type = 1; break;
-				case 'G': custom_days.day_type = 2; break;
-				case 'h': custom_days.day_type = 3; break;
-				case 'g': custom_days.day_type = 4; break;
-				}
-
-				if  (strchr("Gg", day_type) != NULL )
-				{
-					if ( start_year < heb_yr_lower_bound ) custom_days.start_year = start_year;
-					else error_found = TRUE;
-				}
-				else
-				{
-					if ( start_year < heb_yr_upper_bound ) custom_days.start_year = start_year;
-					else error_found = TRUE;
-				}
-
-				if (!error_found)
-				{
-					if (month > 14) error_found = TRUE;
-					else if ( (strchr("gG", day_type) != NULL ) && (month > 12) ) error_found = TRUE;
-					else custom_days.month = month;
-				}
-				
-				if (!error_found)
-				{
-					if (day_of_month >31) error_found = TRUE;
-					else custom_days.day_of_month = day_of_month;
-				}
-
-				if ( (!error_found) && (strchr("gh", day_type) == NULL ) )
-				{
-					if ( (day_of_week >7) || (day_of_week == 0) ) error_found = TRUE;
-					else custom_days.day_of_week = day_of_week;
-					if ( (!error_found) && ( (nth > 4) || nth == 0) ) error_found = TRUE;
-					else custom_days.nth = nth;
-				}
-
-
-				if ( (!error_found) && (strchr("gh", day_type) != NULL ) )
-				{
-					if ( (when_shishi >= -3) && (when_shishi <= 3) )
-						custom_days.when_shishi = when_shishi;
-					else error_found = TRUE;
-					if ( (!error_found) && (when_shabbat >= -3) && (when_shabbat <= 3) )
-						custom_days.when_shabbat = when_shabbat;
-					else error_found = TRUE;
-					if ( (!error_found) && (when_rishon >= -3) && (when_rishon <= 3) )
-						custom_days.when_rishon = when_rishon;
-					else error_found = TRUE;
-				}
-
-				if (!error_found)
-				{
-					custom_days.heb_long_desc = heb_long_desc;
-					custom_days.heb_abbr_desc = heb_abbr_desc;
-					custom_days.eng_long_desc = eng_long_desc;
-					custom_days.eng_abbr_desc = eng_abbr_desc;
-				}
-
-				;;
-			case 10: free(eng_abbr_desc);
-			case  9: free(eng_long_desc);
-			case  8: free(heb_abbr_desc);
-			case  7: free(heb_long_desc);
-			case'*': ;
-			}
-		}
+		hdate_jd_to_gdate ( *jdn_list_ptr, &day, &month, &year);
+		printf("%d: %d %4d-%02d-%02d %s\n",i,*jdn_list_ptr,year,month,day,string_list_ptr);
+		jdn_list_ptr = jdn_list_ptr + sizeof(int);
+		string_list_ptr = string_list_ptr + (sizeof(char)*print_len);
 	}
-	if (input_string != NULL ) free(input_string);
-	return;
 }
-
-
-
-
 
 /************************************************************
 * Generic read config key file
@@ -1048,11 +1522,6 @@ void generic_read_config_key_file( FILE* config_file )
 
 
 
-
-
-
-
-
 /************************************************************
 * Open config file, or create one
 *  - returns filepointer or NULL
@@ -1060,7 +1529,8 @@ void generic_read_config_key_file( FILE* config_file )
 ************************************************************/
 FILE* get_config_file(	const char* config_dir_name,
 						const char* config_file_name,
-						const char* default_config_file_text )
+						const char* default_config_file_text,
+						const int quiet_alerts )
 {
 #include <pwd.h>			// for get pwuid
 #include <unistd.h>			// for getuid
@@ -1080,17 +1550,23 @@ FILE* get_config_file(	const char* config_dir_name,
 	/************************************************************
 	* sub-function to get_config_file: create_config_file
 	************************************************************/
+	// FIXME - identify name of config file being created
+	//         hdaterc or custom_days, or....
 	void create_config_file()
 	{
-		config_file = fopen(config_file_path, "a");
+		if (!quiet_alerts) printf("Attempting to create a config file ...\n");
+ 		config_file = fopen(config_file_path, "a");
 		if (config_file == NULL)
 		{
-			error(0, errno, "%s: %s", N_("failure attempting to create config file"), config_file_path);
+			if (!quiet_alerts) error(0, errno, "%s: %s", N_("failure attempting to create config file"), config_file_path);
 			return;
 		}
 		fprintf(config_file, default_config_file_text);
-		error(0,0,"%s: %s",N_("config file created"), config_file_path);
-		if (fclose(config_file) != 0) error(0,errno,"%s %s",N_("failure closing"),config_file_name);
+		if (fclose(config_file) != 0)
+		{
+			if (!quiet_alerts) error(0,errno,"%s %s",N_("failure closing"),config_file_name);
+		}
+		else if (!quiet_alerts) printf("%s: %s\n",N_("created config file:"), config_file_path);
 	}
 
 	/************************************************************
@@ -1108,7 +1584,7 @@ FILE* get_config_file(	const char* config_dir_name,
 						+ strlen(config_dir_name) +1;
 			if (path_len < 1) return FALSE;
 			config_dir_path = malloc(path_len);
-			if (config_dir_path == NULL)
+			if ( (config_dir_path == NULL) && (!quiet_alerts) )
 			{
 				error(0,errno,"%s",N_("memory allocation failure"));
 				return FALSE;
@@ -1153,7 +1629,7 @@ FILE* get_config_file(	const char* config_dir_name,
 				+ strlen(config_dir_name) + strlen(config_file_name) + 1;
 	if (path_len < 1) return NULL;
 	config_file_path = malloc(path_len);
-	if (config_file_path == NULL)
+	if (( config_file_path == NULL) && (!quiet_alerts) )
 	{
 		error(0,errno,"memory allocation failure");
 		return NULL;
@@ -1172,6 +1648,35 @@ FILE* get_config_file(	const char* config_dir_name,
 		return NULL;
 }
 
+
+
+
+/****************************************************
+* read, parse and filter custom_days file
+****************************************************/
+int get_custom_days_list( int** jdn_list_ptr, char** string_list_ptr,
+			const int day, const int month, const int year,
+			const char calendar, const int quiet_alerts,
+			const hdate_struct range_start,
+			const char* config_dir, const char* config_filename,
+			const int text_short_form, const int text_hebrew_form )
+{
+	int number_of_items = 0;
+
+	// FIXME - create an option for both hcal/hdate to allow a custom path for this file
+	//         pass the default FULL path or the custom FULL path to read_custom_days_file
+	//         and let THAT function open and close the file
+	FILE *custom_file = get_config_file(config_dir, config_filename, custom_days_file_text, quiet_alerts);
+	if (custom_file != NULL)
+	{
+		number_of_items = read_custom_days_file(custom_file, jdn_list_ptr, string_list_ptr,
+										day, month, year, calendar, range_start,
+										text_short_form, text_hebrew_form );
+		fclose(custom_file);
+	}
+
+	return number_of_items;
+}
 
 
 

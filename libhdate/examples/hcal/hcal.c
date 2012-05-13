@@ -40,15 +40,11 @@
 #define CALENDAR_WIDTH_WIDE   41
 #define CALENDAR_WIDTH_NARROW 20
 
-#define HEB_YR_LOWER_BOUND 3000
-
-
-// for opt.menu[MAX_MENU_ITEMS]
+/// for opt.menu[MAX_MENU_ITEMS]
 #define MAX_MENU_ITEMS 10
 
 
-
-// for colorization
+/// for colorization
 #define CODE_BOLD_VIDEO    "%c[1m", 27
 #define CODE_REVERSE_VIDEO "%c[7m", 27
 #define CODE_RESTORE_VIDEO "%c[m", 27
@@ -134,6 +130,9 @@ typedef struct {
 			double lat;
 			double lon;
 			int tz;
+			int custom_days_cnt;
+			int* jdn_list_ptr;		/// for custom_days
+			char* string_list_ptr;	/// for custom_days
 			int menu;
 			char* menu_item[MAX_MENU_ITEMS];
 				} option_list;
@@ -502,7 +501,7 @@ void print_header_dow_line_html()
 
 	for (j = 1; j < 8; j++)
 		printf ("<th class=\"week\">%3s</th>",
-			hdate_string( HDATE_STRING_DOW, j, TRUE, FALSE));
+			hdate_string( HDATE_STRING_DOW, j, HDATE_STRING_SHORT, HDATE_STRING_LOCAL));
 }
 
 
@@ -781,7 +780,7 @@ void print_header_dow_line_stdout( const int colorize, const int gregorian, cons
 		int padding = 2;
 
 		if (hdate_is_hebrew_locale() || force_hebrew)
-		{	// Hebrew heading is a single charcter per day
+		{	/// Hebrew heading is a single character per day
 			if (!gregorian) printf("%s%s"," ", hdate_string( HDATE_STRING_DOW, column, HDATE_STRING_SHORT, HDATE_STRING_HEBREW));
 			else printf ("%s%s%s", "  ",
 				hdate_string( HDATE_STRING_DOW, column, HDATE_STRING_SHORT, HDATE_STRING_HEBREW),
@@ -1142,8 +1141,25 @@ void print_day ( const hdate_struct h, const int month, const option_list opt)
 
 	size_t hd_day_buffer_str_len;
 
-	int holiday_type;
+	int holiday_type = 0;
+
+	/// for custom days
+	int i;
+	int* jdn_list_ptr = opt.jdn_list_ptr;
+
 	holiday_type = hdate_get_holyday_type(hdate_get_holyday(&h, opt.diaspora));
+	if ((!holiday_type) && (opt.custom_days_cnt))
+	{
+		for (i=0; i<opt.custom_days_cnt; i++)
+		{
+			if (h.hd_jd == *jdn_list_ptr)
+			{
+				holiday_type = 9; // FIXME - should be configurable ?!
+				continue;
+			}
+			else jdn_list_ptr = jdn_list_ptr + sizeof(int);
+		}
+	}
 
 	/*****************************************************
 	*  embedded sub-function: print_gregorian()
@@ -1242,8 +1258,8 @@ void print_day ( const hdate_struct h, const int month, const option_list opt)
 	/**************************************************
 	*  out of month - needs padding
 	*************************************************/
-	if ( ( (opt.gregorian > 1)  && (h.gd_mon != month) ) ||
-	     ( (opt.gregorian == 1) && (h.hd_mon != month) ) )
+	if ( ( (opt.gregorian >  1)  && (h.gd_mon != month) ) ||
+	     ( (opt.gregorian == 1)  && (h.hd_mon != month) ) )
 		printf("     ");
 	else if ( (opt.gregorian == 0) && (h.hd_mon != month) )
 		printf("  ");
@@ -1466,6 +1482,7 @@ int print_calendar ( int current_month, int current_year, const option_list opt)
 						if (h.hd_dw > 5) max_calendar_lines = 6;
 						else if (max_calendar_lines == 4) max_calendar_lines = 5;
 						break;
+			case 2:		if (h.hd_dw > 1) max_calendar_lines = 5;
 			}
 		}
 		else
@@ -1493,7 +1510,7 @@ int print_calendar ( int current_month, int current_year, const option_list opt)
 	else
 		hdate_set_hdate (&h, 1, current_month, current_year);
 	jd_current_month = h.hd_jd - h.hd_dw + 1;
-	how_many_calendar_lines(jd_current_month);
+	how_many_calendar_lines();
 
 
 	/*********************************************************
@@ -1604,29 +1621,82 @@ int print_calendar ( int current_month, int current_year, const option_list opt)
 }
 
 
+/****************************************************
+* print footnote
+****************************************************/
+void print_footnote( const hdate_struct h, const int footnote_month,
+				const option_list opt, const char* text_ptr )
+{
+	/// all these for bidi alignment
+	char *bidi_buffer;
+	size_t text_ptr_len;
+	int print_len;
 
+	print_day ( h, footnote_month, opt);
+	if (opt.colorize)
+	{
+		if (opt.jd_today_h == h.hd_jd) colorize_element(opt.colorize, ELEMENT_TODAY_HOLIDAY_NAME);
+		else colorize_element(opt.colorize, ELEMENT_HOLIDAY_NAME);
+	}
 
+	if (opt.bidi)
+	{
+		text_ptr_len = strlen(text_ptr);
+		bidi_buffer = malloc(text_ptr_len+1);
+		memcpy(bidi_buffer, text_ptr, text_ptr_len);
+		bidi_buffer[text_ptr_len] = '\0';
+		print_len = revstr(bidi_buffer, text_ptr_len);
+
+		#define FOOTNOTE_MARGIN_MAX 20
+		printf("%*s%s\n", (FOOTNOTE_MARGIN_MAX - print_len)," ", bidi_buffer);
+
+		free(bidi_buffer);
+	}
+	else printf ("  %s\n", text_ptr);
+
+	if (opt.colorize) printf (CODE_RESTORE_VIDEO);
+}
 
 
 /****************************************************
 * print month header, month table, month footnotes
 ****************************************************/
-int print_month ( const int month, const int year, const option_list opt)
+int print_month ( const int month, const int year, option_list opt)
 {
 
 	hdate_struct h;
+	char calendar_type; /// for custom days
 
 	/// for opt.footnote
 	int jd_counter, holiday, footnote_month;
 
-	/// for bidi column alignmnet
-	int print_len;
-
 	/// check if hebrew year
 	if (year > HEB_YR_LOWER_BOUND)
+	{
 		hdate_set_hdate (&h, 1, month, year);
-	else hdate_set_gdate (&h, 1, month, year);
+		calendar_type = 'H';
+	}
+	else
+	{
+		hdate_set_gdate (&h, 1, month, year);
+		calendar_type = 'G';
+	}
 
+	/// custom days
+	// TODO - This is a wasteful implementation, because IF the user
+	//        has asked to print a year, we will open and parse the
+	//        custom day config file 12 - 13 times. I jusitfy this
+	//        because I expect that option to be exceedingly rare, and
+	//        that the usual case of a year's request will be using
+	//        'three-month' mode.
+	// TODO - 'three-month mode custom days...
+	opt.custom_days_cnt = get_custom_days_list(
+								&opt.jdn_list_ptr, &opt.string_list_ptr,
+								0, 0, year,
+								calendar_type, opt.quiet_alerts, h,
+								"/hcal", "/custom_days",
+								HDATE_STRING_LONG, opt.force_hebrew);
+	// test_print_custom_days(opt.custom_days_cnt, opt.jdn_list_ptr, opt.string_list_ptr);
 
 	if (opt.gregorian >1)
 	{
@@ -1655,40 +1725,23 @@ int print_month ( const int month, const int year, const option_list opt)
 			holiday = hdate_get_holyday(&h, opt.diaspora);
 			if (holiday)
 			{
-				print_day ( h, footnote_month, opt);
-				if (opt.colorize)
+				print_footnote( h, footnote_month, opt,
+								hdate_string( HDATE_STRING_HOLIDAY,
+											  holiday,
+											  HDATE_STRING_LONG,
+											  opt.force_hebrew));
+			}
+			if (opt.custom_days_cnt)
+			{
+				int i;
+				int* jdn_list_ptr = opt.jdn_list_ptr;
+				for (i=0; i<opt.custom_days_cnt; i++)
 				{
-					if (opt.jd_today_h == h.hd_jd) colorize_element(opt.colorize, ELEMENT_TODAY_HOLIDAY_NAME);
-					else colorize_element(opt.colorize, ELEMENT_HOLIDAY_NAME);
+					if (h.hd_jd == *jdn_list_ptr)
+						print_footnote( h, footnote_month, opt,
+										get_custom_day_ptr(i, opt.string_list_ptr));
+					jdn_list_ptr = jdn_list_ptr + sizeof(int);
 				}
-
-				if (opt.bidi)
-				{
-					char *holiday_str, *holiday_buffer;
-					size_t holiday_str_len;
-					holiday_str = hdate_string( HDATE_STRING_HOLIDAY,
-										holiday,
-										HDATE_STRING_LONG,
-										opt.force_hebrew);
-
-					holiday_str_len = strlen(holiday_str);
-					holiday_buffer = malloc(holiday_str_len+1);
-					memcpy(holiday_buffer, holiday_str, holiday_str_len);
-					holiday_buffer[holiday_str_len] = '\0';
-					print_len = revstr(holiday_buffer, holiday_str_len);
-
-					#define FOOTNOTE_MARGIN_MAX 20
-					printf("%*s%s\n", (FOOTNOTE_MARGIN_MAX - print_len)," ", holiday_buffer);
-
-					free(holiday_buffer);
-				}
-				else printf ("  %s\n",
-							hdate_string( HDATE_STRING_HOLIDAY,
-										holiday,
-										HDATE_STRING_LONG,
-										opt.force_hebrew));
-
-				if (opt.colorize) printf (CODE_RESTORE_VIDEO);
 			}
 			jd_counter++;
 			hdate_set_jd (&h, jd_counter);
@@ -1696,6 +1749,8 @@ int print_month ( const int month, const int year, const option_list opt)
 	}
 	return 0;
 }
+
+
 
 
 /****************************************************
@@ -2043,7 +2098,7 @@ int main (int argc, char *argv[])
 {
 	int error_detected = FALSE;		// exit after reporting ALL bad parms
 
-	/* date */
+	/// dates
 	hdate_struct h;
 	int month, year;
 	static int num_of_months = 12;	// how many months in the year
@@ -2083,14 +2138,14 @@ int main (int argc, char *argv[])
 	for (i=0; i<MAX_MENU_ITEMS; i++) opt.menu_item[i] = NULL;
 
 
-	// support for getopt short options
+	/// support for getopt short options
 	static char * short_options = "013bcdfghHiImpqsl:L:z:";
 
-	/* support for long options */
+	/// support for long options
 	int long_option_index = 0;
 	int c;
 	static struct option long_options[] = {
-	//   name,  has_arg, flag, val
+	///   name,  has_arg, flag, val
 		{"version", 0, 0, 0},
 		{"help", 0, 0, 0},
 		{"no-reverse", 0, 0, 0},
@@ -2158,7 +2213,7 @@ int main (int argc, char *argv[])
 	/************************************************************
 	* parse config file
 	************************************************************/
-	FILE *config_file = get_config_file("/hcal", "/hcalrc", hcal_config_file_text);
+	FILE *config_file = get_config_file("/hcal", "/hcalrc", hcal_config_file_text, opt.quiet_alerts);
 	if (config_file != NULL)
 	{
 		read_config_file(config_file, &opt, &lat, &opt_latitude, &lon, &opt_Longitude, &tz);
@@ -2249,7 +2304,7 @@ int main (int argc, char *argv[])
 	************************************************************/
 	if ((opt.no_reverse) || (opt.html))
 	{
-		// user doesn't want any highlighting
+		/// user doesn't want any highlighting
 		opt.jd_today_g = 0;
 		opt.jd_today_h = 0;
 	}
@@ -2275,9 +2330,9 @@ int main (int argc, char *argv[])
 	if (argc == (optind))
 	{
 		if ((opt.not_sunset_aware) || (opt.no_reverse) || (opt.html))
-			// call function only if not already called
-			// for sunset awareness, above.
-			hdate_set_gdate (&h, 0, 0, 0);	// today
+			/// call function only if not already called
+			/// for sunset awareness, above.
+			hdate_set_gdate (&h, 0, 0, 0);	/// today
 		if (opt.gregorian > 1)
 		{
 			month = h.gd_mon;
@@ -2296,8 +2351,9 @@ int main (int argc, char *argv[])
 		********************************************************/
 		if (argc == (optind + 2))
 		{
-			month = atoi (argv[optind]);
-			year = atoi (argv[optind + 1]);
+			int data_sink;
+			if (!parse_date( argv[optind], argv[optind+1], "", &year, &month, &data_sink, 2))
+				exit_main(&opt,0);
 		}
 		else if (argc == (optind + 1))
 		{
@@ -2306,14 +2362,14 @@ int main (int argc, char *argv[])
 		}
 		else
 		{
-			error(0,0,"%s: %s", N_("error"), N_("too many parameters received. expected  [[mm] [yyyy]"));
+			error(0,0,"%s: %s", N_("error"), N_("too many parameters received (expected at most month and year after options list)"));
 			exit_main(&opt, 0);
 		}
 
 		/********************************************************
 		* parameter validation - year
 		********************************************************/
-		if (!validate_hdate(CHECK_YEAR_PARM, 0, month, year))
+		if (!validate_hdate(CHECK_YEAR_PARM, 0, month, year, FALSE, &h))
 		{
 			print_parm_error(N_("year"));
 			exit_main(&opt, 0);
@@ -2321,25 +2377,12 @@ int main (int argc, char *argv[])
 		/********************************************************
 		* parameter validation - month
 		********************************************************/
-		if ((month!=0) && (!validate_hdate(CHECK_MONTH_PARM, 0, month, year)))
+		if ((month!=0) && (!validate_hdate(CHECK_MONTH_PARM, 0, month, year, TRUE, &h)))
 		{
 			print_parm_error(N_("month"));
 			exit_main(&opt, 0);
 		}
 	}
-
-
-/************************************************************
-* parse custom_holiday file
-************************************************************/
-config_file = get_config_file("/hcal", "/custom_days_rc", custom_days_file_text);
-if (config_file != NULL)
-{
-	parse_custom_days_file(config_file);
-	fclose(config_file);
-}
-
-
 
 /************************************************************
 * begin processing the user request
@@ -2352,7 +2395,7 @@ if (config_file != NULL)
 	else
 	{
 		tzset();
-		// system timezone is denominated in seconds
+		/// system timezone is denominated in seconds
 		if ( (timezone/-3600) != 2) opt.diaspora = 1;
 	}
 

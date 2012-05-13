@@ -561,6 +561,12 @@ void test_mktime ()
 
 
 
+/***********************************************************************
+* tzif2_handle
+*
+* 
+* 
+***********************************************************************/
 
 char* tzif2_handle( timezonefileheader *tzh, const char *tzfile_buffer_ptr, size_t buffer_size )
 {
@@ -589,6 +595,13 @@ char* tzif2_handle( timezonefileheader *tzh, const char *tzfile_buffer_ptr, size
 
 
 
+/***********************************************************************
+* timezone_display_local_info
+*
+* This function was written as an exercise to verify how to parse/read
+* all the contents of a TZif (timezone definition) file.
+* 
+***********************************************************************/
 void timezone_display_local_info()
 {
 	FILE *tz_file;
@@ -752,12 +765,22 @@ void print_alert_coordinate( const char *city_name )
 
 /***********************************************************************
 * get_lat_lon_from_zonetab_file
-* 
+*
+* The zone.tab file is often "/usr/share/zoneinfo/zone.tab". It is a
+* table in the format:
+* aa [+-]nnnnnn[+-]nnnnnnn bbbbbb/bbbbbbb cccccccccccccccccccc
+* where:
+* aa	is a two-character country code
+* nn	is latitude an longitude in form ddmm and optionally ss,
+*   	with NO space between the numbers, only the +/- sign.
+* bb	is the official name of the timezone which, I guess is
+*   	what is at the location nn above.
+* cc	is an extended description of the timezone location.
 * 
 * returns FALSE upon any failure.
 *  
 ***********************************************************************/
-int get_lat_lon_from_zonetab_file( const char* search_string, double *lat, double *lon )
+int get_lat_lon_from_zonetab_file( const char* search_string, double *lat, double *lon, int quiet_alerts )
 {
 
 	double convert_from_dms( long in_val, int num_of_digits )
@@ -790,9 +813,9 @@ int get_lat_lon_from_zonetab_file( const char* search_string, double *lat, doubl
 	size_t	lat_end, lon_end;
 
 
-	/** In Debian, the TZDIR is unset and the default is used
-	 ** but the POSIX spec allows for a flexible location of
-	 ** TZDIR. */
+	/** In Debian, the TZDIR environmental variable is unset
+	 ** and the default is used, but the POSIX spec allows for
+	 ** a flexible location ofTZDIR. */
 	setlocale(LC_TIME,"");
 	tzdir_path = getenv("TZDIR");
 	if ((tzdir_path == NULL) ||
@@ -821,7 +844,7 @@ int get_lat_lon_from_zonetab_file( const char* search_string, double *lat, doubl
 					lat_end = strcspn( &lat_and_lon[1], "+-");
 					if ((lat_end < 4) || (lat_end > 6) )
 					{
-						printf("error parsing latitude from zone.tab file\n");
+						if (!quiet_alerts) printf("error parsing latitude from zone.tab file\n");
 						*lat = BAD_COORDINATE;
 						*lon = BAD_COORDINATE;
 					}
@@ -833,7 +856,7 @@ int get_lat_lon_from_zonetab_file( const char* search_string, double *lat, doubl
 						lon_end = strlen( &lat_and_lon[lat_end+1]);
 						if ((lon_end < 5) || (lon_end > 8) )
 						{
-							printf("error parsing longitude from zone.tab file. lon_end = %d\n", lon_end);
+							if (!quiet_alerts) printf("error parsing longitude from zone.tab file. lon_end = %d\n", lon_end);
 							*lat = BAD_COORDINATE;
 							*lon = BAD_COORDINATE;
 						}
@@ -843,7 +866,7 @@ int get_lat_lon_from_zonetab_file( const char* search_string, double *lat, doubl
 							number_string[lon_end+1] = '\0';
 
 							*lon = convert_from_dms ( atol(number_string), lon_end);
-							print_alert_coordinate(search_string);
+							if (!quiet_alerts) print_alert_coordinate(search_string);
 //							printf("lat %lf lon %lf\n\n", *lat, *lon);
 						}
 					}

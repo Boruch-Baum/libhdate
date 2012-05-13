@@ -1,36 +1,42 @@
+.\"                                      Hey, vim: ft=nroff
 .\" .UC 4
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
 .TH "hcal" "1" "2012-01-01" "Linux" "libhdate"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7). Also refer to groff(7).
 .SH "NAME"
 hcal \- displays a Hebrew / Gregorian calendar
 .PP 
 .SH "SYNOPSIS"
 .B hcal
-[options] [coordinates [timezone]] [[mm] yyyy]
+.RI [ options "] [" coordinates "] [" timezone "] [[" mm ] yyyy ]
 .TP
-coordinates: -l [NS]yy[.yyy] -L [EW]xx[.xxx]
+.RI "coordinates: -l ["NS ] yy [. yyy "] -L [" EW ] xx [. xxx ]
+.RE
+.RS 20
+.RI "-l ["NS ] yy [: mm [ :ss "]] -L ["EW ] xx [: mm [: ss ]]
 .RE
 .RS 7
-             -l [NS]yy[:mm[:ss]] -L [EW]xx[:mm[:ss]]
-.RE
-.RS 7
-timezone:    -z nn[( .nn | :mm )]
+.RI "timezone:    -z " nn "[(."nn |: mm ")]"
 .PP
 .SH "DESCRIPTION"
-.B hcal
-prints a calendar with both Gregorian and Hebrew dates for the
-specified Gregorian month or, if no month is specified, for the
-whole Gregorian year. If no arguments are given, it prints the
-current month's calendar. Jewish holidays are annotated, and can
-optionally be footnoted.
-.B hcal
-tries to be sunset-aware in order to correctly highlight the
-current Hebrew date, and can also display Shabbat times and
-parshiot. See the section LOCATIONS, below.
+\fBhcal\fP prints a calendar with both Gregorian and Hebrew dates for the specified Gregorian month or, if no month is specified, for the whole Gregorian year. If no arguments are given, it prints the current month's calendar. Jewish holidays are annotated, and can
+optionally be footnoted. \fBhcal\fP tries to be sunset-aware in order to correctly highlight the current Hebrew date, and can also display Shabbat times and parshiot. See the section \fBLOCATIONS\fP, below.
 .PP
 .B INPUTTING A HEBREW DATE:
-If the year provided is greater than 3000,
-.B hcal
-will interpret the given date as a Hebrew date, and will display the calendar of the corresponding Gregorian month(s). Hebrew months are expected to be passed as numbers 1-12 for Tishrei - Elul; Adar I and Adar II are expected to be passed as months 13 and 14.
+If the year provided is greater than 3000, \fBhcal\fP will interpret the given date as a Hebrew date, and will display the calendar of the corresponding Gregorian month(s). Hebrew months are expected to be passed as numbers 1-12 for Tishrei - Elul; Adar I and Adar II are expected to be passed as months 13 and 14.
 .PP 
 .SH "OPTIONS"
 .TP 18
@@ -38,32 +44,21 @@ will interpret the given date as a Hebrew date, and will display the calendar of
 This is the default. It prints only Hebrew month information. The option exists only to override a posible contrary config file setting.
 .TP
 .B \-1 --one-month
-over-ride config file setting if you had set option --three-month as a default there
+over-ride config file setting if you had set option \fB--three-month\fP as a default there
 .TP
 .B \-3 --three-month
 print previous/next months, side by side. requires 127 columns
-.TP 18
-.B \ \ \ --borders
-displays a frame around calendars in three-month mode
-.TP 18
-.B \ \ \ --spacing
-quoted string to separate months in three-month mode
+.TP 3
+.BR "   --borders" "      displays a frame around calendars in three-month mode"
+.br
+.BR --spacing "      quoted string to separate months in three-month mode"
 .TP
-.B \-b --bidi
-print Hebrew information in Hebrew , in reverse
-.RE
-.RS 7
-.B \ \ \ --visual
-\      sequence
-.P
-.RE
-.RS 7
-.B \ \ \ --no-bidi
-\     over-ride config file setting if you had set
-.RE
-.RS 7
-.B \ \ \ --no-visual
-\   option -bidi as a default there
+.BR "-b --bidi" "         print Hebrew information in Hebrew , in reverse"
+.BR --visual "       sequence"
+
+.BR --no-bidi "      over-ride config file setting if you had set"
+.br
+.BR --no-visual "    option " --bidi " as a default there"
 .TP 18
 .B \-c --colorize
 print in calming, muted tones.
@@ -71,8 +66,7 @@ print in calming, muted tones.
 will display in bolder, and mildy irritating, colors.
 .RE
 .RS 7
-.B \ \ \ --no-color
-\    over-ride config file setting
+.BR "   --no-color" "     over-ride config file setting"
 .TP 18
 .B \-d --diaspora
 use diaspora reading and holidays. Only relevant if hcal is using location information indicating an Israeli timezone
@@ -81,31 +75,28 @@ use diaspora reading and holidays. Only relevant if hcal is using location infor
 print descriptive notes of holidays
 .RE
 .RS 7
-.B \ \ \ --no-footnote
-\ over-ride config file setting
+.BR "   --no-footnote" "  over-ride config file setting"
 .TP 18
 .B \-g --gregorian
-include gregorian corresponding days. -gg displays a gregorian month with corresponding Hebrew days. Specifying option -g
+include gregorian corresponding days. \fB-gg\fP displays a gregorian month with corresponding Hebrew days. Specifying option \fB-g\fP
 with a gregorian date is equivalent to requesting the Hebrew month in which the first day of that specified gregorian month appears.
 .TP
 .B \-h --html
 print in html format to stdout
 .RE
 .RS 7
-.B \ \ \ --no-html
-\     over-ride config file setting
+.BR "   --no-html" "      over-ride config file setting"
 .TP 18
 .B \-H --hebrew
-print Hebrew information in Hebrew, in 'logical' sequence. If this displays in reverse for you, use option -b
+print Hebrew information in Hebrew, in 'logical' sequence. If this displays in reverse for you, use option \fB-b\fP
 .TP
 .B \-I --israel
 override a diaspora default. Only relevant if hcal is using location information indicating other than an Israeli timezone
 .TP
 .B \-i    
-use external css file "./hcal.css" for html output
+use external css file "\fI./hcal.css\fP" for html output
 .TP
-.B \ \ \ \--no-reverse
-do not highlight today's date
+.BR "   --no-reverse" "   do not highlight today's date"
 .TP
 .B \-p --parasha
 print week's parasha on each calendar row
@@ -114,13 +105,14 @@ print week's parasha on each calendar row
 print Shabbat times and parshiot
 .TP
 .B \-l --latitude
-[NS]yy[.yyy] decimal degrees, or [NS]yy[:mm[:ss]] degrees, minutes, seconds. Negative values are South
+.RI [ NS ] yy [. yyy "] decimal degrees, or [" NS ] yy [: mm [: ss "]] degrees, minutes, seconds. Negative values are South"
 .TP
 .B \-L --longitude
-[EW]xx[.xxx] decimal degrees, or [EW]xx[:mm[:ss]] degrees, minutes, seconds. Negative values are West
+.RI [ EW ] xx [. xxx "] decimal degrees, or [" EW ] xx [: mm [: ss "]] degrees, minutes, seconds. Negative values are West"
 .TP
 .B \-z --timezone
-\+/-UTC. Notation may  be in decimal hours ( hh[.hh] ) or hours, minutes ( hh[:mm] )
+\+/-UTC. Notation may  be in decimal hours
+.RI ( hh [. hh "]) or hours, minutes (" hh [: mm ])
 .SH NOTES
 .SS "HOLIDAYS"
 .PP
@@ -128,69 +120,44 @@ Holidays are depicted by a change in the symbol separating a day's
 Gregorian and Hebrew dates, as follows:
 .P
 .RS
-.B /
-\ Regular day
+.BR / "  Regular day"
 .RE
 .RS
-.B +
-\ Yom Tov (plus Yom Kippur)
+.BR + "  Yom Tov (plus Yom Kippur)"
 .RE
 .RS
-.B *
-\ Erev Yom Kippur
+.BR * "  Erev Yom Kippur"
 .RE
 .RS
-.B ~
-\ Hol HaMoed
+.BR ~ "  Hol HaMoed"
 .RE
 .RS
-.B !
-\ Hanuka and Purim
+.BR ! "  Hanuka and Purim"
 .RE
 .RS
-.B @
-\ fasting day
+.BR @ "  fasting day"
 .RE
 .RS
-.B $
-\ Lag BaOmer ,Tu BeAv, Tu BeShvat
+.BR $ "  Lag BaOmer ,Tu BeAv, Tu BeShvat"
 .RE
 .RS
-.B #
-\ Independance day and Yom Yerushalaim
+.BR # "  Independance day and Yom Yerushalaim"
 .RE
 .RS
-.B %
-\ Tzahal and Holocaust memorial days
+.BR % "  Tzahal and Holocaust memorial days"
 .RE
 .RS
-.B ^
-\ Other Israeli National days
+.BR ^ "  Other Israeli National days"
 .RE
 .P
-Use the -f (--footnote) option to have hcal describe what any particular day is marking.
+Use the
+.BR -f ( --footnote ") option to have hcal describe what any particular day is marking."
 .SS LOCATIONS 
-If you want 
-.B hcal
-to display accurate time-of-day information,
-.B hcal
-requires location and time zone information in order to make astronomical calculations for a given date. If you don't provide ANY such information, 
-.B hcal
-tries to find out your computer's local time zone information as an indicator, and picks the 'primary' city in that time zone. If 
-.B hcal
-can't find local time zone information,
-.B hcal
-tries to find out your computer's GMT offset, and either picks from the list below the city in that time zone offset, or defaults to the equator at the center of that time zone offset. If 
-.B hcal
-can't even retrieve GMT offset information from your computer, it defaults to Tel-Aviv. For other locations, use the 
-.B -l -L
-option pair. For other timezones, use the 
-.B -z
-option. Co-ordinates and standard time zones for some common locations are listed below.
+If you want \fBhcal\fP to display accurate time-of-day information,\fBhcal\fP requires location and time zone information in order to make astronomical calculations for a given date. If you don't provide ANY such information, \fBhcal\fP tries to find out your computer's local time zone information as an indicator, and picks the 'primary' city in that time zone. If \fBhcal\fP can't find local time zone information, \fBhcal\fP tries to find out your computer's GMT offset, and either picks from the list below the city in that time zone offset, or defaults to the equator at the center of that time zone offset. If \fBhcal\fP can't even retrieve GMT offset information from your computer, it defaults to Tel-Aviv. For other locations, use the \fB-l -L\fP option pair. For other timezones, use the \fB-z\fP option. Co-ordinates and standard time zones for some common locations are listed below.
 .PP
 The current defaults are:
 .RS 5
-tz                 Lat    Lon      tz              Lat     Lon
+.I "tz                 Lat    Lon      tz              Lat     Lon"
 .RE
 .RS 5
 -8   Los Angeles   34.05 -118.25    2    Tel-Aviv  32      34.75
@@ -216,6 +183,9 @@ tz                 Lat    Lon      tz              Lat     Lon
 .PP
 Useful locations and time zones
 .RS 6
+.I "tz                 Lat    Lon      tz              Lat     Lon"
+.RE
+.RS 6
 2   Jerusalem     31.78   35.22    8   Hong Kong  22.26  114.15
 .RE
 .RS 6
@@ -240,7 +210,7 @@ includes its own documentation, in-line:
 .I ${XDG_CONFIG_HOME}/hcal/hcalrc
 .P
 .RE
-If ${XDG_CONFIG_HOME} is undefined:
+.RI "If " ${XDG_CONFIG_HOME} " is undefined:"
 .RS 16
 .I ~/.config/hcal/hcalrc
 .SH "BUGS"
@@ -254,9 +224,7 @@ The timezone support is currenlty primitive and lacks support for daylight savin
 .RE
 .TP 10
 .B Historical
-The software does not yet account for the phenomenon and complications of the "Gregorian transition" from the prior, Julian calendar, which effectively caused an instantaneous 'loss' of two weeks for all gentiles affected. Countries (eg. Poland, Spain and Italy) began adopting the Gregorian calendar on 8 Tishrei 5343 (4 October 1582 CE), although many did not transition until the 56th century (1752 CE, eg. UK colonies, Sweden). Russia did not adopt the Gregorian calendar until 5678 (1918 CE) and Turkey did not until 5687 (December, 1926 CE). Many other countries made the transition on other dates. Keep in mind that Russia invaded part of Poland, undoing, for the interim, the Gregorian transition for (only) that part of Poland; Also important to remember in this regard is that Eretz Ysroel was part of the Turkish Ottoman empire until the British mandate (5677 (1917 CE)). Until all this is accounted for adequately by this application, refer to '
-.B ncal -p
-\' for a basic table of country transitions. However, keep in mind that European borders underwent many changes during the 426 years in question, so the accuracy of your data will depend on accurate knowledge of whether any particular date at any specific location was Julian or Gregorian.
+The software does not yet account for the phenomenon and complications of the "Gregorian transition" from the prior, Julian calendar, which effectively caused an instantaneous 'loss' of two weeks for all gentiles affected. Countries (eg. Poland, Spain and Italy) began adopting the Gregorian calendar on 8 Tishrei 5343 (4 October 1582 CE), although many did not transition until the 56th century (1752 CE, eg. UK colonies, Sweden). Russia did not adopt the Gregorian calendar until 5678 (1918 CE) and Turkey did not until 5687 (December, 1926 CE). Many other countries made the transition on other dates. Keep in mind that Russia invaded part of Poland, undoing, for the interim, the Gregorian transition for (only) that part of Poland; Also important to remember in this regard is that Eretz Ysroel was part of the Turkish Ottoman empire until the British mandate (5677 (1917 CE)). Until all this is accounted for adequately by this application, refer to '\fBncal -p\fP' for a basic table of country transitions. However, keep in mind that European borders underwent many changes during the 426 years in question, so the accuracy of your data will depend on accurate knowledge of whether any particular date at any specific location was Julian or Gregorian.
 .SH "EXAMPLES"
 .TP 3
 1. Display a 2012ce year's calendar, three-months wide, in color.
@@ -268,19 +236,13 @@ The software does not yet account for the phenomenon and complications of the "G
 .RS 6
 .B       hcal -csfH
 .SH "SEE ALSO"
-mlterm(1), hdate(1), hebcal(1), date(1), ncal(1), cal(1), remind(1)
+.BR mlterm "(1), " hdate "(1) ," hebcal "(1), " date "(1), " ncal "(1), " cal "(1), " remind (1)
 .SH "AUTHORS"
 .RS 0
 Boruch Baum 2011-2012, Yaacov Zamir 2005-2010.
 .PP
 project home page: http://libhdate.sourceforge.net
 .PP
-.B Hcal
-and
-.B Hdate
-are part of the package
-.B libhdate
-, a small C/C++ library for Hebrew dates, holidays, and reading
-sequences (parashiot). It uses the source code from Amos Shapir's
-"hdate" package, as fixed and patched by Nadav Har'El. The Torah
+\fBhcal\fP and \fBhdate\fP are part of the package \fBlibhdate\fP, a small C/C++ library for Hebrew dates, holidays, and reading
+sequences (parashiot). It uses the source code from Amos Shapir's "hdate" package, as fixed and patched by Nadav Har'El. The Torah
 reading sequence tables were contributed by Zvi Har'El.
