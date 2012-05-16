@@ -19,19 +19,18 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+//gcc -Wall -c -g -I "../../src" "%f"
+//gcc -Wall -g -I "../../src" -L"../../src/.libs" -lhdate -efence -o "%e" "%f"
 
-#define _GNU_SOURCE				// For mempcpy, asprintf
-#define _POSIX_C_SOURCE 200809L // for stat
+#define _GNU_SOURCE				/// For mempcpy, asprintf
+#define _POSIX_C_SOURCE 200809L /// for stat
 
-
-
-#include <hdate.h>		// For hebrew date
-//#include "../../src/hdate.h"
-#include <stdlib.h>		// For atoi, getenv, setenv
-#include <locale.h>		// For setlocale
-#include <getopt.h>		// For getopt_long
-#include <string.h>		// For strchr, mempcpy, asprintf
-#include <sys/stat.h>	// for stat
+#include <hdate.h>		/// For hebrew date  (gcc -I ../../src)
+#include <stdlib.h>		/// For atoi, getenv, setenv
+#include <locale.h>		/// For setlocale
+#include <getopt.h>		/// For getopt_long
+#include <string.h>		/// For strchr, mempcpy, asprintf
+#include <sys/stat.h>	/// for stat
 
 #include "./local_functions.c"
 
@@ -1608,11 +1607,11 @@ int print_tabular_gmonth( option_list opt,
 	hdate_struct h;
 	int jd;
 
-	/* get date of month start */
+	/// get date of month start
 	hdate_set_gdate (&h, 1, month, year);
 	jd = h.hd_jd;
 
-	/* print month days */
+	/// print month days
 	while (h.gd_mon == month)
 	{
 		print_tabular_day (&h, opt, lat, lon, tz);
@@ -1634,16 +1633,16 @@ int print_gmonth (option_list opt, double lat, double lon, int tz,
 	hdate_struct h;
 	int jd;
 
-	/* get date of month start */
+	/// get date of month start
 	hdate_set_gdate (&h, 1, month, year);
 	jd = h.hd_jd;
 
-	/* print month header */
+	/// print month header
 	if (!opt.iCal && !opt.short_format)
 		printf ("\n%s:\n",
 			hdate_string( HDATE_STRING_GMONTH, h.gd_mon, opt.short_format, HDATE_STRING_LOCAL));
 
-	/* print month days */
+	/// print month days
 	while (h.gd_mon == month)
 	{
 		print_day (&h, opt, lat, lon, tz);
@@ -1667,11 +1666,11 @@ int print_tabular_hmonth
 	hdate_struct h;
 	int jd;
 
-	/* get date of month start */
+	/// get date of month start
 	hdate_set_hdate (&h, 1, month, year);
 	jd = h.hd_jd;
 
-	/* print month days */
+	/// print month days
 	while (h.hd_mon == month)
 	{
 		print_tabular_header( opt );
@@ -1694,10 +1693,10 @@ int print_hmonth (hdate_struct * h, option_list opt,
 	int bidi_buffer_len;
 	char* bidi_buffer;
 
-	/* get date of month start */
+	/// get date of month start
 	jd = h->hd_jd;
 
-	/* print month header */
+	/// print month header
 	if (!opt.iCal && !opt.short_format)
 	{
 		if (opt.bidi)
@@ -1715,7 +1714,7 @@ int print_hmonth (hdate_struct * h, option_list opt,
 			hdate_string( HDATE_STRING_HMONTH , h->hd_mon, opt.short_format, opt.hebrew));
 	}
 
-	/* print month days */
+	/// print month days
 	while (h->hd_mon == month)
 	{
 		print_day (h, opt, lat, lon, tz);
@@ -1753,13 +1752,13 @@ int print_tabular_hyear
 	hdate_struct h;
 	int month = 1;
 
-	/* print year months */
+	/// print year months
 	while (month < 13)
 	{
-		/* get date of month start */
+		/// get date of month start
 		hdate_set_hdate (&h, 1, month, year);
 
-		/* if leap year, print both Adar months */
+		/// if leap year, print both Adar months
 		if (h.hd_size_of_year > 365 && month == 6)
 		{
 			hdate_set_hdate (&h, 1, 13, year);
@@ -1786,11 +1785,11 @@ int print_gyear ( option_list opt, const double lat, const double lon, const int
 
 	int month = 1;
 
-	/* print year header */
+	/// print year header
 	if (!opt.iCal && !opt.short_format)
 		printf ("%d:\n", year);
 
-	/* print year months */
+	/// print year months
 	while (month < 13)
 	{
 		print_gmonth ( opt, lat, lon, tz, month, year);
@@ -1814,16 +1813,16 @@ int print_hyear ( option_list opt, const double lat, const double lon, const int
 	h_int_str = hdate_string(HDATE_STRING_INT, year,HDATE_STRING_LONG,opt.hebrew);
 	// FIXME - error check for NULL return value
 
-	/* print year header */
+	/// print year header
 	if (!opt.iCal && !opt.short_format)	printf ("%s:\n", h_int_str);
 
-	/* print year months */
+	/// print year months
 	while (month < 13)
 	{
-		/* get date of month start */
+		/// get date of month start
 		hdate_set_hdate (&h, 1, month, year);
 
-		/* if leap year, print both Adar months */
+		/// if leap year, print both Adar months
 		if (h.hd_size_of_year > 365 && month == 6)
 		{
 			hdate_set_hdate (&h, 1, 13, year);
@@ -1960,7 +1959,7 @@ void read_config_file(	FILE *config_file,
 //				else if (strcmp(input_value,"TRUE") == 0) opt->force_israel = 1;
 				break;
 
-//		PARASHA_NAMES
+///		PARASHA_NAMES
 		case  6:if      (strcmp(input_value,"FALSE") == 0) opt->parasha = 0;
 				else if (strcmp(input_value,"TRUE") == 0) opt->parasha = 1;
 				break;
@@ -2277,7 +2276,7 @@ int hdate_parser( int switch_arg, option_list *opt,
 /** --quiet-hebrew			*/	case 61: if (opt->quiet < QUIET_HEBREW) opt->quiet = QUIET_HEBREW;
 
 										 opt->hebrew = 1; break;
-		} // end switch for long_options
+		} /// end switch for long_options
 		break;
 
 

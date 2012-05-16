@@ -1,4 +1,4 @@
-/* timezone_functions.c            http://libhdate.sourceforge.net
+/** timezone_functions.c            http://libhdate.sourceforge.net
  * a collection of functions in support of both hcal.c and hdate.c
  * hcal.c  Hebrew calendar              (part of package libhdate)
  * hdate.c Hebrew date/times information(part of package libhdate)
@@ -21,6 +21,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+//gcc -Wall -c -g -I "../../src" "%f"
+//gcc -Wall -g -I "../../src" -L"../../src/.libs" -lhdate -efence -o "%e" "%f"
+
 #define _GNU_SOURCE		/// For mempcpy, asprintf
 #define _POSIX_C_SOURCE 200809L
 
@@ -582,7 +585,7 @@ char* tzif2_handle( timezonefileheader *tzh, const char *tzfile_buffer_ptr, size
 		return NULL;
 	}
 
-	printf("tzif2 header found at position %d\n", start_ptr - tzfile_buffer_ptr);
+	printf("tzif2 header found at position %ld\n", start_ptr - tzfile_buffer_ptr);
 	if ( read_tz_header( tzh, (char*) start_ptr ) == FALSE )
 	{
 		printf("Error reading header file version 2\n");
@@ -856,7 +859,7 @@ int get_lat_lon_from_zonetab_file( const char* search_string, double *lat, doubl
 						lon_end = strlen( &lat_and_lon[lat_end+1]);
 						if ((lon_end < 5) || (lon_end > 8) )
 						{
-							if (!quiet_alerts) printf("error parsing longitude from zone.tab file. lon_end = %d\n", lon_end);
+							if (!quiet_alerts) printf("error parsing longitude from zone.tab file. lon_end = %ld\n", lon_end);
 							*lat = BAD_COORDINATE;
 							*lon = BAD_COORDINATE;
 						}

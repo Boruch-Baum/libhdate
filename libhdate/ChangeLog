@@ -1,4 +1,16 @@
 hcal.c
+- custom days in footnotes
+
+local_functions.c
+- custom days adjustments increased to +/-9
+- custom days adjustments now for all days of week
+- custom days change data structure
+- BUGFIX custom days pointer arithmetic
+- update custom days config file text
+
+----------------------------------------------------------------------------
+
+hcal.c
 - NEW FEATURE - custom days
 - apply function parse_date to smarter date parameter
   identification

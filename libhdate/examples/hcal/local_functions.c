@@ -21,14 +21,15 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+//gcc -Wall -c -g -I "../../src" "%f"
+//gcc -Wall -g -I "../../src" -L"../../src/.libs" -lhdate -efence -o "%e" "%f"
 
 /**************************************************
 *   functions to support hcal and hdate
 **************************************************/
 #define _GNU_SOURCE		/// For mempcpy, asprintf
 
-include <hdate.h>		/// For hebrew date
-//#include "../../src/hdate.h"
+#include <hdate.h>		/// For hebrew date (gcc -I ../../src)
 #include <stdlib.h>		/// For atoi, malloc
 #include <error.h>		/// For error
 #include <errno.h>		/// For errno
@@ -138,10 +139,11 @@ ADAR_II = -1\n\n\
 #    2 - Mark the event in Adar II\n\
 #ADAR_IN_LEAP_YEAR = 2\n\
 ADAR_IN_LEAP_YEAR = 2\n\n\
-# Format\n\
-# Each entry consists of 13 fields on a single 'logical' line, meaning that\n\
-# if you insist on splitting an entry over more than one physical line, use\n\
-# a '\' to mark the continuation. The fields are:\n\
+# Format of Custom Day entries\n\
+# Each entry consists of 17 fields, comma-delimited, on a single\n\
+# 'logical' line, meaning that if you insist on splitting an entry over\n\
+# more than one physical line, use a '\\' to mark the continuation. All\n\
+# fields are mandatory. The fields are:\n\
 #  1) day_type - H for Hebrew calendar dates, G for gregorian calendar dates.\n\
 #                Additionally, types h and g are available for marking an\n\
 #                event to occur on the \'nth\' \'day_of_week\' of \'month\'.\n\
@@ -154,14 +156,14 @@ ADAR_IN_LEAP_YEAR = 2\n\n\
 #  4) day_of_month - must be zero for day_type h or g\n#\n\
 # The following two fields are only for day_type h or g, and must be zero\n\
 # for day_type H and G.\n\
-#  5) \'nth\' -  eg. nth Shabbat in Adar, or nth Tuesday in April.\n\
-#  6) day_of_week\n#\n\
+#  5) \'nth\'     - eg. nth Shabbat in Adar, or nth Tuesday in April.\n\
+#  6) day_of_week - 7=Shabbat\n#\n\
 # The following four fields are NOT to be enclosed in quotes. Each is comma\n\
 # delimited, like all the other fields. Fields exceeding the maximum allowed\n\
 # length will be truncated. All four fields are mandatory and must have at\n\
-# one printable character. Commas and semi-colons are prohibited in order not\n\
-# to confuse tabular output (option -T --tabular). Tabular data is output in\n\
-# comma-delimited format. Because it is possible to have more than one\n\
+# least one printable character. Commas and semi-colons are prohibited in order\n\
+# not to confuse hdate's tabular output (option -T --tabular), which is output\n\
+# in comma-delimited format. Because it is possible to have more than one\n\
 # holiday and custom_day on the same calendar date, hdate outputs tabular data\n\
 # between holiday and custom_day fields using a semi-colon delimiter.\n\
 #  7) Hebrew_language_description     - max 40 chars\n\
@@ -169,7 +171,7 @@ ADAR_IN_LEAP_YEAR = 2\n\n\
 #  9) Loazi_language_description      - max 40 chars\n\
 # 10) Loazi_abbreviated_description   - max 15 chars\n#\n\
 # The next three fields allow the custom day to be advanced or postponed\n\
-# should that day occur on a Friday, Shabbat, or Sunday - in the cases of\n\
+# should that day occur on a friday, Shabbat, or sunday - in the cases of\n\
 # day_types H or G. Values are the number of days to advance or postpone the\n\
 # commemoration, in the range -9 to +9. For day_types h or g, the plan is that,\n\
 # in a future release, these fields will allow the custom day to be advanced\n\
@@ -207,28 +209,7 @@ g, 1980,  5,  0, 1, 2, יום הוקרת הפינגיונים לועז ב, _, Pe
 H, 5750,  6,  8, 0, 0, פינגיונים מעדיפים יום ד,     _, Penguins Appreciate Wednesday test, _, -2, -3, 3, 0, 0, 0, 0\n\
 G, 2000,  7,  1, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
 ");
-/* DEBUG - realloc seg faults ! - read_custom_days_file( ~line 1420
-G, 2000,  7,  2, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
-G, 2000,  7,  3, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
-G, 2000,  7,  4, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
-G, 2000,  7,  5, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
-G, 2000,  7,  6, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
-G, 2000,  7,  7, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
-G, 2000,  7,  8, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
-G, 2000,  7,  9, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
-G, 2000,  7, 10, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
-G, 2000,  7, 11, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
-G, 2000,  7, 12, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
-G, 2000,  7, 13, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
-G, 2000,  7, 14, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
-G, 2000,  7, 15, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
-G, 2000,  7, 16, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
-G, 2000,  7, 17, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
-G, 2000,  7, 18, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
-G, 2000,  7, 19, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
-# \n\
-");
-*/
+
 
 
 /************************************************************
@@ -389,7 +370,7 @@ printf("\nrevstr: entry: sourcelen = %d, source = %s\n",source_len, source);
 #endif
 
 	if (source == NULL) {error(0,0,"revstr: source buffer pointer is NULL"); exit(0);};
-	if (source_len <= 0) {error(0,0,"revstr: source_len parameter invalid, %d",source_len); exit(0);};
+	if (source_len <= 0) {error(0,0,"revstr: source_len parameter invalid, %ld",source_len); exit(0);};
 
 	size_t i,j;
 	char *temp_buff;
@@ -699,18 +680,7 @@ void validate_location( const int opt_latitude, const int opt_Longitude,
 
 char* get_custom_day_ptr(const int index, char* string_list_ptr)
 {
-/*	TODO - consider simplifying this, at the expense of some more memory usage
-//        by either adding an array of explicit pointers to the custom_day text string
-//        or by making those strings start at fixed intervalsint i;
-	char* ret_ptr;
-	if (index == 0) return string_list_ptr;
-	for (i=0;i<index;i++)
-	{
-		ret_ptr = rawmemchr( string_list_ptr, '\0');
-		string_list_ptr = ret_ptr + sizeof(char);
-	}
-*/
-	return string_list_ptr + sizeof(int) + (sizeof(char) * ((int) *string_list_ptr) * index);
+	return string_list_ptr + sizeof(size_t) + (sizeof(char) * ((int) *string_list_ptr) * index);
 }
 
 
@@ -1080,6 +1050,31 @@ Press <enter> to continue."));
 
 
 
+/************************************************************
+* test_print_custom_days
+* 
+* This is a debug routine
+************************************************************/
+void test_print_custom_days(int custom_days_cnt, int* jdn_list_ptr, char* string_list_ptr)
+{
+	printf("       entered test print routine\n       number of custom_days = %d\n",custom_days_cnt);
+	size_t print_len;
+	int i, day, month, year;
+
+
+	if (!custom_days_cnt) return;
+	print_len = (size_t) *string_list_ptr;
+	string_list_ptr = string_list_ptr + sizeof(size_t);
+	for (i=0; i<custom_days_cnt; i++)
+	{
+		hdate_jd_to_gdate ( *jdn_list_ptr, &day, &month, &year);
+		printf("       %d: %d %4d-%02d-%02d %s\n",i,*jdn_list_ptr,year,month,day,string_list_ptr);
+		jdn_list_ptr = jdn_list_ptr + 1;
+		string_list_ptr = string_list_ptr + (sizeof(char)*print_len);
+	}
+}
+
+
 
 /************************************************************
 * read_custom_days_file() - parse 'custom days' file
@@ -1111,6 +1106,7 @@ int read_custom_days_file(
 /// #define HDATE_STRING_LONG    0
 /// #define HDATE_STRING_HEBREW  1
 /// #define HDATE_STRING_LOCAL   0
+#define NUMBER_OF_CUSTOM_DAYS_FIELDS 17
 
 	char*	input_string = NULL;
 	size_t	input_str_len;
@@ -1131,22 +1127,26 @@ int read_custom_days_file(
 	char*	eng_abbr_desc = NULL;
 
 	/// adj[] - array defining weekend adjustments
-	/// only elements 0,5,6 of this array will be used
-	/// valid values are -3 <= n <= 3
+	/// valid values are -9 <= n <= 9
 	#define WHEN_SHISHI  5
 	#define WHEN_SHABBAT 6
 	#define WHEN_RISHON  0
+	#define WHEN_DAY_2   1
+	#define WHEN_DAY_3   2
+	#define WHEN_DAY_4   3
+	#define WHEN_DAY_5   4
 	int adj[7] = {0,0,0,0,0,0,0};
 
 	int jd;
 	hdate_struct temp_h;
 
-	char* new_jdn_list_ptr;
 	char* print_ptr;
 	size_t print_len;
-	char* new_string_ptr;
-	size_t string_list_buffer_size = sizeof(int); /// The first atom of this buffer is the array element size
-	size_t string_list_index = 0;
+	int* new_jdn_list_ptr = NULL;
+	int* jdn_entry = NULL;
+	char* new_string_ptr = NULL;
+	size_t string_list_buffer_size = sizeof(size_t); /// The first atom of this buffer is the array element size
+	size_t string_list_index = sizeof(size_t);
 	#define LIST_INCREMENT        10
 
 
@@ -1155,9 +1155,13 @@ int read_custom_days_file(
 	* bounds check the fields for advancing/postponing
 	* a custom_day
 	************************************************************/
-	int validate_adjustment( int i )
+	int validate_adjustments()
 	{
-		if ( (i<-3) || (i>3) ) return FALSE;
+		int i;
+		for (i=0;i<7;i++)
+		{
+			if ( (i<-9) || (i>9) ) return FALSE;
+		}
 		return TRUE;
 	}
 
@@ -1183,6 +1187,8 @@ int read_custom_days_file(
 	if   (text_short_form)	print_len = MAX_STRING_SIZE_SHORT;
 	else 					print_len = MAX_STRING_SIZE_LONG;
 
+
+
 	while ( end_of_input_file != TRUE )
 	{
 		free_my_mallocs();
@@ -1190,15 +1196,16 @@ int read_custom_days_file(
 		if ( end_of_input_file != TRUE)
 		{
 			errno = 0;
-			match_count = sscanf(input_string, "%1[gGhHY], %u, %u, %u, %u, %u, %m[^,] , %m[^,] , %m[^,] , %m[^,] , %i, %i, %i",
+			match_count = sscanf(input_string, "%1[gGhHY], %u, %u, %u, %u, %u, %m[^,] , %m[^,] , %m[^,] , %m[^,] , %i, %i, %i, %i, %i, %i, %i",
 				&custom_day_type, &custom_start_year, &custom_month, &custom_day_of_month, &custom_nth, &custom_day_of_week,
 				&heb_long_desc, &heb_abbr_desc, &eng_long_desc, &eng_abbr_desc,
-				&adj[WHEN_SHISHI], &adj[WHEN_SHABBAT], &adj[WHEN_RISHON] );
+				&adj[WHEN_SHISHI], &adj[WHEN_SHABBAT], &adj[WHEN_RISHON],
+				&adj[WHEN_DAY_2], &adj[WHEN_DAY_3], &adj[WHEN_DAY_4], &adj[WHEN_DAY_5]);
 			line_count++;
-			if (errno != 0)
+			if (errno)
 			{
-				error(0,errno,"scan error at line %d", line_count);
-				exit(0); // FIXME - why so fatal?
+				error(0,errno,"scan error at line %d of custom days file", line_count);
+				continue; // exit(0); // FIXME - why so fatal?
 			}
 			/* DEBUG  	if (match_count)
 				printf("line number = %d, matches made = %d\n\tday_type = %c start_year = %d month = %d, day_of_month = %d\n\tnth = %d day_of_week = %d\n\t%s\n\t%s\n\t%s\n\t%s\n\tif_fri = %d if_sbt = %d if_sun = %d\n\n",
@@ -1206,15 +1213,14 @@ int read_custom_days_file(
 					heb_long_desc, heb_abbr_desc, eng_long_desc, eng_abbr_desc,
 					adj[WHEN_SHISHI], adj[WHEN_SHABBAT], adj[WHEN_RISHON]); */
 
-			if (match_count != 13) continue;
+			if (match_count != NUMBER_OF_CUSTOM_DAYS_FIELDS) continue;
 
 			/************************************************************
 			* At this point, we have successfully scanned/parsed a line
 			* and are ready to begin sanity and bounds checking. The
 			* switch() validates all of the parameters scanned/parsed,
 			* converts the custom_day to the julian_day_number of the
-			* relevant year, and applies any advancement/postponement
-			* for shishi-Shab-motzash.
+			* relevant year, and applies any advancements/postponements.
 			************************************************************/
 			switch ( custom_day_type )
 			{
@@ -1222,9 +1228,7 @@ int read_custom_days_file(
 				if ((!validate_hdate(CHECK_YEAR_PARM, custom_day_of_month, custom_month, custom_start_year, TRUE, &h1))  ||
 					(!validate_hdate(CHECK_MONTH_PARM, custom_day_of_month, custom_month, h1.gd_year, TRUE, &h1)       ) ||
 					(!validate_hdate(CHECK_DAY_PARM, custom_day_of_month, custom_month, h1.gd_year, TRUE, &h1)         ) ||
-					(!validate_adjustment(adj[WHEN_SHISHI] ))   ||
-					(!validate_adjustment(adj[WHEN_SHABBAT]))   ||
-					(!validate_adjustment(adj[WHEN_RISHON] ))      )
+					(!validate_adjustments())      )
 					continue;
 				hdate_set_gdate( &temp_h, custom_day_of_month, custom_month, h1.gd_year);
 				jd = temp_h.hd_jd + adj[temp_h.hd_dw-1];
@@ -1240,9 +1244,7 @@ int read_custom_days_file(
 				if ((!validate_hdate(CHECK_YEAR_PARM, custom_day_of_month, custom_month, custom_start_year, TRUE, &h1))  ||
 					(!validate_hdate(CHECK_MONTH_PARM, custom_day_of_month, custom_month, h1.hd_year, TRUE, &h1)       ) ||
 					(!validate_hdate(CHECK_DAY_PARM, custom_day_of_month, custom_month, h1.hd_year, TRUE, &h1)         ) ||
-					(!validate_adjustment(adj[WHEN_SHISHI]))   ||
-					(!validate_adjustment(adj[WHEN_SHABBAT]))  ||
-					(!validate_adjustment(adj[WHEN_RISHON]))     )
+					(!validate_adjustments())     )
 					continue;
 				hdate_set_hdate( &temp_h, custom_day_of_month, custom_month, h1.hd_year);
 				jd = temp_h.hd_jd + adj[temp_h.hd_dw-1];
@@ -1258,7 +1260,8 @@ int read_custom_days_file(
 				if ((!validate_hdate(CHECK_YEAR_PARM, custom_day_of_month, custom_month, custom_start_year, TRUE, &h1))  ||
 					(!validate_hdate(CHECK_MONTH_PARM, 1, custom_month, h1.gd_year, TRUE, &h1)                         ) ||
 					(custom_nth < 1) || (custom_nth > 5) ||
-					(custom_day_of_week < 1) || (custom_day_of_week > 7) )
+					(custom_day_of_week < 1) || (custom_day_of_week > 7) ||
+					(!validate_adjustments())      )
 					continue;
 				hdate_set_gdate( &temp_h, 1, custom_month, h1.gd_year);
 				jd = temp_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - temp_h.hd_dw);
@@ -1287,7 +1290,8 @@ int read_custom_days_file(
 				if ((!validate_hdate(CHECK_YEAR_PARM, custom_day_of_month, custom_month, custom_start_year, TRUE, &h1) ) ||
 					(!validate_hdate(CHECK_MONTH_PARM, 1, custom_month, h1.hd_year, TRUE, &h1)                          )||
 					(custom_nth < 1) || (custom_nth > 5) ||
-					(custom_day_of_week < 1) || (custom_day_of_week > 7) )
+					(custom_day_of_week < 1) || (custom_day_of_week > 7) ||
+					(!validate_adjustments())                )
 					continue;
 				hdate_set_hdate( &temp_h, 1, custom_month, h1.hd_year);
 				jd = temp_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - temp_h.hd_dw);
@@ -1317,6 +1321,7 @@ int read_custom_days_file(
 				break;
 			}
 //printf("parsed. d=%d, m=%d, y=%d, temp_h.hd_year=%d temp_h.gd_year=%d\n",d_todo,m_todo,y_todo,temp_h.hd_year,temp_h.gd_year);
+
 			/************************************************************
 			* At this point, we have computed the jd of the occurrence
 			* of the parsed line's custom_day for the year in question.
@@ -1347,7 +1352,10 @@ int read_custom_days_file(
 					{
 						if ( m_todo != temp_h.hd_mon) continue;
 					}
-					else if ( m_todo != temp_h.gd_mon) continue;
+					else
+					{
+						if ( m_todo != temp_h.gd_mon) continue;
+					}
 				}
 				else
 				{
@@ -1377,7 +1385,7 @@ int read_custom_days_file(
 			*	HDATE_STRING_HEBREW  1
 			*	HDATE_STRING_LOCAL   0
 			************************************************************/
-			/// manage target buffer size
+			/// manage jdn target buffer size
 			if (!(number_of_items%LIST_INCREMENT))
 			{
 //printf("about to alloc for jdn. current pointer address: %ld\n", (long)*jdn_list_ptr);
@@ -1395,15 +1403,17 @@ int read_custom_days_file(
 				}
 				else
 				{
-					*jdn_list_ptr = (int*) new_jdn_list_ptr;
+					*jdn_list_ptr = new_jdn_list_ptr;
+					jdn_entry = ((int*) new_jdn_list_ptr) + number_of_items;
+					new_jdn_list_ptr = NULL;
 //printf("alloc for jdn succeeded. current pointer address: %ld\n", (long)*jdn_list_ptr);
 				}
 			}
 
 //printf("about to store jdn (number of items = %d)\n",number_of_items);
 			/// store the custom_day's jdn
-			memcpy(*jdn_list_ptr+(sizeof(int)*number_of_items),&jd,sizeof(int));
-
+			*jdn_entry = jd;
+			jdn_entry = jdn_entry + 1;
 
 			/// decide which text string to store
 			if (text_short_form)
@@ -1418,12 +1428,12 @@ int read_custom_days_file(
 			}
 
 
-			/// manage target buffer size
+			/// manage 'text string' target buffer size
 			if (!(number_of_items%LIST_INCREMENT))
 			{
 				string_list_buffer_size = string_list_buffer_size +
 						sizeof(char) * ( (print_len+1) * LIST_INCREMENT);
-//printf("about to alloc %d bytes for text. current pointer address: %ld\n", string_list_buffer_size, (long) *string_list_ptr);
+//printf("about to alloc %ld bytes for text. current pointer address: %ld\n", string_list_buffer_size, (long) *string_list_ptr);
 				new_string_ptr = realloc(*string_list_ptr, string_list_buffer_size);
 //printf("realloc exited\n");
 				if (new_string_ptr == NULL)
@@ -1443,42 +1453,25 @@ int read_custom_days_file(
 //printf("realloc succeeded. current pointer address: %ld\n", (long) *string_list_ptr);
 					// FIXME - should only have to do this once,
 					//         upon the initial m(re)alloc.
-					**string_list_ptr = print_len + 1;
+					size_t* print_len_ptr = (size_t*) new_string_ptr;
+					*print_len_ptr = print_len + 1;
+					new_string_ptr = NULL;
 				}
 			}
-//printf("about to store text at index %d, print_len=%d\n",string_list_index,print_len);
+//printf("about to store text at index %ld, print_len=%ld\n",string_list_index,print_len);
 			/// store the custom_day's text_string
-			memcpy(*string_list_ptr + sizeof(int) + (sizeof(char)*string_list_index), print_ptr, print_len);
-			string_list_index = string_list_index + print_len + 1;
-//printf("index is now %d\n",string_list_index);
-			memset(*string_list_ptr + sizeof(int) + (sizeof(char)*(string_list_index-1)), '\0', 1);
+			memcpy(*string_list_ptr + string_list_index, print_ptr, print_len);
+			string_list_index = string_list_index + print_len;
+// printf("index is now %ld\n",string_list_index);
+			memset(*string_list_ptr + string_list_index, '\0', 1);
+			string_list_index = string_list_index + 1;
 			number_of_items++;
+//test_print_custom_days(number_of_items, *jdn_list_ptr, *string_list_ptr);
 		}
 	}
-
 	return number_of_items;
 }
 
-
-/************************************************************
-* test_print_custom_days
-* 
-* This is a debug routine
-************************************************************/
-void test_print_custom_days(int custom_days_cnt, int* jdn_list_ptr, char* string_list_ptr)
-{
-	printf("entered test print routine\nnumber of custom_days = %d\n",custom_days_cnt);
-	int i, print_len, day, month, year;
-	print_len = (int) *string_list_ptr;
-	string_list_ptr = string_list_ptr + sizeof(int);
-	for (i=0; i<custom_days_cnt; i++)
-	{
-		hdate_jd_to_gdate ( *jdn_list_ptr, &day, &month, &year);
-		printf("%d: %d %4d-%02d-%02d %s\n",i,*jdn_list_ptr,year,month,day,string_list_ptr);
-		jdn_list_ptr = jdn_list_ptr + sizeof(int);
-		string_list_ptr = string_list_ptr + (sizeof(char)*print_len);
-	}
-}
 
 /************************************************************
 * Generic read config key file
@@ -1566,7 +1559,7 @@ FILE* get_config_file(	const char* config_dir_name,
 		{
 			if (!quiet_alerts) error(0,errno,"%s %s",N_("failure closing"),config_file_name);
 		}
-		else if (!quiet_alerts) printf("%s: %s\n",N_("created config file:"), config_file_path);
+		else if (!quiet_alerts) printf("%s: %s\n\n",N_("created config file:"), config_file_path);
 	}
 
 	/************************************************************

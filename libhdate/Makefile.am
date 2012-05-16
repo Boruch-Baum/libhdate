@@ -26,3 +26,5 @@ libhdatedoc_DATA = \
 EXTRA_DIST = $(libhdatedoc_DATA) libhdate.pc.in
 
 ACLOCAL_AMFLAGS = -I m4
+CFLAGS = -fmudflap -funwind-tables 
+LDFLAGS = -lmudflap -rdynamic 
