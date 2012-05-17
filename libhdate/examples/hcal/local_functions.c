@@ -817,222 +817,247 @@ int validate_hdate (const int parameter_to_check,
 int parse_date( const char* parm_a, const char* parm_b, const char* parm_c,
 					 int* ret_year, int* ret_month, int* ret_day, const int parm_cnt )
 {
-	int a_span, b_span, c_span, a_len, b_len, c_len, b_val, c_val;
-	const char* digits = "0123456789";
+	int a_span, b_span, c_span, a_len, b_len, c_len, a_val, b_val, c_val, a_id, b_id, c_id;
+	hdate_struct h;
 
 	/****************************************************
-	 * The Constant BASE_YEAR is for parsing a two-digit
-	 * year value. Because this is a Hebrew library with
-	 * Hebrew utilities, we default to a Hebrew year and
-	 * presume that the user input and desire is for a
-	 * Hebrew context.
-	 ***************************************************/
-	#define BASE_YEAR 5700
+	* The Constant BASE_YEAR is for parsing a two-digit
+	* year value. Because this is a Hebrew library with
+	* Hebrew utilities, we default to a Hebrew year and
+	* presume that the user input and desire is for a
+	* Hebrew context.
+	***************************************************/
+	const int static BASE_YEAR = 5700;
+	const int static BASE_YEAR_G = 2000;
+	const int static YR_LOWER_4_BOUND = 1000;
+	const int static YR_UPPER_2_BOUND = 99;
+	const int static HMONTH_UPPER_BOUND = 14;
+	const int static GMONTH_UPPER_BOUND = 12;
+	const int static GDAY_UPPER_BOUND = 31;
+	const int static HDAY_UPPER_BOUND = 30;
+	const int static UNKNOWN_STATE = 0;
+	const int static MUST_BE_YEAR = 1;
+	const int static MUST_BE_MONTH = 10;
+	const int static MUST_BE_DAY = 100;
 
-	switch (parm_cnt)
+	a_id = UNKNOWN_STATE;
+	b_id = UNKNOWN_STATE;
+	c_id = UNKNOWN_STATE;
+
+
+	/****************************************************
+	* sub-function initial_parse
+	***************************************************/
+	int initial_parse( const char* parm_str, int* parm_val, int* parm_id )
 	{
-	case 3:	c_span = strspn(parm_c, digits);
-			c_len  = strlen(parm_c);
-			if (c_len == c_span)
-			{
-				c_val = atoi(parm_c);
-				if (c_val > HEB_YR_UPPER_BOUND)
-				{
-					print_parm_error(N_("year"));
-					return FALSE;
-				}
-			} /// and fall through ...
-	case 2:	b_span = strspn(parm_b, digits); b_len  = strlen(parm_b);
-			if (b_len == b_span)
-			{
-				b_val = atoi(parm_b);
-				if (b_val > HEB_YR_UPPER_BOUND)
-				{
-					print_parm_error(N_("year"));
-					return FALSE;
-				}
-			} /// and fall through ...
-	case 1: a_span = strspn(parm_a, digits); a_len  = strlen(parm_a); break;
-	default: return FALSE;
-	}
+		const char* digits = "0123456789";
+		int parm_span, parm_len;
 
-
-	if (a_len == a_span) /// parm 'a' is numeric
-	{
-		*ret_year = atoi(parm_a);
-		if (*ret_year > HEB_YR_UPPER_BOUND) { print_parm_error(N_("year")); return FALSE;}
-		if (parm_cnt == 1) return TRUE;
-
-		if (*ret_year > 999)  /// parm 'a' is a year
-		// TODO - verify 999 in terms of bounds checking elsewhere !!
+		parm_span = strspn(parm_str, digits);
+		parm_len  = strlen(parm_str);
+		if (parm_len == parm_span)
 		{
-			if (b_len == b_span)	/// parm 'b' is numeric
+			*parm_val = atoi(parm_str);
+			if (   (*parm_val > HEB_YR_UPPER_BOUND) ||
+				 ( (*parm_val < YR_LOWER_4_BOUND) && (*parm_val > YR_UPPER_2_BOUND) ) )
+				{print_parm_error(N_("year"));return FALSE;}
+			else
 			{
-				*ret_month = b_val;
-				if ( (*ret_month > 31 ) ||
-				     ((parm_cnt == 2) && (*ret_month > 14 )) )
-				     { print_parm_error(N_("month")); return FALSE; }
-				if (parm_cnt == 2) return TRUE;
-				if (c_len != c_span)	/// parm 'c' is not numeric
-				{
-					*ret_day = *ret_month;
-					*ret_month = hdate_parse_month_text_string(parm_c);
-				}
-				else
-				{
-					if (*ret_month > 14)
-					{
-						*ret_day = *ret_month;
-						*ret_month = c_val;
-					}
-					*ret_day = c_val;
-				}
-			}
-			else					/// parm 'b' is not numeric
-			{
-				*ret_month = hdate_parse_month_text_string(parm_b);
-				if ((parm_cnt == 2) || (ret_month == 0)) return *ret_month;
-				if (c_len != c_span) return FALSE; /// parm 'c' is not numeric
-				*ret_day = c_val;
-				// relying on later bounds checking for day of month
+				if (*parm_val <= GDAY_UPPER_BOUND) return TRUE;
+				*parm_id = MUST_BE_YEAR;
+				if (*parm_val <= YR_UPPER_2_BOUND) *parm_val = *parm_val + BASE_YEAR;
+				*ret_year = *parm_val;
 			}
 		}
-		else if (b_len == b_span)	/// parm 'a' isn't a four-digit year AND parm 'b' is numeric
-		{   
-			b_val = b_val;
-			if (b_val > HEB_YR_UPPER_BOUND) { print_parm_error(N_("year")); return FALSE;}
+		else
+		{
+			*parm_val = hdate_parse_month_text_string(parm_str);
+			if (!*parm_val) {print_parm_error(N_("month")); return FALSE;}
+			*parm_id = MUST_BE_MONTH;
+			*ret_month = *parm_val;
+		}
+		return TRUE;
+	}
 
-			if (parm_cnt == 2)
+	/****************************************************
+	* sub-function second_parse
+	*   populates *ret_month and *ret_day
+	*   when MUST_BE_YEAR and three parameters
+	***************************************************/
+	int second_parse( int a, int b)
+	{
+		/// The prejudice here is mm dd, but you can overrule that
+		/// by just passing the parameters in reverse.
+		if (*ret_year > HEB_YR_LOWER_BOUND)
+		{
+			if ((a > HDAY_UPPER_BOUND) || (b > HDAY_UPPER_BOUND))
+							{print_parm_error(N_("day")); return FALSE;};
+			if (a > HMONTH_UPPER_BOUND)
 			{
-				/// if parm 'a' can't be a month, then let's see if it's a two-digit year
-				if (*ret_year > 14 )
-				{
-					*ret_month = b_val;
-					if ( (*ret_month > 14) || (*ret_year > 99))	{print_parm_error(N_("month")); return FALSE; }
-					*ret_year = *ret_year + BASE_YEAR;
-					return TRUE;
-				}
-				// relying on later bounds checking for year
-				*ret_month = *ret_year;
-				*ret_year = b_val;
+				if (b > HMONTH_UPPER_BOUND)	{print_parm_error(N_("month")); return FALSE;}
+				*ret_month = b;	*ret_day = a;
 			}
 			else
 			{
-				/// if parm 'a' can't be a month or day ...
-				if (*ret_year > 31 )
-				{
-					/// maybe it's a two digit year
-					if (*ret_year > 99 ) { print_parm_error(N_("month")); return FALSE; }
-				  	*ret_year = *ret_year + BASE_YEAR;
-				  	/// continue parsing month and day
-					*ret_month = b_val;
-					if (*ret_month > 31 ) 
-					     { print_parm_error(N_("month")); return FALSE; }
-					if (c_len != c_span)	/// parm 'c' is not numeric
-					{
-						*ret_day = *ret_month;
-						*ret_month = hdate_parse_month_text_string(parm_c);
-					}
-					else
-					{
-						if (*ret_month > 14)
-						{
-							*ret_day = *ret_month;
-							*ret_month = c_val;
-						}
-					*ret_day = c_val;
-					}
-				  	return TRUE;
-				}
-				/// parm 'a' could only be a day
-				if (*ret_year > 14 )
-				{
-					*ret_day = *ret_year;
-					*ret_month = b_val;
-					if (*ret_month > 31 )
-					{
-						// TODO - verify 1000 in terms of bounds checking elsewhere !!
-						if (*ret_month < 1000 ) *ret_month = *ret_month + BASE_YEAR;
-						*ret_year = *ret_month;
-						///parm c must be month
-						if (c_len == c_span) *ret_month = c_val;
-						else *ret_month = hdate_parse_month_text_string(parm_c);
-					}
-					else if (*ret_month < 15 )
-					{
-						///parm_c must be year
-						if (c_len != c_span)  { print_parm_error(N_("year")); return FALSE; }
-						*ret_year = c_val;
-					}
-					else { print_parm_error(N_("month")); return FALSE; }
-				}
-				else /// parm 'a' may be a day or month; parm 'b' is numeric
-				{
-					*ret_day = *ret_year;
-					*ret_month = b_val;
-					if (*ret_month > 31 )
-					{
-						// TODO - verify 1000 in terms of bounds checking elsewhere !!
-						if (*ret_month < 1000 ) *ret_month = *ret_month + BASE_YEAR;
-						*ret_year = *ret_month;
-						if (c_len == c_span) *ret_month = c_val;
-						else *ret_month = hdate_parse_month_text_string(parm_c);
-					}
-					else
-					{
-						if ( ( (*ret_month > 14) && (*ret_day > 14) ) )
-						   { print_parm_error(N_("month")); return FALSE; }
-						/// parm 'c' must be a year
-						if (c_len != c_span) { print_parm_error(N_("year")); return FALSE; }
-						*ret_year = c_val;
-					}
-				}
-				
+				*ret_month = a;	*ret_day = b;
 			}
 		}
-	}
-	else /// parm 'a' is not numeric - might be month, in text
-	{
-		if (parm_cnt == 1)  { print_parm_error(N_("year")); return FALSE; }
-		*ret_month = hdate_parse_month_text_string(parm_a);
-		if (!ret_month) { print_parm_error(N_("month")); return FALSE; }
-		/// parm 'a' successful return from parse_month_text_string
-		if (b_len != b_span)  { print_parm_error(N_("year")); return FALSE; }	/// parm 'b' is not numeric
-		*ret_year = b_val;
-		if (parm_cnt == 2)
+		else /// gregorian year
 		{
-			/// if only 2 parms, parm 'b' must be year
-			if (*ret_year < 100) *ret_year = *ret_year + BASE_YEAR;
-			// check sanity of 1000 as bounds for year
-			else if (*ret_year < 1000 )
-				{print_parm_error(N_("year")); return FALSE;}
-			return TRUE;
-		}
-		else /// parm_cnt == 3
-		{
-			if (c_len != c_span)
-				 /// both parms 'b' and 'c' are not numeric
-				 { print_parm_error(N_("year")); return FALSE; };
-			if (*ret_year > 31) /// parm 'b' can't be a day
+			if ((a > GDAY_UPPER_BOUND) || (b > GDAY_UPPER_BOUND))
+							{print_parm_error(N_("day")); return FALSE;};
+			if (a > GMONTH_UPPER_BOUND)
 			{
-				/// parm 'b' can't be a year either = error
-				if (*ret_year < 100) *ret_year = *ret_year + BASE_YEAR;
-				// check sanity of 1000 as bounds for year
-				else if (*ret_year < 1000 )
-					{print_parm_error(N_("year")); return FALSE;}
-				if (c_val > 31) return FALSE;
-				*ret_day = c_val;
-				return TRUE;
+				if (b > GMONTH_UPPER_BOUND)	{print_parm_error(N_("month")); return FALSE;}
+				*ret_month = b;	*ret_day = a;
 			}
-			*ret_day = *ret_year;
-			*ret_year = c_val;
-			if (*ret_year > 999) return TRUE;
-			else if (*ret_year < 100) *ret_year = *ret_year + BASE_YEAR;
-			else return FALSE;
+			else
+			{
+				*ret_month = a;	*ret_day = b;
+			}
 		}
+	return TRUE;
 	}
-return TRUE;
+
+
+	/****************************************************
+	* begin parse_date - main function 
+	***************************************************/
+	switch (parm_cnt)
+	{
+	case 3:	if (!initial_parse(parm_c, &c_val, &c_id )) return FALSE;
+			/// and fall through ...
+	case 2:	if (!initial_parse(parm_b, &b_val, &b_id )) return FALSE;
+			/// and fall through ...
+	case 1:	if (!initial_parse(parm_a, &a_val, &a_id )) return FALSE;
+			break;
+	default: return FALSE;
+	}
+
+	/// The definite ids from the initial parse are alphabetic months
+	/// and four-digit years, and there can only be one of each
+	if ( (a_id + b_id + c_id) >= (MUST_BE_MONTH*2) ) {print_parm_error(N_("month")); return FALSE;}
+	if ( ((a_id + b_id + c_id)%10) > MUST_BE_YEAR  ) {print_parm_error(N_("year")); return FALSE;}
+
+	if (parm_cnt == 1)
+	{
+		if (a_id == MUST_BE_MONTH)
+		{
+			hdate_set_gdate (&h, 0, 0, 0);	/// set date for today
+			if (a_val > 100) *ret_year = h.hd_year;
+			else             *ret_year = h.gd_year;
+		}
+		else if (a_id != MUST_BE_YEAR) *ret_year = a_val + BASE_YEAR;
+		return TRUE;
+	}
+
+	if (parm_cnt == 2)
+	{
+		if (a_id == MUST_BE_MONTH)
+		{
+			if (b_id != MUST_BE_YEAR)
+			{
+				if (a_val > 100) *ret_year = b_val + BASE_YEAR;
+				else     		 *ret_year = b_val + BASE_YEAR_G;
+			}
+		}
+		else if (b_id == MUST_BE_YEAR)
+		{
+			if ( (	(b_val < HEB_YR_LOWER_BOUND) && (a_val > GMONTH_UPPER_BOUND) ) ||
+				 (a_val > HMONTH_UPPER_BOUND) ) {print_parm_error(N_("month")); return FALSE;}
+			*ret_month = a_val;
+		}
+		else /// two parms, each <= 31 (GDAY_UPPER_BOUND)
+		{
+			if ((a_val > HMONTH_UPPER_BOUND) && (b_val > HMONTH_UPPER_BOUND)) 
+				{print_parm_error(N_("month")); return FALSE;}
+			/// my personal prejudice that two two-digit numbers will be mm yy
+			*ret_month = a_val;
+			*ret_year = b_val + BASE_YEAR;
+		}
+		return TRUE;
+	}
+
+	/// three parameters
+	switch (a_id + b_id + c_id)
+	{
+	default: printf("unexpected error in parse_date\n"); return FALSE;
+	case 11:	/// MUST_BE_YEAR && MUST_BE_MONTH
+			if (a_id == UNKNOWN_STATE) *ret_day = a_val;
+			else if (b_id == UNKNOWN_STATE) *ret_day = b_val;
+			else *ret_day = c_val; // TODO - test that validate_date faults day 31 in Hebrew month
+			break;
+	case 10:	/// MUST_BE_MONTH
+			if (a_id == MUST_BE_MONTH)
+			{
+				/// personal prejudice to prefer mmmm dd yy
+				*ret_day = b_val; // TODO - test that validate_date faults day 31 in Hebrew month
+				if (a_val > 100) *ret_year = c_val + BASE_YEAR;
+				else   			 *ret_year = c_val + BASE_YEAR_G;
+			}
+			else if (b_id == MUST_BE_MONTH)
+			{
+				/// prefer dd mmmm yy because its more natural in Hebrew though
+				/// had it been three numeric fields, I would favor yy mm dd
+				*ret_day = a_val; // TODO - test that validate_date faults day 31 in Hebrew month
+				if (b_val > 100) *ret_year = c_val + BASE_YEAR;
+				else   			 *ret_year = c_val + BASE_YEAR_G;
+			}
+			else ///(c_id == MUST_BE_MONTH)
+			{
+				/// tough call - my intuition is yy dd mmmm
+				*ret_day = b_val; // TODO - test that validate_date faults day 31 in Hebrew month
+				if (c_val > 100) *ret_year = a_val + BASE_YEAR;
+				else   			 *ret_year = a_val + BASE_YEAR_G;
+			}
+			break;
+	case  1:	/// MUST_BE_YEAR
+			if      (a_id == MUST_BE_YEAR) return second_parse(b_val, c_val);
+			else if (b_id == MUST_BE_YEAR) return second_parse(a_val, c_val);
+			else return second_parse(a_val, b_val);
+			break;
+	case  0:	/// all three parms are in UNKNOWN_STATE
+				/// ie. numeric, 0 < n < 32
+				/// initially prefer Hebrew year
+			if (b_val > HMONTH_UPPER_BOUND)
+			{
+				if (a_val > HMONTH_UPPER_BOUND)
+				{
+					if (c_val > HMONTH_UPPER_BOUND) {print_parm_error(N_("month")); return FALSE;}
+					/// Hmmm. The unattractive choices are yy dd mm or dd yy mm
+					if (b_val > HDAY_UPPER_BOUND)
+					{
+						if (a_val > HDAY_UPPER_BOUND)
+						{
+							if (c_val > GMONTH_UPPER_BOUND) {print_parm_error(N_("month")); return FALSE;}
+							*ret_day = a_val; *ret_year = b_val + BASE_YEAR_G; *ret_month = c_val;
+							break;
+						 }
+						*ret_day = a_val; *ret_year = b_val + BASE_YEAR; *ret_month = c_val;
+						break;
+					}
+					*ret_year = a_val + BASE_YEAR; *ret_day = b_val; *ret_month = c_val;
+					break;
+				}
+				if (b_val > HDAY_UPPER_BOUND)
+				{
+					if (a_val > HDAY_UPPER_BOUND)
+					{
+						if (c_val > GMONTH_UPPER_BOUND) {print_parm_error(N_("month")); return FALSE;}
+						*ret_day = a_val; *ret_year = b_val + BASE_YEAR_G; *ret_month = c_val;
+					}
+					*ret_day = a_val; *ret_year = b_val + BASE_YEAR; *ret_month = c_val;
+				}
+				*ret_month = a_val; *ret_day = b_val; *ret_year = c_val + BASE_YEAR;
+				break;
+			}
+			*ret_year = a_val + BASE_YEAR; *ret_month = b_val; *ret_day = c_val;
+			break;
+	}
+	return TRUE;
 }
+
+
 
 
 

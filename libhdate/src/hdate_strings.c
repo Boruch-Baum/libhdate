@@ -53,12 +53,12 @@ static char *hebrew_months[2][2][14] = {
 	{ /// begin english
 	{ /// begin english long
 	 N_("Tishrei"), N_("Cheshvan"), N_("Kislev"), N_("Tevet"),
-	 N_("Sh'vat"), N_("Adar"), N_("Nisan"), N_("Iyyar"),
+	 N_("Shevat"), N_("Adar"), N_("Nisan"), N_("Iyyar"),
 	 N_("Sivan"), N_("Tammuz"), N_("Av"), N_("Elul"), N_("Adar I"),
 	 N_("Adar II")},
 	{ /// begin english short
 	 N_("Tishrei"), N_("Cheshvan"), N_("Kislev"), N_("Tevet"),
-	 N_("Sh'vat"), N_("Adar"), N_("Nisan"), N_("Iyyar"),
+	 N_("Shevat"), N_("Adar"), N_("Nisan"), N_("Iyyar"),
 	 N_("Sivan"), N_("Tammuz"), N_("Av"), N_("Elul"), N_("Adar I"),
 	 N_("Adar II")}
 	},

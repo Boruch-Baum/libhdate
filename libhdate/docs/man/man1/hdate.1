@@ -48,7 +48,7 @@ If a single numeric argument is provided, and that argument is \fIgreater\fP tha
 .B ACCEPTABLE DATE FORMATS:
 Prior versions of \fBhdate\fP insisted on the numeric date format
 .RI [ yyyy [ mm [ dd ]]].
-\fBhdate\fP now accepts numeric date elements in any easily discernable order. \fBhdate\fP now accepts Hebrew month names, and gregorian month names in both full and abbreviated formats. Gregorian month names may be entered in either your locale's language or in English. Hebrew month names may be entered in either Hebrew characters or in transliteration to Latin characters. When receiving a \fIdatespec\fP of three two-digit elements, \fBhdate\fP will make an effort to interpret the correct one as a two-digit Hebrew year in the current (58th) century. Refer to \fBEXAMPLES\fP below.
+\fBhdate\fP now accepts numeric date elements in any easily discernable order. \fBhdate\fP now accepts Hebrew month names, and gregorian month names in both full and abbreviated formats, and not case-sensitive. Gregorian month names may be entered in either your locale's language or in English. Hebrew month names may be entered in either Hebrew characters or in transliteration to Latin characters. When receiving a \fIdatespec\fP of three two-digit elements, \fBhdate\fP will make an effort to interpret the correct one as a two-digit Hebrew year in the current (58th) century. Refer to \fBEXAMPLES\fP below.
 .PP
 .SH "OPTIONS"
 .TP 18
@@ -229,6 +229,13 @@ insert parasha between day of week and day
 .TP
 .B \ \   --not-sunset-aware
 don't display next day if after sunset
+.TP
+.B \ \   --data-first
+display data, followed by it's description
+.TP
+.B \ \   --labels-first
+display data descriptions before the data itself
+
 .SH NOTES
 .SS LOCATIONS
 If you want \fBhdate\fP to display accurate time-of-day information, \fBhdate\fP requires location and time zone information in order to make astronomical calculations for a given date. If you don't provide \fIany\fP such information, \fBhdate\fP tries to find out your computer's local time zone information as an indicator, and picks the 'primary' city in that time zone. If \fBhdate\fP can't find local time zone information, \fBhdate\fP tries to find out your computer's GMT offset, and either picks from the list below the city in that time zone offset, or defaults to the equator at the center of that time zone offset. If \fBhdate\fP can't even retrieve GMT offset information from your computer, it defaults to Tel-Aviv. For other locations, use the \fB-l -L\fP option pair. For other timezones, use the \fB-z\fP option. Co-ordinates and standard time zones for some common locations are listed below.
@@ -281,7 +288,7 @@ Useful locations and time zones
 .RE
 2   Eilat         29.56   34.95        
 .SS HOLIDAYS AND CUSTOM DAYS
-By default, if you ask \fBhdate\fI to display holiday names (options \fB-h\fP or \fB--holidays\fP), \fBhdate\fP uses \fBlibhdate\fP's data set of the traditional 'shulchan aruch' Hebrew holidays. \fBhdate\fP also creates a user-modifiable config file, \fIcustom_days\fP, for any other personal or national days a user might want to mark. The config file contains detailed in-line documentation, and allows for simple definitions of \fIcustom days\fP by either the Hebrew or gregorian calendar; by either calendar day of month or \fIn\fPth \fIday of week\fP of month; and provides a simple method of specifying how/whether to advance/postpone a \fIcustom day\fP should it occur just before, on, or just after the Shabbat.
+By default, if you ask \fBhdate\fP to display holiday names (options \fB-h\fP or \fB--holidays\fP), \fBhdate\fP uses \fBlibhdate\fP's data set of the traditional 'shulchan aruch' Hebrew holidays. \fBhdate\fP also creates a user-modifiable config file, \fIcustom_days\fP, for any other personal or national days a user might want to mark. The config file contains detailed in-line documentation, and allows for simple definitions of \fIcustom days\fP by either the Hebrew or gregorian calendar; by either calendar day of a month or \fIn\fPth \fIday of week\fP of a month; and provides a simple method of specifying how/whether to advance/postpone a \fIcustom day\fP should it occur on any undesired day of week.
 .SS JULIAN DAY
 The julian day system is not directly related to the Julian calendar. Rather, it was introduced by astronomers for scientific use to provide a single system of dates that could be used when working with different calendars and to unify different historical chronologies. Julian day number (JDN) zero corresponds to January 1, 4713 BCE Greenwich noon, according to the "julian proleptic calendar".
 .SS TABULAR OUTPUT
@@ -325,6 +332,8 @@ The software does not yet account for the phenomenon and complications of the "G
 2. Print out the weekly readings and sunset/sunrise times for Eilat, on April 2031 CE.
 .RS  6  
 .B       hdate -sR 4 2031 -l29 -L34 -z2
+.SS Flexible date entry
+1. hdate April ; hdate aPril; hdate tiSHREi; hdate 1 Elul 44; hdate 1 sep 1944; hdate 44 oct 21
 .RE
 .SH "SEE ALSO"
 .BR mlterm "(1), " hdate "(1) ," hebcal "(1), " date "(1), " ncal "(1), " cal "(1), " remind (1)

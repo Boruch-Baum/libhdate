@@ -1,3 +1,23 @@
+hdate.c
+- BUGFIX -ooo now displays arabic numerals when 
+  not displaying Hebrew omer text
+- new default option --data-first
+- new option --labels-first
+
+hcal.c
+- BUGFIX - parse_date for alphabetic month only
+
+local_functions.c
+- rewrite function parse_date
+
+hdate.1
+- update documentation
+
+hdate.1
+- update documentation
+
+----------------------------------------------------------------------------
+
 hcal.c
 - custom days in footnotes
 

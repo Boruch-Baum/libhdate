@@ -37,6 +37,11 @@ optionally be footnoted. \fBhcal\fP tries to be sunset-aware in order to correct
 .PP
 .B INPUTTING A HEBREW DATE:
 If the year provided is greater than 3000, \fBhcal\fP will interpret the given date as a Hebrew date, and will display the calendar of the corresponding Gregorian month(s). Hebrew months are expected to be passed as numbers 1-12 for Tishrei - Elul; Adar I and Adar II are expected to be passed as months 13 and 14.
+.PP
+.B ACCEPTABLE DATE FORMATS:
+Prior versions of \fBhcal\fP insisted on the numeric date format
+.RI [ yyyy [ mm ]].
+\fBhcal\fP now accepts numeric date elements in any easily discernable order. \fBhcal\fP now accepts Hebrew month names, and gregorian month names in both full and abbreviated formats, and not case-sensitive. Gregorian month names may be entered in either your locale's language or in English. Hebrew month names may be entered in either Hebrew characters or in transliteration to Latin characters. When receiving a \fIdatespec\fP of two two-digit elements, \fBhcal\fP will make an effort to interpret the correct one as a two-digit Hebrew year in the current (58th) century. Refer to \fBEXAMPLES\fP below.
 .PP 
 .SH "OPTIONS"
 .TP 18
@@ -203,16 +208,20 @@ Useful locations and time zones
 .RE
 2   Eilat         29.56   34.95    3.5 Tehran     35.67   51.42
 .SH FILES
-.SS CONFIG FILE
-This folder and file will be automatically created, and
-includes its own documentation, in-line:
-.RS 16
-.I ${XDG_CONFIG_HOME}/hcal/hcalrc
+The config files and their parent folder will be automatically created. Each file includes its own documentation, in-line. Should you ever wish to restore a config file to its original text, rename or delete your current one; \fBhcal\fP will create a replacement automatically on its next invocation. Both \fBhdate\fP and \fBhcal\fP make use of identically formatted \fIcustom_days\fP files, so you may freely copy that file from one config folder to the other, or use a symbolic link so both programs will always use the same \fIcustom_days\fP information.
+
+.RS 5
+.RI ${ XDG_CONFIG_HOME } /hcal/hcalrc
+
+.RI ${ XDG_CONFIG_HOME } /hcal/custom_days
 .P
 .RE
-.RI "If " ${XDG_CONFIG_HOME} " is undefined:"
-.RS 16
+If ${\fIXDG_CONFIG_HOME\fP} is undefined:
+
+.RS 5
 .I ~/.config/hcal/hcalrc
+
+.I ~/.config/hcal/custom_days
 .SH "BUGS"
 .TP 10
 .B Accuracy

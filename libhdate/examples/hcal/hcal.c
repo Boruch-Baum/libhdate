@@ -1965,8 +1965,8 @@ void exit_main( option_list *opt, const int exit_code)
 		if (opt->menu_item[i] == NULL) break;
 		free(opt->menu_item[i]);
 	}
-	if (opt.jdn_list_ptr != NULL) free(opt.jdn_list_ptr);
-	if (opt.string_list_ptr != NULL) free(opt.string_list_ptr);
+	if (opt->jdn_list_ptr != NULL) free(opt->jdn_list_ptr);
+	if (opt->string_list_ptr != NULL) free(opt->string_list_ptr);
 	exit (exit_code);
 }
 
@@ -2372,7 +2372,13 @@ int main (int argc, char *argv[])
 		else if (argc == (optind + 1))
 		{
 			month = 0;
-			year = atoi (argv[optind]);
+			// year = atoi (argv[optind]);
+			int data_sink;
+			if (!parse_date( argv[optind], "", "", &year, &month, &data_sink, 1))
+				exit_main(&opt,0);
+			/// The parse_date function returns Hebrew month values in
+			/// the range 101 - 114
+			if (month > 100) month = month - 100;
 		}
 		else
 		{
