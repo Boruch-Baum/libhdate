@@ -358,39 +358,45 @@ hdate_jd_to_hdate (int jd, int *day, int *month, int *year, int *jd_tishrey1, in
  */
 hdate_struct *
 hdate_set_gdate (hdate_struct * h, int d, int m, int y)
+	/* FIXME  If only one of the parameters is zero, shouln't
+	 *        we honor the other parms? (and possibly return the
+	 *        hdate_struct nfor the first day that could be valid)
+	 *        (baruch)
+	 * FIXME  The documentation says year in 4 digits, but we are
+	 *        not rejecting (+/-) 0 < y <1000
+	 */
 {
 	int jd;
-	int jd_tishrey1, jd_tishrey1_next_year;
 	
 	if (!h) return NULL;
 	
 	/* check for null dates (kobi) */
-	// FIXME !!
-	/* I don't get it. This sets the returnval to the hdate_struct
-	 * for today, without checking that y is also zero. If even
-	 * just one of the parameters is valid, shouldn't we honor
-	 * that? (and possibly return the hdate_struct for the first
-	 * day that could be valid) (baruch)
-	 */
-	if ((d == 0) || (m == 0))
+	if ((d == 0) || (m == 0) )
 	{
 		struct tm *tm;
 		long t;
-		/* FIXME: day start at 6:00 or 12:00 like in Gregorian cal. ? */
+		/* FIXME: day start at sunset or gregorian midnight? */
 		t = time (0);
 		tm = localtime (&t);
 		d = tm->tm_mday;
 		m = tm->tm_mon + 1;
 		y = tm->tm_year + 1900;
 	}
-	
+
+	jd = hdate_gdate_to_jd (d, m, y);
+/*	BUGFIX (baruch)
+	1) There was no validation of input parms d, m, y, so if one passed
+	   to this function 29 2 2013 or 32 3 2012, the function would return
+	   without error, the gregorian return values would be the invalid
+	   ones received, the Hebrew and Julian values would be legitimate
+	   ones of the last legitimate day of the month plus how ever many
+	   days equivalence (eg. 29 feb would yield jdn for 1 mar).
+	2) Not a bug - removed unnecessary lines done anyway by hdate_set_jd,
+	   which will also populate the gregorian fields with correct values.
 	h->gd_day = d;
 	h->gd_mon = m;
 	h->gd_year = y;
-	
-	jd = hdate_gdate_to_jd (d, m, y);
 	hdate_jd_to_hdate (jd, &(h->hd_day), &(h->hd_mon), &(h->hd_year), &jd_tishrey1, &jd_tishrey1_next_year);
-	
 	h->hd_dw = (jd + 1) % 7 + 1;
 	h->hd_size_of_year = jd_tishrey1_next_year - jd_tishrey1;
 	h->hd_new_year_dw = (jd_tishrey1 + 1) % 7 + 1;
@@ -398,7 +404,9 @@ hdate_set_gdate (hdate_struct * h, int d, int m, int y)
 	h->hd_jd = jd;
 	h->hd_days = jd - jd_tishrey1 + 1;
 	h->hd_weeks = ((h->hd_days - 1) + (h->hd_new_year_dw - 1)) / 7 + 1;
-	
+*/	
+	hdate_set_jd(h, jd);
+
 	return (h);
 }
 
@@ -412,25 +420,32 @@ hdate_set_gdate (hdate_struct * h, int d, int m, int y)
 hdate_struct *
 hdate_set_hdate (hdate_struct * h, int d, int m, int y)
 {
+	/* FIXME  If only one of the parameters is zero, shouln't
+	 *        we honor the other parms? (and possibly return the
+	 *        hdate_struct nfor the first day that could be valid)
+	 *        (baruch)
+	 * FIXME  The documentation says year in 4 digits, but we are
+	 *        not rejecting (+/-) 0 < y <1000
+	 */
 	int jd;
 	int jd_tishrey1, jd_tishrey1_next_year;
 	
 	if (!h) return NULL;
 	
-	h->hd_day = d;
-	h->hd_mon = m;
-	h->hd_year = y;
-	
-	jd = hdate_hdate_to_jd (d, m, y, &jd_tishrey1, &jd_tishrey1_next_year);
-	hdate_jd_to_gdate (jd, &(h->gd_day), &(h->gd_mon), &(h->gd_year));
-	
-	h->hd_dw = (jd + 1) % 7 + 1;
-	h->hd_size_of_year = jd_tishrey1_next_year - jd_tishrey1;
-	h->hd_new_year_dw = (jd_tishrey1 + 1) % 7 + 1;
-	h->hd_year_type = hdate_get_year_type (h->hd_size_of_year , h->hd_new_year_dw);
-	h->hd_jd = jd;
-	h->hd_days = jd - jd_tishrey1 + 1;
-	h->hd_weeks = ((h->hd_days - 1) + (h->hd_new_year_dw - 1)) / 7 + 1;
+	if ((d == 0) || (m == 0) )
+	{
+		struct tm *tm;
+		long t;
+		/* FIXME: day start at sunset or gregorian midnight? */
+		t = time (0);
+		tm = localtime (&t);
+		d = tm->tm_mday;
+		m = tm->tm_mon + 1;
+		y = tm->tm_year + 1900;
+		jd = hdate_gdate_to_jd (d, m, y);
+	}
+	else jd = hdate_hdate_to_jd (d, m, y, &jd_tishrey1, &jd_tishrey1_next_year);
+	hdate_set_jd(h, jd);
 	
 	return (h);
 }

@@ -24,9 +24,8 @@
 //gcc -Wall -c -g -I "../../src" "%f"
 //gcc -Wall -g -I "../../src" -L"../../src/.libs" -lhdate -efence -o "%e" "%f"
 
-#define _GNU_SOURCE		/// For mempcpy, asprintf
-#define _POSIX_C_SOURCE 200809L
 
+#include <support.h>	/// libhdate general macros, including for gettext
 #include <stdio.h>		/// For printf, fopen, fclose, FILE
 #include <stdlib.h>		/// For malloc, free
 #include <time.h>		/// For time
@@ -37,33 +36,8 @@
 #include <sys/stat.h>	/// for stat
 #include <locale.h>		/// for setlocale
 
-#define FALSE 0
-#define TRUE -1
-
 #define TZIF1_FIELD_SIZE 4
 #define TZIF2_FIELD_SIZE 8
-
-#define BAD_COORDINATE	999
-
-// copied from support.h in src dir
-#ifdef ENABLE_NLS
-#  include <libintl.h>
-#  undef _
-#  define _(String) dgettext (PACKAGE, String)
-#  ifdef gettext_noop
-#    define N_(String) gettext_noop (String)
-#  else
-#    define N_(String) (String)
-#  endif
-#else
-#  define textdomain(String) (String)
-#  define gettext(String) (String)
-#  define dgettext(Domain,Message) (Message)
-#  define dcgettext(Domain,Message,Type) (Message)
-#  define bindtextdomain(Domain,Directory) (Domain)
-#  define _(String) (String)
-#  define N_(String) (String)
-#endif
 
 
 /***************************************************

@@ -24,20 +24,23 @@
 //gcc -Wall -g -I "../../src" -L"../../src/.libs" -lhdate -efence -o "%e" "%f"
 //gcc -Wall -g -I "../../src" -L"../../src/.libs" -lhdate -lmudflap -rdynamic -o "%e" "%f"
 
-#define _GNU_SOURCE		/// for mempcpy
-#include <stdio.h>		/// For printf
 #include <hdate.h>		/// For hebrew date (gcc -I ../../src)
+#include <support.h>	/// libhdate general macros, including for gettext
+#include <stdio.h>		/// For printf
 #include <stdlib.h>		/// For atoi, malloc
 #include <locale.h>		/// For setlocale
 #include <getopt.h>		/// For getopt_long
 #include <string.h>		/// For strlen, mempcpy
+#include <fnmatch.h>	/// For fnmatch
 #include <time.h>		/// For time, tzset
+#include <error.h>		/// For error
+#include <errno.h>		/// For errno
 //#include <wchar.h>	/// for unicode character operations
-#include "memwatch.h"	//  for debugging
+#include "memwatch.h"	//  REMOVE - for debugging only
+#include "local_functions.h" /// hcal,hdate common_functions
+#include "custom_days.h" /// hcal,hdate common_functions
 
 
-#define FALSE 0
-#define TRUE -1
 #define SHABBAT 7
 
 #define HDATE_STRING_SHORT 1
@@ -86,12 +89,6 @@
 #define ELEMENT_HOLIDAY_NAME  14
 #define ELEMENT_TODAY_HOLIDAY_DAY  15
 #define ELEMENT_TODAY_HOLIDAY_NAME 16
-
-/**************************************************
-*   functions to support hcal and hdate
-**************************************************/
-#include "./local_functions.c"
-
 
 
 static char holiday_flag[] = { '/', '+', '*', '~', '!', '@', '#', '$', '%', '^' };
@@ -1813,24 +1810,12 @@ void read_config_file(	FILE *config_file,
 								"HAVDALAH"
 								};
 
-//	input_string = malloc(input_str_len+1); unnecessary - done by getline
-//	input_key    = malloc(input_str_len+1); unnecessary - done by sscanf
-//	input_value  = malloc(input_str_len+1); unnecessary - done by sscanf
 	while ( end_of_input_file!=TRUE )
 	{
 		end_of_input_file = getline(&input_string, &input_str_len, config_file);
 		if ( end_of_input_file!=TRUE )
 		{
 			errno = 0;
-			// BUG - FIXME please
-			// The '200' in the next statement is a bug; it is meant to
-			// be the value of input_str_len. It would be convenient to
-			// use the 'a' conversion specifier here; however, the man
-			// pages say that it's a non-standard extension specific to
-			// GNU. Let's play with the 'm' conversion specifier which
-			// on the one hand, is POSIX and GNU compliant, but on the
-			// other hand only for glibc 2.7+ and POSIX.1+
-//			match_count = sscanf(input_string,"%[A-Z_]=%200[^\n]",input_key,input_value);
 			match_count = sscanf(input_string,"%m[A-Z_]=%m[^\n]",&input_key,&input_value);
 			line_count++;
 			if (errno != 0) error(0,errno,"scan error at line %d", line_count);
@@ -1842,7 +1827,6 @@ void read_config_file(	FILE *config_file,
 				{
 					if (strcmp(input_key, key_list[i]) == 0)
 					{
-// DEBUG -				printf("match found!, %s = %s, index = %d\n",input_key,key_list[i],i);
 						switch(i)
 						{
 
@@ -1947,8 +1931,6 @@ void read_config_file(	FILE *config_file,
 		}
 	}
 	if (input_string != NULL ) free(input_string);
-//	free(input_key);
-//	free(input_value);
 	return;
 }
 
@@ -2108,9 +2090,11 @@ int hcal_parser( const int switch_arg, option_list *opt,
 int main (int argc, char *argv[])
 {
 	int error_detected = FALSE;	/// exit after reporting ALL bad parms
+	int data_sink;				/// store unwanted stuff here
 
 	/// dates
 	hdate_struct h;
+
 	int month, year;
 	static int num_of_months = 12;	/// how many months in the year
 
@@ -2332,11 +2316,12 @@ int main (int argc, char *argv[])
 		else 		opt.jd_today_h = h.hd_jd;
 	}
 
+
+
 /**************************************************
 * parse and vaildate date parameters
 **************************************************/
-
-
+	/**/
 	/**************************************************
 	* no date parameter provided - use current mm yyyy
 	* and no need to validate parameters
@@ -2365,19 +2350,19 @@ int main (int argc, char *argv[])
 		********************************************************/
 		if (argc == (optind + 2))
 		{
-			int data_sink;
 			if (!parse_date( argv[optind], argv[optind+1], "", &year, &month, &data_sink, 2))
 				exit_main(&opt,0);
+			/// The parse_date function returns Hebrew
+			/// month values in the range 101 - 114
+			if (month > 100) month = month - 100;
 		}
 		else if (argc == (optind + 1))
 		{
 			month = 0;
-			// year = atoi (argv[optind]);
-			int data_sink;
 			if (!parse_date( argv[optind], "", "", &year, &month, &data_sink, 1))
 				exit_main(&opt,0);
-			/// The parse_date function returns Hebrew month values in
-			/// the range 101 - 114
+			/// The parse_date function returns Hebrew
+			/// month values in the range 101 - 114
 			if (month > 100) month = month - 100;
 		}
 		else

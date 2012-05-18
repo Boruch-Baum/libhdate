@@ -22,17 +22,21 @@
 //gcc -Wall -c -g -I "../../src" "%f"
 //gcc -Wall -g -I "../../src" -L"../../src/.libs" -lhdate -efence -o "%e" "%f"
 
-#define _GNU_SOURCE				/// For mempcpy, asprintf
-#define _POSIX_C_SOURCE 200809L /// for stat
-
 #include <hdate.h>		/// For hebrew date  (gcc -I ../../src)
+#include <support.h>	/// libhdate general macros, including for gettext
 #include <stdlib.h>		/// For atoi, getenv, setenv
+#include <stdio.h>		/// For printf, FILE, asprintf
 #include <locale.h>		/// For setlocale
 #include <getopt.h>		/// For getopt_long
 #include <string.h>		/// For strchr, mempcpy, asprintf
+#include <fnmatch.h>	/// For fnmatch
+#include <time.h>		/// For time
 #include <sys/stat.h>	/// for stat
+#include <error.h>		/// For error
+#include <errno.h>		/// For errno
+#include "local_functions.h" /// hcal,hdate common_functions
+#include "custom_days.h" /// hcal,hdate common_functions
 
-#include "./local_functions.c"
 
 #define DATA_WAS_NOT_PRINTED 0
 #define DATA_WAS_PRINTED 1
@@ -49,6 +53,10 @@
 
 
 char *debug_var;				/// system environment variable
+
+static char * day_text   = N_("day");
+static char * month_text = N_("month");
+static char * year_text  = N_("year");
 
 static char * sunrise_text = N_("sunrise");
 static char * sunset_text  = N_("sunset");
@@ -228,7 +236,7 @@ VERSION=2.00\n\
 # The command line option for this feature is, um, --table\n\
 #TABULAR=FALSE\n\n\
 # iCal format\n\
-# hdate can output its information in iCal-compatable format\n\
+# hdate can output its information in iCal-compatible format\n\
 # ICAL=FALSE\n\
 # Suppress alerts and warnings\n\
 # hdate alerts the user via STDERR when it guesses the user's location.\n\
@@ -981,8 +989,10 @@ int print_times ( hdate_struct * h, const double lat, const double lon, const in
 int print_omer (hdate_struct * h, const option_list opt)
 {
 	int omer_day;
-	char* day_text = N_("days");
+	char* empty_text = "";
+	char* days_text = N_("days");
 	char* in_the_omer_text = N_("in the omer");
+	char* today_is_day_text = N_("today is day");
 
 	omer_day = hdate_get_omer_day(h);
 	if (omer_day == 0) 	return DATA_WAS_NOT_PRINTED;
@@ -1000,10 +1010,10 @@ int print_omer (hdate_struct * h, const option_list opt)
 	{
 		if (opt.data_first)
 		{
-			if (omer_day == 1) day_text = N_("day");
+			if (omer_day == 1) days_text = day_text;
 			printf ("   %2d %s %s\n", omer_day, day_text, in_the_omer_text);
 		}
-		else printf ("%s %d %s \n", N_("today is day"), omer_day, in_the_omer_text);
+		else printf ("%s %d %s \n", today_is_day_text, omer_day, in_the_omer_text);
 	}
 	else /// long text format
 	{
@@ -1046,14 +1056,20 @@ int print_omer (hdate_struct * h, const option_list opt)
 
 			if  (omer_day < 7)
 			{
-				that_are = "";
-				weeks = "";
-				vav = "";
-				days2 = "";
+				that_are = empty_text;
+				weeks = empty_text;
+				vav = empty_text;
+				days2 = empty_text;
+				n2 = empty_text;
+				n3 = empty_text;
 			}
 			else
 			{
-				if (omer_day < 14)	weeks = "שבוע אחד";
+				if (omer_day < 14)
+				{
+					weeks = "שבוע אחד";
+					n2 = empty_text;
+				}
 				else
 				{
 					n2 = hdate_string(HDATE_STRING_OMER, omer_day/7, HDATE_STRING_LONG, HDATE_STRING_HEBREW);
@@ -1063,14 +1079,16 @@ int print_omer (hdate_struct * h, const option_list opt)
 				if (omer_day%7 == 0)
 				{
 					vav = ", ";
-					days2 = "";
+					days2 = empty_text;
+					n3 = empty_text;
 				}
 				else
 				{
 					if (omer_day%7 == 1)
 					{
 						vav = " ויום אחד, ";
-						days2 = "";
+						days2 = empty_text;
+						n3 = empty_text;
 					}
 					else
 					{
@@ -1094,18 +1112,15 @@ int print_omer (hdate_struct * h, const option_list opt)
 		}
 		else /// !opt.hebrew
 		{
-			if (omer_day == 1) printf ("%s ", N_("today is day"));
+			if (omer_day == 1) printf ("%s ", today_is_day_text);
 			else printf ("%s ", N_("today is"));
-	
-			// printf("%s", hdate_string(HDATE_STRING_OMER, omer_day, HDATE_STRING_LONG, HDATE_STRING_LOCAL));
+
 			printf("%d",omer_day);
 
-			if (omer_day > 1) printf(" %s", N_("days"));
-	
+			if (omer_day > 1) printf(" %s", days_text);
+
 			if (omer_day > 6)
 			{
-			//	printf ("%s %s ", N_(", which is"),
-			//		hdate_string(HDATE_STRING_OMER, omer_day/7, HDATE_STRING_LONG, HDATE_STRING_LOCAL));
 				printf("%s %d ", N_(", which is"),omer_day/7);
 
 				if (omer_day < 14) printf ("%s", N_("week"));
@@ -1113,16 +1128,15 @@ int print_omer (hdate_struct * h, const option_list opt)
 	
 				if (omer_day%7 != 0)
 				{
-			//		printf (" %s %s", N_("and"), hdate_string(HDATE_STRING_OMER, omer_day%7, HDATE_STRING_LONG, HDATE_STRING_LOCAL));
 					printf (" %s %d", N_("and"), omer_day%7);
-					if (omer_day%7 != 1) printf (" %s",	N_("days"));
-					else printf (" %s",	N_("day"));
+					if (omer_day%7 != 1) printf (" %s",	days_text);
+					else printf (" %s",	day_text);
 				}
 	
 				printf("%s", N_(","));
 			}
 
-		printf(" %s\n", N_("in the Omer"));
+		printf(" %s\n", in_the_omer_text);
 		}
 	}
 	return DATA_WAS_PRINTED;
@@ -1469,7 +1483,7 @@ int print_tabular_day (hdate_struct * h, const option_list opt,
 			{
 				if (h->hd_jd == *jdn_list_ptr)
 					printf(";%s", get_custom_day_ptr(i, opt.string_list_ptr));
-				else jdn_list_ptr = jdn_list_ptr + sizeof(int);
+				else jdn_list_ptr = jdn_list_ptr + 1;
 			}
 		}
 	}
@@ -1578,7 +1592,7 @@ int print_day (hdate_struct * h, const option_list opt,
 			{
 				if (h->hd_jd == *jdn_list_ptr)
 					printf("%s: %s\n", custom_day_text, get_custom_day_ptr(i, opt.string_list_ptr));
-				jdn_list_ptr = jdn_list_ptr + sizeof(int);
+				jdn_list_ptr = jdn_list_ptr + 1;
 			}
 		}
 	}
@@ -2540,7 +2554,7 @@ int main (int argc, char *argv[])
 	{
 				/// handle errors
 		// Hmm... suspicious. why so little checking here ...
-		if (year <= 0) { print_parm_error(N_("year")); exit_main(&opt,0); }
+		if (year <= 0) { print_parm_error(year_text); exit_main(&opt,0); }
 
 
 		/************************************************************
@@ -2554,7 +2568,7 @@ int main (int argc, char *argv[])
 
 			/// bounds check for month
 			if (!validate_hdate(CHECK_MONTH_PARM, 0, month, year, FALSE, &h))
-				{ print_parm_error(N_("month")); exit_main(&opt,0); }
+				{ print_parm_error(month_text); exit_main(&opt,0); }
 
 
 			if (opt.holidays)
@@ -2616,7 +2630,7 @@ int main (int argc, char *argv[])
 		else
 		{
 			if ((month <= 0) || (month > 12))
-				{ print_parm_error(N_("month")); exit_main(&opt,0); }
+				{ print_parm_error(month_text); exit_main(&opt,0); }
 
 			if (opt.holidays)
 			{
@@ -2826,7 +2840,7 @@ int main (int argc, char *argv[])
 	{
 		/// get the single parameter
 		year = atoi (argv[optind]);
-		// if (year <= 0) { print_parm_error(N_("year")); exit_main(&opt,0); }
+		// if (year <= 0) { print_parm_error(year_text); exit_main(&opt,0); }
 
 
 		/************************************************************
@@ -2873,7 +2887,7 @@ int main (int argc, char *argv[])
 			************************************************************/
 			else if (year > HEB_YR_LOWER_BOUND)
 			{
-				if (year > HEB_YR_UPPER_BOUND) { print_parm_error(N_("year")); exit_main(&opt,0); }
+				if (year > HEB_YR_UPPER_BOUND) { print_parm_error(year_text); exit_main(&opt,0); }
 	
 				if (opt.holidays)
 				{
@@ -2959,7 +2973,7 @@ int main (int argc, char *argv[])
 		//day = atoi (argv[optind]);
 
 		/* handle error */
-		if (year <= 0) { print_parm_error(N_("year")); exit_main(&opt,0); }
+		if (year <= 0) { print_parm_error(year_text); exit_main(&opt,0); }
 
 
 		/************************************************************
@@ -2973,11 +2987,11 @@ int main (int argc, char *argv[])
 
 			/// bounds check for month
 			if (!validate_hdate(CHECK_MONTH_PARM, 0, month, year, FALSE, &h))
-				{ print_parm_error(N_("month")); exit_main(&opt,0); }
+				{ print_parm_error(month_text); exit_main(&opt,0); }
 
 			/// bounds check for day
 			if (!validate_hdate(CHECK_DAY_PARM, day, month, year, TRUE, &h))
-				{ print_parm_error(N_("day")); exit_main(&opt,0); }
+				{ print_parm_error(day_text); exit_main(&opt,0); }
 
 			hdate_set_hdate (&h, day, month, year);
 
@@ -2999,11 +3013,11 @@ int main (int argc, char *argv[])
 		{
 			/// bounds check for month
 			if (!validate_hdate(CHECK_MONTH_PARM, 0, month, year, FALSE, &h))
-				{ print_parm_error(N_("month")); exit_main(&opt,0); }
+				{ print_parm_error(month_text); exit_main(&opt,0); }
 
 			/// bounds check for day
 			if (!validate_hdate(CHECK_DAY_PARM, day, month, year, TRUE, &h))
-				{ print_parm_error(N_("day")); exit_main(&opt,0); }
+				{ print_parm_error(day_text); exit_main(&opt,0); }
 
 			hdate_set_gdate (&h, day, month, year);
 

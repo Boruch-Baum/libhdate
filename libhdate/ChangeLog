@@ -1,3 +1,38 @@
+custom_days.c
+custom_days.h
+local_functions.h
+- new files
+
+support.h
+- minor changes
+
+hdate_julian.c
+- BUGFIX hdate_set_hdate was not returning
+  the current date when d or m was set to zero.
+- BUGFIX hdate_set_hdate was returning
+  bad input Hebrew d m y when performing
+  its secondary purpose of date arithmetic
+  (eg. when given 31-1-5772 it would
+  return correct info for 1-2-5772 except
+  h.hd_day would be 31 and h.hd_month would
+  be 1.
+- BUGFIX hdate_set_gdate was returning
+  bad input gregorian d m y when performing
+  its secondary purpose of date arithmetic
+  (eg. when given 32-3-2012 it would
+  return correct info for 1-4-2012 except
+  h.gd_day would be 32 and h.gd_month would
+  be 3).
+
+hdate.c
+- BUGFIX -ooo in Hebrew was occassionally
+  displaying (null)
+
+custom_days.c
+- handle february 29 in non-leap year
+
+----------------------------------------------------------------------------
+
 hdate.c
 - BUGFIX -ooo now displays arabic numerals when 
   not displaying Hebrew omer text
