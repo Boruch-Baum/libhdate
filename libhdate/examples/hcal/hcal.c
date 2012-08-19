@@ -36,7 +36,7 @@
 #include <error.h>		/// For error
 #include <errno.h>		/// For errno
 //#include <wchar.h>	/// for unicode character operations
-#include "memwatch.h"	//  REMOVE - for debugging only
+//#include "memwatch.h"	//  REMOVE - for debugging only
 #include "local_functions.h" /// hcal,hdate common_functions
 #include "custom_days.h" /// hcal,hdate common_functions
 

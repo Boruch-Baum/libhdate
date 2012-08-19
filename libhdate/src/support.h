@@ -52,9 +52,11 @@
 #define FNM_EXTMATCH	(1 << 5)
 #define FNM_NOFLAG		0
 
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE				/// For mempcpy, asprintf
 								//  This overrides a setting in the
 								//  make file - maybe change it there...
+#endif /* _GNU_SOURCE */
 
 #define _POSIX_C_SOURCE 200809L /// for stat
 
