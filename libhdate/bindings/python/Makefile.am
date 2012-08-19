@@ -1,5 +1,5 @@
 
-EXTRA_DIST = hdate.i setup.py
+EXTRA_DIST = hdate.i setup.py hdate_wrap.cxx hdate.py
 
 if WITH_PYTHON
 
