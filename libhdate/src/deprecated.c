@@ -64,7 +64,7 @@ hdate_get_int_string (int const n)
 char *
 hdate_get_day_string (int const day_of_week, int const short_form)
 {
-	return hdate_string( HDATE_STRING_DOW, day_of_week, short_form, HDATE_STRING_LOCAL);
+	return hdate_string(HDATE_STRING_DOW, day_of_week, short_form, HDATE_STRING_LOCAL);
 }
 
 /**

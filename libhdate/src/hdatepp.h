@@ -150,7 +150,7 @@ namespace hdate
 		get_day_of_week_string (int short_form)
 		{
 			//return hdate_get_day_string (h->hd_dw, s);
-			return hdate_string( HDATE_STRING_HMONTH, h->hd_dw, short_form, HDATE_STRING_LOCAL);	
+			return hdate_string(HDATE_STRING_DOW, h->hd_dw, short_form, HDATE_STRING_LOCAL);
 		}
 		
 		/**
@@ -201,7 +201,7 @@ namespace hdate
 			
 			holiday = hdate_get_holyday (h, diaspora);
 			//return hdate_get_holyday_string (holyday, s);
-			return hdate_string( HDATE_STRING_HOLIDAY, holiday, HDATE_STRING_LONG, HDATE_STRING_LOCAL);	
+			return hdate_string(HDATE_STRING_HOLIDAY, holiday, HDATE_STRING_LONG, HDATE_STRING_LOCAL);	
 
 		}
 		
@@ -247,7 +247,7 @@ namespace hdate
 			
 			parasha = hdate_get_parasha (h, diaspora);
 			//return hdate_get_parasha_string (parasha, s);
-			return hdate_string( HDATE_STRING_PARASHA, parasha, HDATE_STRING_LONG, HDATE_STRING_LOCAL);	
+			return hdate_string(HDATE_STRING_PARASHA, parasha, HDATE_STRING_LONG, HDATE_STRING_LOCAL);	
 
 		}
 		
@@ -268,7 +268,7 @@ namespace hdate
 		get_hebrew_year_string ()
 		{
 			//return hdate_get_int_string (h->hd_year);
-			return hdate_string( HDATE_STRING_INT, h->hd_year, HDATE_STRING_LONG, HDATE_STRING_LOCAL);	
+			return hdate_string(HDATE_STRING_INT, h->hd_year, HDATE_STRING_LONG, HDATE_STRING_LOCAL);	
 
 		}
 		
@@ -290,7 +290,7 @@ namespace hdate
 		get_hebrew_day_string ()
 		{
 			// return hdate_get_int_string (h->hd_day);
-			return hdate_string( HDATE_STRING_HMONTH, h->hd_day, HDATE_STRING_LONG, HDATE_STRING_LOCAL);	
+			return hdate_string(HDATE_STRING_INT, h->hd_day, HDATE_STRING_LONG, HDATE_STRING_LOCAL);	
 		}
 
 		/**
