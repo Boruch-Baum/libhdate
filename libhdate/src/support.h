@@ -64,7 +64,16 @@
 #define BAD_DATE_VALUE -1
 #define BAD_COORDINATE	999
 #define BAD_TIMEZONE	999
-#define DELTA_LONGITUDE 30
+#define BEST_TIMEZONE  1000
+
+/** This next is for sanity-checking a timezone numeric value against
+*	a longitude value. A natural division of the Earth into 24 timezones
+*	would mean 15 degrees per zone; however, we must allow for various
+*	political practicalities, most common of which will be daylight
+*	savings time - but there are others, including Kiribati's decision
+*	to go for a +14 hour timezone instead of a -10 hour one.
+**/
+#define DELTA_LONGITUDE 45
 
 #define HEB_YR_UPPER_BOUND 10999
 #define HEB_YR_LOWER_BOUND 3000

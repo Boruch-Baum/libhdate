@@ -6,7 +6,7 @@
  * compile:
  * gcc `pkg-config --libs --cflags libhdate` timezone_functions.c -o timezone_functions
  *
- * Copyright:  2011-2012 (c) Boruch Baum
+ * Copyright:  2011-2013 (c) Boruch Baum
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by

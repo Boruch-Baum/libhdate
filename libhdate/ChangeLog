@@ -1,3 +1,32 @@
+hcal.c
+hdate.c
+- GNU-compliance for --version and --help
+- rewrite all functions to pass and use
+  const option_list* instead of option_list
+
+hdate.c
+- print candle-lighting before dafyomi, omer, etc.
+- option data-first to apply also for dafyomi
+
+local_functions.h
+- change MIN_CANDLES_MINUTES to 15 for minhag London
+
+custom_days.c
+- handle Cheshvan 30 and Kislev 30 in non-leap year
+- handle Adar days in years that don't have them
+- reduce malloc/free requirements in sscanf() calls
+
+hcal.1
+hdate.1
+- update documentation
+- correct usage of "-" to "\-" for compliance with 
+  debian policy (lintian)
+
+zdump3.c
+zdump3.h
+- new files
+
+----------------------------------------------------------------------------
 custom_days.c
 custom_days.h
 local_functions.h

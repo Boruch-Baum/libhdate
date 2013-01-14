@@ -3,7 +3,7 @@
  * hcal.c  Hebrew calendar              (part of package libhdate)
  * hdate.c Hebrew date/times information(part of package libhdate)
  *
- * Copyright:  2012 (c) Boruch Baum
+ * Copyright:  2012-2013 (c) Boruch Baum
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,9 +19,12 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define EXIT_CODE_BAD_PARMS	1
+
+#define SECONDS_PER_DAY 60*60*24
 
 /// support for options parsing
-#define MIN_CANDLES_MINUTES 18
+#define MIN_CANDLES_MINUTES 15
 #define DEFAULT_CANDLES_MINUTES 20
 #define MAX_CANDLES_MINUTES 90
 #define MIN_MOTZASH_MINUTES 20
@@ -54,23 +57,23 @@ int parse_coordinate( const int type_flag, char *input_string,
 						double *coordinate, int *opt_found);
 
 /// parse_timezone(...)
-int parse_timezone( char *input_string, int *tz);
+int parse_timezone_alpha(const char* search_string, char* result_str, int* tz, double* tz_lat, double* tz_lon);
+int parse_timezone_numeric( char *input_string, int *tz);
 
 /// parse_date(...)
 int parse_date( const char* parm_a, const char* parm_b, const char* parm_c,
 					 int* ret_year, int* ret_month, int* ret_day, const int parm_cnt );
 
-void print_parm_error ( char *parm_name );
-void print_parm_missing_error ( char *parm_name );
+void print_parm_error ( const char *parm_name );
+void print_parm_missing_error ( const char *parm_name );
 
 int menu_select( char* menu_list[], int max_menu_items );
 int menu_item_parse(char* menuptr, size_t menu_len, int *menu_index,
-					char** optptr, char* short_options,
-					struct option *long_options, int *long_option_index,
+					char** optptr, const char* short_options,
+					const struct option *long_options, int *long_option_index,
 					int *error_detected);
 
-void validate_location( const int opt_latitude, const int opt_Longitude,
-						double *lat, double *lon,
-						int *tz, const int quiet_alerts, int error_detected,
-						void (*print_usage)(), void (*print_try_help)() );
+int process_location_parms( const int opt_latitude, const int opt_Longitude,
+							 double *lat, double *lon,
+							 int *tz, char* tz_name_ptr, const int quiet_alerts );
 

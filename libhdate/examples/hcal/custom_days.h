@@ -1,4 +1,4 @@
-/** custom_days.c            http://libhdate.sourceforge.net
+/** custom_days.h            http://libhdate.sourceforge.net
  * a collection of functions in support of both hcal.c and hdate.c
  * hcal.c  Hebrew calendar              (part of package libhdate)
  * hdate.c Hebrew date/times information(part of package libhdate)
@@ -6,7 +6,7 @@
  * compile:
  * gcc `pkg-config --libs --cflags libhdate` custom_days.c -o custom_days
  *
- * Copyright:  2012 (c) Boruch Baum
+ * Copyright:  2012-2013 (c) Boruch Baum
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,9 +22,9 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
  
- char* get_custom_day_ptr(const int index, char* string_list_ptr);
- 
- int get_custom_days_list( int** jdn_list_ptr, char** string_list_ptr,
+extern char* get_custom_day_ptr(const int index, char* string_list_ptr);
+
+extern int get_custom_days_list( int** jdn_list_ptr, char** string_list_ptr,
 			const int day, const int month, const int year,
 			const char calendar, const int quiet_alerts,
 			const hdate_struct range_start,
