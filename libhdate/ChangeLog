@@ -1,3 +1,7 @@
+local_functions.c
+- remove warnings indicated by code-hardening compile flags
+
+----------------------------------------------------------------------------
 hcal.c
 hdate.c
 - GNU-compliance for --version and --help

@@ -39,6 +39,10 @@
 #include <string.h>		/// For mempcpy
 #include <getopt.h>		/// For optarg, optind
 #include <stdio.h>		/// For printf, fopen, fclose, fprintf, snprintf. FILE
+#include <pwd.h>		/// for get pwuid
+#include <unistd.h>		/// for getuid
+#include <sys/stat.h>	
+#include <sys/types.h>	/// for mkdir,
 
 #include "local_functions.h" /// for macro definitions used by other programs
 
@@ -228,7 +232,7 @@ int revstr( char *source, const size_t source_len)
 
 #define DEBUG 0
 #if DEBUG
-printf("\nrevstr: entry: sourcelen = %d, source = %s\n",source_len, source);
+printf("\nrevstr: entry: sourcelen = %ld, source = %s\n",source_len, source);
 #endif
 
 	if (source == NULL) {error(0,0,"revstr: source buffer pointer is NULL"); exit(0);};
@@ -254,7 +258,7 @@ printf("\nrevstr: entry: sourcelen = %d, source = %s\n",source_len, source);
 	memcpy(source, temp_buff, source_len);
 	source[source_len] = '\0';
 #if DEBUG
-printf("\nrevstr: before free(tempbuff): sourcelen = %d, source = %s\n",source_len, source);
+printf("\nrevstr: before free(tempbuff): sourcelen = %ld, source = %s\n",source_len, source);
 #endif
 	free(temp_buff);
 	return retval;
@@ -980,11 +984,6 @@ FILE* get_config_file(	const char* config_dir_name,
 						const char* default_config_file_text,
 						const int quiet_alerts )
 {
-#include <pwd.h>			// for get pwuid
-#include <unistd.h>			// for getuid
-#include <sys/stat.h>
-#include <sys/types.h>		// for mkdir,
-
 	size_t path_len;
 
 	char* config_home_path_name = "";
@@ -1009,7 +1008,7 @@ FILE* get_config_file(	const char* config_dir_name,
 			if (!quiet_alerts) error(0, errno, "%s: %s", N_("failure attempting to create config file"), config_file_path);
 			return;
 		}
-		fprintf(config_file, default_config_file_text);
+		fprintf(config_file, "%s", default_config_file_text);
 		if (fclose(config_file) != 0)
 		{
 			if (!quiet_alerts) error(0,errno,"%s %s",N_("failure closing"),config_file_name);
