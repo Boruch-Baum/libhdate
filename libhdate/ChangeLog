@@ -1,5 +1,24 @@
+makefile.am
+- update compile and link flags for code hardening
+
+hdate.h
+- new function hdate_get_halachic_day
+- new function hdate_get_israeli_day
+
+hdate_holyday.c
+- hdate_getholyday turns into wrapper for
+  hdate_get_halachic_day and hdate_get_israeli_day
+- new function hdate_get_halachic_day
+- new function hdate_get_israeli_day
+
 local_functions.c
 - remove warnings indicated by code-hardening compile flags
+
+timezone_functions.h
+- new file
+
+zdump3.c
+- BUGFIX: pointer timezone abbreviation,
 
 ----------------------------------------------------------------------------
 hcal.c

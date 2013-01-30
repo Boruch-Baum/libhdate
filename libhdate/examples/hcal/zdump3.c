@@ -21,7 +21,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
+// next possibly not necessary
 #define _GNU_SOURCE     /// feature_test_macro - for memmem
 #define _POSIX_C_SOURCE 1
 #include <time.h>		/// for time, ctime
@@ -388,7 +389,12 @@ int rule_dump( const char* tzif, const size_t tzif_size,
 			*return_data = perform_a_realloc(*return_data, ret_buff_size);
 			if (*return_data == NULL) return ZD_FAILURE;
 		}
-		add_a_rule_entry( start, *return_data, num_entries, utc_offset, save_secs, tm_local.tm_zone );
+///		The following only works when _BSD_SOURCE is set, because
+///		tm_gmtoff and *tm_zone are part of the glibc version of struct tm,
+///		currently only implemented as a BSD extension.
+///		add_a_rule_entry( start, *return_data, num_entries, utc_offset, save_secs, tm_local.tm_zone );
+// FIXME - replace "---" with a real time zone abbreviation value!
+		add_a_rule_entry( start, *return_data, num_entries, utc_offset, save_secs, "---" );
 		if (!p_rule.has_dst) return ZD_SUCCESS;
 		memcpy( (char*) &tm_prior, (char*) &tm_local, sizeof(struct tm));
 	}
@@ -430,8 +436,14 @@ int rule_dump( const char* tzif, const size_t tzif_size,
 			*return_data = perform_a_realloc(*return_data, ret_buff_size);
 			if (*return_data == NULL) return ZD_FAILURE;
 		}
-		add_a_rule_entry( current, *return_data, num_entries, tm_local.tm_gmtoff,
-							p_rule.save_secs[i], tm_local.tm_zone );
+///		The following only works when _BSD_SOURCE is set, because
+///		tm_gmtoff and *tm_zone are part of the glibc version of struct tm,
+///		currently only implemented as a BSD extension.
+///		add_a_rule_entry( current, *return_data, num_entries, tm_local.tm_gmtoff,
+///							p_rule.save_secs[i], tm_local.tm_zone );
+// FIXME - replace 0 and NULL with real values!
+		add_a_rule_entry( current, *return_data, num_entries, 0,
+							p_rule.save_secs[i], NULL );
 		// this next is only for the first pass
 		if (!p_rule.has_dst) return ZD_SUCCESS;
 		memcpy( (char*) &tm_prior, (char*) &tm_local, sizeof(struct tm));
@@ -538,6 +550,7 @@ int zdump(               /// returns 0 on ZD_SUCCESS, -1 on ZD_FAILURE
 	if ((i == tzh.timecnt) && (temp_long < end))
 		result = rule_dump(tzif, file_status.st_size-2, start, end, (time_t) temp_long,
 						num_entries, return_data, &ret_buff_size);
+
 /// cleanup and exit
 endpoint:
 	if (tzif != NULL) free(tzif);

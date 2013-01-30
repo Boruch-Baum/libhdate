@@ -3,7 +3,7 @@
  * The file is expected to have been compiled using the glibc 'zic'
  * command.
  *
- * Copyright:  201-2013 (c) Boruch Baum <zdump@gmx.com>
+ * Copyright:  2012-2013 (c) Boruch Baum <zdump@gmx.com>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by

@@ -7,13 +7,13 @@ ldadd= $(top_builddir)/src/libhdate.la -lm
 
 bin_PROGRAMS= hdate hcal
 
-hdate_SOURCES = hdate.c local_functions.c custom_days.c
+hdate_SOURCES = hdate.c local_functions.c custom_days.c zdump3.c timezone_functions.c
 hdate_CFLAGS =
 hdate_LDFLAGS =
 hdate_DEPENDENCIES = $(DEPS)
 hdate_LDADD = $(ldadd)
 
-hcal_SOURCES = hcal.c local_functions.c custom_days.c
+hcal_SOURCES = hcal.c local_functions.c custom_days.c timezone_functions.c
 hcal_CFLAGS =
 hcal_LDFLAGS =
 hcal_DEPENDENCIES = $(DEPS)

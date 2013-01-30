@@ -44,7 +44,6 @@
 char *
 hdate_get_int_string (int const n)
 {
-	char *dest;
 	int hebrew_form = HDATE_STRING_HEBREW;
 
 	if (!hdate_is_hebrew_locale()) hebrew_form = HDATE_STRING_LOCAL;

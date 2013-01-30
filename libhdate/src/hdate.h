@@ -190,7 +190,27 @@ int
 hdate_get_parasha (hdate_struct const * h, int diaspora);
 
 /**
- @brief get the number of hebrew holiday.
+ @brief Return number of hebrew halachic holiday.
+
+ @param h The hdate_struct of the date to use.
+ @param diaspora if True give diaspora holydays
+ @return the number of holyday.
+*/
+int
+hdate_get_halachic_day (hdate_struct const * h, int diaspora);
+
+/**
+ @brief Return number of Israeli custom day.
+
+ @param h The hdate_struct of the date to use.
+ @param diaspora if True give diaspora holydays
+ @return the number of holyday.
+*/
+int
+hdate_get_israeli_day (hdate_struct const * h, int diaspora);
+
+/**
+ @brief Return number of halachic holiday or Israeli custom day.
 
  @param h pointer this hdate struct.
  @param diaspora if true give diaspora holidays

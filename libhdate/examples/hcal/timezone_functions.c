@@ -90,7 +90,7 @@ long parse_tz_long( const char *sourceptr, const int field_size)
 * read a tzheader file
 * 
 ***************************************************/
-int read_tz_header( timezonefileheader *header,  const char *temp_buffer)
+int read_and_print_tz_header( timezonefileheader *header,  const char *temp_buffer)
 {
 	const int field_size = 4;
 
@@ -126,7 +126,6 @@ int read_tz_header( timezonefileheader *header,  const char *temp_buffer)
 
 return TRUE;
 }
-
 
 
 
@@ -560,7 +559,7 @@ char* tzif2_handle( timezonefileheader *tzh, const char *tzfile_buffer_ptr, size
 	}
 
 	printf("tzif2 header found at position %ld\n", start_ptr - tzfile_buffer_ptr);
-	if ( read_tz_header( tzh, (char*) start_ptr ) == FALSE )
+	if ( read_and_print_tz_header( tzh, (char*) start_ptr ) == FALSE )
 	{
 		printf("Error reading header file version 2\n");
 		return NULL;
@@ -649,7 +648,7 @@ printf("locale string: %s\n tzdir string: %s\n\n", locale_ptr, tzdir_ptr);
 	fclose(tz_file);
 
 
-	if ( read_tz_header( &tzh, tzif_buffer_ptr ) == FALSE )
+	if ( read_and_print_tz_header( &tzh, tzif_buffer_ptr ) == FALSE )
 	{
 		printf("Error reading header file version 1\n");
 		return;

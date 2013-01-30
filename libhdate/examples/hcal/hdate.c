@@ -25,7 +25,7 @@
 //gcc -Wall -c -g -I "../../src" "%f"
 //gcc -Wall -g -I "../../src" -L"../../src/.libs" -lhdate -efence -o "%e" "%f"
 
-// in geany, build: gcc -Wall -g -I "../../src" -L"../../src/.libs" -lhdate -o "%e" "%f" local_functions.c custom_days.c
+// in geany, build: gcc -Wall -g -I "../../src" -L"../../src/.libs" -lhdate -o "%e" "%f" local_functions.c custom_days.c zdump3.c
 
 
 #include <hdate.h>		/// For hebrew date  (gcc -I ../../src)
@@ -1435,7 +1435,7 @@ int print_tabular_day (hdate_struct * h, const option_list* opt)
 	if (opt->three_stars) print_astronomical_time_tabular( three_stars, opt->tz_offset);
 	if (opt->sun_hour) print_astronomical_time_tabular(sun_hour, 0);
 
-	if (opt->daf_yomi) print_daf_yomi(h->hd_jd, opt->hebrew, opt->bidi, TRUE);
+	if (opt->daf_yomi) print_daf_yomi(h->hd_jd, opt->hebrew, opt->bidi, TRUE, opt->data_first);
 
 	if (opt->candles)
 	{
@@ -1642,7 +1642,7 @@ int print_day (hdate_struct * h, option_list* opt)
 		printf("%s\n", hdate_string( HDATE_STRING_PARASHA, parasha, opt->short_format, 0));
 		data_printed = DATA_WAS_PRINTED;
 	}
-	if (opt->daf_yomi) data_printed = data_printed | print_daf_yomi(h->hd_jd, opt->hebrew, opt->bidi, FALSE);
+	if (opt->daf_yomi) data_printed = data_printed | print_daf_yomi(h->hd_jd, opt->hebrew, opt->bidi, FALSE, opt->data_first);
 
 	if ((opt->print_tomorrow) && (data_printed) && (!opt->quiet)) print_alert_sunset();
 	
@@ -3017,9 +3017,11 @@ case PROCESS_GREGOR_YEAR:
 		t_end = mktime (&t);
 		break;
 }
-zdump( tz_name_str, t_start, t_end, &opt.tzif_entries,  &opt.tzif_data );
-// opt.tzif_data must be free()d
-opt.today_time = t_start - SECONDS_PER_DAY;
+
+	opt.tzif_data = NULL;
+	zdump( tz_name_str, t_start, t_end, &opt.tzif_entries,  &opt.tzif_data );
+	// opt.tzif_data must be free()d
+	opt.today_time = t_start - SECONDS_PER_DAY;
 
 	switch (hdate_action)
 	{
