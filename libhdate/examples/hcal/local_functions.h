@@ -30,7 +30,8 @@
 #define MIN_MOTZASH_MINUTES 20
 #define MAX_MOTZASH_MINUTES 90
 
-
+// maybe move this ...
+#define JERUSALEM_STANDARD_TIME_IN_MINUTES 120
 
 /// validate_hdate(...)
 #define CHECK_DAY_PARM   1
@@ -54,7 +55,7 @@ int revstr( char *source, const size_t source_len);
 
 /// parse_coordinate(...)
 int parse_coordinate( const int type_flag, char *input_string,
-						double *coordinate, int *opt_found);
+						double *coordinate);
 
 /// parse_timezone(...)
 int parse_timezone_alpha(const char* search_string, char* result_str, int* tz, double* tz_lat, double* tz_lon);
@@ -73,7 +74,14 @@ int menu_item_parse(char* menuptr, size_t menu_len, int *menu_index,
 					const struct option *long_options, int *long_option_index,
 					int *error_detected);
 
-int process_location_parms( const int opt_latitude, const int opt_Longitude,
-							 double *lat, double *lon,
-							 int *tz, char* tz_name_ptr, const int quiet_alerts );
+void process_location_parms( double *lat, double *lon,
+							int *tz, const char* tz_name_ptr,
+	 						const time_t start_time, const time_t end_time,
+							int * num_dst_entries_ptr, void** returned_dst_data,
+							const int quiet_alerts );
 
+void get_epoch_time_range( time_t *retval_start, time_t *retval_end,
+					const char * tz_string, const int tz,
+					const int gyear0, const int gmonth0, const int gday0,
+					const int gyear1, const int gmonth1, const int gday1
+					);

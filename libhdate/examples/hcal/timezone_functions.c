@@ -35,10 +35,12 @@
 #include <string.h>		/// for memset, memcpy
 #include <sys/stat.h>	/// for stat
 #include <locale.h>		/// for setlocale
+#include "zdump3.h"		/// for struct zdumpinfo
 
 #define TZIF1_FIELD_SIZE 4
 #define TZIF2_FIELD_SIZE 8
 
+#define JERUSALEM_STANDARD_TIME_IN_MINUTES 120
 
 /***************************************************
 * 
@@ -460,7 +462,7 @@ void test_mktime ()
 	struct tm* tm2;
 	time_t time_in_sec;
 
-	tzset();
+	// tzset();
 	char *tza;
 	tzset();
 	printf("Environmental variables:\n tzname = %s, timezone =  %ld:%ld:%ld, daylight = %d, TZ = ",
@@ -863,4 +865,25 @@ int get_lat_lon_from_zonetab_file( const char* search_string, double *lat, doubl
 	fclose(tzfile);
 	if (search_result_ptr != NULL) return TRUE;
 	return FALSE;
+}
+
+
+/// get tz adjustment (with daylight savings time awareness)
+int get_tz_adjustment(	const time_t t, const int tz, int *tzif_index,
+						const int tzif_entries, const void *tzif_data )
+{
+	int tz_adjustment = JERUSALEM_STANDARD_TIME_IN_MINUTES;
+	zdumpinfo * zd;
+	if (tz != BAD_TIMEZONE) tz_adjustment = tz;
+	else
+	{
+		zd = tzif_data;
+		if (   (*tzif_index < (tzif_entries - 1) )
+			&& (zd[*tzif_index + 1].start < t ) )
+		{
+			*tzif_index = *tzif_index + 1;
+		}
+		tz_adjustment = (zd[*tzif_index].utc_offset) / 60 ;
+	}
+	return tz_adjustment;
 }

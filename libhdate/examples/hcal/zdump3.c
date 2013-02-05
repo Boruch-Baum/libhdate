@@ -454,7 +454,7 @@ int rule_dump( const char* tzif, const size_t tzif_size,
 
 
 int zdump(               /// returns 0 on ZD_SUCCESS, -1 on ZD_FAILURE
-    char* tzname,        /// fully-qualified time-zone name (eg. Asia/Baku)
+    const char* tzname,  /// fully-qualified time-zone name (eg. Asia/Baku)
                          ///    if NULL, use current system timezone
     const time_t start,  /// seconds from epoch to be scanned
     const time_t end,    /// seconds from epoch to be scanned

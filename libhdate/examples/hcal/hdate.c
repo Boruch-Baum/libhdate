@@ -145,7 +145,7 @@ typedef struct  {
 				int menu;
 				char* menu_item[MAX_MENU_ITEMS];
 				int tzif_entries;
-				int tzif_index;
+				int tzif_index;			/// counter into tzif_entries
 				void* tzif_data;
 				int tz_offset;
 				double lat;
@@ -1916,8 +1916,6 @@ int print_hyear ( option_list* opt, const int year)
 ****************************************************/
 void read_config_file(	FILE *config_file,
 						option_list *opt,
-						int*	opt_lat,
-						int*	opt_lon,
 						char*	tz_name_str )
 {
 	double tz_lat, tz_lon;
@@ -2005,12 +2003,12 @@ void read_config_file(	FILE *config_file,
 
 ///		LATITUDE
 		case  1:
-				parse_coordinate(1, input_value, &opt->lat, opt_lat);
+				parse_coordinate(1, input_value, &opt->lat);
 				break;
 
 ///		LONGITUDE
 		case  2:
-				parse_coordinate(2, input_value, &opt->lon, opt_lon);
+				parse_coordinate(2, input_value, &opt->lon);
 				break;
 
 ///		TIMEZONE
@@ -2229,7 +2227,6 @@ void exit_main( option_list *opt, int exit_code)
 * of main, because of its dual use and dual reference
 ****************************************************/
 int parameter_parser( int switch_arg, option_list *opt,
-					int *opt_latitude, int *opt_Longitude,
 					char* tz_name_str, int long_option_index)
 {
 	double tz_lat, tz_lon;
@@ -2380,10 +2377,10 @@ int parameter_parser( int switch_arg, option_list *opt,
 	case 't': opt->times = opt->times + 1; break;
 	case 'T': opt->tablular_output = 1; break;
 	case 'l':
-		error_detected = error_detected + parse_coordinate(1, optarg, &opt->lat, opt_latitude);
+		error_detected = error_detected + parse_coordinate(1, optarg, &opt->lat);
 		break;
 	case 'L':
-		error_detected = error_detected + parse_coordinate(2, optarg, &opt->lon, opt_Longitude);
+		error_detected = error_detected + parse_coordinate(2, optarg, &opt->lon);
 		break;
 	case 'v': opt->afikomen = opt->afikomen + 1; break;
 	case 'z':
@@ -2451,13 +2448,9 @@ int main (int argc, char *argv[])
 	int month = BAD_DATE_VALUE;
 	int year  = BAD_DATE_VALUE;
 
-	// deprecate this next in favor of opt.lat, opt.lon, opt.tz_offset
-	// double lat = BAD_COORDINATE;	/// set to this value for error handling
-	// double lon = BAD_COORDINATE;	/// set to this value for error handling
+	// deprecate this next in favor of opt.tz_offset
 	// int tz = BAD_TIMEZONE;			/// -z option Time Zone, default to system local time
 	char* tz_name_str = NULL;
-	int opt_latitude = 0;			/// -l option latitude
-	int opt_Longitude = 0;			/// -L option longitude
 	
 	int error_detected = FALSE;		/// exit after reporting ALL bad parms
 
@@ -2466,6 +2459,18 @@ int main (int argc, char *argv[])
 	opt.lat = BAD_COORDINATE;
 	opt.lon = BAD_COORDINATE;
 	opt.tz_offset = BAD_TIMEZONE;
+	//-z number (absolute over-ride of system time zone)
+          //longitude mis-sync -> just alert
+          //no longitude -> guess (including zone.tab for current)
+          //alert no dst awareness
+	//-z name   (absolute over-ride of system time zone)
+          //longitude mis-sync -> just alert
+          //latitude mis-sync (re:zone.tab) - just alert
+          //no longitude -> use zone.tab entry
+	//-z null   system time zone (/etc/localtime)
+          //longitude mis-sync -> just alert
+          //latitude mis-sync (re:zone.tab) - just alert
+          //no longitude -> use zone.tab entry
 	opt.hebrew = 0;
 	opt.bidi = 0;
 	opt.yom = 0;
@@ -2517,6 +2522,11 @@ int main (int argc, char *argv[])
 	opt.jdn_list_ptr = NULL;	/// for custom_days
 	opt.string_list_ptr= NULL;	/// for custom_days
 	// TODO - be sure to free() opt.jdn_list_ptr, opt.string_list_ptr upon exit
+
+	/// for checking dst transitions (candle-lighting, havdalah)
+	time_t start_time, end_time;
+	opt.tzif_entries =0;
+	opt.tzif_data = NULL;
 
 	/// for user-defined menus (to be read from config file)
 	size_t	menu_len = 0;
@@ -2737,7 +2747,7 @@ int main (int argc, char *argv[])
 	FILE *config_file = get_config_file("/hdate", "/hdaterc", hdate_config_file_text, opt.quiet);
 	if (config_file != NULL)
 	{
-		read_config_file(config_file, &opt, &opt_latitude, &opt_Longitude, tz_name_str);
+		read_config_file(config_file, &opt, tz_name_str);
 		fclose(config_file);
 	}
 
@@ -2748,10 +2758,7 @@ int main (int argc, char *argv[])
 							short_options, long_options,
 							&long_option_index)) != -1)
 		error_detected = error_detected
-						+ parameter_parser(c, &opt,
-									&opt_latitude,
-									&opt_Longitude,
-									tz_name_str, long_option_index);
+						+ parameter_parser(c, &opt,	tz_name_str, long_option_index);
 
 
 	/// undocumented feature - afikomen
@@ -2787,8 +2794,7 @@ int main (int argc, char *argv[])
 								&long_option_index, &error_detected) ) != -1)
 			{
 				error_detected = error_detected + 
-					parameter_parser(c, &opt, &opt_latitude, &opt_Longitude,
-								tz_name_str, long_option_index);
+					parameter_parser(c, &opt, tz_name_str, long_option_index);
 			}
 		}
 	}
@@ -2894,11 +2900,10 @@ int main (int argc, char *argv[])
 	* if it discovers, um, bad parameters 
 	************************************************************/
 	// be nice: make sure only one of tz and tz_name_str is set!
-	int tz_absolute_val;
-	tz_absolute_val = process_location_parms(
-						opt_latitude, opt_Longitude,
-						&opt.lat, &opt.lon, &opt.tz_offset, tz_name_str, 
-						opt.quiet);
+	process_location_parms(	&opt.lat, &opt.lon, &opt.tz_offset, tz_name_str, 
+							start_time, end_time,
+							&opt.tzif_entries, &opt.tzif_data,
+							opt.quiet);
 	// remember to free() tz_name_str
 	// if user input tz as a value, it is absolute (no dst)
 	// else try reading tzif /etc/localtime

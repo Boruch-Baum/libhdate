@@ -39,6 +39,7 @@
 //#include "memwatch.h"	//  REMOVE - for debugging only
 #include "local_functions.h" /// hcal,hdate common_functions
 #include "custom_days.h" /// hcal,hdate common_functions
+#include "timezone_functions.h"		/// for get_tz_adjustment
 
 
 #define SHABBAT 7
@@ -51,6 +52,8 @@
 /// for opt.menu[MAX_MENU_ITEMS]
 #define MAX_MENU_ITEMS 10
 
+/// for custom days
+#define BAD_CUSTOM_DAY_CNT -1
 
 /// for colorization
 #define CODE_BOLD_VIDEO    "%c[1m", 27
@@ -120,6 +123,7 @@ typedef struct {
 			int havdalah;
 			int no_reverse;
 			int three_month;
+			int one_year;	/// needed for getting tzif data only once
 			char* spacing;
 			char* separator;
 			int colorize;
@@ -134,9 +138,15 @@ typedef struct {
 			double lat;
 			double lon;
 			int tz;
+			char* tz_name_str;
 			int custom_days_cnt;
 			int* jdn_list_ptr;		/// for custom_days
 			char* string_list_ptr;	/// for custom_days
+			int tzif_entries;
+			int tzif_index;			/// counter into tzif_entries
+			void* tzif_data;
+			time_t epoch_start;		/// for dst transition calc
+			time_t epoch_end;		/// for dst transition calc
 			int menu;
 			char* menu_item[MAX_MENU_ITEMS];
 				} option_list;
@@ -1161,19 +1171,6 @@ void print_day ( const hdate_struct h, const int month, const option_list* opt)
 	int i;
 	int* jdn_list_ptr = opt->jdn_list_ptr;
 
-	holiday_type = hdate_get_holyday_type(hdate_get_holyday(&h, opt->diaspora));
-	if ((!holiday_type) && (opt->custom_days_cnt))
-	{
-		for (i=0; i<opt->custom_days_cnt; i++)
-		{
-			if (h.hd_jd == *jdn_list_ptr)
-			{
-				holiday_type = 9; // FIXME - should be configurable ?!
-				continue;
-			}
-			else jdn_list_ptr = jdn_list_ptr + 1;
-		}
-	}
 
 	/*****************************************************
 	*  embedded sub-function: print_gregorian()
@@ -1269,6 +1266,7 @@ void print_day ( const hdate_struct h, const int month, const option_list* opt)
 	*  print_day() beginning of actual function
 	*****************************************************/
 
+
 	/**************************************************
 	*  out of month - needs padding
 	*************************************************/
@@ -1283,11 +1281,24 @@ void print_day ( const hdate_struct h, const int month, const option_list* opt)
 	*************************************************/
 	else
 	{
+		holiday_type = hdate_get_holyday_type(hdate_get_holyday(&h, opt->diaspora));
+		if ((!holiday_type) && (opt->custom_days_cnt))
+		{
+			for (i=0; i<opt->custom_days_cnt; i++)
+			{
+				if (h.hd_jd == *jdn_list_ptr)
+				{
+					holiday_type = 9; // FIXME - should be configurable ?!
+					continue;
+				}
+				else jdn_list_ptr = jdn_list_ptr + 1;
+			}
+		}
+
 		if (opt->gregorian > 1)  print_gregorian();
 		print_hebrew();
 		if (opt->gregorian == 1) print_gregorian();
 	}
-
 	if (hd_day_str != NULL) free(hd_day_str);
 }
 
@@ -1296,7 +1307,7 @@ void print_day ( const hdate_struct h, const int month, const option_list* opt)
 /*************************************************
 *  print a calendar week's entry (ie. seven columns)
 *************************************************/
-void print_week( int jd, const int month, const option_list* opt)
+void print_week( int jd, const int month, option_list* opt)
 {
 	#define long_parasha_name 0
 
@@ -1376,35 +1387,76 @@ void print_week( int jd, const int month, const option_list* opt)
 		*************************************************/
 		if (opt->shabbat)
 		{
+			/// motzay shabat time
+			hdate_get_utc_sun_time_full (h.gd_day, h.gd_mon, h.gd_year, opt->lat,
+										 opt->lon, &sun_hour, &first_light, &talit,
+										 &sunrise, &midday, &sunset,
+										 &first_stars, &three_stars);
+			// FIXME - allow for further minhag variation
+			if (opt->havdalah != 1) three_stars = sunset + opt->havdalah;
+			/// else three_stars = three_stars;
+
 			/// candlelighting times
 			hdate_get_utc_sun_time (yom_shishi.gd_day, yom_shishi.gd_mon, yom_shishi.gd_year,
 									opt->lat, opt->lon, &sunrise, &sunset);
-
 			// FIXME - allow for further minhag variation
-			if (opt->candles != 1) sunset = sunset - opt->candles + opt->tz;
-			else sunset = sunset + opt->tz - DEFAULT_CANDLES_MINUTES;
+			if (opt->candles != 1) sunset = sunset - opt->candles;
+			else sunset = sunset - DEFAULT_CANDLES_MINUTES;
 
+
+			/// convert havdalah and candlelighting time to epoch time
+			// This next snippet is very similar to
+			// one in local_functions.c : get_epoch_time_range()
+			char * original_system_timezone_string = NULL;
+			struct tm tmx;
+			time_t sunset_epoch_time;
+			time_t three_stars_epoch_time;
+			tmx.tm_sec = 0;
+			tmx.tm_min = sunset%60;
+			tmx.tm_hour = sunset/60;
+			tmx.tm_mday = yom_shishi.gd_day;
+			tmx.tm_mon =  yom_shishi.gd_mon - 1;
+			tmx.tm_year = yom_shishi.gd_year - 1900;
+			tmx.tm_wday = 0;
+			tmx.tm_yday = 0;
+			tmx.tm_isdst = 0;
+			original_system_timezone_string = getenv("TZ");
+			/// per man 3 tzset "If the TZ variable does appear in the environment
+			/// but its value is empty ... (UTC) is used"
+			setenv("TZ", "", 1);
+			tzset();
+			sunset_epoch_time = mktime(&tmx);
+			tmx.tm_sec = 0;
+			tmx.tm_min = three_stars%60;
+			tmx.tm_hour = three_stars/60;
+			tmx.tm_mday = h.gd_day;
+			tmx.tm_mon =  h.gd_mon - 1;
+			tmx.tm_year = h.gd_year - 1900;
+			three_stars_epoch_time  = mktime(&tmx);
+			setenv("TZ", original_system_timezone_string, 1);
+			tzset();
+
+			sunset = sunset + get_tz_adjustment( sunset_epoch_time,
+											opt->tz, &opt->tzif_index,
+											opt->tzif_entries, opt->tzif_data );
+			three_stars = three_stars + get_tz_adjustment(three_stars_epoch_time,
+											opt->tz, &opt->tzif_index,
+											opt->tzif_entries, opt->tzif_data );
+
+
+			/// print candleligting time
 			if (opt->colorize)
 			{
 				if (this_week) colorize_element(opt->colorize, ELEMENT_THIS_SHABBAT_TIMES);
 				else colorize_element(opt->colorize, ELEMENT_SHABBAT_TIMES);
 			}
 			else if (this_week) printf(CODE_BOLD_VIDEO);
-			printf ("  %02d:%02d", sunset / 60, sunset % 60);
+				printf ("  %02d:%02d", sunset / 60, sunset % 60);
 			if ( (opt->colorize) || (this_week) ) printf (CODE_RESTORE_VIDEO);
 
 			printf(" - ");
 
-			/// motzay shabat time
-			hdate_get_utc_sun_time_full (h.gd_day, h.gd_mon, h.gd_year, opt->lat,
-										 opt->lon, &sun_hour, &first_light, &talit,
-										 &sunrise, &midday, &sunset,
-										 &first_stars, &three_stars);
-
-			// FIXME - allow for further minhag variation
-			if (opt->havdalah != 1) three_stars = sunset + opt->havdalah + opt->tz;
-			else three_stars = three_stars + opt->tz;
-
+			/// print havdalah time
 			if (opt->colorize)
 			{
 				if (this_week) colorize_element(opt->colorize, ELEMENT_THIS_SHABBAT_TIMES);
@@ -1679,6 +1731,14 @@ int print_month ( const int month, const int year, option_list* opt)
 {
 
 	hdate_struct h;
+	hdate_struct h_final_day;	/// misnomer: It really is the day AFTER the
+								/// the final day of this calendar request.
+								/// We use it to retrieve the epoch time at
+								/// midnight of the requested timezone, and
+								/// then subtract one second, thus
+								/// epochtime(h) to epochtime(h_final_day)-1
+								/// is the interval to check for daylight
+								/// savings time transitions.
 	char calendar_type; /// for custom days
 
 	/// for opt->footnote
@@ -1697,20 +1757,50 @@ int print_month ( const int month, const int year, option_list* opt)
 	}
 
 	/// custom days
-	// TODO - This is a wasteful implementation, because IF the user
-	//        has asked to print a year, we will open and parse the
-	//        custom day config file 12 - 13 times. I jusitfy this
-	//        because I expect that option to be exceedingly rare, and
-	//        that the usual case of a year's request will be using
-	//        'three-month' mode.
-	// TODO - 'three-month mode custom days...
-	opt->custom_days_cnt = get_custom_days_list(
+	// first check that this snippet hasn't been performed before:
+	//    ie. this is not the first month of a year's output
+	if (opt->custom_days_cnt == BAD_CUSTOM_DAY_CNT)
+	{
+		// TODO - 'three-month mode custom days...
+		opt->custom_days_cnt = get_custom_days_list(
 								&opt->jdn_list_ptr, &opt->string_list_ptr,
 								0, month, year,
 								calendar_type, opt->quiet_alerts, h,
 								"/hcal", "/custom_days",
 								HDATE_STRING_LONG, opt->force_hebrew);
 // test_print_custom_days(opt->custom_days_cnt, opt->jdn_list_ptr, opt->string_list_ptr);
+	}
+
+	/// get dst transition information, if necessary
+	// this snippet was moved from main, so some variables may need to be passed here
+	if ( (opt->tzif_data == NULL) &&
+	   ( (opt->shabbat) || (opt->candles) || (opt->havdalah) ) )
+	{
+		if (calendar_type == 'H')
+		{
+			if (opt->one_year) hdate_set_hdate (&h_final_day, 1, 1, year+1);
+			// POSSIBLE BUGS - interpreting bumping to month 13,14,15
+			else if (opt->three_month) hdate_set_hdate (&h_final_day, 1, month+3, year);
+			else hdate_set_hdate (&h_final_day, 1, month+1, year);
+		}
+		else /// calendar_type = 'G'
+		{
+			if (opt->one_year) hdate_set_gdate (&h_final_day, 1, 1, year+1);
+			// POSSIBLE BUGS - interpreting bumping to month 13,14,15
+			else if (opt->three_month) hdate_set_gdate (&h_final_day, 1, month+3, year);
+			else hdate_set_gdate (&h_final_day, 1, month+1, year);
+		}
+		get_epoch_time_range( &opt->epoch_start, &opt->epoch_end,
+					opt->tz_name_str, opt->tz,
+					h.gd_year, h.gd_mon, h.gd_day,
+					h_final_day.gd_year, h_final_day.gd_mon, h_final_day.gd_day);
+		process_location_parms(	&opt->lat, &opt->lon, &opt->tz, opt->tz_name_str,
+								opt->epoch_start, opt->epoch_end,
+								&opt->tzif_entries, &opt->tzif_data,
+								opt->quiet_alerts);
+		// remember to free() tz_name_str
+	}
+
 
 	if (opt->gregorian >1)
 	{
@@ -1773,9 +1863,7 @@ int print_month ( const int month, const int year, option_list* opt)
 void read_config_file(	FILE *config_file,
 						option_list *opt,
 						double*	latitude,
-						int*	opt_latitude,
 						double*	longitude,
-						int*	opt_longitude,
 						int*	tz,
 						char*	tz_name_str )
 
@@ -1845,10 +1933,10 @@ void read_config_file(	FILE *config_file,
 				else if (strcmp(input_value,"TRUE") == 0) opt->not_sunset_aware = 0;
 				break;
 		case  1:
-				parse_coordinate(1, input_value, latitude, opt_latitude);
+				parse_coordinate(1, input_value, latitude);
 				break;
 		case  2:
-				parse_coordinate(2, input_value, longitude, opt_longitude);
+				parse_coordinate(2, input_value, longitude);
 				break;
 		case  3:
 				if  (!parse_timezone_numeric(input_value, tz))
@@ -1978,9 +2066,11 @@ void exit_main( option_list *opt, const int exit_code)
 * It was appropriate to make this a function, outside
 * of main, because of its dual use and dual reference
 ****************************************************/
+// above is vague. I think I meant, because it is called
+// for parsing both the command line and the menu options'
+// command lines
 int hcal_parser( const int switch_arg, option_list *opt,
-					double *lat, int *opt_latitude,
-					double *lon, int *opt_Longitude,
+					double *lat, double *lon, 
 					int *tz, char* tz_name_str, int long_option_index)
 
 {
@@ -2074,10 +2164,10 @@ int hcal_parser( const int switch_arg, option_list *opt,
 	case 'p': opt->parasha = 1; break;
 	case 'q': opt->quiet_alerts = 1; break;
 	case 'l':
-		error_detected = error_detected + parse_coordinate(1, optarg, lat, opt_latitude);
+		error_detected = error_detected + parse_coordinate(1, optarg, lat);
 		break;
 	case 'L':
-		error_detected = error_detected + parse_coordinate(2, optarg, lon, opt_Longitude);
+		error_detected = error_detected + parse_coordinate(2, optarg, lon);
 		break;
 	case 's':
 		opt->shabbat = 1;
@@ -2152,6 +2242,7 @@ int main (int argc, char *argv[])
 	opt.havdalah = 0;
 	opt.no_reverse = 0;			/// don't highlight today in reverse video
 	opt.three_month = 0;		/// print previous and next months also
+	opt.one_year = 0;
 	opt.spacing = NULL;			/// horizontal spacing string in 3-month mode
 	opt.separator = NULL;		/// vertical separator string in 3-month mode
 	opt.colorize = 0;			/// display calendar in muted, more pleasing tones
@@ -2164,19 +2255,39 @@ int main (int argc, char *argv[])
 	opt.lat = BAD_COORDINATE;
 	opt.lon = BAD_COORDINATE;
 	opt.tz = BAD_TIMEZONE;
-	double lat = BAD_COORDINATE;	/// set to this value for error handling
-	double lon = BAD_COORDINATE;	/// set to this value for error handling
-	int tz = BAD_TIMEZONE;			/// -z option Time Zone, default to system local time
-	// one of these next two are probably unnecessary!
-	char* tz_name_ptr = NULL;
-	char* tz_name_str = NULL;
-	int opt_latitude = 0;			/// -l option latitude
-	int opt_Longitude = 0;			/// -L option longitude
+	opt.tz_name_str = NULL;
+	//-z number (absolute over-ride of system time zone)
+          //longitude mis-sync -> just alert
+          //no longitude -> guess (including zone.tab for current)
+          //alert no dst awareness
+	//-z name   (absolute over-ride of system time zone)
+          //longitude mis-sync -> just alert
+          //latitude mis-sync (re:zone.tab) - just alert
+          //no longitude -> use zone.tab entry
+	//-z null   system time zone (/etc/localtime)
+          //longitude mis-sync -> just alert
+          //latitude mis-sync (re:zone.tab) - just alert
+          //no longitude -> use zone.tab entry
 
+	opt.custom_days_cnt = 0;
 	opt.jdn_list_ptr = NULL;		/// custom days - julian day numbers (array)
 	opt.string_list_ptr = NULL;		/// custom days - text descriptions (array)
 
+	/// for checking dst transitions (candle-lighting, havdalah)
+	opt.tzif_entries = 0;
+	opt.tzif_data = NULL;
+	opt.tzif_index = 0;			/// counter into tzif_entries, tzif_data
+	opt.epoch_start = 0;
+	opt.epoch_end = 0;
+
 	opt.menu = 0;					/// -m print menus for user-selection
+
+	// explain why the duplication of these next variables
+	double lat = BAD_COORDINATE;	/// set to this value for error handling
+	double lon = BAD_COORDINATE;	/// set to this value for error handling
+	int tz = BAD_TIMEZONE;
+
+
 	int i;
 	for (i=0; i<MAX_MENU_ITEMS; i++) opt.menu_item[i] = NULL;
 
@@ -2259,7 +2370,7 @@ int main (int argc, char *argv[])
 	FILE *config_file = get_config_file("/hcal", "/hcalrc", hcal_config_file_text, opt.quiet_alerts);
 	if (config_file != NULL)
 	{
-		read_config_file(config_file, &opt, &lat, &opt_latitude, &lon, &opt_Longitude, &tz, tz_name_str);
+		read_config_file(config_file, &opt, &lat, &lon, &tz, opt.tz_name_str);
 		fclose(config_file);
 	}
 
@@ -2272,10 +2383,8 @@ int main (int argc, char *argv[])
 							short_options, long_options,
 							&long_option_index)) != -1)
 		error_detected = error_detected
-						+ hcal_parser(c, &opt,
-									&lat, &opt_latitude,
-									&lon, &opt_Longitude,
-									&tz, tz_name_str, long_option_index);
+						+ hcal_parser(c, &opt, &lat, &lon, 
+									&tz, opt.tz_name_str, long_option_index);
 
 
 	/**************************************************
@@ -2302,10 +2411,8 @@ int main (int argc, char *argv[])
 								&long_option_index, &error_detected) ) != -1)
 			{
 				error_detected = error_detected + 
-					hcal_parser(c, &opt,
-								&lat, &opt_latitude,
-								&lon, &opt_Longitude,
-								&tz, tz_name_str, long_option_index);
+					hcal_parser(c, &opt, &lat, &lon,
+								&tz, opt.tz_name_str, long_option_index);
 			}
 		}
 	}
@@ -2329,20 +2436,8 @@ int main (int argc, char *argv[])
 		if (opt.spacing == NULL) opt.spacing = default_spacing;
 	}
 
-	/************************************************************
-	* function validate_loprocess_location_parms is defined in
-	* the include file ./local_functions.c
-	* It issues an exit(EXIT_CODE_BAD_PARMS) [==1]
-	* if it discovers, um, bad parameters
-	************************************************************/
-	// be nice: make sure only one of tz and tz_name_str is set!
-	int tz_absolute_val;
-	tz_absolute_val = process_location_parms(
-							opt_latitude, opt_Longitude, &lat, &lon,
-							&tz, tz_name_ptr, opt.quiet_alerts);
-	// remember to free() tz_name_str
-	// if user input tz as a value, it is absolute (no dst)
-	// else try reading tzif /etc/localtime
+	// MISSING - validation of lat lon tz !!
+
 	/// exit after reporting all bad parameters found */
 	if (error_detected)
 	{
@@ -2422,6 +2517,7 @@ int main (int argc, char *argv[])
 			/// The parse_date function returns Hebrew
 			/// month values in the range 101 - 114
 			month = month%100;
+			opt.one_year = 1;
 		}
 		else
 		{
@@ -2455,9 +2551,13 @@ int main (int argc, char *argv[])
 	* diaspora awareness
 	************************************************************/
 	if (opt.force_israel) opt.diaspora = 0;
+		// why no tzset logic here?
 	else
 	{
 		tzset();
+		// But the user may be requesting a calendar for a timezone
+		// other than the system one, and we need DST awareness if 
+		// displaying Shabbat times.
 		/// system timezone is denominated in seconds
 		if ( (timezone/-3600) != 2) opt.diaspora = 1;
 	}
@@ -2471,7 +2571,7 @@ int main (int argc, char *argv[])
 	/************************************************************
 	* print one year
 	************************************************************/
-	if (month == 0)
+	if (opt.one_year)
 	{
 		if (opt.three_month)
 		{
@@ -2498,6 +2598,9 @@ int main (int argc, char *argv[])
 			if (opt.separator != NULL )
 			{
 				if ( (h.hd_size_of_year > 355 ) && (opt.gregorian > 1) )
+					// check that this next line isn't a typo
+					// and document why =13 in same discussio
+					// as where explained =12
 					opt.three_month = 13;
  				print_border( opt );
 			}
@@ -2506,6 +2609,7 @@ int main (int argc, char *argv[])
 		{
 			if  ( opt.gregorian < 2 )
 				hdate_set_hdate( &h, 1, 1, year);
+
 			for (month=1; month<=num_of_months; month++)
 			{
 				if ( ( opt.gregorian < 2 )       &&

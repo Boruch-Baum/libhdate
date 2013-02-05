@@ -31,7 +31,7 @@ typedef struct {
 
 extern int
 zdump(                   /// returns 0 on success, -1 on failure
-    char* tzname,        /// fully-qualified time-zone name (eg. Asia/Baku)
+    const char* tzname,        /// fully-qualified time-zone name (eg. Asia/Baku)
                          ///    if NULL, use current system timezone
     const time_t start,  /// seconds from epoch to be scanned
     const time_t end,    /// seconds from epoch to be scanned

@@ -44,8 +44,9 @@
 #include <sys/stat.h>	
 #include <sys/types.h>	/// for mkdir,
 
-#include "local_functions.h" /// for macro definitions used by other programs
+#include "local_functions.h"	/// for macro definitions used by other programs
 #include "timezone_functions.h" /// for get_lat_lon_from_zonetab_file, read_sys_tz_string_from_file
+#include "zdump3.h"				/// for zdump
 
 #define EXIT_CODE_BAD_PARMS	1
 
@@ -55,7 +56,6 @@
 #define NOT_USING_SYSTEM_TZ 0
 #define TZ_MAX_VALID       14
 #define TZ_MIN_VALID      -11
-
 
 static char *error_text     = N_("error");
 static char *latitude_text  = N_("latitude");
@@ -85,7 +85,7 @@ void print_alert_tz( int tz )
 			*tzname, tz/60, tz%60);
 }
 
-void print_alert_timezone( char* tz_name_ptr )
+void print_alert_timezone( const char* tz_name_ptr )
 {
 	error(0,0,"%s: %s",
 			N_("ALERT: time zone not entered, using system local time zone"),
@@ -131,7 +131,7 @@ void print_parm_invalid_error( char *parm_name )
 /************************************************************
 * set default location
 ************************************************************/
-int set_default_location( const int tz, char* tz_name_ptr,
+int set_default_location( const int tz, const char* tz_name_ptr,
 						  double *lat, double *lon)
 {
 
@@ -266,13 +266,14 @@ printf("\nrevstr: before free(tempbuff): sourcelen = %ld, source = %s\n",source_
 * parse coordinate
 * 
 * presumes commandline options were parsed using getopt.
-* returns 1 to *opt_found on success
-* returns the floating point value of the coordinate in *coordinate
+* Upon success, returns the floating point value
+*               of the coordinate in *coordinate
+* Upon failure, returns BAD_COORDINATE in *coordinate
 * 
 * type_flag (1-latitude, 2=longitude)
 ************************************************************/
 int parse_coordinate( const int type_flag, char *input_string,
-						double *coordinate, int *opt_found)
+					  double *coordinate)
 {
 //#define NEGATIVE_NUMBER_GLOB	"-[[:digit:]]?([[:digit:]]?([[:digit:]]))?(.+([[:digit:]]))"
 //#define NEGATIVE_DMS_GLOB		"-[[:digit:]]?([[:digit:]]?([[:digit:]]))?([:\"]?([012345])[[:digit:]]?([:'\"]?([012345])[[:digit:]]))"
@@ -299,6 +300,7 @@ int parse_coordinate( const int type_flag, char *input_string,
 	{
 		if		(type_flag == 1) print_parm_missing_error(N_("l (latitude)"));
 		else if (type_flag == 2) print_parm_missing_error(N_("L (Longitue)"));
+		*coordinate = BAD_COORDINATE;
 		return TRUE; /// error_detected = TRUE; ie failure
 	}
 
@@ -313,6 +315,7 @@ int parse_coordinate( const int type_flag, char *input_string,
 			if (fnmatch("-*", input_string, FNM_NOFLAG)==0)
 				 print_parm_missing_error(N_("l (latitude)"));
 			else print_parm_error(N_("l (latitude)"));
+			*coordinate = BAD_COORDINATE;
 			return TRUE; /// error_detected = TRUE; ie failure
 		}
 
@@ -341,10 +344,10 @@ int parse_coordinate( const int type_flag, char *input_string,
 
 		if(	(*coordinate > -90) && (*coordinate < 90) )
 		{
-			*opt_found = 1;
 			return FALSE; /// error_detected = FALSE; ie. success
 		}
 		print_parm_error(N_("L (Longitude)"));
+		*coordinate = BAD_COORDINATE;
 		return TRUE; /// error_detected = TRUE; ie failure
 	}
 
@@ -360,6 +363,7 @@ int parse_coordinate( const int type_flag, char *input_string,
 			if (fnmatch("-*", input_string, FNM_NOFLAG)==0)
 				 print_parm_missing_error(N_("L (Longitude)"));
 			else print_parm_error(N_("L (Longitude)"));
+			*coordinate = BAD_COORDINATE;
 			return TRUE; /// error_detected = TRUE; ie failure
 		}
 
@@ -387,14 +391,15 @@ int parse_coordinate( const int type_flag, char *input_string,
 
 		if(	(*coordinate > -180) && (*coordinate < 180) )
 		{
-			*opt_found = 1;
 			return FALSE; /// error_detected = FALSE; ie. success
 		}
 		print_parm_error(N_("L (Longitude)"));
+		*coordinate = BAD_COORDINATE;
 		return TRUE; /// error_detected = TRUE; ie failure
 	}
 
 printf("INTERNAL ERROR: coordinate parse\n");
+*coordinate = BAD_COORDINATE;
 return TRUE; /// error_detected = TRUE; ie failure
 }
 
@@ -456,11 +461,16 @@ int parse_timezone_alpha(const char* search_string, char* result_str, int* tz, d
 
 /************************************************************
 * process location parameters - lat, lon, tz
-*  originally, this was only for hdate, now also for hcal
-*  originally, we did this only if we needed the information
-*  now, because of sunset-awareness, we always perform these checks
+*  Originally, this was only for hdate, now also for hcal.
+*  Originally, we did this only if we needed the information.
+*  Now, because of sunset-awareness, we always perform these checks.
 *  if ( (opt.sun) || (opt.times) || (opt.candles) || (opt.havdalah) )
 *  originally, we required lat/lon pairing, now we alert and guess
+* 
+* Formerly returned "input_info", the state of the information parsed.
+*  See below for the #defines. The idea was that the return value indicates
+*  whether timezone information should be picked up from /etc/localtime or
+*  from the file indicated by tz_name_ptr
 * 
 * -z number (absolute over-ride of system time zone)
 *           longitude mis-sync -> just alert
@@ -475,14 +485,16 @@ int parse_timezone_alpha(const char* search_string, char* result_str, int* tz, d
 *           longitude mis-sync -> just alert
 *           latitude mis-sync (re:zone.tab) - just alert
 *           no longitude -> use zone.tab entry
+* 
 ************************************************************/
-int process_location_parms( const int opt_latitude, const int opt_longitude,
-							 double *lat, double *lon,
-							 int *tz, char* tz_name_ptr, const int quiet_alerts )
+void process_location_parms( double *lat, double *lon,
+						int *tz, const char* tz_name_ptr,
+						const time_t start_time, const time_t end_time,
+						int * num_dst_entries_ptr, void** returned_dst_data,
+						const int quiet_alerts )
 {
-	char* zonetab_tz_name_ptr = NULL;
-	double guessed_lat;
-	double guessed_lon;
+	double guessed_lat = BAD_COORDINATE;
+	double guessed_lon = BAD_COORDINATE;
 	int    guess_found = TRUE;
 	int    input_info = 0;
 	
@@ -503,7 +515,7 @@ int process_location_parms( const int opt_latitude, const int opt_longitude,
 		else input_info = HDVL_NAME_INFO;
 	}
 	else if (*tz != BAD_TIMEZONE) input_info = HDVL_TZ_INFO;
-	else if (tz_name_ptr!=NULL) input_info = HDVL_NAME_INFO;
+	else if (tz_name_ptr != NULL) input_info = HDVL_NAME_INFO;
 
 	if (input_info == HDVL_NAME_INFO)
 	{
@@ -511,8 +523,9 @@ int process_location_parms( const int opt_latitude, const int opt_longitude,
 							&guessed_lat, &guessed_lon, quiet_alerts ) )
 		{
 			// But what if zonetab_tz_name_ptr isn't identical to tz_name_ptr?
-			free(zonetab_tz_name_ptr);
-			if (!quiet_alerts) print_alert_timezone( tz_name_ptr );
+			// free(zonetab_tz_name_ptr);
+			*lat = guessed_lat;
+			*lon = guessed_lon;
 		}
 		else
 		{
@@ -521,6 +534,7 @@ int process_location_parms( const int opt_latitude, const int opt_longitude,
 			// ie. /etc/timezone had a value for which no entry
 			// exists in zonetab file, so no default lat/lon available
 			// however,  there may be a valid tzif file
+			if (!quiet_alerts) print_alert_timezone( tz_name_ptr );
 			input_info = HDVL_LOCAL_INFO;
 		}
 	}
@@ -530,11 +544,11 @@ int process_location_parms( const int opt_latitude, const int opt_longitude,
 		/// system timezone is in seconds, but we deal in minutes
 		// not sure if this tzset() is still necessary
 		tzset();
-		*tz = timezone /-60;
+		*tz = timezone / (-60);
+		// double-check that when using non-system default timezone that
+		// *tz is set properly
 		if (!quiet_alerts) print_alert_tz( *tz );
 		// try reading tzif file from /etc/localtime
-		// BUG? - here we test on lat/lon==BAD_COORDINATE
-		//        but just below we test on opt_longitude etc
 		if ( (*lat==BAD_COORDINATE) || (*lon==BAD_COORDINATE) )
 			guess_found = set_default_location( *tz, tz_name_ptr,
 												&guessed_lat, &guessed_lon );
@@ -549,7 +563,7 @@ int process_location_parms( const int opt_latitude, const int opt_longitude,
 	}
 
 
-	if (!opt_longitude)
+	if (*lon==BAD_COORDINATE)
 	{
 		*lon = guessed_lon;
 		if (!quiet_alerts) print_alert_missing_coordinate(longitude_text, *lon);
@@ -558,7 +572,8 @@ int process_location_parms( const int opt_latitude, const int opt_longitude,
 	{
 		print_alert_delta_coordinate(longitude_text, *lon, guessed_lon);
 	}
-	if (!opt_latitude)
+
+	if (*lat==BAD_COORDINATE)
 	{
 		*lat = guessed_lat;
 		if (!quiet_alerts) print_alert_missing_coordinate(latitude_text, *lat);
@@ -569,14 +584,31 @@ int process_location_parms( const int opt_latitude, const int opt_longitude,
 	}
 
 
-	// Now, maybe read tzif file using zdump
-	// Consider doing it here to simplify logic of 
-	// resorting to /etc/localtime if HDVL_LOCAL_INFO vs HDVL_TZ_INFO
-
-	// Let's try instead to return input_info, and have main use that
-	// val to decide whether to read /etc/localtime
-	// ie if !HDVL_TZ_INFO read tz_name_ptr, and if fail try local
-	return input_info;
+	/// Get timezone and DST information
+	if (input_info != HDVL_TZ_INFO)
+	{
+		int check_localtime = FALSE;
+		if (tz_name_ptr != NULL)
+		{
+			if ( zdump( tz_name_ptr, start_time, end_time, num_dst_entries_ptr, returned_dst_data) !=0 )
+			   check_localtime = TRUE;
+		}
+		if ((tz_name_ptr == NULL) || (check_localtime == TRUE)) 
+		{
+			if ( zdump( "localtime", start_time, end_time, num_dst_entries_ptr, returned_dst_data) !=0 )
+			if ( zdump( "Asia/Jerusalem", start_time, end_time, num_dst_entries_ptr, returned_dst_data) !=0 )
+			if ( zdump( "America/New York", start_time, end_time, num_dst_entries_ptr, returned_dst_data) !=0 )
+			{
+				error(0,0,"%s",N_("unable to parse timezone or dalight savings time data;\n      using Jerusalem Standard Time"));
+				*tz = JERUSALEM_STANDARD_TIME_IN_MINUTES;
+			}
+			else
+			{
+				// TODO - each of the zdump invocations above needs a call to error to alert user of state
+			}
+		}
+	}
+	return;
 }
 
 
@@ -1268,3 +1300,73 @@ int menu_select( char* menu_list[], int max_menu_items )
 	return i;
 }
 
+/**************************************************
+*
+*  Get epoch time, presuming midnight of day yy mm dd
+* This is for comparing with DST transition values
+*
+*************************************************/
+// This may need to be adjusted, and have an additional
+// parameter once option --emesh --erev --eve is coded
+void get_epoch_time_range( time_t *retval_start, time_t *retval_end,
+					const char * tz_string, const int tz,
+					const int gyear0, const int gmonth0, const int gday0,
+					const int gyear1, const int gmonth1, const int gday1
+					)
+{
+	size_t tz_str_len = 0;
+	char * original_system_timezone_string = NULL;
+	char * tz_rule_string = NULL;
+
+	struct tm tmx;
+	tmx.tm_sec = 0;
+	tmx.tm_min = 0;
+	tmx.tm_hour = 0;
+	tmx.tm_mday = gday0;
+	tmx.tm_mon =  gmonth0 - 1;
+	tmx.tm_year = gyear0 - 1900;
+	tmx.tm_wday = 0;
+	tmx.tm_yday = 0;
+	tmx.tm_isdst = 0;
+
+	original_system_timezone_string = getenv("TZ");
+	if (tz != BAD_TIMEZONE)
+	{
+		/// We have an absolute timezone value adjustment, so we don't
+		/// ever use the tz database or have dst transitions.
+		/// per man 3 tzset "If the TZ variable does appear in the environment
+		/// but its value is empty ... (UTC) is used"
+		setenv("TZ", "", 1);
+		tzset();
+		*retval_start = mktime(&tmx);
+		tmx.tm_mday = gday1;
+		tmx.tm_mon =  gmonth1 - 1;
+		tmx.tm_year = gyear1 - 1900;
+		*retval_end = mktime(&tmx);
+		// TODO - verify that tz is in seconds, not minutes!
+		*retval_start = *retval_start + tz;
+		*retval_end = *retval_end + tz - 1;
+	}
+	else
+	{
+		if (tz_string != NULL)
+		{
+			tz_str_len = strlen(tz_string);
+			tz_rule_string = (char*) malloc(tz_str_len+2);
+			if (tz_rule_string == NULL) {error(0,0,"get_epoch_time: malloc failure"); exit(0);};
+			memset(tz_rule_string,':',1);
+			strncpy(tz_rule_string + 1, tz_string, tz_str_len + 1);
+		}
+		setenv("TZ", tz_rule_string, 1);
+		tzset();
+		*retval_start = mktime(&tmx);
+		tmx.tm_mday = gday1;
+		tmx.tm_mon =  gmonth1 - 1;
+		tmx.tm_year = gyear1 -1900;
+		*retval_end = mktime(&tmx);
+	}
+	free(tz_rule_string);
+	setenv("TZ", original_system_timezone_string, 1);
+	tzset();
+	return;
+}

@@ -27,11 +27,5 @@ EXTRA_DIST = $(libhdatedoc_DATA) libhdate.pc.in
 
 ACLOCAL_AMFLAGS = -I m4
 
-CFLAGS = -Wall -Wformat -Wformat-security -Werror=format-security -D_FORTIFY_SOURCE=2 -fstack-protector --param ssp-buffer-size=4 -fPIE -pie
+CFLAGS = -Wall -Wformat -Wformat-security -Werror=format-security -D_FORTIFY_SOURCE=2 -fstack-protector --param ssp-buffer-size=4 -fPIC -fPIE -pie
 LDFLAGS = -z relro -z now
-
-## For debugging
-## CFLAGS =  $(CFLAGS) -ggdb3 -gstabs+ -p -pg
-CFLAGS += -ggdb3 -gstabs+ -p -pg
-## For real
-## CFLAGS += -O1
