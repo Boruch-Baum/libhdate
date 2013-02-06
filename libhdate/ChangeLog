@@ -1,3 +1,12 @@
+hdate.c
+- daylight savings time awareness
+- erev pesach times in tabular mode
+- option erev-pesach to print all special times for that day
+
+hdate.1
+- update for erev-pesach option
+
+----------------------------------------------------------------------------
 hcal.c
 hdate.c
 local_functions.c
@@ -7,7 +16,6 @@ timezone_functions.h
 zdump3.c
 zdump3.h
 - daylight savings time awareness (incomplete)
-
 
 custom_days.c
 - add templates for Israeli custom days

@@ -148,24 +148,28 @@ print using short format.
 print day times (three verbosity levels):
 .RS 0
 .B \ \ \ --times-of-day \-t
-\ \ first light, talit, sunrise, mid day, sunset,
+\ \ \ first light, talit, sunrise, mid day, sunset,
 .RS 0
 .B \ \ \ --day-times
-\ \ \ \ \ \ \ \ first stars, three stars,
+\ \ \ \ \ \ \ \ \ first stars, three stars,
 .RE
-.RS 23
+.RS 24
 and the length of that day's sun-hour.
 .RE
 .RS 18
 .B \-tt
-\ adds end_Shema_(GR"A), end_amidah,
+\ \ adds end_Shema_(GR"A), end_amidah,
 .RE
-.RS 23
+.RS 24
 mincha_gedola, mincha_ketana, plag_hamincha.
 .RE
 .RS 18
 .B \-ttt
-adds end_Shema_(M"A).
+\ adds end_Shema_(M"A).
+.RE
+.RS 18
+.B \-tttt
+adds erev Pesach times
 .P
 Instead of using the presets, customize with:
 .B "--first-light --midday        --shekia"
@@ -184,12 +188,16 @@ Instead of using the presets, customize with:
 .RS 0
 .RE
 .B "--amidah      --plag-hamincha --sun-hour"
-
 .RS 0
 .RE
 .B "--sunrise     --sunset"
+
 .RS 0
 .RE
+.RE
+.B \ \ \ --erev-pesach
+\ if the day is 14 Nissan, print the following times:
+.RS 18
 .B "--end-eating-chometz-ma   --end-eating-chometz-gra"
 .RS 0
 .RE
