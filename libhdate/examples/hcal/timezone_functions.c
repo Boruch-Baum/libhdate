@@ -35,7 +35,7 @@
 #include <string.h>		/// for memset, memcpy
 #include <sys/stat.h>	/// for stat
 #include <locale.h>		/// for setlocale
-#include "zdump3.h"		/// for struct zdumpinfo
+#include <zdump3.h>		/// for struct zdumpinfo
 
 #define TZIF1_FIELD_SIZE 4
 #define TZIF2_FIELD_SIZE 8

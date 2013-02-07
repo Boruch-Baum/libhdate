@@ -46,7 +46,7 @@
 
 #include "local_functions.h"	/// for macro definitions used by other programs
 #include "timezone_functions.h" /// for get_lat_lon_from_zonetab_file, read_sys_tz_string_from_file
-#include "zdump3.h"				/// for zdump
+#include <zdump3.h>				/// for zdump
 
 #define EXIT_CODE_BAD_PARMS	1
 

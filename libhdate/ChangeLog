@@ -1,3 +1,17 @@
+custom_days.c
+- add field for final year
+
+zdump3.c
+zdump3.h
+- moved to library
+
+zdump.3
+- documentation
+
+Makefile.am
+- changes for zdump
+
+----------------------------------------------------------------------------
 hdate.c
 - daylight savings time awareness
 - erev pesach times in tabular mode

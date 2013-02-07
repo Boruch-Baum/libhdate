@@ -103,17 +103,17 @@ ADAR_II = -1\n\n\
 #  1) day_type - H for Hebrew calendar dates, G for gregorian calendar dates.\n\
 #                Additionally, types h and g are available for marking an\n\
 #                event to occur on the \'nth\' \'day_of_week\' of \'month\'.\n\
-#  2) start_year - the first year for this commemoration. If the day_type\n\
-#                field is G, this must be a gregorian year number;\n\
-#                otherwise, a Hebrew year number is expected.\n\
-#  3) month -    numbered 1 - 12 for Tishrei - Ellul. Adar I/II are 13, 14\n\
-#                I didn't really have to mention that 1 - 12 is Jan - Dec,\n\
-#                did I? Good.\n\
-#  4) day_of_month - must be zero for day_type h or g\n#\n\
+#  2) start_year - the first year for this commemoration.\n\
+#  3) final_year - the final year for this commemoration, or zero if undefined.\n\
+#                If the day_type field is G or g, both year fields must be\n\
+#                gregorian year numbers; otherwise, a Hebrew year number is expected.\n\
+#  4) month -    numbered 1 - 12 for Tishrei - Ellul; 13-14 for Adar I/II.\n\
+#                numbered 1 - 12 for Jan - Dec,\n\
+#  5) day_of_month - must be zero for day_type h or g\n#\n\
 # The following two fields are only for day_type h or g, and must be zero\n\
 # for day_type H and G.\n\
-#  5) \'nth\'     - eg. nth Shabbat in Adar, or nth Tuesday in April.\n\
-#  6) day_of_week - 7=Shabbat\n#\n\
+#  6) \'nth\'     - eg. nth Shabbat in Adar, or nth Tuesday in April.\n\
+#  7) day_of_week - 7=Shabbat\n#\n\
 # The following four fields are NOT to be enclosed in quotes. Each is comma\n\
 # delimited, like all the other fields. Fields exceeding the maximum allowed\n\
 # length will be truncated. All four fields are mandatory and must have at\n\
@@ -122,50 +122,50 @@ ADAR_II = -1\n\n\
 # in comma-delimited format. Because it is possible to have more than one\n\
 # holiday and custom_day on the same calendar date, hdate outputs tabular data\n\
 # between holiday and custom_day fields using a semi-colon delimiter.\n\
-#  7) Locale_language_description     - max 40 chars\n\
-#  8) Locale_abbreviated_description  - max 15 chars\n\
-#  9) Hebrew_language_description      - max 40 chars\n\
-# 10) Hebrew_abbreviated_description   - max 15 chars\n#\n\
+#  8) Locale_language_description     - max 40 chars\n\
+#  9) Locale_abbreviated_description  - max 15 chars\n\
+# 10) Hebrew_language_description      - max 40 chars\n\
+# 11) Hebrew_abbreviated_description   - max 15 chars\n#\n\
 # The next three fields allow the custom day to be advanced or postponed\n\
 # should that day occur on a friday, Shabbat, or sunday - in the cases of\n\
 # day_types H or G. Values are the number of days to advance or postpone the\n\
 # commemoration, in the range -9 to +9. For day_types h or g, the plan is that,\n\
 # in a future release, these fields will allow the custom day to be advanced\n\
 # or postponed should that day occur on an erev khag, khag, or motzei khag.\n\
-# 11) if_Shishi    (if_erev_khag)\n\
-# 12) if_Shabbat   (if_khag)\n\
-# 13) if_Rishon    (if_motzei_khag)\n\
+# 12) if_Shishi    (if_erev_khag)\n\
+# 13) if_Shabbat   (if_khag)\n\
+# 14) if_Rishon    (if_motzei_khag)\n\
 # The final four fields are advancement/postponement values for the remaining\n\
 # days of the week  - for the cases of day_types H or G. Values are the number\n\
 # of days to advance or postpone the commemoration, in the range -9 to +9. For\n\
 # day_types h or g, the plan is that, in a future release, these fields will\n\
 # allow the custom day to be advanced or postponed should that day occur on the\n\
 # two days prior to erev khag or after motzei khag.\n\
-# 14) if_day_2     (if_2_days_after_khag)\n\
-# 15) if_day_3     (if_3_days_after_khag)\n\
-# 16) if_day_4     (if_3_days_prior_khag)\n\
-# 17) if_day_5     (if_2_days_prior_khag)\n\
+# 15) if_day_2     (if_2_days_after_khag)\n\
+# 16) if_day_3     (if_3_days_after_khag)\n\
+# 17) if_day_4     (if_3_days_prior_khag)\n\
+# 18) if_day_5     (if_2_days_prior_khag)\n\
 #\n\
 # Examples\n\
 # ========\n\
 # 1] One following minhag ashkenaz for selichot can mark the first night of\n\
 #    selichot as follows:\n\
-H, 3001,  1,  1, 0, 0, יום ראשון של סליחות, סליחות יום א', First night of selichot, Selichot I,-5,-6,-7,-8,-9,-3,-4\n\
+H, 3001, 0000, 1,  1, 0, 0, יום ראשון של סליחות, סליחות יום א', First night of selichot, Selichot I,-5,-6,-7,-8,-9,-3,-4\n\
 # 2] To mark the Shabbat prior to a yahrtzeit (for various customs)\n\
-H, 5741,  6, 27, 0, 0, שבת זכרון של פלוני, זכרון פלוני, Shabbat yahrtzeit for xxxx, Shabbat yahrtzeit,-6,-7,-1,-2,-3,-4,-5\n\
+H, 5741, 0000, 6, 27, 0, 0, שבת זכרון של פלוני, זכרון פלוני, Shabbat yahrtzeit for xxxx, Shabbat yahrtzeit,-6,-7,-1,-2,-3,-4,-5\n\
 #\n\
 # Examples - Israeli national custom days\n\
 # =======================================\n\
 # code 35 = rabin day\n\
-H, 5778,  2, 12, 0, 0, יום הזכרון ליצחק רבין, יום רבין, יום הזכרון ליצחק רבין,  Yitzhak Rabin memorial day, Rabin memorial day, -1, -2, 0, 0, 0, 0, 0\n\
+H, 5778, 0000, 2, 12, 0, 0, יום הזכרון ליצחק רבין, יום רבין, יום הזכרון ליצחק רבין,  Yitzhak Rabin memorial day, Rabin memorial day, -1, -2, 0, 0, 0, 0, 0\n\
 # code 33 = family day\n\
-H, 5708,  5, 30, 0, 0, יום המשפחה, יום המשפחה, Family day, Family day, 0, 0, 0, 0, 0, 0, 0\n\
+H, 5708, 0000, 5, 30, 0, 0, יום המשפחה, יום המשפחה, Family day, Family day, 0, 0, 0, 0, 0, 0, 0\n\
 # code 24 = Nisan 27 yom ha shoaa\n\
-H, 5718,  7, 27, 0, 0, יום השואה, יום השואה, Yom HaShoah, Yom HaShoah, -1, 0, 1, 0, 0, 0, 0\n\
+H, 5718, 0000, 7, 27, 0, 0, יום השואה, יום השואה, Yom HaShoah, Yom HaShoah, -1, 0, 1, 0, 0, 0, 0\n\
 # code 26 = Iyyar 28 yom yerushalym 1968\n\
-H, 5728,  8, 28, 0, 0, יום ירושלים, יום י-ם, Yom Yerushalayim, Yom Yerushalayim, 0, 0, 0, 0, 0, 0, 0\n\
+H, 5728, 0000, 8, 28, 0, 0, יום ירושלים, יום י-ם, Yom Yerushalayim, Yom Yerushalayim, 0, 0, 0, 0, 0, 0, 0\n\
 # code 36 = Tammuz 29 Zhabotinsky day 2005\n\
-H, 5765, 10, 29, 0, 0, יום הזכרון לזאב זבוטינסק, יום זבוטינסק, Zeev Zhabotinsky day, Zhabotinsky day, 0, 1, 0, 0, 0, 0, 0\n\
+H, 5765, 0000, 10, 29, 0, 0, יום הזכרון לזאב זבוטינסק, יום זבוטינסק, Zeev Zhabotinsky day, Zhabotinsky day, 0, 1, 0, 0, 0, 0, 0\n\
 # code 17 = yom ha azmaot\n\
 # code 25 = yom zikaron\n\
 # complex logic for this pair, and it changes starting 2004\n\
@@ -178,14 +178,14 @@ H, 5765, 10, 29, 0, 0, יום הזכרון לזאב זבוטינסק, יום ז�
 #\n\
 # DEBUG TESTS - REMOVE PRIOR TO RELEASE\n\
 # =====================================\n\
-H, 5700,  2,  6, 0, 0, יום הוקרת הפינגיונים עברי,   _, Penguin Appreciation Day Heb test,  _,  0,  0, 0, 0, 0, 0, 0, 0\n\
-H, 5700,  2,  6, 0, 0, יום הוקרת הפינגיונים עברי,   _, Duplicate day Heb test,             _,  0,  0, 0, 0, 0, 0, 0, 0\n\
-G, 1960,  1,  5, 0, 0, יום הוקרת הפינגיונים לועז,   _, Penguin Appreciation Day Greg test, _,  0,  0, 0, 0, 0, 0, 0, 0\n\
-G, 1960,  1,  5, 0, 0, יום הוקרת הפינגיונים לועז,   _, Duplicate day Greg test,            _,  0,  0, 0, 0, 0, 0, 0, 0\n\
-h, 5730,  4,  0, 2, 5, יום הוקרת הפינגיונים עברי ב, _, Penguin Appreciation Day heb test,  _,  0,  0, 0, 0, 0, 0, 0, 0\n\
-g, 1980,  5,  0, 1, 2, יום הוקרת הפינגיונים לועז ב, _, Penguin Appreciation Day greg test, _,  0,  0, 0, 0, 0, 0, 0, 0\n\
-H, 5750,  6,  8, 0, 0, פינגיונים מעדיפים יום ד,     _, Penguins Appreciate Wednesday test, _, -2, -3, 3, 0, 0, 0, 0, 0\n\
-G, 2000,  7,  1, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0, 0\n\
+H, 5700, 0000,  2,  6, 0, 0, יום הוקרת הפינגיונים עברי,   _, Penguin Appreciation Day Heb test,  _,  0,  0, 0, 0, 0, 0, 0, 0\n\
+H, 5700, 0000,  2,  6, 0, 0, יום הוקרת הפינגיונים עברי,   _, Duplicate day Heb test,             _,  0,  0, 0, 0, 0, 0, 0, 0\n\
+G, 1960, 0000,  1,  5, 0, 0, יום הוקרת הפינגיונים לועז,   _, Penguin Appreciation Day Greg test, _,  0,  0, 0, 0, 0, 0, 0, 0\n\
+G, 1960, 0000,  1,  5, 0, 0, יום הוקרת הפינגיונים לועז,   _, Duplicate day Greg test,            _,  0,  0, 0, 0, 0, 0, 0, 0\n\
+h, 5730, 0000,  4,  0, 2, 5, יום הוקרת הפינגיונים עברי ב, _, Penguin Appreciation Day heb test,  _,  0,  0, 0, 0, 0, 0, 0, 0\n\
+g, 1980, 0000,  5,  0, 1, 2, יום הוקרת הפינגיונים לועז ב, _, Penguin Appreciation Day greg test, _,  0,  0, 0, 0, 0, 0, 0, 0\n\
+H, 5750, 0000,  6,  8, 0, 0, פינגיונים מעדיפים יום ד,     _, Penguins Appreciate Wednesday test, _, -2, -3, 3, 0, 0, 0, 0, 0\n\
+G, 2000, 0000,  7,  1, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0, 0\n\
 ");
 
 
@@ -259,7 +259,9 @@ int read_custom_days_file(
 					/// #define HDATE_STRING_HEBREW  1
 					/// #define HDATE_STRING_LOCAL   0
 {
-#define NUMBER_OF_CUSTOM_DAYS_FIELDS 14
+// shouldn't this be 18?
+//#define NUMBER_OF_CUSTOM_DAYS_FIELDS 14
+#define NUMBER_OF_CUSTOM_DAYS_FIELDS 18
 
 	char*	input_string = NULL;
 	size_t	input_str_len;
@@ -276,6 +278,7 @@ int read_custom_days_file(
 	int 	key_adar_in_leap_year = 2;
 	char	custom_day_type = '\0'; 		/// H, G, h, g
 	int		custom_start_year = 0;
+	int		custom_final_year = 0;
 	int		custom_month = 0;
 	int		custom_day_of_month = 0;
 	int		custom_nth = 0 ;				/// 1 <= n <=  5
@@ -315,7 +318,7 @@ int read_custom_days_file(
 		int i;
 		for (i=0;i<7;i++)
 		{
-			if ( (i<-9) || (i>9) ) return FALSE;
+			if ( ( adj[i] < -9 ) || ( adj[i] > 9 ) ) return FALSE;
 		}
 		return TRUE;
 	}
@@ -394,18 +397,19 @@ int read_custom_days_file(
 		errno = 0;
 		if (input_string[0] == '#') continue;
 		const char* scan_spec[4] = {
-			"%1[gGhHY], %u, %u, %u, %u, %u,  %m[^,] , %*m[^,] , %*m[^,] , %*m[^,] , %i, %i, %i, %i, %i, %i, %i",
-			"%1[gGhHY], %u, %u, %u, %u, %u, %*m[^,] ,  %m[^,] , %*m[^,] , %*m[^,] , %i, %i, %i, %i, %i, %i, %i",
-			"%1[gGhHY], %u, %u, %u, %u, %u, %*m[^,] , %*m[^,] ,  %m[^,] , %*m[^,] , %i, %i, %i, %i, %i, %i, %i",
-			"%1[gGhHY], %u, %u, %u, %u, %u, %*m[^,] , %*m[^,] , %*m[^,] ,  %m[^,] , %i, %i, %i, %i, %i, %i, %i" };
+			"%1[gGhHY], %u, %u, %u, %u, %u, %u,  %m[^,] , %*m[^,] , %*m[^,] , %*m[^,] , %i, %i, %i, %i, %i, %i, %i",
+			"%1[gGhHY], %u, %u, %u, %u, %u, %u, %*m[^,] ,  %m[^,] , %*m[^,] , %*m[^,] , %i, %i, %i, %i, %i, %i, %i",
+			"%1[gGhHY], %u, %u, %u, %u, %u, %u, %*m[^,] , %*m[^,] ,  %m[^,] , %*m[^,] , %i, %i, %i, %i, %i, %i, %i",
+			"%1[gGhHY], %u, %u, %u, %u, %u, %u, %*m[^,] , %*m[^,] , %*m[^,] ,  %m[^,] , %i, %i, %i, %i, %i, %i, %i" };
 		match_count = sscanf(input_string, scan_spec[ (abs(text_hebrew_form-1)*2) + text_short_form],
-			&custom_day_type, &custom_start_year, &custom_month, &custom_day_of_month, &custom_nth, &custom_day_of_week,
+			&custom_day_type, &custom_start_year, &custom_final_year, &custom_month, &custom_day_of_month, &custom_nth, &custom_day_of_week,
 			&print_ptr,	&adj[WHEN_SHISHI], &adj[WHEN_SHABBAT], &adj[WHEN_RISHON],
 			&adj[WHEN_DAY_2], &adj[WHEN_DAY_3], &adj[WHEN_DAY_4], &adj[WHEN_DAY_5]);
 		line_count++;
 		if (errno)
 		{
-			error(0,errno,"scan error at line %d of custom days file\n", line_count);
+			// test this error message
+			error(0,errno,"scan error at line %d of custom days file, field %d\n", line_count, match_count+1);
 			continue; // exit(0); // FIXME - why so fatal?
 		}
 		/* DEBUG  	if (match_count)
@@ -434,6 +438,7 @@ int read_custom_days_file(
 			/// start by tackling a Feb 29 custom day, when user request is not a leap year
 			if ((custom_month==2) && (custom_day_of_month==29)  &&
 				(validate_hdate(CHECK_YEAR_PARM, custom_day_of_month, custom_month, custom_start_year, TRUE, &h1)) &&
+// ??			(validate_hdate(CHECK_YEAR_PARM, custom_day_of_month, custom_month, custom_final_year, TRUE, &h1)) &&
 				(validate_adjustments() )  &&
 				(!validate_hdate(CHECK_DAY_PARM, custom_day_of_month, custom_month, h1.gd_year, TRUE, &h1))	)
 			{
@@ -443,6 +448,7 @@ int read_custom_days_file(
 			else /// not a Feb 29 custom day
 			{
 				if ((!validate_hdate(CHECK_YEAR_PARM, custom_day_of_month, custom_month, custom_start_year, TRUE, &h1))  ||
+// ??				(validate_hdate(CHECK_YEAR_PARM, custom_day_of_month, custom_month, custom_final_year, TRUE, &h1)) &&
 					(!validate_hdate(CHECK_MONTH_PARM, custom_day_of_month, custom_month, h1.gd_year, TRUE, &h1)       ) ||
 					(!validate_hdate(CHECK_DAY_PARM, custom_day_of_month, custom_month, h1.gd_year, TRUE, &h1)         ) ||
 					(!validate_adjustments())      )

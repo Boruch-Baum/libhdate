@@ -12,6 +12,8 @@ libhdate_la_SOURCES = \
 	hdate_parasha.c\
 	hdate_sun_time.c\
 	hdate.h\
+	zdump3.c\
+	zdump3.h\
 	support.h
 
 libhdate_la_LDFLAGS = -version-info $(VERSION_INFO)
