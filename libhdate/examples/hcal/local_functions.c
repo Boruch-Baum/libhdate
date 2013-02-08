@@ -57,9 +57,12 @@
 #define TZ_MAX_VALID       14
 #define TZ_MIN_VALID      -11
 
-static char *error_text     = N_("error");
-static char *latitude_text  = N_("latitude");
-static char *longitude_text = N_("longitude");
+static char * day_text		 = N_("day");
+static char * month_text	 = N_("month");
+static char * year_text 	 = N_("year");
+static char * error_text     = N_("error");
+static char * latitude_text  = N_("l (latitude)");
+static char * longitude_text = N_("L (Longitude)");
 
 
 /************************************************************
@@ -211,7 +214,62 @@ int check_for_sunset (hdate_struct * h, double lat, double lon, int timezone )
 }
 
 
+/********************************************************
+*  calculate the number of days in the Hebrew month
+*  returns 0 upon parameter error
+*  returns month length upon success
+*  refer to hdate_julian.c:hdate_get_year_type() for
+*      details on Hebrew year types
+*********************************************************/
+int length_of_hmonth( const int month, const int year_type )
+{
+	int retval = 0;
+	switch (month)
+	{
+	case 1: case 5: case 7: case  9: case 11: retval = 30; break;
+	case 4: case 6: case 8: case 10: case 12: retval = 29; break;
+	/// Cheshvan
+	case 2: switch (year_type)
+			{
+			case 1: case 2: case 3: case 4: case 8: case 9: case 10: case 11: retval = 29; break;
+			case 5: case 6: case 7: case 12: case 13: case 14: retval = 30; break;
+			}; break;
+	/// Kislev
+	case 3: switch (year_type)
+			{
+			case 1: case 2: case 8: case 9: case 10: retval = 29; break;
+			case 3: case 4: case 5: case 6: case 7: case 11: case 12: case 13: case 14: retval = 30; break;
+			}; break;
+	/// Adar I and II
+	case 13: if ( (year_type >= 8) && (year_type <= 14) ) retval = 30; break;
+	case 14: if ( (year_type >= 8) && (year_type <= 14) ) retval = 29; break;
+	}
+	return retval;
+}
 
+
+/********************************************************
+*  calculate the number of days in the gregorian month
+*  returns 0 upon parameter error
+*  returns month length upon success
+*********************************************************/
+// Not sure we actually use this - check, and possibly delete
+int length_of_gmonth( const unsigned int month, const unsigned int year )
+{
+	unsigned int retval = 0;
+	switch (month)
+	{
+	case 1: case 3: case 5: case 7: case 10: case 12: retval = 31; break;
+	case 4: case 6: case 9: case 11: retval = 30; break;
+	case 2:
+		if (year%4) retval = 28;
+		else if (year%100) retval = 29;
+		else if (year%400) retval = 28;
+		else retval = 29;
+		break;
+	}
+	return retval;
+}
 
 /***********************************************************
  *  reverse a hebrew string (for visual bidi)
@@ -222,6 +280,7 @@ int check_for_sunset (hdate_struct * h, double lat, double lon, int timezone )
  *  returns:
  *    the number of printable characters in the string.
 ***********************************************************/
+// FIXME - logic to recognize build for big-endian or little-endian architecture
 int revstr( char *source, const size_t source_len)
 {
 	#define H_CHAR_WIDTH 2
@@ -298,7 +357,7 @@ int parse_coordinate( const int type_flag, char *input_string,
 	************************************************************/
 	if	(!input_string)
 	{
-		if		(type_flag == 1) print_parm_missing_error(N_("l (latitude)"));
+		if		(type_flag == 1) print_parm_missing_error(latitude_text);
 		else if (type_flag == 2) print_parm_missing_error(N_("L (Longitue)"));
 		*coordinate = BAD_COORDINATE;
 		return TRUE; /// error_detected = TRUE; ie failure
@@ -313,8 +372,8 @@ int parse_coordinate( const int type_flag, char *input_string,
 		&&	(fnmatch( LATITUDE_GLOB_DMS, input_string, FNM_EXTMATCH) !=0) )
 		{
 			if (fnmatch("-*", input_string, FNM_NOFLAG)==0)
-				 print_parm_missing_error(N_("l (latitude)"));
-			else print_parm_error(N_("l (latitude)"));
+				 print_parm_missing_error(latitude_text);
+			else print_parm_error(latitude_text);
 			*coordinate = BAD_COORDINATE;
 			return TRUE; /// error_detected = TRUE; ie failure
 		}
@@ -346,7 +405,7 @@ int parse_coordinate( const int type_flag, char *input_string,
 		{
 			return FALSE; /// error_detected = FALSE; ie. success
 		}
-		print_parm_error(N_("L (Longitude)"));
+		print_parm_error(longitude_text);
 		*coordinate = BAD_COORDINATE;
 		return TRUE; /// error_detected = TRUE; ie failure
 	}
@@ -361,8 +420,8 @@ int parse_coordinate( const int type_flag, char *input_string,
 		&&	(fnmatch( LONGITUDE_GLOB_DMS, input_string, FNM_EXTMATCH) !=0) )
 		{
 			if (fnmatch("-*", input_string, FNM_NOFLAG)==0)
-				 print_parm_missing_error(N_("L (Longitude)"));
-			else print_parm_error(N_("L (Longitude)"));
+				 print_parm_missing_error(longitude_text);
+			else print_parm_error(longitude_text);
 			*coordinate = BAD_COORDINATE;
 			return TRUE; /// error_detected = TRUE; ie failure
 		}
@@ -393,7 +452,7 @@ int parse_coordinate( const int type_flag, char *input_string,
 		{
 			return FALSE; /// error_detected = FALSE; ie. success
 		}
-		print_parm_error(N_("L (Longitude)"));
+		print_parm_error(longitude_text);
 		*coordinate = BAD_COORDINATE;
 		return TRUE; /// error_detected = TRUE; ie failure
 	}
@@ -714,7 +773,10 @@ int validate_hdate (const int parameter_to_check,
 			return 365;
 		}
 		break;
-	
+
+	// revisit the necessity of this; also the validation of gyears
+	// (validate_hdate(CHECK_YEAR_PARM
+	// see snippet in custom_days.c:read_custom_days_file
 	case CHECK_YEAR_PARM:
 		if (year > HEB_YR_UPPER_BOUND) return FALSE;
 		return TRUE;
@@ -790,7 +852,7 @@ int parse_date( const char* parm_a, const char* parm_b, const char* parm_c,
 			*parm_val = atoi(parm_str);
 			if (   (*parm_val > HEB_YR_UPPER_BOUND) ||
 				 ( (*parm_val < YR_LOWER_4_BOUND) && (*parm_val > YR_UPPER_2_BOUND) ) )
-				{print_parm_error(N_("year"));return FALSE;}
+				{print_parm_error(year_text); return FALSE;}
 			else
 			{
 				if (*parm_val <= GDAY_UPPER_BOUND) return TRUE;
@@ -802,7 +864,7 @@ int parse_date( const char* parm_a, const char* parm_b, const char* parm_c,
 		else
 		{
 			*parm_val = hdate_parse_month_text_string(parm_str);
-			if (!*parm_val) {print_parm_error(N_("month")); return FALSE;}
+			if (!*parm_val) {print_parm_error(month_text); return FALSE;}
 			*parm_id = MUST_BE_MONTH;
 			*ret_month = *parm_val;
 		}
@@ -821,10 +883,10 @@ int parse_date( const char* parm_a, const char* parm_b, const char* parm_c,
 		if (*ret_year > HEB_YR_LOWER_BOUND)
 		{
 			if ((a > HDAY_UPPER_BOUND) || (b > HDAY_UPPER_BOUND))
-							{print_parm_error(N_("day")); return FALSE;};
+							{print_parm_error(day_text); return FALSE;};
 			if (a > HMONTH_UPPER_BOUND)
 			{
-				if (b > HMONTH_UPPER_BOUND)	{print_parm_error(N_("month")); return FALSE;}
+				if (b > HMONTH_UPPER_BOUND)	{print_parm_error(month_text); return FALSE;}
 				*ret_month = b;	*ret_day = a;
 			}
 			else
@@ -835,10 +897,10 @@ int parse_date( const char* parm_a, const char* parm_b, const char* parm_c,
 		else /// gregorian year
 		{
 			if ((a > GDAY_UPPER_BOUND) || (b > GDAY_UPPER_BOUND))
-							{print_parm_error(N_("day")); return FALSE;};
+							{print_parm_error(day_text); return FALSE;};
 			if (a > GMONTH_UPPER_BOUND)
 			{
-				if (b > GMONTH_UPPER_BOUND)	{print_parm_error(N_("month")); return FALSE;}
+				if (b > GMONTH_UPPER_BOUND)	{print_parm_error(month_text); return FALSE;}
 				*ret_month = b;	*ret_day = a;
 			}
 			else
@@ -866,8 +928,8 @@ int parse_date( const char* parm_a, const char* parm_b, const char* parm_c,
 
 	/// The definite ids from the initial parse are alphabetic months
 	/// and four-digit years, and there can only be one of each
-	if ( (a_id + b_id + c_id) >= (MUST_BE_MONTH*2) ) {print_parm_error(N_("month")); return FALSE;}
-	if ( ((a_id + b_id + c_id)%10) > MUST_BE_YEAR  ) {print_parm_error(N_("year")); return FALSE;}
+	if ( (a_id + b_id + c_id) >= (MUST_BE_MONTH*2) ) {print_parm_error(month_text); return FALSE;}
+	if ( ((a_id + b_id + c_id)%10) > MUST_BE_YEAR  ) {print_parm_error(year_text); return FALSE;}
 
 	if (parm_cnt == 1)
 	{
@@ -894,13 +956,13 @@ int parse_date( const char* parm_a, const char* parm_b, const char* parm_c,
 		else if (b_id == MUST_BE_YEAR)
 		{
 			if ( (	(b_val < HEB_YR_LOWER_BOUND) && (a_val > GMONTH_UPPER_BOUND) ) ||
-				 (a_val > HMONTH_UPPER_BOUND) ) {print_parm_error(N_("month")); return FALSE;}
+				 (a_val > HMONTH_UPPER_BOUND) ) {print_parm_error(month_text); return FALSE;}
 			*ret_month = a_val;
 		}
 		else /// two parms, each <= 31 (GDAY_UPPER_BOUND)
 		{
 			if ((a_val > HMONTH_UPPER_BOUND) && (b_val > HMONTH_UPPER_BOUND)) 
-				{print_parm_error(N_("month")); return FALSE;}
+				{print_parm_error(month_text); return FALSE;}
 			/// my personal prejudice that two two-digit numbers will be mm yy
 			*ret_month = a_val;
 			*ret_year = b_val + BASE_YEAR;
@@ -916,7 +978,8 @@ int parse_date( const char* parm_a, const char* parm_b, const char* parm_c,
 			if (a_id == UNKNOWN_STATE) *ret_day = a_val;
 			else if (b_id == UNKNOWN_STATE) *ret_day = b_val;
 			else *ret_day = c_val; // TODO - test that validate_date faults day 31 in Hebrew month
-			if (*ret_month < 100) *ret_year = *ret_year - BASE_YEAR + BASE_YEAR_G;
+			// commenting out the next line fixed the failure of 'hdate 5 January 1965'
+			// if (*ret_month < 100) *ret_year = *ret_year - BASE_YEAR + BASE_YEAR_G;
 			break;
 	case 10:	/// MUST_BE_MONTH
 			if (a_id == MUST_BE_MONTH)
@@ -954,13 +1017,13 @@ int parse_date( const char* parm_a, const char* parm_b, const char* parm_c,
 			{
 				if (a_val > HMONTH_UPPER_BOUND)
 				{
-					if (c_val > HMONTH_UPPER_BOUND) {print_parm_error(N_("month")); return FALSE;}
+					if (c_val > HMONTH_UPPER_BOUND) {print_parm_error(month_text); return FALSE;}
 					/// Hmmm. The unattractive choices are yy dd mm or dd yy mm
 					if (b_val > HDAY_UPPER_BOUND)
 					{
 						if (a_val > HDAY_UPPER_BOUND)
 						{
-							if (c_val > GMONTH_UPPER_BOUND) {print_parm_error(N_("month")); return FALSE;}
+							if (c_val > GMONTH_UPPER_BOUND) {print_parm_error(month_text); return FALSE;}
 							*ret_day = a_val; *ret_year = b_val + BASE_YEAR_G; *ret_month = c_val;
 							break;
 						 }
@@ -974,7 +1037,7 @@ int parse_date( const char* parm_a, const char* parm_b, const char* parm_c,
 				{
 					if (a_val > HDAY_UPPER_BOUND)
 					{
-						if (c_val > GMONTH_UPPER_BOUND) {print_parm_error(N_("month")); return FALSE;}
+						if (c_val > GMONTH_UPPER_BOUND) {print_parm_error(month_text); return FALSE;}
 						*ret_day = a_val; *ret_year = b_val + BASE_YEAR_G; *ret_month = c_val;
 					}
 					*ret_day = a_val; *ret_year = b_val + BASE_YEAR; *ret_month = c_val;

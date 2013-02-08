@@ -1,5 +1,9 @@
 custom_days.c
 - add field for final year
+- add gross range checking for final / start years
+
+local_functions.c
+- BUGFIX parse date recognizes form 01 JaNAry 2013
 
 zdump3.c
 zdump3.h

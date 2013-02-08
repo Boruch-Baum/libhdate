@@ -250,7 +250,12 @@ int read_custom_days_file(
 			int** jdn_list_ptr, char** string_list_ptr,
 			const int d_todo, const int m_todo, const int y_todo,
 			const char calendar_type,
-			hdate_struct h1,
+			/*****************************************************
+			*  calendar_type should always be consistent with
+			*  d_todo, m_todo, y_todo, ie. there should be no
+			*  need to calculate whether any is G or H
+			*****************************************************/
+			hdate_struct range_start,
 			const int text_short_form, const int text_hebrew_form)
 					/// Values for text_short_form, text_hebrew_form
 					/// are defined in libhdate (hdate_strings.c):
@@ -259,9 +264,10 @@ int read_custom_days_file(
 					/// #define HDATE_STRING_HEBREW  1
 					/// #define HDATE_STRING_LOCAL   0
 {
-// shouldn't this be 18?
-//#define NUMBER_OF_CUSTOM_DAYS_FIELDS 14
-#define NUMBER_OF_CUSTOM_DAYS_FIELDS 18
+	/// There are 18 mandatory fields on each line of the custom days fiile,
+	/// but since we will only use one of the four text description options,
+	/// the following is 18 - 3.
+	#define NUMBER_OF_CUSTOM_DAYS_FIELDS 15
 
 	char*	input_string = NULL;
 	size_t	input_str_len;
@@ -295,8 +301,9 @@ int read_custom_days_file(
 	#define WHEN_DAY_5   4
 	int adj[7] = {0,0,0,0,0,0,0};
 
-	int jd;
-	hdate_struct temp_h;
+	int custom_day_jd;
+	hdate_struct custom_day_h,
+				 range_end;
 
 	char* print_ptr = NULL;
 	size_t print_len;
@@ -307,21 +314,6 @@ int read_custom_days_file(
 	size_t string_list_index = sizeof(size_t);
 	#define LIST_INCREMENT        10
 
-
-	/************************************************************
-	* sub-procedure for read_custom_days_file()
-	* bounds check the fields for advancing/postponing
-	* a custom_day
-	************************************************************/
-	int validate_adjustments()
-	{
-		int i;
-		for (i=0;i<7;i++)
-		{
-			if ( ( adj[i] < -9 ) || ( adj[i] > 9 ) ) return FALSE;
-		}
-		return TRUE;
-	}
 
 	/************************************************************
 	* sub-procedure for read_custom_days_file()
@@ -417,6 +409,11 @@ int read_custom_days_file(
 				line_count, match_count, custom_day_type, custom_start_year, custom_month, custom_day_of_month, custom_nth, custom_day_of_week,
 				heb_long_desc, heb_abbr_desc, eng_long_desc, eng_abbr_desc,
 				adj[WHEN_SHISHI], adj[WHEN_SHABBAT], adj[WHEN_RISHON]); */
+		/* DEBUG  	if (match_count)
+			printf("line number = %d, matches made = %d\n\tday_type = %c start_year = %d month = %d, day_of_month = %d\n\tnth = %d day_of_week = %d\n\t%s\n\tif_fri = %d if_sbt = %d if_sun = %d\n\n",
+				line_count, match_count, custom_day_type, custom_start_year, custom_month, custom_day_of_month, custom_nth, custom_day_of_week,
+				print_ptr,
+				adj[WHEN_SHISHI], adj[WHEN_SHABBAT], adj[WHEN_RISHON]); */
 
 		if (match_count != NUMBER_OF_CUSTOM_DAYS_FIELDS)
 		{
@@ -427,9 +424,71 @@ int read_custom_days_file(
 		/************************************************************
 		* At this point, we have successfully scanned/parsed a line
 		* and are ready to begin sanity and bounds checking. The
-		* switch() validates all of the parameters scanned/parsed,
-		* converts the custom_day to the julian_day_number of the
-		* relevant year, and applies any advancements/postponements.
+		* sscanf call above has already insured that the values for
+		* adjustments are signed integers, and for years are
+		* unsigned integers.
+		************************************************************/
+		int i;
+		for ( i = 0; i < 7; i++ )
+		{
+			if ( ( adj[i] < -9 ) || ( adj[i] > 9 ) ) continue;
+		}
+
+		switch ( custom_day_type )
+		{
+		case 'G':
+		case 'g':
+			if ( (custom_start_year < GREG_YR_LOWER_BOUND) ||
+				 (custom_start_year > GREG_YR_UPPER_BOUND) ||
+				 ( (custom_final_year) &&
+				   ( (custom_start_year > custom_final_year)   ||
+					 (custom_final_year > GREG_YR_UPPER_BOUND) ||
+					 (custom_final_year < GREG_YR_LOWER_BOUND)
+				 ) ) ) continue;
+			break;
+		case 'H':
+		case 'h':
+			if ( (custom_start_year < HEB_YR_LOWER_BOUND) ||
+				 (custom_start_year > HEB_YR_UPPER_BOUND) ||
+				 ( (custom_final_year) &&
+				   ( (custom_start_year > custom_final_year)   ||
+					 (custom_final_year > HEB_YR_UPPER_BOUND) ||
+					 (custom_final_year < HEB_YR_LOWER_BOUND)
+				) ) ) continue;
+			break;
+		}
+
+		if (calendar_type == (custom_day_type & 0xdf) )
+		{
+			if ( (y_todo < (custom_start_year - 1) ) ||
+			     (y_todo > (custom_final_year - 1) ) ) continue;
+		}
+		else
+		{
+			if (calendar_type == 'G')
+			{
+				if ( (y_todo < (custom_start_year - 3761) ) ||
+					 (y_todo > (custom_final_year + 3761) ) ) continue;
+			}
+			else /// (calendar_type =s= 'H')
+			{
+				if ( (y_todo < (custom_start_year + 3761) ) ||
+					 (y_todo > (custom_final_year - 3761) ) ) continue;
+			}
+		}
+// Maybe try here a quick rejection by comparing the years in range_start
+// tp the custom_start and _final year, based upon d_to_do, m_to_do, y_to_do
+// must take into account that adjustments may be +/-9 days which could jump
+// the year and also Heb year switching in Autumn
+/*
+	hdate_set_gdate( &range_end, d_to_do, m_to_do, y_to_do);
+*/
+
+		/************************************************************
+		* Perform sanity and bounds checking of the remaining
+		* parameters scanned/parsed, convert the custom_day to the
+		* julian_day_number for the year the user requested, and
+		* apply any advancements/postponements.
 		************************************************************/
 		leap_adj = 0;
 		switch ( custom_day_type )
@@ -437,54 +496,45 @@ int read_custom_days_file(
 		case 'G':
 			/// start by tackling a Feb 29 custom day, when user request is not a leap year
 			if ((custom_month==2) && (custom_day_of_month==29)  &&
-				(validate_hdate(CHECK_YEAR_PARM, custom_day_of_month, custom_month, custom_start_year, TRUE, &h1)) &&
-// ??			(validate_hdate(CHECK_YEAR_PARM, custom_day_of_month, custom_month, custom_final_year, TRUE, &h1)) &&
-				(validate_adjustments() )  &&
-				(!validate_hdate(CHECK_DAY_PARM, custom_day_of_month, custom_month, h1.gd_year, TRUE, &h1))	)
+				(!validate_hdate(CHECK_DAY_PARM, custom_day_of_month, custom_month, range_start.gd_year, TRUE, &range_start))	)
 			{
 				if (!key_february_29) continue;
 				if (key_february_29 == -1) leap_adj = -1;
 			}
 			else /// not a Feb 29 custom day
 			{
-				if ((!validate_hdate(CHECK_YEAR_PARM, custom_day_of_month, custom_month, custom_start_year, TRUE, &h1))  ||
-// ??				(validate_hdate(CHECK_YEAR_PARM, custom_day_of_month, custom_month, custom_final_year, TRUE, &h1)) &&
-					(!validate_hdate(CHECK_MONTH_PARM, custom_day_of_month, custom_month, h1.gd_year, TRUE, &h1)       ) ||
-					(!validate_hdate(CHECK_DAY_PARM, custom_day_of_month, custom_month, h1.gd_year, TRUE, &h1)         ) ||
-					(!validate_adjustments())      )
+				if ((!validate_hdate(CHECK_MONTH_PARM, custom_day_of_month, custom_month, range_start.gd_year, TRUE, &range_start)       ) ||
+					(!validate_hdate(CHECK_DAY_PARM, custom_day_of_month, custom_month, range_start.gd_year, TRUE, &range_start)         )  )
 					continue;
 			}
-			hdate_set_gdate( &temp_h, custom_day_of_month + leap_adj, custom_month, h1.gd_year);
-			jd = temp_h.hd_jd + adj[temp_h.hd_dw-1];
-			if (adj[temp_h.hd_dw-1]) hdate_set_jd(&temp_h, jd);
-			if ( (!d_todo) && (y_todo > HEB_YR_LOWER_BOUND) && (y_todo != temp_h.hd_year) )
+			hdate_set_gdate( &custom_day_h, custom_day_of_month + leap_adj, custom_month, range_start.gd_year);
+			custom_day_jd = custom_day_h.hd_jd + adj[custom_day_h.hd_dw-1];
+			if (adj[custom_day_h.hd_dw-1]) hdate_set_jd(&custom_day_h, custom_day_jd);
+			if ( (!d_todo) && (y_todo > HEB_YR_LOWER_BOUND) && (y_todo != custom_day_h.hd_year) )
 			{
-				hdate_set_gdate( &temp_h, custom_day_of_month, custom_month, h1.gd_year+1);
-				jd = temp_h.hd_jd + adj[temp_h.hd_dw-1];
-				if (adj[temp_h.hd_dw-1]) hdate_set_jd(&temp_h, jd);
+				hdate_set_gdate( &custom_day_h, custom_day_of_month, custom_month, range_start.gd_year+1);
+				custom_day_jd = custom_day_h.hd_jd + adj[custom_day_h.hd_dw-1];
+				if (adj[custom_day_h.hd_dw-1]) hdate_set_jd(&custom_day_h, custom_day_jd);
 			}
 			break;
 		case 'H':
-			/// start with absolute must validations for all cases
-			if ((!validate_hdate(CHECK_YEAR_PARM, custom_day_of_month, custom_month, custom_start_year, TRUE, &h1)) ||
-				(!validate_adjustments() )) continue;
 			/// tackle Cheshvan 30 or Kislev 30 custom day, when user request hasn't those days
 			if ((custom_day_of_month==30) && ((custom_month==2) || (custom_month==3))  &&
-				(!validate_hdate(CHECK_DAY_PARM, custom_day_of_month, custom_month, h1.hd_year, TRUE, &h1))	)
+				(!validate_hdate(CHECK_DAY_PARM, custom_day_of_month, custom_month, range_start.hd_year, TRUE, &range_start))	)
 			{
 				if (!key_hleap[custom_month-2]) continue;
 				if (key_hleap[custom_month-2] == -1) leap_adj = -1;
 			}
 			/// now deal with Adar II when user request isn't a leap year
 			if ((custom_month==14) && (custom_day_of_month > 0) &&
-				(custom_day_of_month < 30) && (h1.hd_size_of_year < 383) )
+				(custom_day_of_month < 30) && (range_start.hd_size_of_year < 383) )
 			{
 				if (!key_adar_II) continue;
 				if (key_adar_II == -1) custom_month = 6;
 				else custom_month = 7; /// case key_adar_II = 1;
 			}
 			/// now deal with Adar I when user request isn't a leap year
-			if ((custom_month==13) && (custom_day_of_month > 0) && (h1.hd_size_of_year < 383) )
+			if ((custom_month==13) && (custom_day_of_month > 0) && (range_start.hd_size_of_year < 383) )
 			{
 				if (custom_day_of_month > 30) continue;
 				custom_month = 6;
@@ -496,84 +546,80 @@ int read_custom_days_file(
 			}
 			/// now deal with Adar in a leap year
 			if ((custom_month==6) && (custom_day_of_month > 0) &&
-				(custom_day_of_month < 31) && (h1.hd_size_of_year > 355) )
+				(custom_day_of_month < 31) && (range_start.hd_size_of_year > 355) )
 			{
 				if (key_adar_in_leap_year == 1) custom_month = 13;
 				else custom_month = 14; /// case key_adar_in_leap_year = 2;
 			}
 			else /// not a Cheshvan 30, Kislev 30, or Adar custom day for years that don't have them
 			{
-				if ((!validate_hdate(CHECK_MONTH_PARM, custom_day_of_month, custom_month, h1.hd_year, TRUE, &h1)       ) ||
-					(!validate_hdate(CHECK_DAY_PARM, custom_day_of_month, custom_month, h1.hd_year, TRUE, &h1)         )  )
+				if ((!validate_hdate(CHECK_MONTH_PARM, custom_day_of_month, custom_month, range_start.hd_year, TRUE, &range_start)       ) ||
+					(!validate_hdate(CHECK_DAY_PARM, custom_day_of_month, custom_month, range_start.hd_year, TRUE, &range_start)         )  )
 					continue;
 			}
-			hdate_set_hdate( &temp_h, custom_day_of_month + leap_adj, custom_month, h1.hd_year);
-			jd = temp_h.hd_jd + adj[temp_h.hd_dw-1];
-			if (adj[temp_h.hd_dw-1]) hdate_set_jd(&temp_h, jd);
-			if ( (!d_todo) && (y_todo <= HEB_YR_LOWER_BOUND) && (y_todo != temp_h.gd_year) )
+			hdate_set_hdate( &custom_day_h, custom_day_of_month + leap_adj, custom_month, range_start.hd_year);
+			custom_day_jd = custom_day_h.hd_jd + adj[custom_day_h.hd_dw-1];
+			if (adj[custom_day_h.hd_dw-1]) hdate_set_jd(&custom_day_h, custom_day_jd);
+			if ( (!d_todo) && (y_todo <= HEB_YR_LOWER_BOUND) && (y_todo != custom_day_h.gd_year) )
 			{
-				hdate_set_hdate( &temp_h, custom_day_of_month, custom_month, h1.hd_year+1); //?
-				jd = temp_h.hd_jd + adj[temp_h.hd_dw-1];
-				if (adj[temp_h.hd_dw-1]) hdate_set_jd(&temp_h, jd);
+				hdate_set_hdate( &custom_day_h, custom_day_of_month, custom_month, range_start.hd_year+1); //?
+				custom_day_jd = custom_day_h.hd_jd + adj[custom_day_h.hd_dw-1];
+				if (adj[custom_day_h.hd_dw-1]) hdate_set_jd(&custom_day_h, custom_day_jd);
 			}
 			break;
 		case 'g':
-			if ((!validate_hdate(CHECK_YEAR_PARM, custom_day_of_month, custom_month, custom_start_year, TRUE, &h1))  ||
-				(!validate_hdate(CHECK_MONTH_PARM, 1, custom_month, h1.gd_year, TRUE, &h1)                         ) ||
+			if ((!validate_hdate(CHECK_MONTH_PARM, 1, custom_month, range_start.gd_year, TRUE, &range_start)                         ) ||
 				(custom_nth < 1) || (custom_nth > 5) ||
-				(custom_day_of_week < 1) || (custom_day_of_week > 7) ||
-				(!validate_adjustments())      )
+				(custom_day_of_week < 1) || (custom_day_of_week > 7) )
 				continue;
-			hdate_set_gdate( &temp_h, 1, custom_month, h1.gd_year);
-			jd = temp_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - temp_h.hd_dw);
-			hdate_set_jd(&temp_h, jd);
-			if ((custom_nth==5) && ( custom_month != temp_h.gd_mon))
+			hdate_set_gdate( &custom_day_h, 1, custom_month, range_start.gd_year);
+			custom_day_jd = custom_day_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - custom_day_h.hd_dw);
+			hdate_set_jd(&custom_day_h, custom_day_jd);
+			if ((custom_nth==5) && ( custom_month != custom_day_h.gd_mon))
 			{
-				if ( (!d_todo) && (y_todo > HEB_YR_LOWER_BOUND) && (y_todo != temp_h.hd_year) )
+				if ( (!d_todo) && (y_todo > HEB_YR_LOWER_BOUND) && (y_todo != custom_day_h.hd_year) )
 				{
-					hdate_set_gdate( &temp_h, 1, custom_month, h1.gd_year+1);
-					jd = temp_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - temp_h.hd_dw);
-					hdate_set_jd(&temp_h, jd);
-					if ((custom_nth==5) && ( custom_month != temp_h.gd_mon)) continue;
+					hdate_set_gdate( &custom_day_h, 1, custom_month, range_start.gd_year+1);
+					custom_day_jd = custom_day_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - custom_day_h.hd_dw);
+					hdate_set_jd(&custom_day_h, custom_day_jd);
+					if ((custom_nth==5) && ( custom_month != custom_day_h.gd_mon)) continue;
 				}
 				else continue;
 			}
-			else if ( (!d_todo) && (y_todo > HEB_YR_LOWER_BOUND) && (y_todo != temp_h.hd_year) )
+			else if ( (!d_todo) && (y_todo > HEB_YR_LOWER_BOUND) && (y_todo != custom_day_h.hd_year) )
 			{
-				hdate_set_gdate( &temp_h, 1, custom_month, h1.gd_year+1);
-				jd = temp_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - temp_h.hd_dw);
-				hdate_set_jd(&temp_h, jd);
-				if ((custom_nth==5) && ( custom_month != temp_h.gd_mon)) continue;
+				hdate_set_gdate( &custom_day_h, 1, custom_month, range_start.gd_year+1);
+				custom_day_jd = custom_day_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - custom_day_h.hd_dw);
+				hdate_set_jd(&custom_day_h, custom_day_jd);
+				if ((custom_nth==5) && ( custom_month != custom_day_h.gd_mon)) continue;
 			}
 			// perform adjustments and verify (again!?!)
 			break;
 		case 'h':
-			if ((!validate_hdate(CHECK_YEAR_PARM, custom_day_of_month, custom_month, custom_start_year, TRUE, &h1) ) ||
-				(!validate_hdate(CHECK_MONTH_PARM, 1, custom_month, h1.hd_year, TRUE, &h1)                          )||
+			if ((!validate_hdate(CHECK_MONTH_PARM, 1, custom_month, range_start.hd_year, TRUE, &range_start)                          )||
 				(custom_nth < 1) || (custom_nth > 5) ||
-				(custom_day_of_week < 1) || (custom_day_of_week > 7) ||
-				(!validate_adjustments())                )
+				(custom_day_of_week < 1) || (custom_day_of_week > 7) )
 				continue;
-			hdate_set_hdate( &temp_h, 1, custom_month, h1.hd_year);
-			jd = temp_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - temp_h.hd_dw);
-			hdate_set_jd(&temp_h, jd);
-			if ((custom_nth==5) && ( custom_month != temp_h.hd_mon))
+			hdate_set_hdate( &custom_day_h, 1, custom_month, range_start.hd_year);
+			custom_day_jd = custom_day_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - custom_day_h.hd_dw);
+			hdate_set_jd(&custom_day_h, custom_day_jd);
+			if ((custom_nth==5) && ( custom_month != custom_day_h.hd_mon))
 			{
-				if ( (!d_todo) && (y_todo <= HEB_YR_LOWER_BOUND) && (y_todo != temp_h.gd_year) )
+				if ( (!d_todo) && (y_todo <= HEB_YR_LOWER_BOUND) && (y_todo != custom_day_h.gd_year) )
 				{
-					hdate_set_hdate( &temp_h, 1, custom_month, h1.hd_year+1);
-					jd = temp_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - temp_h.hd_dw);
-					hdate_set_jd(&temp_h, jd);
-					if ((custom_nth==5) && ( custom_month != temp_h.hd_mon)) continue;
+					hdate_set_hdate( &custom_day_h, 1, custom_month, range_start.hd_year+1);
+					custom_day_jd = custom_day_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - custom_day_h.hd_dw);
+					hdate_set_jd(&custom_day_h, custom_day_jd);
+					if ((custom_nth==5) && ( custom_month != custom_day_h.hd_mon)) continue;
 				}
 				else continue;
 			}
-			else if ( (!d_todo) && (y_todo <= HEB_YR_LOWER_BOUND) && (y_todo != temp_h.gd_year) )
+			else if ( (!d_todo) && (y_todo <= HEB_YR_LOWER_BOUND) && (y_todo != custom_day_h.gd_year) )
 			{
-				hdate_set_hdate( &temp_h, 1, custom_month, h1.hd_year+1);
-				jd = temp_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - temp_h.hd_dw);
-				hdate_set_jd(&temp_h, jd);
-				if ((custom_nth==5) && ( custom_month != temp_h.hd_mon)) continue;
+				hdate_set_hdate( &custom_day_h, 1, custom_month, range_start.hd_year+1);
+				custom_day_jd = custom_day_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - custom_day_h.hd_dw);
+				hdate_set_jd(&custom_day_h, custom_day_jd);
+				if ((custom_nth==5) && ( custom_month != custom_day_h.hd_mon)) continue;
 			}
 			// perform adjustments and verify (again!?!)
 			break;
@@ -589,7 +635,7 @@ int read_custom_days_file(
 		* - either a single day, single month, or single year. This
 		* is non-trivial because the interval and the parse line may
 		* have been denominated in different calendars.
-		* We are depending upon h1, a parameter passed to us, being
+		* We are depending upon range_start, a parameter passed to us, being
 		* the correct hdate_struct for the first day of the interval.
 		* We compute the hdate_struct for our jd (if hadn't already
 		* been done in the switch for sanity and bounds checking) and
@@ -598,23 +644,23 @@ int read_custom_days_file(
 		if (d_todo)
 		{
 			/// interval is a single day
-			if (jd != h1.hd_jd) continue;
+			if (custom_day_jd != range_start.hd_jd) continue;
 		}
 		else
 		{
 			/// our custom_day is too early
-			if (jd < h1.hd_jd) continue;
+			if (custom_day_jd < range_start.hd_jd) continue;
 
 			if (m_todo)
 			{
 				/// interval is for an entire month
 				if (y_todo > HEB_YR_LOWER_BOUND)
 				{
-					if ( m_todo != temp_h.hd_mon) continue;
+					if ( m_todo != custom_day_h.hd_mon) continue;
 				}
 				else
 				{
-					if ( m_todo != temp_h.gd_mon) continue;
+					if ( m_todo != custom_day_h.gd_mon) continue;
 				}
 			}
 			else
@@ -622,9 +668,9 @@ int read_custom_days_file(
 				/// (!m) interval is for an entire year
 				if (y_todo > HEB_YR_LOWER_BOUND)
 				{
-					if (y_todo != temp_h.hd_year) continue;
+					if (y_todo != custom_day_h.hd_year) continue;
 				}
-				else if ( y_todo != temp_h.gd_year) continue;
+				else if ( y_todo != custom_day_h.gd_year) continue;
 			}
 		}
 
@@ -668,7 +714,7 @@ int read_custom_days_file(
 		}
 
 		/// store the custom_day's jdn
-		*jdn_entry = jd;
+		*jdn_entry = custom_day_jd;
 		jdn_entry = jdn_entry + 1;
 
 		/// manage 'text string' target buffer size

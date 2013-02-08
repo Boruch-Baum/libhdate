@@ -108,7 +108,7 @@ typedef struct  {
 				int leSeder;
 				int tablular_output;
 				int not_sunset_aware;
-				int print_tomorrow;		// TRUE if currently after sunset
+				int print_tomorrow;		/// TRUE if currently after sunset
 				int quiet;
 				int sun_hour;
 				int time_option_requested;
@@ -2451,6 +2451,43 @@ int parameter_parser( int switch_arg, option_list *opt,
 		break;
 	case 'v': opt->afikomen = opt->afikomen + 1; break;
 	case 'z':
+		/***************************************************************
+		* 
+		*      Explanation of timezone options and 
+		*      the relationship between timeone and
+		*      longitude.
+		* 
+		*   Timezones aggregate a set of longitudes so that they
+		*   share a single time. and there has developed an
+		*   expectation that certain times will generally correlate
+		*   to certain points in the astronomical day. For example,
+		*   we expect sunrise to correlate to about 6 - 7 AM. For
+		*   a planet's rotation of 360 degrees, a sensible division
+		*   into 24 timezones one hour apart would be 360/24 = 15
+		*   degrees. In practice, however, politiciams are always
+		*   playing with the timezone definitions, so hdate responds
+		*   in the following way to user input:
+		* 
+		*   TIMEZONE INPUT
+		*   1] numeric - treat the value as an absolute adjustment
+		*                to UTC, over-riding the system time zone and
+		*                daylight savings time, and print an alert
+		*                that there will be no DST awareness. If the
+		*                tz value greatly varies from the user-input
+		*                longitude, just print an alert. If no
+		*                longitude or latitude is entered, guess.
+		*   2] name    - eg. "Asia/Jerusalem", also absolutely
+		*                over-rides system timezone. 
+		*                * longitude mis-sync -> just alert
+		*                * latitude mis-sync (re:zone.tab) - just alert
+		*                * no longitude -> use zone.tab entry
+		*   3] null    - use system timezone. Often, this data
+		*                will be linked to /etc/localtime
+		*                * longitude mis-sync -> just alert
+		*                * latitude mis-sync (re:zone.tab) - just alert
+		*                * no longitude -> use zone.tab entry
+		*
+		***************************************************************/
 		if	( (!optarg)
 			  || ( (optarg[0] == '-')
 		           && (strspn(&optarg[1], "0123456789.:") == 0) ) )
@@ -2490,54 +2527,38 @@ int parameter_parser( int switch_arg, option_list *opt,
 
 
 /************************************************************
-*************************************************************
-*************************************************************
-* main function
-*************************************************************
-*************************************************************
+ * 
+ * 
+ * 
+ *                         M A I N 
+ * 
+ * 
+ *  -- refer to support.h for macros used here
+ * 
 ************************************************************/
 int main (int argc, char *argv[])
 {
-	/// defined in local_functions.c
-	/// #define HEB_YR_UPPER_BOUND 10999
-	/// #define HEB_YR_LOWER_BOUND 3000
-	/// #define JUL_DY_LOWER_BOUND = 348021
-
-	/// The Hebrew date structure
-	//	TODO - initialize this
-	hdate_struct h;
-	int c;
-
-	/// The user-input date (Hebrew or gregorian)
-	/// defined in local_functions.c
-	/// #define BAD_DATE_VALUE -1
-	int day   = BAD_DATE_VALUE;
-	int month = BAD_DATE_VALUE;
-	int year  = BAD_DATE_VALUE;
-
-	// deprecate this next in favor of opt.tz_offset
-	// int tz = BAD_TIMEZONE;			/// -z option Time Zone, default to system local time
-	char* tz_name_str = NULL;
-	
+	hdate_struct h_start_day;
+	hdate_struct h_day_after_final_day;
+	hdate_struct h_month_to_print;
+	option_list opt;
+	int getopt_retval;
+	int day   = BAD_DATE_VALUE;	/// user-input (Hebrew or gregorian)
+	int month = BAD_DATE_VALUE;	/// user-input (Hebrew or gregorian)
+	int year  = BAD_DATE_VALUE;	/// user-input (Hebrew or gregorian)
+	char* tz_name_str = NULL;	/// user-input
 	int error_detected = FALSE;		/// exit after reporting ALL bad parms
 
-
-	option_list opt;
 	opt.lat = BAD_COORDINATE;
 	opt.lon = BAD_COORDINATE;
 	opt.tz_offset = BAD_TIMEZONE;
-	//-z number (absolute over-ride of system time zone)
-          //longitude mis-sync -> just alert
-          //no longitude -> guess (including zone.tab for current)
-          //alert no dst awareness
-	//-z name   (absolute over-ride of system time zone)
-          //longitude mis-sync -> just alert
-          //latitude mis-sync (re:zone.tab) - just alert
-          //no longitude -> use zone.tab entry
-	//-z null   system time zone (/etc/localtime)
-          //longitude mis-sync -> just alert
-          //latitude mis-sync (re:zone.tab) - just alert
-          //no longitude -> use zone.tab entry
+	opt.print_tomorrow = 0;		/// TRUE if currently after sunset
+	opt.time_option_requested = FALSE;
+	opt.epoch_start= 0;			/// for checking dst transitions
+	opt.epoch_end  = 0;			/// for checking dst transitions
+	opt.epoch_today  = 0;		/// for checking dst transitions
+	opt.tzif_entries =0;
+	opt.tzif_data = NULL;
 	opt.hebrew = 0;
 	opt.bidi = 0;
 	opt.yom = 0;
@@ -2546,10 +2567,6 @@ int main (int argc, char *argv[])
 	opt.tablular_output = 0;
 	opt.not_sunset_aware = 0;
 	opt.quiet = 0;
-	opt.print_tomorrow = 0;		/**	This isn't a command line option;
-									It's here to restrict sunset_aware
-									to single-day outputs */
-	opt.time_option_requested = FALSE;
 	opt.first_light = 0;
 	opt.talit = 0;
 	opt.sunrise = 0;
@@ -2591,24 +2608,16 @@ int main (int argc, char *argv[])
 	opt.string_list_ptr= NULL;	/// for custom_days
 	// TODO - be sure to free() opt.jdn_list_ptr, opt.string_list_ptr upon exit
 
-	/// for checking dst transitions (candle-lighting, havdalah)
-	opt.epoch_start= 0;
-	opt.epoch_end  = 0;
-	opt.epoch_today  = 0;
-	opt.tzif_entries =0;
-	opt.tzif_data = NULL;
-
 	/// for user-defined menus (to be read from config file)
 	size_t	menu_len = 0;
 	int menu_index;
 	char *menuptr, *optptr;
-	/// initialize user menu items
 	int i; for (i=0; i<MAX_MENU_ITEMS; i++) opt.menu_item[i] = NULL;
 
-	/// support for getopt short options
+	/// getopt short options
 	const char * short_options = "bcdhHjimoqrRsStTvl:L:z:";
 
-	/// support for getopt long options
+	/// getopt long options
 	int long_option_index = 0;
 	const struct option long_options[] = {
 	///       name,  has_arg, flag, val
@@ -2698,7 +2707,6 @@ int main (int argc, char *argv[])
 		// Hmm... suspicious. why so little checking here ...
 		if (year <= 0) { print_parm_error(year_text); exit_main(&opt,0); }
 
-
 		/************************************************************
 		* process entire Hebrew month
 		************************************************************/
@@ -2709,17 +2717,18 @@ int main (int argc, char *argv[])
 			if (month > 100) month = month - 100;
 
 			/// bounds check for month
-			if (!validate_hdate(CHECK_MONTH_PARM, 0, month, year, FALSE, &h))
+			if (!validate_hdate(CHECK_MONTH_PARM, 0, month, year,
+						TRUE, &h_start_day))
 				{ print_parm_error(month_text); exit_main(&opt,0); }
 
 
 			if (opt.holidays)
 			{
-				hdate_set_hdate(&h, 1, month, year);
+				// hdate_set_hdate(&h, 1, month, year);
 				opt.custom_days_cnt = get_custom_days_list(
 											&opt.jdn_list_ptr, &opt.string_list_ptr,
-											0, month, year,
-											'H', opt.quiet, h, "/hdate", "/custom_days",
+											0, month, year,	'H', opt.quiet,
+											h_start_day, "/hdate", "/custom_days",
 											opt.short_format, opt.hebrew);
 			}
 
@@ -2727,11 +2736,8 @@ int main (int argc, char *argv[])
 			{
 				print_tabular_header( &opt );
 
-				/// get date of month start
-				hdate_set_hdate (&h, 1, month, year);
-
 				/// if leap year, print both Adar months
-				if (h.hd_size_of_year > 365 && month == 6)
+				if (h_start_day.hd_size_of_year > 365 && month == 6)
 				{
 					print_tabular_hmonth ( &opt, 13, year);
 					print_tabular_hmonth ( &opt, 14, year);
@@ -2745,20 +2751,17 @@ int main (int argc, char *argv[])
 			{
 				if (opt.iCal) print_ical_header ();
 
-				/// get date of month start
-				hdate_set_hdate (&h, 1, month, year);
-
 				/// if leap year, print both Adar months
-				if (h.hd_size_of_year > 365 && month == 6)
+				if (h_start_day.hd_size_of_year > 365 && month == 6)
 				{
-					hdate_set_hdate (&h, 1, 13, year);
-					print_hmonth (&h, &opt, 13, year);
-					hdate_set_hdate (&h, 1, 14, year);
-					print_hmonth (&h, &opt, 14, year);
+					hdate_set_hdate (&h_month_to_print, 1, 13, year);
+					print_hmonth (&h_month_to_print, &opt, 13, year);
+					hdate_set_hdate (&h_month_to_print, 1, 14, year);
+					print_hmonth (&h_month_to_print, &opt, 14, year);
 				}
 				else
 				{
-					print_hmonth (&h, &opt, month, year);
+					print_hmonth (&h_start_day, &opt, month, year);
 				}
 				if (opt.iCal)
 					print_ical_footer ();
@@ -2775,11 +2778,10 @@ int main (int argc, char *argv[])
 
 			if (opt.holidays)
 			{
-				hdate_set_gdate(&h, 1, month, year);
 				opt.custom_days_cnt = get_custom_days_list(
 										&opt.jdn_list_ptr, &opt.string_list_ptr,
-										0, month, year,
-										'G', opt.quiet, h, "/hdate", "/custom_days",
+										0, month, year, 'G', opt.quiet,
+										h_start_day, "/hdate", "/custom_days",
 										opt.short_format, opt.hebrew);
 			}
 
@@ -2813,8 +2815,6 @@ int main (int argc, char *argv[])
 	char* my_locale;
 	my_locale = setlocale (LC_ALL, "");
 
-
-	/// parse config file
 	FILE *config_file = get_config_file("/hdate", "/hdaterc", hdate_config_file_text, opt.quiet);
 	if (config_file != NULL)
 	{
@@ -2822,15 +2822,14 @@ int main (int argc, char *argv[])
 		fclose(config_file);
 	}
 
-
 	/// parse command line
 	opterr = 0; /// we'll do our own error reporting
- 	while ((c = getopt_long(argc, argv,
+ 	while ((getopt_retval = getopt_long(argc, argv,
 							short_options, long_options,
 							&long_option_index)) != -1)
 		error_detected = error_detected
-						+ parameter_parser(c, &opt,	tz_name_str, long_option_index);
-
+						+ parameter_parser( getopt_retval, &opt,
+											tz_name_str, long_option_index);
 
 	/// undocumented feature - afikomen
 	if (opt.afikomen)
@@ -2839,7 +2838,6 @@ int main (int argc, char *argv[])
 		printf("%s\n", afikomen[opt.afikomen-1]);
 		exit(0);
 	}
-
 
 	/**************************************************
 	* BEGIN - enable user-defined menu
@@ -2860,12 +2858,12 @@ int main (int argc, char *argv[])
 			optptr = NULL;
 			optarg = NULL;
 
-			while (( c = menu_item_parse( menuptr, menu_len, &menu_index,
+			while (( getopt_retval = menu_item_parse( menuptr, menu_len, &menu_index,
 								&optptr, short_options, long_options,
 								&long_option_index, &error_detected) ) != -1)
 			{
 				error_detected = error_detected + 
-					parameter_parser(c, &opt, tz_name_str, long_option_index);
+					parameter_parser(getopt_retval, &opt, tz_name_str, long_option_index);
 			}
 		}
 	}
@@ -2885,11 +2883,11 @@ int main (int argc, char *argv[])
 	#define PROCESS_MONTH       5
 	#define PROCESS_HEBREW_YEAR 6
 	#define PROCESS_GREGOR_YEAR 7
-
 	int hdate_action = PROCESS_NOTHING;
+
 	if (argc == optind)
 	{
-		hdate_set_gdate (&h, 0, 0, 0);
+		hdate_set_gdate (&h_start_day, 0, 0, 0);
 		hdate_action = PROCESS_TODAY;
 	}
 	else if (argc == (optind + 1))
@@ -2898,7 +2896,7 @@ int main (int argc, char *argv[])
 		year = atoi (argv[optind]);
 		if (year > JUL_DY_LOWER_BOUND)
 		{
-			hdate_set_jd (&h, year);
+			hdate_set_jd (&h_start_day, year);
 			hdate_action = PROCESS_JULIAN_DAY;
 		}
 		else
@@ -2933,27 +2931,26 @@ int main (int argc, char *argv[])
 			if (month > 100) month = month - 100;
 
 			/// bounds check for month
-			if (!validate_hdate(CHECK_MONTH_PARM, 0, month, year, FALSE, &h))
+			if (!validate_hdate(CHECK_MONTH_PARM, 0, month, year, FALSE, &h_start_day))
 				{ print_parm_error(month_text); exit_main(&opt,0); }
 
 			/// bounds check for day
-			if (!validate_hdate(CHECK_DAY_PARM, day, month, year, TRUE, &h))
+			if (!validate_hdate(CHECK_DAY_PARM, day, month, year, TRUE, &h_start_day))
 				{ print_parm_error(day_text); exit_main(&opt,0); }
 
-			hdate_set_hdate (&h, day, month, year);
 			hdate_action = PROCESS_HEBREW_DAY;
 		}
 		else
 		{
 			/// bounds check for month
-			if (!validate_hdate(CHECK_MONTH_PARM, 0, month, year, FALSE, &h))
+			if (!validate_hdate(CHECK_MONTH_PARM, 0, month, year, FALSE, &h_start_day))
 				{ print_parm_error(month_text); exit_main(&opt,0); }
 
 			/// bounds check for day
-			if (!validate_hdate(CHECK_DAY_PARM, day, month, year, TRUE, &h))
+			if (!validate_hdate(CHECK_DAY_PARM, day, month, year, TRUE, &h_start_day))
 				{ print_parm_error(day_text); exit_main(&opt,0); }
 
-			hdate_set_gdate (&h, day, month, year);
+			hdate_set_gdate (&h_start_day, day, month, year);
 			hdate_action = PROCESS_GREGOR_DAY;
 		}
 
@@ -3023,14 +3020,8 @@ int main (int argc, char *argv[])
 		}
 	}
 
-	if ( (opt.tzif_data == NULL) && (opt.time_option_requested) )
-	{
-		/*********************************************************
-		* 
-		*      Calculate start and end times in epoch format
-		* 
-		*********************************************************/
-		hdate_struct h_final_day;
+	// if ( (opt.tzif_data == NULL) && (opt.time_option_requested) ) 
+	// {
 		switch (hdate_action)
 		{
 	case PROCESS_NOTHING    : break;
@@ -3038,44 +3029,43 @@ int main (int argc, char *argv[])
 	case PROCESS_HEBREW_DAY :
 	case PROCESS_GREGOR_DAY :
 	case PROCESS_JULIAN_DAY :
-			h_final_day.gd_year = h.gd_year;
-			h_final_day.gd_mon =  h.gd_mon;
-			h_final_day.gd_day = h.gd_day + 1;
+			// why aren't we calling hdate_set_gdate( &h_start_day ...
+			hdate_set_jd ( &h_day_after_final_day, h_start_day.hd_jd + 1 ); 
 			break;
 	case PROCESS_MONTH      :
 			if (month > 100)
 			{
-				hdate_set_hdate (&h, 1, month-100, year);
-				hdate_set_jd (&h_final_day, h.hd_jd+30); // months not always 30 days!!
+				hdate_set_hdate (&h_start_day, 1, month-100, year);
+				hdate_set_jd ( &h_day_after_final_day,
+					h_start_day.hd_jd + length_of_hmonth( month, h_start_day.hd_year_type )  ); 
 			}
 			else
 			{
-				hdate_set_gdate (&h, 1, month, year);
-				hdate_set_gdate (&h_final_day, 1, (month==12)?1:month+1, (month==12)?year+1:year);
+				hdate_set_gdate (&h_start_day, 1, month, year);
+				hdate_set_gdate (&h_day_after_final_day, 1, (month==12)?1:month+1, (month==12)?year+1:year);
 			}
 			break;
 	case PROCESS_HEBREW_YEAR:
-			hdate_set_hdate (&h, 1, 1, year);
-			hdate_set_hdate (&h_final_day, 1, 1, year+1);
+			hdate_set_hdate (&h_start_day, 1, 1, year);
+			hdate_set_hdate (&h_day_after_final_day, 1, 1, year+1);
 			break;
 	case PROCESS_GREGOR_YEAR:
-			h.gd_year = year;
-			h.gd_mon = 1;
-			h.gd_day = 1;
-			h_final_day.gd_year += 1;
-			h_final_day.gd_mon = 1;
-			h_final_day.gd_day = 1;
+			hdate_set_gdate (&h_start_day, 1, 1, year);
+			hdate_set_gdate (&h_day_after_final_day, 1, 1, year+1);
 			break;
 		}
-		get_epoch_time_range( &opt.epoch_start, &opt.epoch_end,
-					tz_name_str, opt.tz_offset,
-					h.gd_year, h.gd_mon, h.gd_day,
-					h_final_day.gd_year, h_final_day.gd_mon, h_final_day.gd_day);
-		opt.epoch_today = opt.epoch_start;
-	}
+		if ( (opt.tzif_data == NULL) && (opt.time_option_requested) )
+		{
+			get_epoch_time_range( &opt.epoch_start, &opt.epoch_end,
+						tz_name_str, opt.tz_offset,
+						h_start_day.gd_year,           h_start_day.gd_mon,           h_start_day.gd_day,
+						h_day_after_final_day.gd_year, h_day_after_final_day.gd_mon, h_day_after_final_day.gd_day);
+			opt.epoch_today = opt.epoch_start;
+		}
+	// }
 
 
-	// be nice: make sure only one of tz and tz_name_str is set!
+	// make sure only one of tz and tz_name_str is set!
 	process_location_parms(	&opt.lat, &opt.lon, &opt.tz_offset, tz_name_str, 
 							opt.epoch_start, opt.epoch_end,
 							&opt.tzif_entries, &opt.tzif_data,
@@ -3095,21 +3085,21 @@ case PROCESS_TODAY:
 		{
 			opt.custom_days_cnt = get_custom_days_list(
 										&opt.jdn_list_ptr, &opt.string_list_ptr,
-										h.hd_day, h.hd_mon, h.hd_year,
-										'H', opt.quiet, h, "/hdate", "/custom_days",
+										h_start_day.hd_day, h_start_day.hd_mon, h_start_day.hd_year,
+										'H', opt.quiet, h_start_day, "/hdate", "/custom_days",
 										opt.short_format, opt.hebrew);
 		}
 		if (opt.tablular_output)
 		{
 			print_tabular_header( &opt );
-			print_tabular_day(&h, &opt);
+			print_tabular_day(&h_start_day, &opt);
 		}
 		else
 		{
 			if (opt.iCal) print_ical_header ();
 			else if (!opt.not_sunset_aware)
-				opt.print_tomorrow = check_for_sunset(&h, opt.lat, opt.lon, opt.tz_offset);
-			print_day (&h, &opt);
+				opt.print_tomorrow = check_for_sunset(&h_start_day, opt.lat, opt.lon, opt.tz_offset);
+			print_day (&h_start_day, &opt);
 			if (opt.iCal) print_ical_footer ();
 		}
 		break;
@@ -3118,15 +3108,15 @@ case PROCESS_JULIAN_DAY:
 		{
 			opt.custom_days_cnt = get_custom_days_list(
 										&opt.jdn_list_ptr, &opt.string_list_ptr,
-										h.hd_day, h.hd_mon, h.hd_year,
-										'H', opt.quiet, h, "/hdate", "/custom_days",
+										h_start_day.hd_day, h_start_day.hd_mon, h_start_day.hd_year,
+										'H', opt.quiet, h_start_day, "/hdate", "/custom_days",
 										opt.short_format, opt.hebrew);
 		}
 
 		if (opt.tablular_output)
 		{
 			print_tabular_header( &opt );
-			print_tabular_day(&h, &opt);
+			print_tabular_day(&h_start_day, &opt);
 		}
 		else
 		{
@@ -3136,11 +3126,11 @@ case PROCESS_MONTH:
 case PROCESS_HEBREW_YEAR:
 		if (opt.holidays)
 		{
-			hdate_set_hdate(&h, 1, 1, year);
+			hdate_set_hdate(&h_start_day, 1, 1, year);
 			opt.custom_days_cnt = get_custom_days_list(
 										&opt.jdn_list_ptr, &opt.string_list_ptr,
 										0, 0, year,
-										'H', opt.quiet, h, "/hdate", "/custom_days",
+										'H', opt.quiet, h_start_day, "/hdate", "/custom_days",
 										opt.short_format, opt.hebrew);
 		}
 
@@ -3159,11 +3149,11 @@ case PROCESS_HEBREW_YEAR:
 case PROCESS_GREGOR_YEAR:
 		if (opt.holidays)
 		{
-			hdate_set_gdate(&h, 1, 1, year);
+			hdate_set_gdate(&h_start_day, 1, 1, year);
 			opt.custom_days_cnt = get_custom_days_list(
 									&opt.jdn_list_ptr, &opt.string_list_ptr,
-									0, 0, year,
-									'G', opt.quiet, h, "/hdate", "/custom_days",
+									0, 0, year, 'G', opt.quiet,
+									h_start_day, "/hdate", "/custom_days",
 									opt.short_format, opt.hebrew);
 		}
 
@@ -3184,20 +3174,20 @@ case PROCESS_HEBREW_DAY:
 		{
 			opt.custom_days_cnt = get_custom_days_list(
 									&opt.jdn_list_ptr, &opt.string_list_ptr,
-									h.hd_day, h.hd_mon, h.hd_year,
-									'H', opt.quiet, h, "/hdate", "/custom_days",
+									h_start_day.hd_day, h_start_day.hd_mon, h_start_day.hd_year,
+									'H', opt.quiet, h_start_day, "/hdate", "/custom_days",
 									opt.short_format, opt.hebrew);
 		}
 		if (opt.tablular_output)
 		{
 			print_tabular_header( &opt );
-			print_tabular_day(&h, &opt);
+			print_tabular_day(&h_start_day, &opt);
 		}
 
 		else
 		{
 			if (opt.iCal) print_ical_header ();
-			print_day (&h, &opt);
+			print_day (&h_start_day, &opt);
 			if (opt.iCal) print_ical_footer ();
 		}
 		break;
@@ -3206,20 +3196,20 @@ case PROCESS_GREGOR_DAY:
 		{
 			opt.custom_days_cnt = get_custom_days_list(
 									&opt.jdn_list_ptr, &opt.string_list_ptr,
-									h.gd_day, h.gd_mon, h.gd_year,
-									'G', opt.quiet, h, "/hdate", "/custom_days",
+									h_start_day.gd_day, h_start_day.gd_mon, h_start_day.gd_year,
+									'G', opt.quiet, h_start_day, "/hdate", "/custom_days",
 									opt.short_format, opt.hebrew);
 		}
 		if (opt.tablular_output)
 		{
 			print_tabular_header( &opt );
-			print_tabular_day(&h, &opt);
+			print_tabular_day(&h_start_day, &opt);
 		}
 
 		else
 		{
 			if (opt.iCal) print_ical_header ();
-			print_day (&h, &opt);
+			print_day (&h_start_day, &opt);
 			if (opt.iCal) print_ical_footer ();
 		}
 		break;

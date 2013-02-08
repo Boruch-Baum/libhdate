@@ -837,20 +837,6 @@ void print_header_dow_line_stdout( const int colorize, const int gregorian, cons
 
 
 /********************************************************
-*  calculate the number of days in the Hebrew month
-*********************************************************/
-int length_of_hmonth( const int month, const int year_type )
-{
-	switch (month)
-	{
-	case 4: case 6: case 8: case 10: case 12: case 14: return 29;
-	case 2: switch (year_type) { case 1: case 2: case 8: case 9: case 10: case 3: case 4: case 11: return 29; }; break;
-	case 3: switch (year_type) { case 1: case 2: case 8: case 9: case 10: return 29; }; break;
-	}
-	return 30;
-}
-
-/********************************************************
 *  calculate the number of the previous Hebrew month
 *********************************************************/
 int hmonth_previous( const int month, const hdate_struct * h )

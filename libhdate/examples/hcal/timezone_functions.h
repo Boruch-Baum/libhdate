@@ -21,12 +21,12 @@
 
 #define JERUSALEM_STANDARD_TIME_IN_MINUTES 120
 
-extern int
+int
 get_lat_lon_from_zonetab_file( const char* search_string, double *lat, double *lon, int quiet_alerts );
 
-extern char*
+char*
 read_sys_tz_string_from_file();
 
-extern int
+int
 get_tz_adjustment(  const time_t t, const int tz, int *tzif_index,
 					const int tzif_entries, const void *tzif_data );

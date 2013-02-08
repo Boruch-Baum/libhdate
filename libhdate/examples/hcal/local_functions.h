@@ -41,6 +41,12 @@ int validate_hdate (const int parameter_to_check,
 					const int day, const int month, const int year,
 					int h_set, hdate_struct* h);
 
+
+int length_of_hmonth( const int month, const int year_type );
+
+int length_of_gmonth( const unsigned int month, const unsigned int year );
+
+
 /// check_for_sunset
 int check_for_sunset (hdate_struct * h, double lat, double lon, int timezone );
 
