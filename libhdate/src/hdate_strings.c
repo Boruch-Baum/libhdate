@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <fnmatch.h>  /// For fnmatch
 #include <langinfo.h> /// for nl_langinfo()
 #include <locale.h>   /// for set_locale()
 
@@ -710,6 +711,28 @@ int hdate_parse_month_text_string( const char* month_text )
 			/// in practice identical to the 'long' versions
 			return (i%14)+101;
 
+	/// Alternative latin character spellings of Hebrew Months
+	static char *alt_spell_hebrew_months[14] = {
+		"Ti[cs]hr@([ie]?(y)|a[iy])",
+		"@([CK]h|X|J)e[sc]hvan",
+		"Kisl@(e|[ae][iy])v",
+		"T@(e|[ae][iy])v@(e|[ae][iy])t",
+		"[SC]h?([e'])vat",
+		"Ad?(d)ar",
+		"N@(i|ee)s?(s)an",
+		"@(I|Ee)y?(y)ar",
+		"[SC]@(i|ee)v?(v)an",
+		"Tam?(m)uz",
+		"Av",
+		"El?(l)@(u|ou|oo)l?(l)",
+		"Ad?(d)ar?( |-|_)@(A|1|I|alef|aleph)",
+		"Ad?(d)ar?( |-|_)@(B|2|II|bet?(h))"
+		};
+
+	for (i=0; i<14; i++)
+		if ( fnmatch( alt_spell_hebrew_months[i], month_text, FNM_EXTMATCH|FNM_CASEFOLD)==0 )
+			return (i+101);
+
 	// This REALLY should not be necessary ...
 	/** nl_langinfo may return a pointer to a null string if it does
 	 ** not have the requested value. In such a case return the English
@@ -719,5 +742,6 @@ int hdate_parse_month_text_string( const char* month_text )
 			( strcasecmp( month_text, gregorian_months[1][i]) == 0 ) )
 			return (i%12)+1;
 
+	
 	return 0;
 }

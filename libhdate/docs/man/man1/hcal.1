@@ -36,12 +36,15 @@ hcal \- displays a Hebrew / Gregorian calendar
 optionally be footnoted. \fBhcal\fP tries to be sunset-aware in order to correctly highlight the current Hebrew date, and can also display Shabbat times and parshiot. See the section \fBLOCATIONS\fP, below.
 .PP
 .B INPUTTING A HEBREW DATE:
-If the year provided is greater than 3000, \fBhcal\fP will interpret the given date as a Hebrew date, and will display the calendar of the corresponding Gregorian month(s). Hebrew months are expected to be passed as numbers 1-12 for Tishrei - Elul; Adar I and Adar II are expected to be passed as months 13 and 14.
+If the year provided is greater than 3000, \fBhcal\fP will interpret the given date as a Hebrew date, and will display the calendar of the corresponding Gregorian month(s). Hebrew months are expected to be passed as numbers 1-12 for Tishrei - Elul; Adar I and Adar II are expected to be passed as months 13 and 14. Currently, the maximum value \fBhcal\fP accepts for a Hebrew year is 10999.
+.PP 
+.B INPUTTING A GREGORIAN DATE:
+\fBhcal\fP interprets year values in the range 1000 - 2999 as gregorian. Numeric months are interpreted as 1-12 for January - December.
 .PP
 .B ACCEPTABLE DATE FORMATS:
 Prior versions of \fBhcal\fP insisted on the numeric date format
-.RI [ yyyy [ mm ]].
-\fBhcal\fP now accepts numeric date elements in any easily discernable order. \fBhcal\fP now accepts Hebrew month names, and gregorian month names in both full and abbreviated formats, and not case-sensitive. Gregorian month names may be entered in either your locale's language or in English. Hebrew month names may be entered in either Hebrew characters or in transliteration to Latin characters. When receiving a \fIdatespec\fP of two two-digit elements, \fBhcal\fP will make an effort to interpret the correct one as a two-digit Hebrew year in the current (58th) century. Refer to \fBEXAMPLES\fP below.
+.RI [[ yyyy " [" mm "  [" dd ]]].
+\fBhcal\fP now accepts numeric date elements in any easily discernable order. \fBhcal\fP now accepts Hebrew month names and gregorian month names in both full and abbreviated formats, and not case-sensitive. Gregorian month names may be entered in either your locale's language or in English. Hebrew month names may be entered in either Hebrew characters or in many transliteration forms to latin characters (see \fBEXAMPLES\fP below). \fBhcal\fP will intelligently interpret ambiguous numeric \fIdatespec\fP parameters. For example, a parameter "32" could only legitimately be a two-digit year, so \fBhcal\fP will, by default, interpretat it as a two-digit Hebrew year in the current (58th) century (see option \fB--prefer-gregorian\fP and section \fBCONFIG FILES\fP below).
 .PP 
 .SH "OPTIONS"
 .TP 18
@@ -101,6 +104,9 @@ use external css file "\fI./hcal.css\fP" for html output
 .TP
 .BR "   --no-reverse" "   do not highlight today's date"
 .TP
+.B \-m --menu
+prompt user-defined menu from config file. See there for details and examples.
+.TP
 .B \-p --parasha
 print week's parasha on each calendar row
 .TP
@@ -116,6 +122,14 @@ print Shabbat times and parshiot
 .B \-z --timezone
 \+/-UTC. Notation may  be in decimal hours
 .RI ( hh [. hh "]) or hours, minutes (" hh [: mm ])
+.TP 23
+.B \ \   --prefer-hebrew
+how to interpret ambiguous month and year
+.RS 0
+.B \ \ \ --prefer-gregorian
+\ parameters. (eg. interpret "6 10" as
+.RS 23
+"Adar 5710" or as "June 2010")
 .SH NOTES
 .SS "HOLIDAYS"
 .PP
@@ -206,7 +220,7 @@ Useful locations and time zones
 .RE
 2   Eilat         29.56   34.95    3.5 Tehran     35.67   51.42
 .SH FILES
-The config files and their parent folder will be automatically created. Each file includes its own documentation, in-line. Should you ever wish to restore a config file to its original text, rename or delete your current one; \fBhcal\fP will create a replacement automatically on its next invocation. Both \fBhdate\fP and \fBhcal\fP make use of identically formatted \fIcustom_days\fP files, so you may freely copy that file from one config folder to the other, or use a symbolic link so both programs will always use the same \fIcustom_days\fP information.
+The config files and their parent folder will be automatically created. Each file includes its own documentation, in-line. Should you ever wish to restore a config file to its original text, rename or delete your current one; \fBhcal\fP will create a replacement automatically on its next invocation. Both \fBhcal\fP and \fBhcal\fP make use of identically formatted \fIcustom_days\fP files, so you may freely copy that file from one config folder to the other, or use a symbolic link so both programs will always use the same \fIcustom_days\fP information.
 
 .RS 5
 .RI ${ XDG_CONFIG_HOME } /hcal/hcalrc
@@ -232,6 +246,8 @@ The timezone support is currenlty primitive and lacks support for daylight savin
 .TP 10
 .B Historical
 The software does not yet account for the phenomenon and complications of the "Gregorian transition" from the prior, Julian calendar, which effectively caused an instantaneous 'loss' of two weeks for all gentiles affected. Countries (eg. Poland, Spain and Italy) began adopting the Gregorian calendar on 8 Tishrei 5343 (4 October 1582 CE), although many did not transition until the 56th century (1752 CE, eg. UK colonies, Sweden). Russia did not adopt the Gregorian calendar until 5678 (1918 CE) and Turkey did not until 5687 (December, 1926 CE). Many other countries made the transition on other dates. Keep in mind that Russia invaded part of Poland, undoing, for the interim, the Gregorian transition for (only) that part of Poland; Also important to remember in this regard is that Eretz Ysroel was part of the Turkish Ottoman empire until the British mandate (5677 (1917 CE)). Until all this is accounted for adequately by this application, refer to '\fBncal \-p\fP' for a basic table of country transitions. However, keep in mind that European borders underwent many changes during the 426 years in question, so the accuracy of your data will depend on accurate knowledge of whether any particular date at any specific location was Julian or Gregorian.
+.SS Not a bug
+Invoke \fBhcal\fP with a gregorian month name, and \fBhcal\fP will by default return a single month calendar for the Hebrew month in which that gregorian month begins. For example, '\fBhcal feb\fP' could return a calendar for Shevat of the current year. In order to see a Hebrew calendar for February, add option \fB-gg\fP on the command line or in your config file.
 .SH "EXAMPLES"
 .TP 3
 1. Display a 2012ce year's calendar, three-months wide, in color.
@@ -242,6 +258,11 @@ The software does not yet account for the phenomenon and complications of the "G
 2. Display the current month's calendar, with Shabbat times, parshiot, footnoted holiday identification, with Hebrew information in Hebrew, and all in "calming", "muted" color-tones.
 .RS 6
 .B       hcal \-csfH
+.SS Flexible date entry
+hdate April ; hdate aPril; hdate tiSHREi; hdate 1 Elul 44; hdate 1 sep 1944; hdate 44 oct 21
+.SS Flexible Hebrew month transliterations
+tIchriy, xeshvan, khechvan, kisayv, teivayt, sh\\'vat, addar, adarI, "adar A", adar_2, adar-alef, adaraleph, adARBeth, nissan, eeyar, ceevvan, taMUz, aV, elloul (and many more).
+.RE
 .SH "SEE ALSO"
 .BR mlterm "(1), " hdate "(1) ," hebcal "(1), " date "(1), " ncal "(1), " cal "(1), " remind (1)
 .SH "AUTHORS"

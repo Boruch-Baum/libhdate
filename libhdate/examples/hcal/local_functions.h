@@ -28,6 +28,7 @@
 #define DEFAULT_CANDLES_MINUTES 20
 #define MAX_CANDLES_MINUTES 90
 #define MIN_MOTZASH_MINUTES 20
+#define DEFAULT_MOTZASH_MINUTES 72
 #define MAX_MOTZASH_MINUTES 90
 
 // maybe move this ...
@@ -69,7 +70,8 @@ int parse_timezone_numeric( char *input_string, int *tz);
 
 /// parse_date(...)
 int parse_date( const char* parm_a, const char* parm_b, const char* parm_c,
-					 int* ret_year, int* ret_month, int* ret_day, const int parm_cnt );
+					 int* ret_year, int* ret_month, int* ret_day, const int parm_cnt,
+					 const int prefer_hebrew, const int base_year_h, const int base_year_g );
 
 void print_parm_error ( const char *parm_name );
 void print_parm_missing_error ( const char *parm_name );

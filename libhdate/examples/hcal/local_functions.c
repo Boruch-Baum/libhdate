@@ -806,36 +806,39 @@ int validate_hdate (const int parameter_to_check,
 * SEE ALSO: validate_hdate for bounds checking of these values
 ************************************************************/
 int parse_date( const char* parm_a, const char* parm_b, const char* parm_c,
-					 int* ret_year, int* ret_month, int* ret_day, const int parm_cnt )
+					 int* ret_year, int* ret_month, int* ret_day, const int parm_cnt,
+					 const int prefer_hebrew, const int base_year_h, const int base_year_g )
 {
 //	int a_span, b_span, c_span, a_len, b_len, c_len;
 	int a_val, b_val, c_val, a_id, b_id, c_id;
 	hdate_struct h;
 
 	/****************************************************
-	* The Constant BASE_YEAR is for parsing a two-digit
+	* The base_year variables are for parsing a two-digit
 	* year value. Because this is a Hebrew library with
-	* Hebrew utilities, we default to a Hebrew year and
-	* presume that the user input and desire is for a
-	* Hebrew context.
+	* Hebrew utilities, we default to a Hebrew year 
+	* (prefer_hebrew = TRUE) and presume that the user
+	* input and desire is for a Hebrew context.
 	***************************************************/
-	const int BASE_YEAR = 5700;
-	const int BASE_YEAR_G = 2000;
-	const int YR_LOWER_4_BOUND = 1000;
-	const int YR_UPPER_2_BOUND = 99;
-	const int HMONTH_UPPER_BOUND = 14;
-	const int GMONTH_UPPER_BOUND = 12;
-	const int GDAY_UPPER_BOUND = 31;
-	const int HDAY_UPPER_BOUND = 30;
-	const int UNKNOWN_STATE = 0;
-	const int MUST_BE_YEAR = 1;
-	const int MUST_BE_MONTH = 10;
-//	const int MUST_BE_DAY = 100;
+	#define YR_LOWER_4_BOUND 1000
+	#define YR_UPPER_2_BOUND 99
+	#define HMONTH_UPPER_BOUND 14
+	#define GMONTH_UPPER_BOUND 12
+	#define GDAY_UPPER_BOUND 31
+	#define HDAY_UPPER_BOUND 30
+	#define UNKNOWN_STATE 0
+	#define MUST_BE_YEAR 1
+	#define MUST_BE_MONTH 10
+//	#define MUST_BE_DAY 100
 
 	a_id = UNKNOWN_STATE;
 	b_id = UNKNOWN_STATE;
 	c_id = UNKNOWN_STATE;
 
+	a_val = BAD_DATE_VALUE;
+	b_val = BAD_DATE_VALUE;
+	c_val = BAD_DATE_VALUE;
+	
 
 	/****************************************************
 	* sub-function initial_parse
@@ -857,7 +860,7 @@ int parse_date( const char* parm_a, const char* parm_b, const char* parm_c,
 			{
 				if (*parm_val <= GDAY_UPPER_BOUND) return TRUE;
 				*parm_id = MUST_BE_YEAR;
-				if (*parm_val <= YR_UPPER_2_BOUND) *parm_val = *parm_val + BASE_YEAR;
+				if (*parm_val <= YR_UPPER_2_BOUND) *parm_val = *parm_val + base_year_h;
 				*ret_year = *parm_val;
 			}
 		}
@@ -933,24 +936,31 @@ int parse_date( const char* parm_a, const char* parm_b, const char* parm_c,
 
 	if (parm_cnt == 1)
 	{
+		*ret_day = 0;
 		if (a_id == MUST_BE_MONTH)
 		{
+			*ret_month = a_val;
 			hdate_set_gdate (&h, 0, 0, 0);	/// set date for today
 			if (a_val > 100) *ret_year = h.hd_year;
 			else             *ret_year = h.gd_year;
 		}
-		else if (a_id != MUST_BE_YEAR) *ret_year = a_val + BASE_YEAR;
+		else if (a_id != MUST_BE_YEAR)
+		{
+			*ret_year = a_val + base_year_h;
+			*ret_month = 0;
+		}
 		return TRUE;
 	}
 
 	if (parm_cnt == 2)
 	{
+		*ret_day = 0;
 		if (a_id == MUST_BE_MONTH)
 		{
 			if (b_id != MUST_BE_YEAR)
 			{
-				if (a_val > 100) *ret_year = b_val + BASE_YEAR;
-				else     		 *ret_year = b_val + BASE_YEAR_G;
+				if (a_val > 100) *ret_year = b_val + base_year_h;
+				else     		 *ret_year = b_val + base_year_g;
 			}
 		}
 		else if (b_id == MUST_BE_YEAR)
@@ -963,9 +973,25 @@ int parse_date( const char* parm_a, const char* parm_b, const char* parm_c,
 		{
 			if ((a_val > HMONTH_UPPER_BOUND) && (b_val > HMONTH_UPPER_BOUND)) 
 				{print_parm_error(month_text); return FALSE;}
-			/// my personal prejudice that two two-digit numbers will be mm yy
-			*ret_month = a_val;
-			*ret_year = b_val + BASE_YEAR;
+			if ((prefer_hebrew) || ((a_val > GMONTH_UPPER_BOUND) && (b_val > GMONTH_UPPER_BOUND)))
+			{
+				*ret_month = a_val+100;
+				*ret_year = b_val + base_year_h;
+			}
+			else
+			{
+				if (b_val > GMONTH_UPPER_BOUND)
+				{
+					*ret_month = a_val;
+					*ret_year = b_val + base_year_g;
+				}
+				else
+				{
+					*ret_month = b_val;
+					*ret_year = a_val + base_year_g;
+				}
+				
+			}
 		}
 		return TRUE;
 	}
@@ -979,30 +1005,30 @@ int parse_date( const char* parm_a, const char* parm_b, const char* parm_c,
 			else if (b_id == UNKNOWN_STATE) *ret_day = b_val;
 			else *ret_day = c_val; // TODO - test that validate_date faults day 31 in Hebrew month
 			// commenting out the next line fixed the failure of 'hdate 5 January 1965'
-			// if (*ret_month < 100) *ret_year = *ret_year - BASE_YEAR + BASE_YEAR_G;
+			// if (*ret_month < 100) *ret_year = *ret_year - base_year_h + base_year_g;
 			break;
 	case 10:	/// MUST_BE_MONTH
 			if (a_id == MUST_BE_MONTH)
 			{
 				/// personal prejudice to prefer mmmm dd yy
 				*ret_day = b_val; // TODO - test that validate_date faults day 31 in Hebrew month
-				if (a_val > 100) *ret_year = c_val + BASE_YEAR;
-				else   			 *ret_year = c_val + BASE_YEAR_G;
+				if (a_val > 100) *ret_year = c_val + base_year_h;
+				else   			 *ret_year = c_val + base_year_g;
 			}
 			else if (b_id == MUST_BE_MONTH)
 			{
 				/// prefer dd mmmm yy because its more natural in Hebrew though
 				/// had it been three numeric fields, I would favor yy mm dd
 				*ret_day = a_val; // TODO - test that validate_date faults day 31 in Hebrew month
-				if (b_val > 100) *ret_year = c_val + BASE_YEAR;
-				else   			 *ret_year = c_val + BASE_YEAR_G;
+				if (b_val > 100) *ret_year = c_val + base_year_h;
+				else   			 *ret_year = c_val + base_year_g;
 			}
 			else ///(c_id == MUST_BE_MONTH)
 			{
 				/// tough call - my intuition is yy dd mmmm
 				*ret_day = b_val; // TODO - test that validate_date faults day 31 in Hebrew month
-				if (c_val > 100) *ret_year = a_val + BASE_YEAR;
-				else   			 *ret_year = a_val + BASE_YEAR_G;
+				if (c_val > 100) *ret_year = a_val + base_year_h;
+				else   			 *ret_year = a_val + base_year_g;
 			}
 			break;
 	case  1:	/// MUST_BE_YEAR
@@ -1024,13 +1050,13 @@ int parse_date( const char* parm_a, const char* parm_b, const char* parm_c,
 						if (a_val > HDAY_UPPER_BOUND)
 						{
 							if (c_val > GMONTH_UPPER_BOUND) {print_parm_error(month_text); return FALSE;}
-							*ret_day = a_val; *ret_year = b_val + BASE_YEAR_G; *ret_month = c_val;
+							*ret_day = a_val; *ret_year = b_val + base_year_g; *ret_month = c_val;
 							break;
 						 }
-						*ret_day = a_val; *ret_year = b_val + BASE_YEAR; *ret_month = c_val;
+						*ret_day = a_val; *ret_year = b_val + base_year_h; *ret_month = c_val;
 						break;
 					}
-					*ret_year = a_val + BASE_YEAR; *ret_day = b_val; *ret_month = c_val;
+					*ret_year = a_val + base_year_h; *ret_day = b_val; *ret_month = c_val;
 					break;
 				}
 				if (b_val > HDAY_UPPER_BOUND)
@@ -1038,14 +1064,14 @@ int parse_date( const char* parm_a, const char* parm_b, const char* parm_c,
 					if (a_val > HDAY_UPPER_BOUND)
 					{
 						if (c_val > GMONTH_UPPER_BOUND) {print_parm_error(month_text); return FALSE;}
-						*ret_day = a_val; *ret_year = b_val + BASE_YEAR_G; *ret_month = c_val;
+						*ret_day = a_val; *ret_year = b_val + base_year_g; *ret_month = c_val;
 					}
-					*ret_day = a_val; *ret_year = b_val + BASE_YEAR; *ret_month = c_val;
+					*ret_day = a_val; *ret_year = b_val + base_year_h; *ret_month = c_val;
 				}
-				*ret_month = a_val; *ret_day = b_val; *ret_year = c_val + BASE_YEAR;
+				*ret_month = a_val; *ret_day = b_val; *ret_year = c_val + base_year_h;
 				break;
 			}
-			*ret_year = a_val + BASE_YEAR; *ret_month = b_val; *ret_day = c_val;
+			*ret_year = a_val + base_year_h; *ret_month = b_val; *ret_day = c_val;
 			break;
 	}
 	return TRUE;

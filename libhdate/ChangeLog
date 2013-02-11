@@ -1,3 +1,29 @@
+hdate.c
+- BUGFIX print julian day (code had been deleted)
+- new options --prefer-hebrew --prefer-gregorian
+- new options --emesh --erev prints times from sunset
+
+hcal.c
+- new options --prefer-hebrew --prefer-gregorian
+
+custom_days.c
+- rules changes for yom ha'atzmaut and yom hazikaron in config file
+- improved range checking for final / start years (still incomplete)
+
+local_functions.c
+- improve date parsing heuristic
+- allow selection of hebrew/gregorian preference
+- allow selection of hebrew/gregorian base year
+
+hdate_strings.c
+- accept alternative latin spellings for Hebrew months
+
+hcal.1
+hdate.1
+- new options --prefer-hebrew --prefer-gregorian
+- accept alternative latin spellings for Hebrew months
+
+----------------------------------------------------------------------------
 custom_days.c
 - add field for final year
 - add gross range checking for final / start years

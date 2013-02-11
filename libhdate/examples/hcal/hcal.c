@@ -113,7 +113,10 @@ static char holiday_flag[] = { '/', '+', '*', '~', '!', '@', '#', '$', '%', '^' 
 
 
 typedef struct {
-			int gregorian;    /// 0=Hebrew only, 1=Hebrew prime, else gregorian prime
+			int prefer_hebrew;	// TODO - Make this user-selectable
+			int base_year_h;	// TODO - Make this user-selectable
+			int base_year_g;	// TODO - Make this user-selectable
+			int gregorian;		/// 0=Hebrew only, 1=Hebrew prime, else gregorian prime
 			int html;
 			int external_css;
 			int diaspora;
@@ -123,7 +126,7 @@ typedef struct {
 			int havdalah;
 			int no_reverse;
 			int three_month;
-			int one_year;	/// needed for getting tzif data only once
+			int one_year;		/// needed for getting tzif data only once
 			char* spacing;
 			char* separator;
 			int colorize;
@@ -198,7 +201,17 @@ VERSION=2.00\n\
 # with a message that includes the guessed location.\n\
 # hcal's guesses will also affect its default behaviour for ouput of\n\
 # Shabbat times, parshiot, and choice of Israel/diaspora hoidays\n\
-#SUNSET_AWARE=TRUE\n\
+#SUNSET_AWARE=TRUE\n\n\
+# Base Years\n\
+# hcal, by default, interprets two-digit year parameters as Hebrew\n\
+# years, and adds the value BASE_YEAR_HEBREW to them. Set\n\
+# variable PREFER_HEBREW=FALSE to have them interpreted as gregorian,\n\
+# and have BASE_YEAR_GREGORIAN added to them.\n\
+#PREFER_HEBREW=TRUE\n\
+# valid values for BASE_YEAR_HEBREW are 3000 - 10900\n\
+#BASE_YEAR_HEBREW=5700\n\
+# valid values for BASE_YEAR_GREGORIAN are 1000 - 2900\n\
+#BASE_YEAR_GREGORIAN=2000\n\n\
 # LATITUDE and LONGITUDE may be in decimal format or in the form\n\
 # degrees[:minutes[:seconds]] with the characters :'\" as possible\n\
 # delimiters. Use negative values to indicate South and West, or\n\
@@ -296,7 +309,6 @@ VERSION=2.00\n\
 #MENU= -l 22.26 -L 114.15 -z 8        # supplier in Hong Kong\n\
 ");
 
-
 /**************************************************
 *  print version
 *************************************************/
@@ -374,6 +386,8 @@ N_("Hebrew calendar\nOPTIONS:\n\
    -z --timezone nn   timezone, +/-UTC\n\
    -l --latitude yy   latitude yy degrees. Negative values are South\n\
    -L --longitude xx  longitude xx degrees. Negative values are West\n\n\
+   --prefer-hebrew    interpret ambiguous mm yy as Hebrew date\n\
+   --prefer-gregorian interpret ambiguous mm yy as gregorian date\n\n\
 All options can be made default in the config file, or menu-ized for\n\
 easy selection.\n\
 Report bugs to: <http://sourceforge.net/tracker/?group_id=63109&atid=502872>\n\
@@ -1745,6 +1759,8 @@ int print_month ( const int month, const int year, option_list* opt)
 	/// custom days
 	// first check that this snippet hasn't been performed before:
 	//    ie. this is not the first month of a year's output
+	// also: should we do this even when not requested options
+	//    --color, --footnote (and maybe others)?
 	if (opt->custom_days_cnt == BAD_CUSTOM_DAY_CNT)
 	{
 		// TODO - 'three-month mode custom days...
@@ -1894,6 +1910,10 @@ void read_config_file(	FILE *config_file,
 								"CANDLE_LIGHTING",	//18
 								"HAVDALAH"
 								};
+//  TODO - parse these!
+//	opt.prefer_hebrew = TRUE;
+//	opt.base_year_h = 5700;		// TODO - Make this user-selectable
+//	opt.base_year_g = 2000;		// TODO - Make this user-selectable
 
 	while ( end_of_input_file!=TRUE )
 	{
@@ -2123,13 +2143,15 @@ int hcal_parser( const int switch_arg, option_list *opt,
 				error_detected++;
 			}
 			break;
-/** --spacing */		case 26: opt->spacing = optarg; break;
-/** --gregorian */	case 27: break;
-/** --no-gregorian */case 28: break;
-/** --borders      */case 29: opt->three_month = 1;
-							 opt->spacing = default_borders_spacing;
-							 opt->separator = default_borders_separator;
-							 break;
+/** --spacing */			case 26: opt->spacing = optarg; break;
+/** --gregorian */			case 27: break;
+/** --no-gregorian */		case 28: break;
+/** --borders      */		case 29: opt->three_month = 1;
+								opt->spacing = default_borders_spacing;
+								opt->separator = default_borders_separator;
+								break;
+/** --prefer-hebrew		*/	case 30: opt->prefer_hebrew = TRUE;
+/** --prefer-gregorian	*/	case 31: opt->prefer_hebrew = FALSE;
 		} /// end switch for long_options
 		break;
 
@@ -2207,6 +2229,7 @@ int hcal_parser( const int switch_arg, option_list *opt,
 **************************************************/
 int main (int argc, char *argv[])
 {
+
 	int error_detected = FALSE;	/// exit after reporting ALL bad parms
 	int data_sink;				/// store unwanted stuff here
 
@@ -2217,6 +2240,9 @@ int main (int argc, char *argv[])
 	const int num_of_months = 12;	/// how many months in the year
 
 	option_list opt;
+	opt.prefer_hebrew = TRUE;
+	opt.base_year_h = 5700;		// TODO - Make this user-selectable
+	opt.base_year_g = 2000;		// TODO - Make this user-selectable
 	opt.gregorian = 0;			/// -0 don't display any gregorian information
 	opt.bidi = 0;				/// visual bidi, implies --force-hebrew
 	opt.html = 0;				/// -h html format flag
@@ -2286,36 +2312,38 @@ int main (int argc, char *argv[])
 	int c;
 	const struct option long_options[] = {
 	///   name,  has_arg, flag, val
-		{"version", 0, 0, 0},
-		{"help", 0, 0, 0},
-		{"no-reverse", 0, 0, 0},
-		{"html", 0, 0, 'h'},
-		{"parasha", 0, 0, 'p'},
-		{"shabbat", 0, 0, 's'},
-		{"three-month", 0, 0, '3'},
-		{"colorize", 0, 0, 'c'},
-		{"footnote",0,0,'f'},
-		{"hebrew",0,0,'H'},
-		{"israel",0,0,'I'},
-		{"latitude", 1, 0, 'l'},
-		{"longitude", 1, 0, 'L'},
-		{"timezone", 1, 0, 'z'},
-		{"not-sunset-aware", 0, 0, 0},
-		{"quiet-alerts",0,0,'q'},
-		{"bidi",0,0,'b'},
-		{"visual",0,0,'b'},
-		{"one-month",0,0,'1'},
-		{"no-bidi",0,0,0},
-		{"no-visual",0,0,0},
-		{"no-color",0,0,0},
-		{"no-footnote",0,0,0},
-		{"menu",0,0,'m'},
-		{"candles",2,0,0},
-		{"havdalah",2,0,0},
-		{"spacing",2,0,0},
-		{"gregorian",0,0,'g'},
-		{"no-gregorian",0,0,'0'},
-		{"borders",0,0,0},
+		{"version", no_argument, 0, 0},
+		{"help", no_argument, 0, 0},
+		{"no-reverse", no_argument, 0, 0},
+		{"html", no_argument, 0, 'h'},
+		{"parasha", no_argument, 0, 'p'},
+		{"shabbat", no_argument, 0, 's'},
+		{"three-month", no_argument, 0, '3'},
+		{"colorize", no_argument, 0, 'c'},
+		{"footnote", no_argument,0,'f'},
+		{"hebrew", no_argument, 0,'H'},
+		{"israel", no_argument, 0,'I'},
+		{"latitude", required_argument, 0, 'l'},
+		{"longitude", required_argument, 0, 'L'},
+		{"timezone", required_argument, 0, 'z'},
+		{"not-sunset-aware", no_argument, 0, 0},
+		{"quiet-alerts", no_argument, 0,'q'},
+		{"bidi", no_argument, 0,'b'},
+		{"visual", no_argument, 0,'b'},
+		{"one-month", no_argument, 0,'1'},
+		{"no-bidi", no_argument, 0, 0},
+		{"no-visual", no_argument, 0, 0},
+		{"no-color", no_argument, 0, 0},
+		{"no-footnote", no_argument, 0, 0},
+		{"menu", no_argument, 0,'m'},
+		{"candles", optional_argument, 0, 0},
+		{"havdalah", optional_argument, 0, 0},
+		{"spacing", optional_argument, 0, 0},
+		{"gregorian", no_argument, 0,'g'},
+		{"no-gregorian", no_argument, 0,'0'},
+		{"borders", no_argument, 0, 0},
+		{"prefer-hebrew", no_argument, 0, 0},
+		{"prefer-gregorian", no_argument, 0, 0},
 		{0, 0, 0, 0}
 		};
 
@@ -2353,6 +2381,10 @@ int main (int argc, char *argv[])
 	/************************************************************
 	* parse config file
 	************************************************************/
+	// TODO - these config file fields need to be processed
+	//# PREFER_HEBREW=TRUE
+	//# BASE_YEAR_HEBREW=5700
+	// # BASE_YEAR_GREGORIAN=2000
 	FILE *config_file = get_config_file("/hcal", "/hcalrc", hcal_config_file_text, opt.quiet_alerts);
 	if (config_file != NULL)
 	{
@@ -2489,7 +2521,8 @@ int main (int argc, char *argv[])
 		********************************************************/
 		if (argc == (optind + 2))
 		{
-			if (!parse_date( argv[optind], argv[optind+1], "", &year, &month, &data_sink, 2))
+			if (!parse_date( argv[optind], argv[optind+1], "", &year, &month, &data_sink, 2,
+							 opt.prefer_hebrew, opt.base_year_h, opt.base_year_g))
 				exit_main(&opt,0);
 			/// The parse_date function returns Hebrew
 			/// month values in the range 101 - 114
@@ -2498,12 +2531,13 @@ int main (int argc, char *argv[])
 		else if (argc == (optind + 1))
 		{
 			month = 0;
-			if (!parse_date( argv[optind], "", "", &year, &month, &data_sink, 1))
+			if (!parse_date( argv[optind], "", "", &year, &month, &data_sink, 1,
+							 opt.prefer_hebrew, opt.base_year_h, opt.base_year_g))
 				exit_main(&opt,0);
 			/// The parse_date function returns Hebrew
 			/// month values in the range 101 - 114
 			month = month%100;
-			opt.one_year = 1;
+			if (!month) opt.one_year = 1;
 		}
 		else
 		{

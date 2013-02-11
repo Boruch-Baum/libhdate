@@ -156,25 +156,23 @@ H, 5741, 0000, 6, 27, 0, 0, שבת זכרון של פלוני, זכרון פלו
 #\n\
 # Examples - Israeli national custom days\n\
 # =======================================\n\
-# code 35 = rabin day\n\
+# code 35 = Cheshvan 12, Rabin Day\n\
 H, 5778, 0000, 2, 12, 0, 0, יום הזכרון ליצחק רבין, יום רבין, יום הזכרון ליצחק רבין,  Yitzhak Rabin memorial day, Rabin memorial day, -1, -2, 0, 0, 0, 0, 0\n\
 # code 33 = family day\n\
 H, 5708, 0000, 5, 30, 0, 0, יום המשפחה, יום המשפחה, Family day, Family day, 0, 0, 0, 0, 0, 0, 0\n\
-# code 24 = Nisan 27 yom ha shoaa\n\
+# code 24 = Nisan 27, Yom HaSho'a\n\
 H, 5718, 0000, 7, 27, 0, 0, יום השואה, יום השואה, Yom HaShoah, Yom HaShoah, -1, 0, 1, 0, 0, 0, 0\n\
-# code 26 = Iyyar 28 yom yerushalym 1968\n\
+# code 26 = Iyyar 28, yom yerushalym 1968\n\
 H, 5728, 0000, 8, 28, 0, 0, יום ירושלים, יום י-ם, Yom Yerushalayim, Yom Yerushalayim, 0, 0, 0, 0, 0, 0, 0\n\
-# code 36 = Tammuz 29 Zhabotinsky day 2005\n\
+# code 36 = Tammuz 29, Zhabotinsky day 2005\n\
 H, 5765, 0000, 10, 29, 0, 0, יום הזכרון לזאב זבוטינסק, יום זבוטינסק, Zeev Zhabotinsky day, Zhabotinsky day, 0, 1, 0, 0, 0, 0, 0\n\
-# code 17 = yom ha azmaot\n\
-# code 25 = yom zikaron\n\
+# code 25 = Iyyar 4, Yom HaZikaron\n\
+H, 5708, 5764, יום הזכרון, יום הזכרון, Yom HaZikaron, Yom HaZikaron, -2,  0, 0, 0, 0, 0, -1\n\
+H, 5765, 0000, יום הזכרון, יום הזכרון, Yom HaZikaron, Yom HaZikaron, -1, -2, 1, 0, 0, 0,  0\n\
+# code 17 = Iyyar 5, Yom HaAzma'ut\n\
+H, 5708, 5764, יום העצמאות, יום העצמאות, Yom HaAtzma'ut, Yom HaAtzma'ut, -1, -2, 0, 0, 0, 0, 0\n\
+H, 5765, 0000, יום העצמאות, יום העצמאות, Yom HaAtzma'ut, Yom HaAtzma'ut, -1, -2, 0, 1, 0, 0, 0\n\
 # complex logic for this pair, and it changes starting 2004\n\
-# 1948-2004\n\
-# iyyar 4, yom zikkaron, -2,  0, 0, 0, 0, 0, -1\n\
-# iyyar 5, independence, -1, -2, 0, 0, 0, 0,  0\n\
-# 2005-\n\
-# iyyar 4, yom zikkaron, -1, -2, 1, 0, 0, 0, 0\n\
-# iyyar 5, independence, -1, -2, 0, 1, 0, 0, 0\n\
 #\n\
 # DEBUG TESTS - REMOVE PRIOR TO RELEASE\n\
 # =====================================\n\
@@ -458,31 +456,76 @@ int read_custom_days_file(
 			break;
 		}
 
+		/// These are easy checks to eliminate ALMOST all custom
+		/// days for which the the custom day will be out of bounds
 		if (calendar_type == (custom_day_type & 0xdf) )
 		{
 			if ( (y_todo < (custom_start_year - 1) ) ||
-			     (y_todo > (custom_final_year - 1) ) ) continue;
+			     (y_todo > (custom_final_year + 1) ) ) continue;
+			if ( (y_todo > custom_final_year) &&
+				 ( (m_todo != 1) || (custom_month != 12) || (d_todo > 9) || 
+				   ( ( (calendar_type == 'G') && (custom_day_of_month < 22) ) ||
+					 ( (calendar_type == 'H') && (custom_day_of_month < 20) ) ) ) ) continue;
+			if ( (y_todo < custom_start_year) &&
+				 ( (m_todo != 12) || (custom_month != 1) || (custom_day_of_month > 9) ||
+				   ( ( (calendar_type == 'G') && (d_todo < 22) ) ||
+					 ( (calendar_type == 'H') && (d_todo < 20) ) ) ) ) continue;
 		}
 		else
 		{
-			if (calendar_type == 'G')
+			if (calendar_type == 'G') /// o&& (custom_day_type == 'H' or 'h')
 			{
 				if ( (y_todo < (custom_start_year - 3761) ) ||
-					 (y_todo > (custom_final_year + 3761) ) ) continue;
+					 (y_todo > (custom_final_year - 3760) ) ) continue;
+				if ( (y_todo == (custom_start_year - 3761) ) && /// aug-dec or tish-shvat may be good
+					 ( (m_todo < 8 /** august **/) || (custom_month > 5 /** shvat **/ ) ) ) continue;
+				if ( (y_todo == (custom_final_year - 3760) ) && /// jan-oct or kislev-elul may be good
+					 ( (m_todo > 10 /** october **/) || (custom_month < 3 /** kislev **/ ) ) ) continue;
 			}
-			else /// (calendar_type =s= 'H')
+			else /// (calendar_type == 'H') && (custom_day_type == 'G' or 'g')
 			{
-				if ( (y_todo < (custom_start_year + 3761) ) ||
-					 (y_todo > (custom_final_year - 3761) ) ) continue;
+				if ( (y_todo < (custom_start_year + 3760) ) ||
+					 (y_todo > (custom_final_year + 3761) ) ) continue;
+				if ( (y_todo == (custom_start_year + 3760) ) && /// jan-oct or kislev-elul may be good
+					 ( (m_todo < 3 /** kislev **/) || (custom_month > 10 /** octoner **/ ) ) ) continue;
+				if ( (y_todo == (custom_final_year + 3761) ) && /// aug-dec or tish-shvat may be good
+					 ( (m_todo > 5 /** Shvat **/) || (custom_month < 8 /** august **/ ) ) ) continue;
 			}
 		}
-// Maybe try here a quick rejection by comparing the years in range_start
-// tp the custom_start and _final year, based upon d_to_do, m_to_do, y_to_do
-// must take into account that adjustments may be +/-9 days which could jump
-// the year and also Heb year switching in Autumn
-/*
-	hdate_set_gdate( &range_end, d_to_do, m_to_do, y_to_do);
-*/
+		// TODO - d_to_do, m_to_do, y_to_do may still be out of bounds. We 
+		// must take into account that adjustments may be +/-9 days which could
+		// bump the year and also Heb year switching in Autumn
+//		compute adjusted custom day 
+		/*
+			hdate_set_gdate( &range_end, d_to_do, m_to_do, y_to_do);
+		*/
+/**
+(for aa in $(seq 5400 5773); do hdate -q 20 12 $aa | awk '{print $3}' ; done; ) | sort |uniq -c
+    374 
+     75 August
+    299 September
+(for aa in $(seq 5400 5773); do hdate -q 1 1 $aa | awk '{print $3}' ; done; ) | sort |uniq -c
+    374 
+     45 October
+    329 September
+(for aa in $(seq 5400 5773); do hdate -q 8 1 $aa | awk '{print $3}' ; done; ) | sort |uniq -c
+    374 
+    136 October
+    238 September
+(for aa in $(seq 1700 2012); do hdate -q 22 12 $aa | awk '{print $6}' ; done; ) | sort |uniq -c
+    313 
+    108 Kislev
+    205 Tevet
+(for aa in $(seq 1700 2012); do hdate -q 1 1 $aa | awk '{print $6}' ; done; ) | sort |uniq -c
+    313 
+      5 Kislev
+      8 Sh'vat
+    300 Tevet
+(for aa in $(seq 1700 2012); do hdate -q 8 1 $aa | awk '{print $6}' ; done; ) | sort |uniq -c
+    313 
+     82 Sh'vat
+    231 Tevet
+**/
 
 		/************************************************************
 		* Perform sanity and bounds checking of the remaining
