@@ -134,7 +134,7 @@ void print_parm_invalid_error( char *parm_name )
 /************************************************************
 * set default location
 ************************************************************/
-int set_default_location( const int tz, const char* tz_name_ptr,
+int set_default_location( const int tz, char* tz_name_ptr,
 						  double *lat, double *lon)
 {
 
@@ -501,15 +501,15 @@ int parse_timezone_numeric( char *input_string, int *tz)
 * 
 * Look for a timezone name (eg. America/New York)
 ************************************************************/
-int parse_timezone_alpha(const char* search_string, char* result_str, int* tz, double* tz_lat, double* tz_lon)
+int parse_timezone_alpha(const char* search_string, char** result_str, int* tz, double* tz_lat, double* tz_lon)
 {
-	const int quiet_alerts = TRUE;
+	const int quiet_alerts = FALSE;
 	// TODO - check that these three initializations aren't redundant
 	*tz_lat = BAD_COORDINATE;
 	*tz_lon = BAD_COORDINATE;
 	*tz = BAD_TIMEZONE; // check if redundant or necessary or desirable
-	result_str = NULL; // check if redundant
-	if (get_lat_lon_from_zonetab_file( search_string, tz_lat, tz_lon, quiet_alerts ))
+	*result_str = NULL; // check if redundant
+	if (get_lat_lon_from_zonetab_file( search_string, result_str, tz_lat, tz_lon, quiet_alerts ))
 		return TRUE;
 	// else handle possibility of timezone name not in zonetab file
 	// else handle possibility of timezone abbreviations
@@ -547,15 +547,15 @@ int parse_timezone_alpha(const char* search_string, char* result_str, int* tz, d
 * 
 ************************************************************/
 void process_location_parms( double *lat, double *lon,
-						int *tz, const char* tz_name_ptr,
+						int *tz, const char* tz_name_in, char** tz_name_out,
 						const time_t start_time, const time_t end_time,
 						int * num_dst_entries_ptr, void** returned_dst_data,
 						const int quiet_alerts )
 {
+	char* zonetab_name  = NULL;
 	double guessed_lat = BAD_COORDINATE;
 	double guessed_lon = BAD_COORDINATE;
-	int    guess_found = TRUE;
-	int    input_info = 0;
+	int    guess_found = FALSE;
 	
 	#define DELTA_LONGITUDE 45
 	#define DELTA_LATITUDE  60
@@ -564,27 +564,39 @@ void process_location_parms( double *lat, double *lon,
 	#define HDVL_TZ_INFO    0
 	#define HDVL_NAME_INFO  3
 	#define HDVL_LOCAL_INFO 2
+	#define HDVL_ALL_INFO	4
+	int    input_info = HDVL_ALL_INFO;
 
-	if ((*tz==BAD_TIMEZONE) && (tz_name_ptr==NULL))
+	*tz_name_out = NULL;
+	if (*tz != BAD_TIMEZONE) input_info = HDVL_TZ_INFO;
+	else
 	{
-		/// case HDVL_NO_INFO:
-		tz_name_ptr = read_sys_tz_string_from_file();
-		// now tz_name_ptr must be free()d
-		if (tz_name_ptr == NULL) input_info = HDVL_LOCAL_INFO;
-		else input_info = HDVL_NAME_INFO;
+		if (tz_name_in==NULL)
+		{
+			/// case HDVL_NO_INFO:
+			*tz_name_out = read_sys_tz_string_from_file();
+			// now *tz_name_out must be free()d
+			if (*tz_name_out == NULL) input_info = HDVL_LOCAL_INFO;
+			else input_info = HDVL_NAME_INFO;
+		}
+		else
+		{
+			*tz_name_out = tz_name_in;
+			if ( (*lat == BAD_COORDINATE) || (*lon == BAD_COORDINATE) )
+				input_info = HDVL_NAME_INFO;
+		}
 	}
-	else if (*tz != BAD_TIMEZONE) input_info = HDVL_TZ_INFO;
-	else if (tz_name_ptr != NULL) input_info = HDVL_NAME_INFO;
 
 	if (input_info == HDVL_NAME_INFO)
 	{
-		if( get_lat_lon_from_zonetab_file( tz_name_ptr,
+		if( get_lat_lon_from_zonetab_file( *tz_name_out, &zonetab_name, 
 							&guessed_lat, &guessed_lon, quiet_alerts ) )
 		{
 			// But what if zonetab_tz_name_ptr isn't identical to tz_name_ptr?
 			// free(zonetab_tz_name_ptr);
 			*lat = guessed_lat;
 			*lon = guessed_lon;
+			*tz_name_out = zonetab_name;
 		}
 		else
 		{
@@ -593,7 +605,7 @@ void process_location_parms( double *lat, double *lon,
 			// ie. /etc/timezone had a value for which no entry
 			// exists in zonetab file, so no default lat/lon available
 			// however,  there may be a valid tzif file
-			if (!quiet_alerts) print_alert_timezone( tz_name_ptr );
+			if (!quiet_alerts) print_alert_timezone( tz_name_in );
 			input_info = HDVL_LOCAL_INFO;
 		}
 	}
@@ -609,7 +621,7 @@ void process_location_parms( double *lat, double *lon,
 		if (!quiet_alerts) print_alert_tz( *tz );
 		// try reading tzif file from /etc/localtime
 		if ( (*lat==BAD_COORDINATE) || (*lon==BAD_COORDINATE) )
-			guess_found = set_default_location( *tz, tz_name_ptr,
+			guess_found = set_default_location( *tz, *tz_name_out,
 												&guessed_lat, &guessed_lon );
 	}
 
@@ -617,7 +629,7 @@ void process_location_parms( double *lat, double *lon,
 	{
 		print_alert_not_dst_aware();
 		if ( (*lat==BAD_COORDINATE) || (*lon==BAD_COORDINATE) )
-			guess_found = set_default_location( *tz, tz_name_ptr,
+			guess_found = set_default_location( *tz, *tz_name_out,
 												&guessed_lat, &guessed_lon );
 	}
 
@@ -627,7 +639,7 @@ void process_location_parms( double *lat, double *lon,
 		*lon = guessed_lon;
 		if (!quiet_alerts) print_alert_missing_coordinate(longitude_text, *lon);
 	}
-	else if ( (!quiet_alerts) && (abs(*lon - guessed_lon) > DELTA_LONGITUDE) )
+	else if ( (!quiet_alerts) && (guess_found) && (abs(*lon - guessed_lon) > DELTA_LONGITUDE) )
 	{
 		print_alert_delta_coordinate(longitude_text, *lon, guessed_lon);
 	}
@@ -647,12 +659,12 @@ void process_location_parms( double *lat, double *lon,
 	if (input_info != HDVL_TZ_INFO)
 	{
 		int check_localtime = FALSE;
-		if (tz_name_ptr != NULL)
+		if (*tz_name_out != NULL)
 		{
-			if ( zdump( tz_name_ptr, start_time, end_time, num_dst_entries_ptr, returned_dst_data) !=0 )
+			if ( zdump( *tz_name_out, start_time, end_time, num_dst_entries_ptr, returned_dst_data) !=0 )
 			   check_localtime = TRUE;
 		}
-		if ((tz_name_ptr == NULL) || (check_localtime == TRUE)) 
+		if ((*tz_name_out == NULL) || (check_localtime == TRUE)) 
 		{
 			if ( zdump( "localtime", start_time, end_time, num_dst_entries_ptr, returned_dst_data) !=0 )
 			if ( zdump( "Asia/Jerusalem", start_time, end_time, num_dst_entries_ptr, returned_dst_data) !=0 )

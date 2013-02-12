@@ -65,7 +65,7 @@ int parse_coordinate( const int type_flag, char *input_string,
 						double *coordinate);
 
 /// parse_timezone(...)
-int parse_timezone_alpha(const char* search_string, char* result_str, int* tz, double* tz_lat, double* tz_lon);
+int parse_timezone_alpha(const char* search_string, char** result_str, int* tz, double* tz_lat, double* tz_lon);
 int parse_timezone_numeric( char *input_string, int *tz);
 
 /// parse_date(...)
@@ -82,8 +82,8 @@ int menu_item_parse(char* menuptr, size_t menu_len, int *menu_index,
 					const struct option *long_options, int *long_option_index,
 					int *error_detected);
 
-void process_location_parms( double *lat, double *lon,
-							int *tz, const char* tz_name_ptr,
+void process_location_parms( double *lat, double *lon, int *tz,
+							const char* tz_name_in, char** tz_name_out,
 	 						const time_t start_time, const time_t end_time,
 							int * num_dst_entries_ptr, void** returned_dst_data,
 							const int quiet_alerts );

@@ -1,4 +1,18 @@
 hdate.c
+hcal.c
+local_functions.c
+timezone_functions.c
+hcal.c
+local_functions.h
+timezone_functions.h
+- many bugfixes in timezone parsing
+
+hcal.1
+hdate.1
+- timezone update
+
+----------------------------------------------------------------------------
+hdate.c
 - BUGFIX print julian day (code had been deleted)
 - new options --prefer-hebrew --prefer-gregorian
 - new options --emesh --erev prints times from sunset

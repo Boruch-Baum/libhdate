@@ -154,6 +154,7 @@ typedef struct  {
 				int data_first;			/// as opposed to print label first
 				int menu;
 				char* menu_item[MAX_MENU_ITEMS];
+				char* tz_name_str;
 				int tzif_entries;
 				int tzif_index;			/// counter into tzif_entries
 				void* tzif_data;
@@ -2022,8 +2023,7 @@ int print_hyear ( option_list* opt, const int year)
 * read and parse config file
 ****************************************************/
 void read_config_file(	FILE *config_file,
-						option_list *opt,
-						char*	tz_name_str )
+						option_list *opt )
 {
 	double tz_lat, tz_lon;
 	char	*input_string = NULL;
@@ -2127,7 +2127,7 @@ void read_config_file(	FILE *config_file,
 		case  3:
 				if  (!parse_timezone_numeric(input_value, &opt->tz_offset))
 				{
-					if (parse_timezone_alpha(input_value, tz_name_str, &opt->tz_offset, &tz_lat, &tz_lon))
+					if (parse_timezone_alpha(input_value, &opt->tz_name_str, &opt->tz_offset, &tz_lat, &tz_lon))
 					{
 						// TODO - really, at this point, shouldn't either both be bad or botha be good?
 						if (opt->lat  == BAD_COORDINATE) opt->lat = tz_lat;
@@ -2339,10 +2339,10 @@ void exit_main( option_list *opt, int exit_code)
 * of main, because of its dual use and dual reference
 ****************************************************/
 int parameter_parser( int switch_arg, option_list *opt,
-					char* tz_name_str, int long_option_index)
+					  int long_option_index)
 {
 	double tz_lat, tz_lon;
-	static char *timezone_text  = N_("z (timezone)");
+	static char *timezone_text  = N_("-z (timezone)");
 
 	int error_detected = 0;
 
@@ -2562,7 +2562,7 @@ int parameter_parser( int switch_arg, option_list *opt,
 		}
 		else if (!parse_timezone_numeric(optarg, &opt->tz_offset))
 		{
-			if (!parse_timezone_alpha(optarg, tz_name_str, &opt->tz_offset, &tz_lat, &tz_lon))
+			if (!parse_timezone_alpha(optarg, &opt->tz_name_str, &opt->tz_offset, &tz_lat, &tz_lon))
 			{
 				error_detected = error_detected + 1;
 				print_parm_error(timezone_text);
@@ -2611,7 +2611,7 @@ int main (int argc, char *argv[])
 	int day   = BAD_DATE_VALUE;	/// user-input (Hebrew or gregorian)
 	int month = BAD_DATE_VALUE;	/// user-input (Hebrew or gregorian)
 	int year  = BAD_DATE_VALUE;	/// user-input (Hebrew or gregorian)
-	char* tz_name_str = NULL;	/// user-input
+	char* tz_name_verified = NULL;
 	int error_detected = FALSE;		/// exit after reporting ALL bad parms
 
 	opt.prefer_hebrew = TRUE;
@@ -2619,6 +2619,7 @@ int main (int argc, char *argv[])
 	opt.base_year_g = 2000;		// TODO - Make this user-selectable
 	opt.lat = BAD_COORDINATE;
 	opt.lon = BAD_COORDINATE;
+	opt.tz_name_str = NULL;
 	opt.tz_offset = BAD_TIMEZONE;
 	opt.tzif_entries =0;
 	opt.tzif_data = NULL;
@@ -2894,7 +2895,7 @@ int main (int argc, char *argv[])
 	FILE *config_file = get_config_file("/hdate", "/hdaterc", hdate_config_file_text, opt.quiet);
 	if (config_file != NULL)
 	{
-		read_config_file(config_file, &opt, tz_name_str);
+		read_config_file(config_file, &opt);
 		fclose(config_file);
 	}
 
@@ -2904,8 +2905,7 @@ int main (int argc, char *argv[])
 							short_options, long_options,
 							&long_option_index)) != -1)
 		error_detected = error_detected
-						+ parameter_parser( getopt_retval, &opt,
-											tz_name_str, long_option_index);
+						+ parameter_parser( getopt_retval, &opt, long_option_index);
 
 	/// undocumented feature - afikomen
 	if (opt.afikomen)
@@ -2939,7 +2939,7 @@ int main (int argc, char *argv[])
 								&long_option_index, &error_detected) ) != -1)
 			{
 				error_detected = error_detected + 
-					parameter_parser(getopt_retval, &opt, tz_name_str, long_option_index);
+					parameter_parser(getopt_retval, &opt, long_option_index);
 			}
 		}
 	}
@@ -3042,7 +3042,7 @@ int main (int argc, char *argv[])
 	}
 
 
-	// remember to free() tz_name_str
+	// remember to free() tz_name_input
 	// if user input tz as a value, it is absolute (no dst)
 	// else try reading tzif /etc/localtime
 	/// exit after reporting all bad parameters found */
@@ -3137,24 +3137,19 @@ int main (int argc, char *argv[])
 		
 	if ( (opt.tzif_data == NULL) && (opt.time_option_requested) )
 	{
-		get_epoch_time_range( &opt.epoch_start, &opt.epoch_end,
-					tz_name_str, opt.tz_offset,
+		get_epoch_time_range( &opt.epoch_start, &opt.epoch_end,	opt.tz_name_str, opt.tz_offset,
 					h_start_day.gd_year,           h_start_day.gd_mon,           h_start_day.gd_day,
 					h_day_after_final_day.gd_year, h_day_after_final_day.gd_mon, h_day_after_final_day.gd_day);
 		opt.epoch_today = opt.epoch_start;
 	}
 
-	// make sure only one of tz and tz_name_str is set!
-	process_location_parms(	&opt.lat, &opt.lon, &opt.tz_offset, tz_name_str, 
+	process_location_parms(	&opt.lat, &opt.lon, &opt.tz_offset,
+							opt.tz_name_str, &tz_name_verified,
 							opt.epoch_start, opt.epoch_end,
 							&opt.tzif_entries, &opt.tzif_data,
 							opt.quiet);
-	// Following are leftover lines to delete, I think ...
-	// opt.tzif_data = NULL;
-	// zdump( tz_name_str, opt.epoch_start, opt.epoch_end, &opt.tzif_entries,  &opt.tzif_data );
-	// opt.tzif_data must be free()d
-	// opt.epoch_today = opt.epoch_start - SECONDS_PER_DAY;
-
+	// not sure about this next one
+	opt.tz_name_str = tz_name_verified;
 
 
 	switch (hdate_action)

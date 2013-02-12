@@ -21,19 +21,25 @@ hcal \- displays a Hebrew / Gregorian calendar
 .PP 
 .SH "SYNOPSIS"
 .B hcal
-.RI [ options "] [" coordinates "] [" timezone "] [[" mm ] yyyy ]
+.RI [ options "] [" coordinates "] [" timezone "] [" datespec ]
 .TP
-.RI "coordinates: \-l ["NS ] yy [. yyy "] \-L [" EW ] xx [. xxx ]
+.IR coordinates\: " \fB\-l\fP [N|S]" yy [. yyy "] " "    \fB\-L\fP" " [E|W]" xx [. xxx ]
 .RE
-.RS 20
-.RI "\-l ["NS ] yy [: mm [ :ss "]] \-L ["EW ] xx [: mm [: ss ]]
+.RS 19
+.RI "\fB\-l\fP [N|S]" yy [: mm [: ss "]] \fB\-L\fP [E|W]" xx [: mm [: ss ]]
 .RE
 .RS 7
-.RI "timezone:    \-z " nn "[(."nn |: mm ")]"
+.IR "timezone:   \fB\-z\fP nn" "[(."nn |: mm ")]"
+.RE
+.RS 19
+.RI "\fB\-z\fP [" timezone_name "] (see below)"
+.RE
+.RS 7
+.IR datespec ":   see section \fBACCEPTABLE DATE FORMATS\fP"
 .PP
 .SH "DESCRIPTION"
 \fBhcal\fP prints a calendar with both Gregorian and Hebrew dates for the specified Gregorian month or, if no month is specified, for the whole Gregorian year. If no arguments are given, it prints the current month's calendar. Jewish holidays are annotated, and can
-optionally be footnoted. \fBhcal\fP tries to be sunset-aware in order to correctly highlight the current Hebrew date, and can also display Shabbat times and parshiot. See the section \fBLOCATIONS\fP, below.
+optionally be footnoted. \fBhcal\fP tries to be sunset-aware in order to correctly highlight the current Hebrew date, and can also display Shabbat times and parshiot (see section \fBLOCATIONS\fP).
 .PP
 .B INPUTTING A HEBREW DATE:
 If the year provided is greater than 3000, \fBhcal\fP will interpret the given date as a Hebrew date, and will display the calendar of the corresponding Gregorian month(s). Hebrew months are expected to be passed as numbers 1-12 for Tishrei - Elul; Adar I and Adar II are expected to be passed as months 13 and 14. Currently, the maximum value \fBhcal\fP accepts for a Hebrew year is 10999.
@@ -43,8 +49,8 @@ If the year provided is greater than 3000, \fBhcal\fP will interpret the given d
 .PP
 .B ACCEPTABLE DATE FORMATS:
 Prior versions of \fBhcal\fP insisted on the numeric date format
-.RI [[ yyyy " [" mm "  [" dd ]]].
-\fBhcal\fP now accepts numeric date elements in any easily discernable order. \fBhcal\fP now accepts Hebrew month names and gregorian month names in both full and abbreviated formats, and not case-sensitive. Gregorian month names may be entered in either your locale's language or in English. Hebrew month names may be entered in either Hebrew characters or in many transliteration forms to latin characters (see \fBEXAMPLES\fP below). \fBhcal\fP will intelligently interpret ambiguous numeric \fIdatespec\fP parameters. For example, a parameter "32" could only legitimately be a two-digit year, so \fBhcal\fP will, by default, interpretat it as a two-digit Hebrew year in the current (58th) century (see option \fB--prefer-gregorian\fP and section \fBCONFIG FILES\fP below).
+.RI [[ yyyy " [" mm "]]."
+\fBhcal\fP now accepts numeric date elements in any easily discernable order. \fBhcal\fP now accepts Hebrew month names and gregorian month names in both full and abbreviated formats, and not case-sensitive. Gregorian month names may be entered in either your locale's language or in English. Hebrew month names may be entered in either Hebrew characters or in many transliteration forms to latin characters (see \fBEXAMPLES\fP). \fBhcal\fP will intelligently interpret ambiguous numeric \fIdatespec\fP parameters. For example, a parameter "32" could only legitimately be a two-digit year, so \fBhcal\fP will, by default, interpretat it as a two-digit Hebrew year in the current (58th) century (see option \fB--prefer-gregorian\fP and section \fBCONFIG FILES\fP).
 .PP 
 .SH "OPTIONS"
 .TP 18
@@ -120,7 +126,7 @@ print Shabbat times and parshiot
 .RI [ EW ] xx [. xxx "] decimal degrees, or [" EW ] xx [: mm [: ss "]] degrees, minutes, seconds. Negative values are West"
 .TP
 .B \-z --timezone
-\+/-UTC. Notation may  be in decimal hours
+either a timezone name (see section \fBTIMEZONES\fP) or numeric offset +/-UTC. Notation may  be in decimal hours
 .RI ( hh [. hh "]) or hours, minutes (" hh [: mm ])
 .TP 23
 .B \ \   --prefer-hebrew
@@ -169,6 +175,8 @@ Gregorian and Hebrew dates, as follows:
 .P
 Use the
 .BR \-f " (" --footnote ") option to have hcal describe what any particular day is marking."
+.SS TIMEZONES
+\fBhcal\fP accepts as timezone parameters either an absolute numeric offset from UTC, or an official timezone name, as found on many *nix operating systems at \fI/usr/share/zoneinfo/zone.tab\fP. These names are typically in the form 'continent/city' (eg. Asia/Jerusalem); however, \fBhcal\fP is flexible and will accept any unique substring of a timezone name, and will report how it interpreted your input. For example, 'jer' will be interpreted as Israel time. Names use underscores in place of spaces, but \fBhcal\fP will accept spaces as long as the parameter is quoted ("w y" is acceptable for America/New_York, but so would be 'new'). When given a timezone name, \fBhcal\fP will be aware of daylight savings time transitions and will report times-of-day accordingly. When given no timezone information, \fBhcal\fP will try to find out your computer's local timezone. If that fails, it will attempt to find your computer's UTC offset. If all else fails, Jerusalem Standard time is used.
 .SS LOCATIONS 
 If you want \fBhcal\fP to display accurate time-of-day information,\fBhcal\fP requires location and time zone information in order to make astronomical calculations for a given date. If you don't provide ANY such information, \fBhcal\fP tries to find out your computer's local time zone information as an indicator, and picks the 'primary' city in that time zone. If \fBhcal\fP can't find local time zone information, \fBhcal\fP tries to find out your computer's GMT offset, and either picks from the list below the city in that time zone offset, or defaults to the equator at the center of that time zone offset. If \fBhcal\fP can't even retrieve GMT offset information from your computer, it defaults to Tel-Aviv. For other locations, use the \fB\-l \-L\fP option pair. For other timezones, use the \fB\-z\fP option. Co-ordinates and standard time zones for some common locations are listed below.
 .PP
@@ -261,7 +269,7 @@ Invoke \fBhcal\fP with a gregorian month name, and \fBhcal\fP will by default re
 .SS Flexible date entry
 hdate April ; hdate aPril; hdate tiSHREi; hdate 1 Elul 44; hdate 1 sep 1944; hdate 44 oct 21
 .SS Flexible Hebrew month transliterations
-tIchriy, xeshvan, khechvan, kisayv, teivayt, sh\\'vat, addar, adarI, "adar A", adar_2, adar-alef, adaraleph, adARBeth, nissan, eeyar, ceevvan, taMUz, aV, elloul (and many more).
+tIchriy, jechvan, xeshvan, khechvan, kisayv, teivayt, sh\\'vat, addar, adarI, "adar A", adar_2, adar-alef, adaraleph, adARBeth, nissan, eeyar, ceevvan, taMUz, aV, elloul (and many more).
 .RE
 .SH "SEE ALSO"
 .BR mlterm "(1), " hdate "(1) ," hebcal "(1), " date "(1), " ncal "(1), " cal "(1), " remind (1)

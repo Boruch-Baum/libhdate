@@ -731,14 +731,14 @@ char* read_sys_tz_string_from_file()
 * print_alert_coordinate
 * 
 ***********************************************************************/
-void print_alert_coordinate( const char *city_name )
-{
-	error(0,0,"%s",
-			N_("ALERT: coordinates not entered or invalid..."));
-	error(0,0,"%s %s",
-			N_("ALERT: guessing... will use co-ordinates for"),
-			city_name);
-}
+//void print_alert_coordinate_pair( const char *city_name )
+//{
+//	error(0,0,"%s",
+//			N_("ALERT: coordinates not entered or invalid..."));
+//	error(0,0,"%s %s",
+//			N_("ALERT: guessing... will use co-ordinates for"),
+//			city_name);
+//}
 
 
 /***********************************************************************
@@ -758,7 +758,7 @@ void print_alert_coordinate( const char *city_name )
 * returns FALSE upon any failure.
 *  
 ***********************************************************************/
-int get_lat_lon_from_zonetab_file( const char* search_string, double *lat, double *lon, int quiet_alerts )
+int get_lat_lon_from_zonetab_file( const char* input_string, char** tz_name, double *lat, double *lon, int quiet_alerts )
 {
 
 	double convert_from_dms( long in_val, int num_of_digits )
@@ -781,11 +781,11 @@ int get_lat_lon_from_zonetab_file( const char* search_string, double *lat, doubl
 
 	FILE*	tzfile;
 	char*	lat_and_lon = NULL;
-	char*	location = NULL;
-	char*	input_string = NULL;
-	size_t	input_str_len;
-	int		end_of_input_file = FALSE;
-	int		match_count;
+	char*	zonetab_string = NULL;
+	size_t	zonetab_str_len;
+	int		end_of_zonetab_file = FALSE;
+	int		match_count = 0;
+	char*	search_string;
 	char*	search_result_ptr = NULL;
 	char	number_string[9];
 	size_t	lat_end, lon_end;
@@ -806,15 +806,33 @@ int get_lat_lon_from_zonetab_file( const char* search_string, double *lat, doubl
 	}
 	if (tzfile == NULL)	return FALSE;
 
-	while ( (end_of_input_file!=TRUE) && (search_result_ptr == NULL) )
+	/// trim spaces. replace embedded spaces with underscores.
+	search_result_ptr = input_string + strspn(input_string," ");
+	match_count = strlen(search_result_ptr);
+	if (!match_count)
 	{
-		end_of_input_file = getline(&input_string, &input_str_len, tzfile);
-		if ( end_of_input_file!=TRUE )
+		error(0,0,"time zone string is all blanks");
+		return FALSE;
+	}
+	while ( (match_count) && ( search_result_ptr[match_count] == ' ' ) )
+		match_count --;
+	search_string = malloc( match_count + 1 );
+	memcpy( search_string, search_result_ptr, match_count);
+	search_string[match_count] = '\0';
+	while ( (search_result_ptr=strchr(search_string,' '))!=NULL )
+		*search_result_ptr = '_';
+	search_result_ptr = NULL;
+
+	while ( (end_of_zonetab_file!=TRUE) && (search_result_ptr == NULL) )
+	{
+		end_of_zonetab_file = getline(&zonetab_string, &zonetab_str_len, tzfile);
+		if ( end_of_zonetab_file!=TRUE )
 		{
-			match_count = sscanf(input_string,"%*2c %a[+0-9-] %as %*[^\n]", &lat_and_lon, &location); 
+			// TODO - need to free tz_name when not the zone we're looking for!
+			match_count = sscanf(zonetab_string,"%*2c %a[+0-9-] %as %*[^\n]", &lat_and_lon, tz_name); 
 			if (match_count == 2)
 			{
-				search_result_ptr = strstr(location, search_string);
+				search_result_ptr = strcasestr(*tz_name, search_string);
 				if (search_result_ptr != NULL)
 				{
 					/// maybe replace all this next part with
@@ -844,8 +862,9 @@ int get_lat_lon_from_zonetab_file( const char* search_string, double *lat, doubl
 							number_string[lon_end+1] = '\0';
 
 							*lon = convert_from_dms ( atol(number_string), lon_end);
-							if (!quiet_alerts) print_alert_coordinate(search_string);
-//							printf("lat %lf lon %lf\n\n", *lat, *lon);
+//							if (!quiet_alerts) print_alert_coordinate_pair(search_string);
+							if ( (!quiet_alerts) && (strlen(*tz_name) != strlen(search_string)) )
+								error(0,0,"%s \"%s\" %s \"%s\"", N_("ALERT: interpreting timezone entered"), input_string, N_("as"), *tz_name);
 						}
 					}
 				}
@@ -855,14 +874,11 @@ int get_lat_lon_from_zonetab_file( const char* search_string, double *lat, doubl
 				free(lat_and_lon);
 				lat_and_lon = NULL;
 			}
-			if (location != NULL)
-			{
-				free(location);
-				location = NULL;
-			}
 		}
 	}
 	fclose(tzfile);
+	free(search_string);
+	free(zonetab_string);
 	if (search_result_ptr != NULL) return TRUE;
 	return FALSE;
 }
@@ -875,6 +891,8 @@ int get_tz_adjustment(	const time_t t, const int tz, int *tzif_index,
 	int tz_adjustment = JERUSALEM_STANDARD_TIME_IN_MINUTES;
 	zdumpinfo * zd;
 	if (tz != BAD_TIMEZONE) tz_adjustment = tz;
+	else if ( (tzif_entries == 0) || (tzif_data == NULL) )
+		error(0,0,"run time error: function get_tz_adjustment, reverting to Jerusalem Standard time");
 	else
 	{
 		zd = tzif_data;

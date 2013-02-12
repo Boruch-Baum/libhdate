@@ -22,7 +22,7 @@
 #define JERUSALEM_STANDARD_TIME_IN_MINUTES 120
 
 int
-get_lat_lon_from_zonetab_file( const char* search_string, double *lat, double *lon, int quiet_alerts );
+get_lat_lon_from_zonetab_file( const char* search_string, char** tz_name, double *lat, double *lon, int quiet_alerts );
 
 char*
 read_sys_tz_string_from_file();

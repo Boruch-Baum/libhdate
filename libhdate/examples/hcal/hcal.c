@@ -1307,7 +1307,7 @@ void print_day ( const hdate_struct h, const int month, const option_list* opt)
 /*************************************************
 *  print a calendar week's entry (ie. seven columns)
 *************************************************/
-void print_week( int jd, const int month, option_list* opt)
+void print_week( int jd, const int month, const option_list* opt)
 {
 	#define long_parasha_name 0
 
@@ -1739,11 +1739,9 @@ int print_month ( const int month, const int year, option_list* opt)
 								/// epochtime(h) to epochtime(h_final_day)-1
 								/// is the interval to check for daylight
 								/// savings time transitions.
-	char calendar_type; /// for custom days
-
-	/// for opt->footnote
-	int jd_counter, holiday, footnote_month;
-
+	char calendar_type; 					/// for custom days
+	int jd_counter, holiday, footnote_month;/// for opt->footnote
+	char* tz_name_input; 					/// for timezone parsing
 	/// check if hebrew year
 	if (year > HEB_YR_LOWER_BOUND)
 	{
@@ -1796,7 +1794,9 @@ int print_month ( const int month, const int year, option_list* opt)
 					opt->tz_name_str, opt->tz,
 					h.gd_year, h.gd_mon, h.gd_day,
 					h_final_day.gd_year, h_final_day.gd_mon, h_final_day.gd_day);
-		process_location_parms(	&opt->lat, &opt->lon, &opt->tz, opt->tz_name_str,
+		tz_name_input = opt->tz_name_str;
+		process_location_parms(	&opt->lat, &opt->lon, &opt->tz,
+								tz_name_input, &opt->tz_name_str,
 								opt->epoch_start, opt->epoch_end,
 								&opt->tzif_entries, &opt->tzif_data,
 								opt->quiet_alerts);
@@ -1947,7 +1947,7 @@ void read_config_file(	FILE *config_file,
 		case  3:
 				if  (!parse_timezone_numeric(input_value, tz))
 				{
-					if (parse_timezone_alpha(input_value, tz_name_str, tz, &tz_lat, &tz_lon))
+					if (parse_timezone_alpha(input_value, &tz_name_str, tz, &tz_lat, &tz_lon))
 					{
 						// TODO - really, at this point, shouldn't either both be bad or botha be good?
 						if (*latitude  == BAD_COORDINATE) *latitude = tz_lat;
@@ -2194,7 +2194,7 @@ int hcal_parser( const int switch_arg, option_list *opt,
 		}
 		else if (!parse_timezone_numeric(optarg, tz))
 		{
-			if (!parse_timezone_alpha(optarg, tz_name_str, tz, &tz_lat, &tz_lon))
+			if (!parse_timezone_alpha(optarg, &tz_name_str, tz, &tz_lat, &tz_lon))
 			{
 				error_detected = error_detected + 1;
 				print_parm_error(timezone_text);

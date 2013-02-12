@@ -33,11 +33,14 @@ hdate \- displays Hebrew date information for a given Gregorian/Julian date
 .RS 7
 .IR "timezone:   \fB\-z\fP nn" "[(."nn |: mm ")]"
 .RE
+.RS 19
+.RI "\fB\-z\fP [" timezone_name "] (see below)"
+.RE
 .RS 7
 .IR datespec ":   see section \fBACCEPTABLE DATE FORMATS\fP"
 .PP
 .SH "DESCRIPTION"
-\fBhdate\fP provides the date according to the Hebrew calendar, that day's corresponding date according to the gregorian calendar, and optionally providess further information about that Hebrew date, including holidays and astronomical-related times (see section \fBLOCATIONS\fP, below). If no arguments are given, \fBhdate\fP provides information for the current date. If a single numeric argument is given, \fBhdate\fP interprets it as a year, and provides the requested information for \fIall\fP days of that year. If two arguments are given, \fBhdate\fP interprets them  as a month and a year, and provides the requested information for \fIall\fP days of that month.
+\fBhdate\fP provides the date according to the Hebrew calendar, that day's corresponding date according to the gregorian calendar, and optionally providess further information about that Hebrew date, including holidays and astronomical-related times (see section \fBLOCATIONS\fP). If no arguments are given, \fBhdate\fP provides information for the current date. If a single numeric argument is given, \fBhdate\fP interprets it as a year, and provides the requested information for \fIall\fP days of that year. If two arguments are given, \fBhdate\fP interprets them  as a month and a year, and provides the requested information for \fIall\fP days of that month.
 .PP 
 .B INPUTTING A HEBREW DATE:
 \fBhdate\fP interprets year values greater than 3000 as Hebrew dates. Numeric Hebrew months are interpreted as 1-12 for Tishrei - Elul; 13 and 14 for Adar I and Adar II. Currently, the maximum value \fBhdate\fP accepts for a Hebrew year is 10999.
@@ -51,7 +54,7 @@ If a single numeric argument is provided, and that argument is \fIgreater\fP tha
 .B ACCEPTABLE DATE FORMATS:
 Prior versions of \fBhdate\fP insisted on the numeric date format
 .RI [[ yyyy " [" mm "  [" dd ]]].
-\fBhdate\fP now accepts numeric date elements in any easily discernable order. \fBhdate\fP now accepts Hebrew month names and gregorian month names in both full and abbreviated formats, and not case-sensitive. Gregorian month names may be entered in either your locale's language or in English. Hebrew month names may be entered in either Hebrew characters or in many transliteration forms to latin characters (see \fBEXAMPLES\fP below). \fBhdate\fP will intelligently interpret ambiguous numeric \fIdatespec\fP parameters. For example, a parameter "32" could only legitimately be a two-digit year, so \fBhdate\fP will, by default, interpretat it as a two-digit Hebrew year in the current (58th) century (see option \fB--prefer-gregorian\fP and section \fBCONFIG FILES\fP below).
+\fBhdate\fP now accepts numeric date elements in any easily discernable order. \fBhdate\fP now accepts Hebrew month names and gregorian month names in both full and abbreviated formats, and not case-sensitive. Gregorian month names may be entered in either your locale's language or in English. Hebrew month names may be entered in either Hebrew characters or in many transliteration forms to latin characters (see \fBEXAMPLES\fP). \fBhdate\fP will intelligently interpret ambiguous numeric \fIdatespec\fP parameters. For example, a parameter "32" could only legitimately be a two-digit year, so \fBhdate\fP will, by default, interpretat it as a two-digit Hebrew year in the current (58th) century (see option \fB--prefer-gregorian\fP and section \fBCONFIG FILES\fP).
 .PP
 .SH "OPTIONS"
 .TP 18
@@ -70,6 +73,19 @@ force diaspora readings and holidays.
 .RE
 .TP
 .B \ \ \ --daf-yomi
+.TP
+.B \-e --emesh
+begin printing times-of-day at sunset or candle
+.RS 3
+.B --erev
+\        lighting. This is the default.
+.RE
+.RS 3
+.B --no-emesh
+.RE
+.RS 3
+.B --no-erev
+.RE
 .TP
 .B \-h --holidays
 print holiday name if day is a holiday, and print \fIcustom day\fP name if day is marked as a \fIcustom day\fP. See section \fBHOLIDAYS AND CUSTOM DAYS\fi.
@@ -226,7 +242,7 @@ suitable for piping, or export to spreadsheets
 .RI [ EW ] xx [. xxx "] decimal degrees, or [" EW ] xx [: mm [: ss "]] degrees, minutes, seconds. Negative values are West"
 .TP
 .B \-z --timezone
-\+/-UTC. Notation may  be in decimal hours
+either a timezone name (see section \fBTIMEZONES\fP) or numeric offset +/-UTC. Notation may  be in decimal hours
 .RI ( hh [. hh "]) or hours, minutes (" hh [: mm ])
 .TP
 .B \ \   --hebrew
@@ -259,6 +275,8 @@ how to interpret ambiguous month and year
 .RS 23
 "Adar 5710" or as "June 2010")
 .SH NOTES
+.SS TIMEZONES
+\fBhdate\fP accepts as timezone parameters either an absolute numeric offset from UTC, or an official timezone name, as found on many *nix operating systems at \fI/usr/share/zoneinfo/zone.tab\fP. These names are typically in the form 'continent/city' (eg. Asia/Jerusalem); however, \fBhdate\fP is flexible and will accept any unique substring of a timezone name, and will report how it interpreted your input. For example, 'jer' will be interpreted as Israel time. Names use underscores in place of spaces, but \fBhdate\fP will accept spaces as long as the parameter is quoted ("w y" is acceptable for America/New_York, but so would be 'new'). When given a timezone name, \fBhdate\fP will be aware of daylight savings time transitions and will report times-of-day accordingly. When given no timezone information, \fBhdate\fP will try to find out your computer's local timezone. If that fails, it will attempt to find your computer's UTC offset. If all else fails, Jerusalem Standard time is used.
 .SS LOCATIONS
 If you want \fBhdate\fP to display accurate time-of-day information, \fBhdate\fP requires location and time zone information in order to make astronomical calculations for a given date. If you don't provide \fIany\fP such information, \fBhdate\fP tries to find out your computer's local time zone information as an indicator, and picks the 'primary' city in that time zone. If \fBhdate\fP can't find local time zone information, \fBhdate\fP tries to find out your computer's GMT offset, and either picks from the list below the city in that time zone offset, or defaults to the equator at the center of that time zone offset. If \fBhdate\fP can't even retrieve GMT offset information from your computer, it defaults to Tel-Aviv. For other locations, use the \fB\-l \-L\fP option pair. For other timezones, use the \fB-z\fP option. Co-ordinates and standard time zones for some common locations are listed below.
 .PP
@@ -357,7 +375,7 @@ The software does not yet account for the phenomenon and complications of the "G
 .SS Flexible date entry
 hdate April ; hdate aPril; hdate tiSHREi; hdate 1 Elul 44; hdate 1 sep 1944; hdate 44 oct 21
 .SS Flexible Hebrew month transliterations
-tIchriy, xeshvan, khechvan, kisayv, teivayt, sh\\'vat, addar, adarI, "adar A", adar_2, adar-alef, adaraleph, adARBeth, nissan, eeyar, ceevvan, taMUz, aV, elloul (and many more).
+tIchriy, jechvan, xeshvan, khechvan, kisayv, teivayt, sh\\'vat, addar, adarI, "adar A", adar_2, adar-alef, adaraleph, adARBeth, nissan, eeyar, ceevvan, taMUz, aV, elloul (and many more).
 .RE
 .SH "SEE ALSO"
 .BR mlterm "(1), " hdate "(1) ," hebcal "(1), " date "(1), " ncal "(1), " cal "(1), " remind (1)
