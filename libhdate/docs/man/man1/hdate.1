@@ -364,12 +364,16 @@ The timezone support is currenlty primitive and lacks support for daylight savin
 .B Historical
 The software does not yet account for the phenomenon and complications of the "Gregorian transition" from the prior, julian calendar, which effectively caused an instantaneous 'loss' of two weeks for all gentiles affected. Countries (eg. Poland, Spain and Italy) began adopting the Gregorian calendar on 8 Tishrei 5343 (4 October 1582 CE), although many did not transition until the 56th century (1752 CE, eg. UK colonies, Sweden). Russia did not adopt the Gregorian calendar until 5678 (1918 CE) and Turkey did not until 5687 (December, 1926 CE). Many other countries made the transition on other dates. Keep in mind that Russia invaded part of Poland, undoing, for the interim, the Gregorian transition for (only) that part of Poland; Also important to remember in this regard is that Eretz Ysroel was part of the Turkish Ottoman empire until the British mandate (5677 (1917 CE)). Until all this is accounted for adequately by this application, refer to '\fBncal \-p\fP' for a basic table of country transitions. However, keep in mind that European borders underwent many changes during the 426 years in question, so the accuracy of your data will depend on accurate knowledge of whether any particular date at any specific location was Julian or Gregorian.
 .SH "EXAMPLES"
-1. Create an iCal calendar of the holidays of year 2025.
+1. Display data for the entire month of adar, with a candle-lighting custom of 29 minutes.
+.B       hdate --candles=29 adar
+.RE
+.HP 3
+2. Create an iCal calendar of the holidays of year 2025.
 .RS 6
 .B       hdate \-Hi 2025
 .RE
 .HP 3
-2. Print out the weekly readings and sunset/sunrise times for Eilat, on April 2031 CE.
+3. Print out the weekly readings and sunset/sunrise times for Eilat, on April 2031 CE.
 .RS  6  
 .B       hdate \-sR 4 2031 -l29 -L34 -z2
 .SS Flexible date entry

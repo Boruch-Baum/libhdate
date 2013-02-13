@@ -1,4 +1,12 @@
 hdate.c
+- option --emesh in tabular mode
+- bugfixes in tabular mode
+
+local_functions.c
+- bugfixes in date parsing
+
+----------------------------------------------------------------------------
+hdate.c
 hcal.c
 local_functions.c
 timezone_functions.c

@@ -1307,6 +1307,14 @@ void print_tabular_header( const option_list* opt)
 	if (opt->quiet < QUIET_GREGORIAN) printf("%s,",N_("Gregorian date"));
 	printf("%s", N_("Hebrew Date"));
 	
+	if (opt->emesh)
+	{
+		if (opt->candles) printf(",%s", candles_text);
+		if (opt->sunset) printf(",%s",sunset_text);
+		if (opt->first_stars) printf(",%s",first_stars_text);
+		if (opt->three_stars) printf(",%s",three_stars_text);
+		if (opt->havdalah) printf(",%s", havdalah_text);
+	}
 	if (opt->first_light) printf(",%s",first_light_text);
 	if (opt->talit) printf(",%s",talit_text);
 	if (opt->sunrise) printf(",%s",sunrise_text);
@@ -1324,17 +1332,17 @@ void print_tabular_header( const option_list* opt)
 	if (opt->mincha_gedola) printf(",%s",mincha_gedola_text);
 	if (opt->mincha_ketana) printf(",%s",mincha_ketana_text);
 	if (opt->plag_hamincha) printf(",%s",plag_hamincha_text);
+	if (opt->candles) printf(",%s", candles_text);
 	if (opt->sunset) printf(",%s",sunset_text);
 	if (opt->first_stars) printf(",%s",first_stars_text);
 	if (opt->three_stars) printf(",%s",three_stars_text);
+	if (opt->havdalah) printf(",%s", havdalah_text);
 	if (opt->sun_hour) printf(",%s",sun_hour_text);
 	if (opt->daf_yomi) printf(",%s",daf_yomi_text);
-	if (opt->candles) printf(",%s", candles_text);
-	if (opt->havdalah) printf(",%s", havdalah_text);
-	if (opt->holidays) printf(",%s", holiday_text);
-	if ((opt->holidays) && (opt->custom_days_cnt)) printf(";%s", custom_day_tabular_text);
 	if (opt->omer) printf(",%s",omer_text);
 	if (opt->parasha) printf(",%s", parasha_text);
+	if (opt->holidays) printf(",%s", holiday_text);
+	if ((opt->holidays) && (opt->custom_days_cnt)) printf(";%s", custom_day_tabular_text);
 	printf("\n");
 return;
 }
@@ -1342,7 +1350,7 @@ return;
 /************************************************************
 * print one day - tabular output *
 ************************************************************/
-int print_tabular_day (hdate_struct * h, option_list* opt)
+int print_day_tabular (hdate_struct* h, option_list* opt)
 {
 	int sun_hour = -1;
 	int first_light = -1;
@@ -1352,7 +1360,10 @@ int print_tabular_day (hdate_struct * h, option_list* opt)
 	int sunset = -1;
 	int first_stars = -1;
 	int three_stars = -1;
+	int candles_time;
+	int havdalah_time;
 
+	hdate_struct h_emesh;
 	hdate_struct tomorrow;
 	int data_printed = 0;
 
@@ -1457,18 +1468,58 @@ int print_tabular_day (hdate_struct * h, option_list* opt)
 	/************************************************************
 	* begin - print times of day
 	************************************************************/
-	// This next snippet is a duplication from procedure print_tiems()
-	/** Originally, we got times using this next single system call; however this function
-	 *  returns values rounded (formerly truncated) to the minute, and I want better because
-	 *  I want accuracy in sha'a zmanit in order to derive other times using it. Refer to the
-	 *  source code of hdate_get_utc_sun_time_full for comparison.
-	 * 
-	hdate_get_utc_sun_time_full (h->gd_day, h->gd_mon, h->gd_year, lat, lon,
-								 &sun_hour, &first_light, &talit, &sunrise,
-								 &midday, &sunset, &first_stars, &three_stars);
-	*
-	**  Now that we are checking for dst adjustments, we need input seconds for all time values
-	*/
+	if (opt->emesh)
+	{
+		if ( (opt->candles) || (opt->havdalah) )
+		{
+			/// also for day of week
+			hdate_set_jd (&h_emesh, h->hd_jd-1);
+		}
+		else
+		{
+			hdate_jd_to_gdate (h->hd_jd-1, &h_emesh.gd_day, &h_emesh.gd_mon, &h_emesh.gd_year);
+		}
+		hdate_get_utc_sun_time_deg_seconds(h_emesh.gd_day, h_emesh.gd_mon, h_emesh.gd_year,
+											opt->lat, opt->lon, 90.833, &sunrise, &sunset);
+		if (opt->candles)
+		{
+			if ( (h_emesh.hd_dw != 6) && (!opt->only_if_parasha) )
+				print_astronomical_time_tabular( -1, opt); //printf(",");
+			else
+			{
+				// FIXME - allow for further minhag variation
+				if (opt->candles != 1) candles_time = sunset - (opt->candles * 60);
+				else candles_time = sunset - (DEFAULT_CANDLES_MINUTES * 60);
+				print_astronomical_time_tabular( candles_time, opt);
+			}
+		}
+		if (opt->sunset) print_astronomical_time_tabular( sunset, opt);
+		if (opt->first_stars)
+		{
+			hdate_get_utc_sun_time_deg_seconds(h_emesh.gd_day, h_emesh.gd_mon, h_emesh.gd_year,
+												opt->lat, opt->lon, 96.0, &place_holder, &first_stars);
+			print_astronomical_time_tabular( first_stars, opt);
+		}
+		if (opt->three_stars)
+		{
+			hdate_get_utc_sun_time_deg_seconds (h_emesh.gd_day, h_emesh.gd_mon, h_emesh.gd_year,
+												opt->lat, opt->lon, 98.5, &place_holder, &three_stars);
+			print_astronomical_time_tabular( three_stars, opt);	
+		}
+		if (opt->havdalah) 
+		{
+			if ( (h_emesh.hd_dw != 7)  && (!opt->only_if_parasha) )
+				print_astronomical_time_tabular( -1, opt); //printf(",");
+			else
+			{
+				// FIXME - allow for further minhag variation
+				if (opt->havdalah != 1) havdalah_time = sunset + (opt->havdalah * 60);
+				else havdalah_time = sunset + (DEFAULT_MOTZASH_MINUTES * 60);
+				print_astronomical_time_tabular( havdalah_time, opt);
+			}
+		}
+	}
+
 	hdate_get_utc_sun_time_deg_seconds (h->gd_day, h->gd_mon, h->gd_year, opt->lat, opt->lon, 90.833, &sunrise, &sunset);
 	hdate_get_utc_sun_time_deg_seconds (h->gd_day, h->gd_mon, h->gd_year, opt->lat, opt->lon, 106.01, &first_light, &place_holder);
 	hdate_get_utc_sun_time_deg_seconds (h->gd_day, h->gd_mon, h->gd_year, opt->lat, opt->lon, 101.0, &talit, &place_holder);
@@ -1534,52 +1585,38 @@ int print_tabular_day (hdate_struct * h, option_list* opt)
 	if (opt->mincha_ketana) print_astronomical_time_tabular( sunrise + (9.5 * sun_hour), opt);
 	if (opt->plag_hamincha) print_astronomical_time_tabular( sunrise + (10.75 * sun_hour), opt);
 
+	if (opt->candles)
+	{
+		if ( (h->hd_dw != 6) && (!opt->only_if_parasha) ) candles_time = -1; //printf(",");
+		else
+		{
+			// FIXME - allow for further minhag variation
+			if (opt->candles != 1) candles_time = sunset - opt->candles;
+			else candles_time = sunset - (DEFAULT_CANDLES_MINUTES * 60);
+		}
+		print_astronomical_time_tabular( candles_time, opt);
+	}
 
 	if (opt->sunset) print_astronomical_time_tabular( sunset, opt);
 	if (opt->first_stars) print_astronomical_time_tabular( first_stars, opt);
 	if (opt->three_stars) print_astronomical_time_tabular( three_stars, opt);
-	if (opt->sun_hour) printf(",%02d:%02d", sun_hour / 60, sun_hour % 60 );
-
-	if (opt->daf_yomi) print_daf_yomi(h->hd_jd, opt->hebrew, opt->bidi, TRUE, opt->data_first);
-
-	if (opt->candles)
-	{
-		if ( (h->hd_dw != 6) && (!opt->only_if_parasha) ) sunset = -1; //printf(",");
-		else
-		{
-			if (sunset == -1) hdate_get_utc_sun_time (h->gd_day, h->gd_mon,
-									h->gd_year, opt->lat, opt->lon, &sunrise, &sunset);
-			if (opt->candles != 1) sunset = sunset - opt->candles;
-			else sunset = sunset- DEFAULT_CANDLES_MINUTES;
-		}
-		print_astronomical_time_tabular( sunset, opt);
-	}
-	
 	if (opt->havdalah)
 	{
-		if ( (h->hd_dw != 7)  && (!opt->only_if_parasha) ) three_stars = -1; //printf(",");
+		if ( (h->hd_dw != 7)  && (!opt->only_if_parasha) ) havdalah_time = -1; //printf(",");
 		else
 		{
-			if (opt->havdalah != 1)
-			{
-				if (sunset == -1) hdate_get_utc_sun_time (h->gd_day, h->gd_mon,
-									h->gd_year, opt->lat, opt->lon, &sunrise, &sunset);
-				three_stars = sunset + opt->havdalah;
-			}
-			else
-			{
-				if(three_stars == -1) hdate_get_utc_sun_time_full (
-									h->gd_day, h->gd_mon, h->gd_year, opt->lat,
-									opt->lon, &sun_hour, &first_light, &talit,
-									&sunrise, &midday, &sunset,
-									&first_stars, &three_stars);
-			}
+			// FIXME - allow for further minhag variation
+			if (opt->havdalah != 1) havdalah_time = sunset + opt->havdalah;
+			else havdalah_time = sunset + (DEFAULT_MOTZASH_MINUTES * 60);
 		}
-		print_astronomical_time_tabular( three_stars, opt);
+		print_astronomical_time_tabular( havdalah_time, opt);
 	}
+	if (opt->sun_hour) printf(",%02d:%02d:%02d", sun_hour/3600, (sun_hour%3600)/60, sun_hour%60 );
+
 	/************************************************************
 	* end - print times of day
 	************************************************************/
+	if (opt->daf_yomi) print_daf_yomi(h->hd_jd, opt->hebrew, opt->bidi, TRUE, opt->data_first);
 
 	if (opt->omer)
 	{
@@ -1782,7 +1819,7 @@ int print_day (hdate_struct * h, option_list* opt)
 /************************************************************
 * print one Gregorian month - tabular output
 ************************************************************/
-int print_tabular_gmonth( option_list* opt, const int month, const int year)
+int print_gmonth_tabular( option_list* opt, const int month, const int year)
 {
 	hdate_struct h;
 	int jd;
@@ -1794,7 +1831,7 @@ int print_tabular_gmonth( option_list* opt, const int month, const int year)
 	/// print month days
 	while (h.gd_mon == month)
 	{
-		print_tabular_day (&h, opt);
+		print_day_tabular (&h, opt);
 		jd++;
 		hdate_set_jd (&h, jd);
 	}
@@ -1838,7 +1875,7 @@ int print_gmonth ( option_list* opt, int month, int year)
 /************************************************************
 * print one Hebrew month - tabular output *
 ************************************************************/
-int print_tabular_hmonth
+int print_hmonth_tabular
 	(	option_list* opt, const int month, const int year)
 {
 	hdate_struct h;
@@ -1852,7 +1889,7 @@ int print_tabular_hmonth
 	// print_tabular_header( opt );
 	while (h.hd_mon == month)
 	{
-		print_tabular_day (&h, opt);
+		print_day_tabular (&h, opt);
 		jd++;
 		hdate_set_jd (&h, jd);
 	}
@@ -1908,13 +1945,13 @@ int print_hmonth (hdate_struct * h, option_list* opt,
 /************************************************************
 * print one Gregorian year - tabular output *
 ************************************************************/
-int print_tabular_gyear
+int print_gyear_tabular
 	( option_list* opt, const int year)
 {
 	int month = 1;
 	while (month < 13)
 	{
-		print_tabular_gmonth(opt, month, year);
+		print_gmonth_tabular(opt, month, year);
 		month++;
 	}
 	return 0;
@@ -1924,7 +1961,7 @@ int print_tabular_gyear
 /************************************************************
 * print one Hebrew year - tabular output *
 ************************************************************/
-int print_tabular_hyear
+int print_hyear_tabular
 	( option_list* opt, const int year)
 {
 	hdate_struct h;
@@ -1940,13 +1977,13 @@ int print_tabular_hyear
 		if (h.hd_size_of_year > 365 && month == 6)
 		{
 			hdate_set_hdate (&h, 1, 13, year);
-			print_tabular_hmonth(opt, 13, year);
+			print_hmonth_tabular(opt, 13, year);
 			hdate_set_hdate (&h, 1, 14, year);
-			print_tabular_hmonth(opt, 14, year);
+			print_hmonth_tabular(opt, 14, year);
 		}
 		else
 		{
-			print_tabular_hmonth(opt, month, year);
+			print_hmonth_tabular(opt, month, year);
 		}
 		month++;
 	}
@@ -2816,12 +2853,12 @@ int main (int argc, char *argv[])
 				/// if leap year, print both Adar months
 				if (h_start_day.hd_size_of_year > 365 && month == 6)
 				{
-					print_tabular_hmonth ( &opt, 13, year);
-					print_tabular_hmonth ( &opt, 14, year);
+					print_hmonth_tabular ( &opt, 13, year);
+					print_hmonth_tabular ( &opt, 14, year);
 				}
 				else
 				{
-					print_tabular_hmonth ( &opt, month, year);
+					print_hmonth_tabular ( &opt, month, year);
 				}
 			}
 			else
@@ -2865,7 +2902,7 @@ int main (int argc, char *argv[])
 			if (opt.tablular_output)
 			{
 				print_tabular_header( &opt );
-				print_tabular_gmonth( &opt, month, year);
+				print_gmonth_tabular( &opt, month, year);
 			}
 
 			else
@@ -3166,7 +3203,7 @@ case PROCESS_TODAY:
 		if (opt.tablular_output)
 		{
 			print_tabular_header( &opt );
-			print_tabular_day(&h_start_day, &opt);
+			print_day_tabular(&h_start_day, &opt);
 		}
 		else
 		{
@@ -3190,7 +3227,7 @@ case PROCESS_JULIAN_DAY:
 		if (opt.tablular_output)
 		{
 			print_tabular_header( &opt );
-			print_tabular_day(&h_start_day, &opt);
+			print_day_tabular(&h_start_day, &opt);
 		}
 		else
 		{
@@ -3216,7 +3253,7 @@ case PROCESS_HEBREW_YEAR:
 		if (opt.tablular_output)
 		{
 			print_tabular_header( &opt );
-			print_tabular_hyear( &opt, year);
+			print_hyear_tabular( &opt, year);
 		}
 		else
 		{
@@ -3239,7 +3276,7 @@ case PROCESS_GREGOR_YEAR:
 		if (opt.tablular_output)
 		{
 			print_tabular_header( &opt );
-			print_tabular_gyear( &opt, year);
+			print_gyear_tabular( &opt, year);
 		}
 		else
 		{
@@ -3260,7 +3297,7 @@ case PROCESS_HEBREW_DAY:
 		if (opt.tablular_output)
 		{
 			print_tabular_header( &opt );
-			print_tabular_day(&h_start_day, &opt);
+			print_day_tabular(&h_start_day, &opt);
 		}
 
 		else
@@ -3282,7 +3319,7 @@ case PROCESS_GREGOR_DAY:
 		if (opt.tablular_output)
 		{
 			print_tabular_header( &opt );
-			print_tabular_day(&h_start_day, &opt);
+			print_day_tabular(&h_start_day, &opt);
 		}
 
 		else
