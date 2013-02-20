@@ -45,6 +45,11 @@
 #include <zdump3.h>      /// zdump, zdumpinfo
 #include "timezone_functions.h"	/// for get_tz_adjustment
 
+// Here temporarily for hdate_parse_date
+// Should be moved to a header file
+#define HDATE_PREFER_YM 1
+#define HDATE_PREFER_MD 0
+
 
 #define DATA_WAS_NOT_PRINTED 0
 #define DATA_WAS_PRINTED 1
@@ -1659,7 +1664,7 @@ int print_day_tabular (hdate_struct* h, option_list* opt)
 			for (i=0; i<opt->custom_days_cnt; i++)
 			{
 				if (h->hd_jd == *jdn_list_ptr)
-					printf(";%s", get_custom_day_ptr(i, opt->string_list_ptr));
+					printf(";%s", get_custom_day_text_ptr(i, opt->string_list_ptr));
 				else jdn_list_ptr = jdn_list_ptr + 1;
 			}
 		}
@@ -1772,7 +1777,7 @@ int print_day (hdate_struct * h, option_list* opt)
 			for (i=0; i<opt->custom_days_cnt; i++)
 			{
 				if (h->hd_jd == *jdn_list_ptr)
-					printf("%s: %s\n", custom_day_text, get_custom_day_ptr(i, opt->string_list_ptr));
+					printf("%s: %s\n", custom_day_text, get_custom_day_text_ptr(i, opt->string_list_ptr));
 				jdn_list_ptr = jdn_list_ptr + 1;
 			}
 		}
@@ -2731,7 +2736,7 @@ int main (int argc, char *argv[])
 	///       name,  has_arg, flag, val
 	/**  0 */{"version", no_argument, 0, 0},
 	/**  1 */{"help", no_argument, 0, 0},
-	/**  2 */{"hebrew", no_argument, 0, 1},
+	/**  2 */{"hebrew", no_argument, 0, 0},
 	/**  3 */{"yom", no_argument, 0, 0},
 	/**  4 */{"leshabbat", no_argument, 0, 0},
 	/**  5 */{"leseder", no_argument, 0, 0},
@@ -2929,7 +2934,7 @@ int main (int argc, char *argv[])
 	char* my_locale;
 	my_locale = setlocale (LC_ALL, "");
 
-	FILE *config_file = get_config_file("/hdate", "/hdaterc", hdate_config_file_text, opt.quiet);
+	FILE *config_file = get_config_file("/hdate", "/hdaterc_v1.8", hdate_config_file_text, opt.quiet);
 	if (config_file != NULL)
 	{
 		read_config_file(config_file, &opt);
@@ -3014,8 +3019,9 @@ int main (int argc, char *argv[])
 		}
 		else
 		{
-			if (!parse_date( argv[optind], "", "", &year, &month, &day, 1,
-							 opt.prefer_hebrew, opt.base_year_h, opt.base_year_g ))
+			if (!hdate_parse_date( argv[optind], "", "", &year, &month, &day, 1,
+							 opt.prefer_hebrew, HDATE_PREFER_MD,
+							 opt.base_year_h, opt.base_year_g ))
 				exit_main(&opt,0);
 			if (month != BAD_DATE_VALUE) hdate_action = PROCESS_MONTH;
 			else if (year > HEB_YR_LOWER_BOUND)
@@ -3029,15 +3035,19 @@ int main (int argc, char *argv[])
 	else if (argc == (optind + 2))
 	{
 
-		if (!parse_date( argv[optind], argv[optind+1], "", &year, &month, &day, 2,
-						 opt.prefer_hebrew, opt.base_year_h, opt.base_year_g ))
+		if (!hdate_parse_date( argv[optind], argv[optind+1],
+						 "", &year, &month, &day, 2,
+						 opt.prefer_hebrew, HDATE_PREFER_MD,
+						 opt.base_year_h, opt.base_year_g ))
 			exit_main(&opt,0);
 		hdate_action = PROCESS_MONTH;
 	}
 	else if (argc == (optind + 3))
 	{
-		if (!parse_date( argv[optind], argv[optind+1], argv[optind+2], &year, &month, &day, 3,
-						 opt.prefer_hebrew, opt.base_year_h, opt.base_year_g ))
+		if (!hdate_parse_date( argv[optind], argv[optind+1],
+						 argv[optind+2], &year, &month, &day, 3,
+						 opt.prefer_hebrew, HDATE_PREFER_MD,
+						 opt.base_year_h, opt.base_year_g ))
 			exit_main(&opt,0);
 		if (year <= 0) { print_parm_error(year_text); exit_main(&opt,0); }
 		if (year > HEB_YR_LOWER_BOUND)
@@ -3197,7 +3207,7 @@ case PROCESS_TODAY:
 			opt.custom_days_cnt = get_custom_days_list(
 										&opt.jdn_list_ptr, &opt.string_list_ptr,
 										h_start_day.hd_day, h_start_day.hd_mon, h_start_day.hd_year,
-										'H', opt.quiet, h_start_day, "/hdate", "/custom_days",
+										'H', opt.quiet, h_start_day, "/hdate", "/custom_days_v1.8",
 										opt.short_format, opt.hebrew);
 		}
 		if (opt.tablular_output)

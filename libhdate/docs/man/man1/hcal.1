@@ -74,11 +74,14 @@ print previous/next months, side by side. requires 127 columns
 .br
 .BR --no-visual "    option " --bidi " as a default there"
 .TP 18
+.B \-B --bold
+display special days in boldface, no color
+.TP 18
 .B \-c --colorize
-print in calming, muted tones. \fB\-cc\fP will display in bolder, and mildy irritating, colors.
+display in calming, muted tones. \fB\-cc\fP will display in bolder, and mildy irritating, colors.
 .RE
 .RS 7
-.BR "   --no-color" "     over-ride config file setting"
+.BR "   --no-color" "     over-ride config file setting for color and bold"
 .TP 18
 .B \-d --diaspora
 use diaspora reading and holidays. Only relevant if hcal is using location information indicating an Israeli timezone
@@ -254,8 +257,15 @@ The timezone support is currenlty primitive and lacks support for daylight savin
 .TP 10
 .B Historical
 The software does not yet account for the phenomenon and complications of the "Gregorian transition" from the prior, Julian calendar, which effectively caused an instantaneous 'loss' of two weeks for all gentiles affected. Countries (eg. Poland, Spain and Italy) began adopting the Gregorian calendar on 8 Tishrei 5343 (4 October 1582 CE), although many did not transition until the 56th century (1752 CE, eg. UK colonies, Sweden). Russia did not adopt the Gregorian calendar until 5678 (1918 CE) and Turkey did not until 5687 (December, 1926 CE). Many other countries made the transition on other dates. Keep in mind that Russia invaded part of Poland, undoing, for the interim, the Gregorian transition for (only) that part of Poland; Also important to remember in this regard is that Eretz Ysroel was part of the Turkish Ottoman empire until the British mandate (5677 (1917 CE)). Until all this is accounted for adequately by this application, refer to '\fBncal \-p\fP' for a basic table of country transitions. However, keep in mind that European borders underwent many changes during the 426 years in question, so the accuracy of your data will depend on accurate knowledge of whether any particular date at any specific location was Julian or Gregorian.
-.SS Not a bug
-Invoke \fBhcal\fP with a gregorian month name, and \fBhcal\fP will by default return a single month calendar for the Hebrew month in which that gregorian month begins. For example, '\fBhcal feb\fP' could return a calendar for Shevat of the current year. In order to see a Hebrew calendar for February, add option \fB-gg\fP on the command line or in your config file.
+.SS Not bugs
+.TP 3
+1. Invoke \fBhcal\fP with a gregorian month name, and \fBhcal\fP will by default return a single month calendar for the Hebrew month in which that gregorian month begins. For example, '\fBhcal feb\fP' could return a calendar for Shevat of the current year. In order to see a Hebrew calendar for February, add option \fB-gg\fP on the command line or in your config file.
+.PP
+2. When displaying hebrew or using the bidi options, your results may read backwards. This is a failure of your terminal to properly support LTR languages, and is why, starting in version 1.6, option 
+.BR -b ( --bidi )
+was offered. However, while in most cases 
+.BR -b ( --bidi )
+will render the display readable, your terminal may still display the output left-to-right (LTR), ie. Shabbat in the rightmost column. If this bothers you, and it should, complain to the developer of your terminal emulator, and refer them to package \fBmlterm\fP ('multi-lingual terminal'), a terminal emulator that does support bidi, and on which \fBhcal\fP renders correctly. Or, you just might want to consider using \fBmlterm\fP yourself.
 .SH "EXAMPLES"
 .TP 3
 1. Display a 2012ce year's calendar, three-months wide, in color.
@@ -267,7 +277,7 @@ Invoke \fBhcal\fP with a gregorian month name, and \fBhcal\fP will by default re
 .RS 6
 .B       hcal \-csfH
 .SS Flexible date entry
-hdate April ; hdate aPril; hdate tiSHREi; hdate 1 Elul 44; hdate 1 sep 1944; hdate 44 oct 21
+tiSHREi ; yerech_haeitanim ; 1 Elul 44; 1 sep 1944; 44 oct 21 ; April ; aPril ; ziv ; bool ; Mar-Cheshvan ; menachemav
 .SS Flexible Hebrew month transliterations
 tIchriy, jechvan, xeshvan, khechvan, kisayv, teivayt, sh\\'vat, addar, adarI, "adar A", adar_2, adar-alef, adaraleph, adARBeth, nissan, eeyar, ceevvan, taMUz, aV, elloul (and many more).
 .RE

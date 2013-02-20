@@ -83,7 +83,7 @@ int menu_item_parse(char* menuptr, size_t menu_len, int *menu_index,
 					int *error_detected);
 
 void process_location_parms( double *lat, double *lon, int *tz,
-							const char* tz_name_in, char** tz_name_out,
+							char* tz_name_in, char** tz_name_out,
 	 						const time_t start_time, const time_t end_time,
 							int * num_dst_entries_ptr, void** returned_dst_data,
 							const int quiet_alerts );

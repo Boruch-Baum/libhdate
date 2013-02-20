@@ -55,13 +55,13 @@ static char *hebrew_months[2][2][14] = {
 	{ /// begin english long
 	 N_("Tishrei"), N_("Cheshvan"), N_("Kislev"), N_("Tevet"),
 	 N_("Shevat"), N_("Adar"), N_("Nisan"), N_("Iyyar"),
-	 N_("Sivan"), N_("Tammuz"), N_("Av"), N_("Elul"), N_("Adar I"),
-	 N_("Adar II")},
+	 N_("Sivan"), N_("Tammuz"), N_("Av"), N_("Elul"), N_("Adar_I"),
+	 N_("Adar_II")},
 	{ /// begin english short
 	 N_("Tishrei"), N_("Cheshvan"), N_("Kislev"), N_("Tevet"),
 	 N_("Shevat"), N_("Adar"), N_("Nisan"), N_("Iyyar"),
-	 N_("Sivan"), N_("Tammuz"), N_("Av"), N_("Elul"), N_("Adar I"),
-	 N_("Adar II")}
+	 N_("Sivan"), N_("Tammuz"), N_("Av"), N_("Elul"), N_("Adar_I"),
+	 N_("Adar_II")}
 	},
 	{ /// begin hebrew
 	{ /// begin hebrew long
@@ -326,48 +326,48 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 		{ /// begin english
 		{ /// begin english long
 		 N_("none"),		N_("Bereshit"),		N_("Noach"),
-		 N_("Lech-Lecha"),	N_("Vayera"),		N_("Chayei Sara"),
+		 N_("Lech-Lecha"),	N_("Vayera"),		N_("Chayei_Sara"),
 		 N_("Toldot"),		N_("Vayetzei"),		N_("Vayishlach"),
 		 N_("Vayeshev"),	N_("Miketz"),		N_("Vayigash"),		/* 11 */
 		 N_("Vayechi"),		N_("Shemot"),		N_("Vaera"),
 		 N_("Bo"),		N_("Beshalach"),	N_("Yitro"),
 		 N_("Mishpatim"),	N_("Terumah"),		N_("Tetzaveh"),		/* 20 */
-		 N_("Ki Tisa"),		N_("Vayakhel"),		N_("Pekudei"),
+		 N_("Ki_Tisa"),		N_("Vayakhel"),		N_("Pekudei"),
 		 N_("Vayikra"),		N_("Tzav"),		N_("Shmini"),
-		 N_("Tazria"),		N_("Metzora"),		N_("Achrei Mot"),
+		 N_("Tazria"),		N_("Metzora"),		N_("Achrei_Mot"),
 		 N_("Kedoshim"),	N_("Emor"),		N_("Behar"),		/* 32 */
 		 N_("Bechukotai"),	N_("Bamidbar"),		N_("Nasso"),
 		 N_("Beha'alotcha"),	N_("Sh'lach"),		N_("Korach"),
 		 N_("Chukat"),		N_("Balak"),		N_("Pinchas"),		/* 41 */
 		 N_("Matot"),		N_("Masei"),		N_("Devarim"),
 		 N_("Vaetchanan"),	N_("Eikev"),		N_("Re'eh"),
-		 N_("Shoftim"),		N_("Ki Teitzei"),	N_("Ki Tavo"),		/* 50 */
+		 N_("Shoftim"),		N_("Ki_Teitzei"),	N_("Ki_Tavo"),		/* 50 */
 		 N_("Nitzavim"),	N_("Vayeilech"),	N_("Ha'Azinu"),
-		 N_("Vezot Habracha"),	/* 54 */
-		 N_("Vayakhel-Pekudei"),N_("Tazria-Metzora"),	N_("Achrei Mot-Kedoshim"),
+		 N_("Vezot_HaBracha"),	/* 54 */
+		 N_("Vayakhel-Pekudei"),N_("Tazria-Metzora"),	N_("Achrei_Mot-Kedoshim"),
 		 N_("Behar-Bechukotai"),N_("Chukat-Balak"),	N_("Matot-Masei"),
 		 N_("Nitzavim-Vayeilech")},
 		{ /// begin english short
 		 N_("none"),		N_("Bereshit"),		N_("Noach"),
-		 N_("Lech-Lecha"),	N_("Vayera"),		N_("Chayei Sara"),
+		 N_("Lech-Lecha"),	N_("Vayera"),		N_("Chayei_Sara"),
 		 N_("Toldot"),		N_("Vayetzei"),		N_("Vayishlach"),
 		 N_("Vayeshev"),	N_("Miketz"),		N_("Vayigash"),		/* 11 */
 		 N_("Vayechi"),		N_("Shemot"),		N_("Vaera"),
 		 N_("Bo"),		N_("Beshalach"),	N_("Yitro"),
 		 N_("Mishpatim"),	N_("Terumah"),		N_("Tetzaveh"),		/* 20 */
-		 N_("Ki Tisa"),		N_("Vayakhel"),		N_("Pekudei"),
+		 N_("Ki_Tisa"),		N_("Vayakhel"),		N_("Pekudei"),
 		 N_("Vayikra"),		N_("Tzav"),		N_("Shmini"),
-		 N_("Tazria"),		N_("Metzora"),		N_("Achrei Mot"),
+		 N_("Tazria"),		N_("Metzora"),		N_("Achrei_Mot"),
 		 N_("Kedoshim"),	N_("Emor"),		N_("Behar"),		/* 32 */
 		 N_("Bechukotai"),	N_("Bamidbar"),		N_("Nasso"),
 		 N_("Beha'alotcha"),	N_("Sh'lach"),		N_("Korach"),
 		 N_("Chukat"),		N_("Balak"),		N_("Pinchas"),		/* 41 */
 		 N_("Matot"),		N_("Masei"),		N_("Devarim"),
 		 N_("Vaetchanan"),	N_("Eikev"),		N_("Re'eh"),
-		 N_("Shoftim"),		N_("Ki Teitzei"),	N_("Ki Tavo"),		/* 50 */
+		 N_("Shoftim"),		N_("Ki_Teitzei"),	N_("Ki_Tavo"),		/* 50 */
 		 N_("Nitzavim"),	N_("Vayeilech"),	N_("Ha'Azinu"),
-		 N_("Vezot Habracha"),	/* 54 */
-		 N_("Vayakhel-Pekudei"),N_("Tazria-Metzora"),	N_("Achrei Mot-Kedoshim"),
+		 N_("Vezot_HaBracha"),	/* 54 */
+		 N_("Vayakhel-Pekudei"),N_("Tazria-Metzora"),	N_("Achrei_Mot-Kedoshim"),
 		 N_("Behar-Bechukotai"),N_("Chukat-Balak"),	N_("Matot-Masei"),
 		 N_("Nitzavim-Vayeilech")}
 		},
@@ -425,48 +425,48 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 	static char *holidays[2][2][40] = {
 		{ /// begin english
 		{ /// begin english long
-/**  0 **/ N_("regular weekday (no holiday)"),
-/**  1 **/ N_("Rosh Hashana (first day)"),	N_("Rosh Hashana (second day)"),
-		   N_("Tzom Gedaliah"),				N_("Yom Kippur"),
-/**  5 **/ N_("Sukkot"),						N_("Hol hamoed Sukkot"),
-		   N_("Hoshana raba"),				N_("Simchat Torah"),
-/**  9 **/ N_("Chanukah"),					N_("Asara B'Tevet"),
-		   N_("Tu B'Shvat"),					N_("Ta'anit Esther"),
-/** 13 **/ N_("Purim"),						N_("Shushan Purim"),
-		   N_("Pesach"),						N_("Hol hamoed Pesach"),
-/** 17 **/ N_("Yom HaAtzma'ut"),				N_("Lag B'Omer"),
-		   N_("Erev Shavuot"),				N_("Shavuot"),
-/** 21 **/ N_("Tzom Tammuz"),					N_("Tish'a B'Av"),
-		   N_("Tu B'Av"),						N_("Yom HaShoah"),
-/** 25 **/ N_("Yom HaZikaron"),				N_("Yom Yerushalayim"),
-		   N_("Shmini Atzeret"),				N_("Shevi'i shel Pesach"),
-/** 29 **/ N_("Acharon shel Pesach"),			N_("Shavuot (second day)"),
-		   N_("Sukkot (second day)"),			N_("Pesach (second day)"),
-/** 33 **/ N_("Family Day"),					N_("Memorial day for fallen whose place of burial is unknown"), 
-		   N_("Yitzhak Rabin memorial day"),	N_("Zeev Zhabotinsky day"),
-/** 37 **/ N_("Erev Yom Kippur"),				N_("Erev Pesach"),
+/**  0 **/ N_("regular_weekday_(no_holiday)"),
+/**  1 **/ N_("Rosh_HaShana_(first_day)"),	N_("Rosh HaShana_(second_day)"),
+		   N_("Tzom_Gedaliah"),				N_("Yom_Kippur"),
+/**  5 **/ N_("Sukkot"),						N_("Hol_HaMoed_Sukkot"),
+		   N_("Hoshana_Rabbah"),				N_("Simchat_Torah"),
+/**  9 **/ N_("Chanukah"),					N_("Asara_B'Tevet"),
+		   N_("Tu_B'Shvat"),					N_("Ta'anit_Esther"),
+/** 13 **/ N_("Purim"),						N_("Shushan_Purim"),
+		   N_("Pesach"),						N_("Hol_HaMoed_Pesach"),
+/** 17 **/ N_("Yom_HaAtzma'ut"),				N_("Lag_B'Omer"),
+		   N_("Erev_Shavuot"),				N_("Shavuot"),
+/** 21 **/ N_("Tzom_Tammuz"),					N_("Tish'a_B'Av"),
+		   N_("Tu_B'Av"),						N_("Yom_HaShoah"),
+/** 25 **/ N_("Yom_HaZikaron"),				N_("Yom_Yerushalayim"),
+		   N_("Shmini_Atzeret"),				N_("Shevi'i_shel_Pesach"),
+/** 29 **/ N_("Acharon_shel_Pesach"),			N_("Shavuot_(second_day)"),
+		   N_("Sukkot_(second_day)"),			N_("Pesach_(second_day)"),
+/** 33 **/ N_("Family_Day"),					N_("Memorial_day_for_fallen_whose_place_of_burial_is_unknown"), 
+		   N_("Yitzhak_Rabin_memorial_day"),	N_("Zeev_Zhabotinsky_day"),
+/** 37 **/ N_("Erev_Yom_Kippur"),				N_("Erev_Pesach"),
 /** 39 **/ N_("Erev_Sukkot")},
-		{ /// begin english short
-/**  0 **/ N_("regular day"),
-		 N_("Rosh Hashana (day 1)"),	N_("Rosh Hashana (day 2)"),
-		 N_("Tzom Gedaliah"),			N_("Yom Kippur"),
-		 N_("Sukkot"),					N_("Hol hamoed Sukkot"),
-		 N_("Hoshana raba"),			N_("Simchat Torah"),
-		 N_("Chanukah"),				N_("Asara B'Tevet"),	/* 10 */
-		 N_("Tu B'Shvat"),				N_("Ta'anit Esther"),
-		 N_("Purim"),					N_("Shushan Purim"),
-		 N_("Pesach"),					N_("Hol hamoed Pesach"),
-		 N_("Yom HaAtzma'ut"),			N_("Lag B'Omer"),
-		 N_("Erev Shavuot"),			N_("Shavuot"),			/* 20 */
-		 N_("Tzom Tammuz"),				N_("Tish'a B'Av"),
-		 N_("Tu B'Av"),					N_("Yom HaShoah"),
-		 N_("Yom HaZikaron"),			N_("Yom Yerushalayim"),
-		 N_("Shmini Atzeret"),			N_("Pesach (day 7)"),
-		 N_("Pesach (day 8)"),			N_("Shavuot (day 2)"),   /* 30 */
-		 N_("Sukkot (day 2)"),			N_("Pesach (day 2)"),	 
-		 N_("Family Day"),				N_("Memorial day for fallen whose place of burial is unknown"), 
-		 N_("Rabin memorial day"),		N_("Zhabotinsky day"),
-		 N_("Erev Yom Kippur"),			N_("Erev Pesach"),
+		{ /// begin_english short
+/**  0 **/ N_("regular_day"),
+		 N_("Rosh HaShana_(day_1)"),	N_("Rosh HaShana_(day_2)"),
+		 N_("Tzom_Gedaliah"),			N_("Yom_Kippur"),
+		 N_("Sukkot"),					N_("Hol_HaMoed_Sukkot"),
+		 N_("Hoshana_Rabbah"),			N_("Simchat_Torah"),
+		 N_("Chanukah"),				N_("Asara_B'Tevet"),	/* 10 */
+		 N_("Tu_B'Shvat"),				N_("Ta'anit_Esther"),
+		 N_("Purim"),					N_("Shushan_Purim"),
+		 N_("Pesach"),					N_("Hol_HaMoed_Pesach"),
+		 N_("Yom_HaAtzma'ut"),			N_("Lag_B'Omer"),
+		 N_("Erev_Shavuot"),			N_("Shavuot"),			/* 20 */
+		 N_("Tzom_Tammuz"),				N_("Tish'a_B'Av"),
+		 N_("Tu_B'Av"),					N_("Yom_HaShoah"),
+		 N_("Yom_HaZikaron"),			N_("Yom_Yerushalayim"),
+		 N_("Shmini_Atzeret"),			N_("Pesach_(day_7)"),
+		 N_("Pesach_(day_8)"),			N_("Shavuot_(day_2)"),   /* 30 */
+		 N_("Sukkot_(day_2)"),			N_("Pesach_(day_2)"),	 
+		 N_("Family_Day"),				N_("Memorial_day_for_fallen_whose_place_of_burial_is_unknown"), 
+		 N_("Rabin_memorial_day"),		N_("Zhabotinsky_day"),
+		 N_("Erev_Yom_Kippur"),			N_("Erev_Pesach"),
 		 N_("Erev_Sukkot")}
 		},
 		{ /// begin hebrew
@@ -712,26 +712,50 @@ int hdate_parse_month_text_string( const char* month_text )
 			return (i%14)+101;
 
 	/// Alternative latin character spellings of Hebrew Months
-	static char *alt_spell_hebrew_months[14] = {
-		"Ti[cs]hr@([ie]?(y)|a[iy])",
-		"@([CK]h|X|J)e[sc]hvan",
+	/// and alternative names of Hebrew months in latin characters
+	static char *alt_latin_spell_hebrew_months[14] = {
+		"@(?(Yere@(ch|kh|x|j)?( |_|-)Ha?(-))@(A|Ai|Ay|Ei)t?(h)an@(i|ee)m|Ti[cs]hr@([ie]?(y)|a[iy]))",  
+		"@(b@(oo|ou|u)?(l)l|?(Mar?( |-|_))@([CK]h|X|J)e[sc]hvan)",
 		"Kisl@(e|[ae][iy])v",
 		"T@(e|[ae][iy])v@(e|[ae][iy])t",
 		"[SC]h?([e'])vat",
 		"Ad?(d)ar",
 		"N@(i|ee)s?(s)an",
-		"@(I|Ee)y?(y)ar",
+		"@(ziv|zeev|@(I|Ee)y?(y)ar)",
 		"[SC]@(i|ee)v?(v)an",
 		"Tam?(m)uz",
-		"Av",
+		"?(Mena@(ch|kh|x|j)@(e|ei|ey|ai|ay)m?( |_|-))Av",
 		"El?(l)@(u|ou|oo)l?(l)",
 		"Ad?(d)ar?( |-|_)@(A|1|I|alef|aleph)",
 		"Ad?(d)ar?( |-|_)@(B|2|II|bet?(h))"
 		};
 
 	for (i=0; i<14; i++)
-		if ( fnmatch( alt_spell_hebrew_months[i], month_text, FNM_EXTMATCH|FNM_CASEFOLD)==0 )
+		if ( fnmatch( alt_latin_spell_hebrew_months[i], month_text, FNM_EXTMATCH|FNM_CASEFOLD)==0 )
 			return (i+101);
+
+	/// Alternative Hebrew names for Hebrew Months
+	static char *alt_hebrew_spell_hebrew_months[14] = {
+		"?(ירח?( |-|־)ה)איתנים",
+		"@(?(מר?( |-|־))חשון|בול)",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"זיו",
+		"",
+		"",
+		"?(מנחם?( |-|־))אב",
+		"",
+		"אדר?( |-|־)א?(')",
+		"אדר?( |-|־)ב?(')"
+		};
+
+	for (i=0; i<14; i++)
+		if ( fnmatch( alt_hebrew_spell_hebrew_months[i], month_text, FNM_EXTMATCH|FNM_CASEFOLD)==0 )
+			return (i+101);
+
 
 	// This REALLY should not be necessary ...
 	/** nl_langinfo may return a pointer to a null string if it does

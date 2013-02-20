@@ -22,7 +22,9 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
  
-extern char* get_custom_day_ptr(const int index, char* string_list_ptr);
+extern char* get_custom_day_text_ptr(const int index, char* string_list_ptr);
+
+char* get_custom_day_symbol_ptr(const int index, char* string_list_ptr);
 
 extern int get_custom_days_list( int** jdn_list_ptr, char** string_list_ptr,
 			const int day, const int month, const int year,

@@ -42,6 +42,12 @@
 #include "timezone_functions.h"		/// for get_tz_adjustment
 
 
+// Here temporarily for hdate_parse_date
+// Should be moved to a header file
+#define HDATE_PREFER_YM 1
+#define HDATE_PREFER_MD 0
+
+
 #define SHABBAT 7
 
 #define HDATE_STRING_SHORT 1
@@ -96,18 +102,16 @@
 static const char* month_text = N_("month");
 static const char* year_text = N_("year");
 
-static char holiday_flag[] = { '/', '+', '*', '~', '!', '@', '#', '$', '%', '^' };
+#define BAD_HOLIDAY_TYPE 999
+static char holiday_flag[] = { '/', '+', '*', '~', '!', '@', '$' };
 /*  Holiday types: (reference hdate_holyday.c)
 	/ - 0 - Regular day
 	+ - 1 - Yom tov (plus yom kippor)
-	^ - 2 - Erev yom kippur, Erev Pesach, Erev Shavuot
+	* - 2 - Erev yom kippur, Erev Pesach, Erev Shavuot
 	~ - 3 - Hol hamoed
 	! - 4 - Hanuka and purim
 	@ - 5 - Tzomot
-	# - 6 - Independance day and Yom yerushalaim
-	$ - 7 - Lag baomer ,Tu beav, Tu beshvat
-	% - 8 - Tzahal and Holocaust memorial days
-	* - 9 - National days (default)
+	$ - 6 - Lag baomer ,Tu beav, Tu beshvat
 */
 
 
@@ -130,6 +134,7 @@ typedef struct {
 			char* spacing;
 			char* separator;
 			int colorize;
+			int bold;
 			int footnote;
 			int jd_today_g;
 			int jd_today_h;
@@ -143,6 +148,7 @@ typedef struct {
 			int tz;
 			char* tz_name_str;
 			int custom_days_cnt;
+			int custom_days_index;
 			int* jdn_list_ptr;		/// for custom_days
 			char* string_list_ptr;	/// for custom_days
 			int tzif_entries;
@@ -364,9 +370,10 @@ N_("Hebrew calendar\nOPTIONS:\n\
       --visual\n\
       --no-bidi       over-ride config file setting if you had set\n\
       --no-visual     option -bidi as a default there\n\
-   -c --colorize      displays in calming, muted tones. -cc will display\n\
+   -B --bold          display special days in boldface, no color\n\
+   -c --colorize      display in calming, muted tones. -cc will display\n\
                       in bolder, and mildy irritating, colors\n\
-      --no-color      over-ride a --colorize setting in your config file\n\
+      --no-color      over-ride a --colorize or --bold setting\n\
    -d --diaspora      use diaspora reading and holidays.\n\
    -f --footnote      print descriptive notes of holidays\n\
       --no-footnote   over-ride a footnote setting in your config file\n\
@@ -685,8 +692,6 @@ void print_header_month_line_stdout( const header_info header, const option_list
 	/**************************************************
 	*  collect padding info for Hebrew date
 	*************************************************/
-// continue here
-// printf("month=%d\n",header.h_month_1);exit(0);
 	h1_month = hdate_string( HDATE_STRING_HMONTH , header.h_month_1, HDATE_STRING_LONG, opt->force_hebrew);
 	h1_year  = hdate_string( HDATE_STRING_INT, header.h_year_1, HDATE_STRING_SHORT, opt->force_hebrew);
 
@@ -715,9 +720,6 @@ void print_header_month_line_stdout( const header_info header, const option_list
 		hebrew_buffer_next = mempcpy(hebrew_buffer_next, " ", SPACE_WIDTH);
 		hebrew_buffer_next = mempcpy(hebrew_buffer_next, h2_year, h2_year_len);
 		hebrew_buffer[hebrew_buffer_len]='\0';
-
-//		printf("\nbuffer length = %d\nbuffer contents = %s\n",hebrew_buffer_len, hebrew_buffer); exit(0);
-//		free(hebrew_buffer);
 	}
 	else if (header.h_month_1 != header.h_month_2)
 	{
@@ -1127,7 +1129,7 @@ void print_day_html ( const hdate_struct h, const int month, const option_list* 
 //	char hd_day_buffer[HEBREW_NUMBER_BUFFER_SIZE + 1];
 	char *hd_day_str = NULL;
 
-	holiday_type = hdate_get_holyday_type(hdate_get_holyday(&h, opt->diaspora));
+	holiday_type = hdate_get_holyday_type(hdate_get_halachic_day(&h, opt->diaspora));
 
 
 	if (h.gd_mon != month) printf ("<td class=\"out_of_month\">");
@@ -1144,7 +1146,7 @@ void print_day_html ( const hdate_struct h, const int month, const option_list* 
 		hdate_string( HDATE_STRING_HMONTH , h.hd_mon, HDATE_STRING_LONG, opt->force_hebrew));
 	if (holiday_type) printf ("<tr class=line3><td class=\"holiday_name\">%s</td></tr>",
 			hdate_string( HDATE_STRING_HOLIDAY,
-					hdate_get_holyday (&h, opt->diaspora),
+					hdate_get_halachic_day (&h, opt->diaspora),
 					HDATE_STRING_SHORT, HDATE_STRING_LOCAL)
 			);
 	else printf ("<tr class=line3><td class=\"holiday_name\">&nbsp;</td></tr>");
@@ -1158,43 +1160,101 @@ void print_day_html ( const hdate_struct h, const int month, const option_list* 
 /*************************************************
 *  print stdout calendar entry (ie. a single day)
 *************************************************/
-void print_day ( const hdate_struct h, const int month, const option_list* opt)
+void print_day ( const hdate_struct h, const int month, option_list* opt, const int printing_footnote,  char* custom_day_flag)
 {
-
 	char *hd_day_str = NULL;
-
 	size_t hd_day_buffer_str_len;
-
 	int holiday_type = 0;
+	char* day_flag;
 
-	/// for custom days
-	int i;
-	int* jdn_list_ptr = opt->jdn_list_ptr;
+	/*****************************************************
+	*  embedded sub-function: colorize_prefix
+	*****************************************************/
+	void colorize_prefix()
+	{
+		if (opt->colorize)
+		{
+			if (h.hd_dw==7) colorize_element(opt->colorize, ELEMENT_SHABBAT_DAY);
+			else if ( (holiday_type) || (custom_day_flag) ) colorize_element(opt->colorize, ELEMENT_HOLIDAY_DAY);
+			else            colorize_element(opt->colorize, ELEMENT_WEEKDAY_H);
+		}
+		else if ( (!printing_footnote) && (opt->bold) &&
+				  ( (h.hd_dw==7) || (holiday_type) || (custom_day_flag) ) )
+			printf(CODE_BOLD_VIDEO);
+	}
 
 
 	/*****************************************************
-	*  embedded sub-function: print_gregorian()
+	*  embedded sub-function: get_todays_holiday_data
+	*****************************************************/
+	void get_todays_holiday_data()
+	{
+		if (custom_day_flag)
+		{
+			day_flag = custom_day_flag;
+			return;
+		}
+		holiday_type = hdate_get_halachic_day_type(hdate_get_halachic_day(&h, opt->diaspora));
+		day_flag = &holiday_flag[holiday_type];
+		if ((!holiday_type) && (opt->custom_days_cnt))
+		{
+			/// there may be more than one custom day for a single
+			/// calendar day, so we use the symbol for the first
+			/// but will need to iterate over the others for the
+			/// next calendar day's symbol
+
+			/// This next snippet might be good in the future
+			/// but for now the jdn_list isn't sorted ..
+			///for (	;
+			///		(opt->custom_days_index < opt->custom_days_cnt) && 
+			///		(h.hd_jd > *jdn_list_ptr) ;
+			///		opt->custom_days_index = opt->custom_days_index + 1,
+			///		jdn_list_ptr = jdn_list_ptr + 1
+			///		) ;
+			///if (h.hd_jd == *jdn_list_ptr)
+			///{
+			///	day_flag = get_custom_day_symbol_ptr(opt->custom_days_index, opt->string_list_ptr);
+			///	holiday_type = BAD_HOLIDAY_TYPE;
+			///}
+			int* jdn_list_ptr;
+			for (	opt->custom_days_index = 0,
+					jdn_list_ptr = opt->jdn_list_ptr
+					;
+					(opt->custom_days_index < opt->custom_days_cnt) &&
+					(!holiday_type)
+					;
+					opt->custom_days_index = opt->custom_days_index + 1,
+					jdn_list_ptr = jdn_list_ptr + 1
+				)
+			{
+				if (h.hd_jd == *jdn_list_ptr)
+				{
+					day_flag = get_custom_day_symbol_ptr(opt->custom_days_index, opt->string_list_ptr);
+					holiday_type = BAD_HOLIDAY_TYPE;
+				}
+			}
+		}
+	}
+
+
+	/*****************************************************
+	*  embedded sub-function: print_gregorian_day_and_print_holiday_flag()
 	*     print the gregorian part of the day's entry,
 	*     and the holiday flag
 	*****************************************************/
-	void print_gregorian()
+	void print_gregorian_day_and_print_holiday_flag()
 	{
 		/*************************************************
 		*  holiday flag
 		*************************************************/
-		if (opt->gregorian == 1) printf ("%c", holiday_flag[holiday_type]);
+		if (opt->gregorian == 1) printf ("%c", *day_flag);
 
 		/*************************************************
 		*  Gregorian date entry - color prefix
 		*************************************************/
 		if (h.hd_jd == opt->jd_today_g)
 				printf (CODE_REVERSE_VIDEO);
-		else if (opt->colorize)
-		{
-			if (h.hd_dw==7) colorize_element(opt->colorize, ELEMENT_SHABBAT_DAY);
-			else if (holiday_type) colorize_element(opt->colorize, ELEMENT_HOLIDAY_DAY);
-			else            colorize_element(opt->colorize, ELEMENT_WEEKDAY_G);
-		}
+		else colorize_prefix();
 	
 		/*************************************************
 		*  Gregorian date entry - the day of the month
@@ -1208,14 +1268,14 @@ void print_day ( const hdate_struct h, const int month, const option_list* opt)
 		/*************************************************
 		*  Gregorian date entry - color cleanup
 		*************************************************/
-		if ((h.hd_jd == opt->jd_today_g) || (opt->colorize))
+		if ((h.hd_jd == opt->jd_today_g) || (opt->colorize) ||
+			( (opt->bold) && ( (h.hd_dw==7) || (holiday_type) ) ) )
 			printf (CODE_RESTORE_VIDEO);
-	
 	
 		/*************************************************
 		*  holiday flag
 		*************************************************/
-		if (opt->gregorian > 1) printf ("%c", holiday_flag[holiday_type]);
+		if (opt->gregorian > 1) printf ("%c", *day_flag);
 	}
 
 	/*****************************************************
@@ -1229,13 +1289,7 @@ void print_day ( const hdate_struct h, const int month, const option_list* opt)
 		*************************************************/
 		if (h.hd_jd == opt->jd_today_h)
 				printf (CODE_REVERSE_VIDEO);
-		else if (opt->colorize)
-		{
-			if (h.hd_dw==7) colorize_element(opt->colorize, ELEMENT_SHABBAT_DAY);
-			else if (holiday_type) colorize_element(opt->colorize, ELEMENT_HOLIDAY_DAY);
-			else            colorize_element(opt->colorize, ELEMENT_WEEKDAY_H);
-		}
-
+		else colorize_prefix();
 
 		/*************************************************
 		*  Hebrew date entry - day of the month
@@ -1258,46 +1312,31 @@ void print_day ( const hdate_struct h, const int month, const option_list* opt)
 		/*************************************************
 		*  Hebrew date entry - color cleanup
 		*************************************************/
-		if ((h.hd_jd == opt->jd_today_h) || (opt->colorize))
+		if ((h.hd_jd == opt->jd_today_h) || (opt->colorize) || 
+			( (opt->bold) && ( (h.hd_dw==7) || (holiday_type) ) ) )
 			printf (CODE_RESTORE_VIDEO);
 	}
 
 	/*****************************************************
+	******************************************************
 	*  print_day() beginning of actual function
+	******************************************************
 	*****************************************************/
 
-
-	/**************************************************
-	*  out of month - needs padding
-	*************************************************/
+	///  out of month - needs padding
 	if ( ( (opt->gregorian >  1)  && (h.gd_mon != month) ) ||
 	     ( (opt->gregorian == 1)  && (h.hd_mon != month) ) )
 		printf("     ");
 	else if ( (opt->gregorian == 0) && (h.hd_mon != month) )
 		printf("  ");
 
-	/**************************************************
-	*  in month - print the data
-	*************************************************/
+	///  in month - print the data
 	else
 	{
-		holiday_type = hdate_get_holyday_type(hdate_get_holyday(&h, opt->diaspora));
-		if ((!holiday_type) && (opt->custom_days_cnt))
-		{
-			for (i=0; i<opt->custom_days_cnt; i++)
-			{
-				if (h.hd_jd == *jdn_list_ptr)
-				{
-					holiday_type = 9; // FIXME - should be configurable ?!
-					continue;
-				}
-				else jdn_list_ptr = jdn_list_ptr + 1;
-			}
-		}
-
-		if (opt->gregorian > 1)  print_gregorian();
+		get_todays_holiday_data();
+		if (opt->gregorian > 1)  print_gregorian_day_and_print_holiday_flag();
 		print_hebrew();
-		if (opt->gregorian == 1) print_gregorian();
+		if (opt->gregorian == 1) print_gregorian_day_and_print_holiday_flag();
 	}
 	if (hd_day_str != NULL) free(hd_day_str);
 }
@@ -1307,7 +1346,7 @@ void print_day ( const hdate_struct h, const int month, const option_list* opt)
 /*************************************************
 *  print a calendar week's entry (ie. seven columns)
 *************************************************/
-void print_week( int jd, const int month, const option_list* opt)
+void print_week( int jd, const int month, option_list* opt)
 {
 	#define long_parasha_name 0
 
@@ -1353,7 +1392,7 @@ void print_week( int jd, const int month, const option_list* opt)
 		/**************************************************
 		*  non-HTML calendar option
 		*************************************************/
-		else print_day ( h, month, opt);
+		else print_day ( h, month, opt, FALSE, NULL);
 
 
 		/**************************************************
@@ -1483,7 +1522,7 @@ void print_week( int jd, const int month, const option_list* opt)
 									HDATE_STRING_SHORT, opt->force_hebrew);
 			else
 			{
-				shabbat_name = hdate_get_holyday(&h, opt->diaspora);
+				shabbat_name = hdate_get_halachic_day(&h, opt->diaspora);
 				if (shabbat_name) shabbat_name_str =
 					hdate_string( HDATE_STRING_HOLIDAY,
 							shabbat_name,
@@ -1520,51 +1559,59 @@ void print_week( int jd, const int month, const option_list* opt)
 }
 
 
+/*************************************************************
+* how_many_calendar_lines()
+*************************************************************/
+int how_many_calendar_lines( const int opt_gregorian, const hdate_struct* h)
+{
+	int number_of_calendar_lines = 4;
+	if (opt_gregorian > 1)
+	{
+		switch (h->gd_mon)
+		{
+		case  4: case  6: case  9: case 11:
+					if (h->hd_dw == 7) number_of_calendar_lines = 6;
+					else if (number_of_calendar_lines == 4) number_of_calendar_lines = 5;
+					break;
+		case  1: case  3: case  5: case  7: case  8: case 10: case 12:
+					if (h->hd_dw > 5) number_of_calendar_lines = 6;
+					else if (number_of_calendar_lines == 4) number_of_calendar_lines = 5;
+					break;
+		case 2:		if (h->hd_dw > 1) number_of_calendar_lines = 5;
+					break;
+		}
+	}
+	else
+	{
+		number_of_calendar_lines = 5;
+		switch (h->hd_mon)
+		{
+		case  1: switch (h->hd_year_type) { case 2: case 7: case 10: case 14: number_of_calendar_lines = 6; }; break;
+		case  2: switch (h->hd_year_type) { case 6: case 13:                  number_of_calendar_lines = 6; }; break;
+		case  5: switch (h->hd_year_type) { case 1: case 7: case 8: case 14:  number_of_calendar_lines = 6; }; break;
+		case  7: switch (h->hd_year_type) { case 4: case 11: case 12:         number_of_calendar_lines = 6; }; break;
+		case 11: switch (h->hd_year_type) { case 2: case 6: case 9:           number_of_calendar_lines = 6; }; break;
+		case 13: switch (h->hd_year_type) { case 10: case 13:                 number_of_calendar_lines = 6; }; break;
+		}
+	}
+	return number_of_calendar_lines;
+}
+
 
 
 /**************************************************************
 *  print month table
 **************************************************************/
-int print_calendar ( int current_month, int current_year, const option_list* opt)
+int print_calendar ( int current_month, int current_year, option_list* opt)
 {
 	hdate_struct h;
 	int calendar_line;
 	int max_calendar_lines = 4;
+	int prev_month_num_of_lines = 4;
+	int next_month_num_of_lines = 4;
 	int previous_month, next_month;
 	int previous_year, next_year;
 	int jd_current_month, jd_previous_month, jd_next_month;
-
-	void how_many_calendar_lines()
-	{
-		if (opt->gregorian > 1)
-		{
-			switch (h.gd_mon)
-			{
-			case  4: case  6: case  9: case 11:
-						if (h.hd_dw == 7) max_calendar_lines = 6;
-						else if (max_calendar_lines == 4) max_calendar_lines = 5;
-						break;
-			case  1: case  3: case  5: case  7: case  8: case 10: case 12:
-						if (h.hd_dw > 5) max_calendar_lines = 6;
-						else if (max_calendar_lines == 4) max_calendar_lines = 5;
-						break;
-			case 2:		if (h.hd_dw > 1) max_calendar_lines = 5;
-			}
-		}
-		else
-		{
-			max_calendar_lines = 5;
-			switch (h.hd_mon)
-			{
-			case  1: switch (h.hd_year_type) { case 2: case 7: case 10: case 14: max_calendar_lines = 6; }; break;
-			case  2: switch (h.hd_year_type) { case 6: case 13:                  max_calendar_lines = 6; }; break;
-			case  5: switch (h.hd_year_type) { case 1: case 7: case 8: case 14:  max_calendar_lines = 6; }; break;
-			case  7: switch (h.hd_year_type) { case 4: case 11: case 12:         max_calendar_lines = 6; }; break;
-			case 11: switch (h.hd_year_type) { case 2: case 6: case 9:           max_calendar_lines = 6; }; break;
-			case 13: switch (h.hd_year_type) { case 10: case 13:                 max_calendar_lines = 6; }; break;
-			}
-		}
-	}
 
 	/*********************************************************
 	*  Preliminaries:
@@ -1572,12 +1619,13 @@ int print_calendar ( int current_month, int current_year, const option_list* opt
 	*  - Find number of calendar lines
 	*********************************************************/
 	if (opt->gregorian > 1)
+	{
 		hdate_set_gdate (&h, 1, current_month, current_year);
+	}
 	else
 		hdate_set_hdate (&h, 1, current_month, current_year);
 	jd_current_month = h.hd_jd - h.hd_dw + 1;
-	how_many_calendar_lines();
-
+	max_calendar_lines = how_many_calendar_lines(opt->gregorian, &h);
 
 	/*********************************************************
 	*  three months, side-by-side
@@ -1596,7 +1644,6 @@ int print_calendar ( int current_month, int current_year, const option_list* opt
 				hdate_set_hdate (&h, 1, previous_month, previous_year);
 				jd_previous_month = h.hd_jd - h.hd_dw + 1;
 			}
-			how_many_calendar_lines();
 		}
 		else
 		{
@@ -1620,8 +1667,8 @@ int print_calendar ( int current_month, int current_year, const option_list* opt
 				hdate_set_gdate (&h, 1, previous_month, previous_year);
 				jd_previous_month = h.hd_jd - h.hd_dw + 1;
 			}
-		how_many_calendar_lines();
 		}
+		prev_month_num_of_lines = how_many_calendar_lines(opt->gregorian, &h);
 
 		/*********************************************************
 		*  next month
@@ -1642,12 +1689,15 @@ int print_calendar ( int current_month, int current_year, const option_list* opt
 			hdate_set_gdate (&h, 1, next_month, next_year);
 		}
 		jd_next_month = h.hd_jd - h.hd_dw + 1;
-		how_many_calendar_lines();
+		next_month_num_of_lines = how_many_calendar_lines(opt->gregorian, &h);
+		max_calendar_lines = ( prev_month_num_of_lines > max_calendar_lines ? prev_month_num_of_lines: max_calendar_lines);
+		max_calendar_lines = ( next_month_num_of_lines > max_calendar_lines ? next_month_num_of_lines: max_calendar_lines);
 	}
 
 	/**************************************************
 	*  maximum six lines of calendar
 	**************************************************/
+
 	for (calendar_line = 0; calendar_line < max_calendar_lines; calendar_line++)
 	{
 		if (opt->html) printf ("<tr>\n");
@@ -1691,19 +1741,21 @@ int print_calendar ( int current_month, int current_year, const option_list* opt
 * print footnote
 ****************************************************/
 void print_footnote( const hdate_struct h, const int footnote_month,
-				const option_list* opt, const char* text_ptr )
+				option_list* opt, const char* text_ptr, char* custom_day_flag )
 {
 	/// all these for bidi alignment
 	char *bidi_buffer;
 	size_t text_ptr_len;
 	int print_len;
 
-	print_day ( h, footnote_month, opt);
+	print_day ( h, footnote_month, opt, TRUE, custom_day_flag);
 	if (opt->colorize)
 	{
 		if (opt->jd_today_h == h.hd_jd) colorize_element(opt->colorize, ELEMENT_TODAY_HOLIDAY_NAME);
 		else colorize_element(opt->colorize, ELEMENT_HOLIDAY_NAME);
 	}
+	else if ( (opt->bold) && (opt->jd_today_h == h.hd_jd) )
+		printf(CODE_BOLD_VIDEO);
 
 	if (opt->bidi)
 	{
@@ -1720,7 +1772,9 @@ void print_footnote( const hdate_struct h, const int footnote_month,
 	}
 	else printf ("  %s\n", text_ptr);
 
-	if (opt->colorize) printf (CODE_RESTORE_VIDEO);
+	if ( (opt->colorize) ||
+		 ( (opt->bold) && (opt->jd_today_h == h.hd_jd) ) )
+		printf (CODE_RESTORE_VIDEO);
 }
 
 
@@ -1762,11 +1816,13 @@ int print_month ( const int month, const int year, option_list* opt)
 	if (opt->custom_days_cnt == BAD_CUSTOM_DAY_CNT)
 	{
 		// TODO - 'three-month mode custom days...
+		//     at this point only for color mode highlighting because
+		//     we don't allow foornotes for three month mode
 		opt->custom_days_cnt = get_custom_days_list(
 								&opt->jdn_list_ptr, &opt->string_list_ptr,
 								0, month, year,
 								calendar_type, opt->quiet_alerts, h,
-								"/hcal", "/custom_days",
+								"/hcal", "/custom_days_v1.8",
 								HDATE_STRING_LONG, opt->force_hebrew);
 // test_print_custom_days(opt->custom_days_cnt, opt->jdn_list_ptr, opt->string_list_ptr);
 	}
@@ -1828,26 +1884,51 @@ int print_month ( const int month, const int year, option_list* opt)
 		while ( ( (opt->gregorian > 1) && (footnote_month == h.gd_mon ) ) ||
 				( (opt->gregorian < 2) && (footnote_month == h.hd_mon ) )  )
 		{
-			holiday = hdate_get_holyday(&h, opt->diaspora);
+			holiday = hdate_get_halachic_day(&h, opt->diaspora);
 			if (holiday)
 			{
 				print_footnote( h, footnote_month, opt,
 								hdate_string( HDATE_STRING_HOLIDAY,
 											  holiday,
 											  HDATE_STRING_LONG,
-											  opt->force_hebrew));
+											  opt->force_hebrew),
+								NULL);
 			}
 			if (opt->custom_days_cnt)
 			{
-				int i;
-				int* jdn_list_ptr = opt->jdn_list_ptr;
-				for (i=0; i<opt->custom_days_cnt; i++)
+				//opt->custom_days_index = 0;
+				//int* jdn_list_ptr = opt->jdn_list_ptr;
+				//while (opt->custom_days_index < opt->custom_days_cnt)
+				//{
+					//if (h.hd_jd == *jdn_list_ptr)
+					//{
+						//print_footnote( h, footnote_month, opt,
+										//get_custom_day_text_ptr(opt->custom_days_index, opt->string_list_ptr));
+					//}
+					//opt->custom_days_index = opt->custom_days_index + 1;
+					//jdn_list_ptr = jdn_list_ptr + 1;
+				//}
+				int* jdn_list_ptr;
+				for (	opt->custom_days_index = 0,
+						jdn_list_ptr = opt->jdn_list_ptr
+						;
+						(opt->custom_days_index < opt->custom_days_cnt) 
+						;
+						opt->custom_days_index = opt->custom_days_index + 1,
+						jdn_list_ptr = jdn_list_ptr + 1
+					)
 				{
 					if (h.hd_jd == *jdn_list_ptr)
+					{
+						char day_flag = * get_custom_day_symbol_ptr(opt->custom_days_index, opt->string_list_ptr);
 						print_footnote( h, footnote_month, opt,
-										get_custom_day_ptr(i, opt->string_list_ptr));
-					jdn_list_ptr = jdn_list_ptr + 1;
+										get_custom_day_text_ptr(opt->custom_days_index, opt->string_list_ptr), &day_flag);
+	
+					}
 				}
+
+
+
 			}
 			jd_counter++;
 			hdate_set_jd (&h, jd_counter);
@@ -1855,8 +1936,6 @@ int print_month ( const int month, const int year, option_list* opt)
 	}
 	return 0;
 }
-
-
 
 
 /****************************************************
@@ -2112,11 +2191,11 @@ int hcal_parser( const int switch_arg, option_list *opt,
 /** --one-month	*/	case 18: break;
 /** --no-visual	*/	case 19:
 /** --no-bidi	*/	case 20: opt->bidi = 0; opt->force_hebrew = 0; break;
-/** --no-color	*/	case 21: opt->colorize = 0; break;
+/** --no-color	*/	case 21: opt->colorize = 0; opt->bold = 0; break;
 /** --no-footnote*/	case 22: opt->footnote = 0; break;
 /** --menu		*/	case 23: break;
 /** --candles	*/	case 24:
-			if ( (optarg == NULL) && (opt->candles == 0) )opt->candles = 1;
+			if ( (optarg == NULL) && (opt->candles == 0) ) opt->candles = 1;
 			else
 			{
 				if (fnmatch( "[[:digit:]]?([[:digit:]])", optarg, FNM_EXTMATCH) == 0)
@@ -2152,6 +2231,7 @@ int hcal_parser( const int switch_arg, option_list *opt,
 								break;
 /** --prefer-hebrew		*/	case 30: opt->prefer_hebrew = TRUE;
 /** --prefer-gregorian	*/	case 31: opt->prefer_hebrew = FALSE;
+/** --bold              */	case 32: break;
 		} /// end switch for long_options
 		break;
 
@@ -2160,7 +2240,8 @@ int hcal_parser( const int switch_arg, option_list *opt,
 	case '1': opt->three_month = 0; break;
 	case '3': opt->three_month = 1; break;
 	case 'b': opt->bidi = 1; opt->force_hebrew = 1; break;
-	case 'c': opt->colorize = opt->colorize + 1; break;
+	case 'B': opt->bold = 1; opt->colorize = 0; break;
+	case 'c': opt->colorize = opt->colorize + 1; opt->bold = 0; break;
 	case 'd': opt->diaspora = 1; break;
 	case 'f': opt->footnote = 1; break;
 	case 'g': opt->gregorian = opt->gregorian + 1; break;
@@ -2258,6 +2339,7 @@ int main (int argc, char *argv[])
 	opt.spacing = NULL;			/// horizontal spacing string in 3-month mode
 	opt.separator = NULL;		/// vertical separator string in 3-month mode
 	opt.colorize = 0;			/// display calendar in muted, more pleasing tones
+	opt.bold = 0;				/// display special days in boldface (no color)
 	opt.footnote = 0;			/// display description of month's holidays
 	opt.force_hebrew = 0;		/// force display of Hebrew data in Hebrew
 	opt.force_israel = 0;		/// override diaspora-awareness
@@ -2281,7 +2363,8 @@ int main (int argc, char *argv[])
           //latitude mis-sync (re:zone.tab) - just alert
           //no longitude -> use zone.tab entry
 
-	opt.custom_days_cnt = 0;
+	opt.custom_days_cnt = BAD_CUSTOM_DAY_CNT;
+	opt.custom_days_index = 0;
 	opt.jdn_list_ptr = NULL;		/// custom days - julian day numbers (array)
 	opt.string_list_ptr = NULL;		/// custom days - text descriptions (array)
 
@@ -2305,7 +2388,7 @@ int main (int argc, char *argv[])
 
 
 	/// support for getopt short options
-	const char * short_options = "013bcdfghHiImpqsl:L:z:";
+	const char * short_options = "013bBcdfghHiImpqsl:L:z:";
 
 	/// support for long options
 	int long_option_index = 0;
@@ -2344,6 +2427,7 @@ int main (int argc, char *argv[])
 		{"borders", no_argument, 0, 0},
 		{"prefer-hebrew", no_argument, 0, 0},
 		{"prefer-gregorian", no_argument, 0, 0},
+		{"bold", no_argument, 0, 'B'},
 		{0, 0, 0, 0}
 		};
 
@@ -2385,7 +2469,7 @@ int main (int argc, char *argv[])
 	//# PREFER_HEBREW=TRUE
 	//# BASE_YEAR_HEBREW=5700
 	// # BASE_YEAR_GREGORIAN=2000
-	FILE *config_file = get_config_file("/hcal", "/hcalrc", hcal_config_file_text, opt.quiet_alerts);
+	FILE *config_file = get_config_file("/hcal", "/hcalrc_v1.8", hcal_config_file_text, opt.quiet_alerts);
 	if (config_file != NULL)
 	{
 		read_config_file(config_file, &opt, &lat, &lon, &tz, opt.tz_name_str);
@@ -2521,8 +2605,10 @@ int main (int argc, char *argv[])
 		********************************************************/
 		if (argc == (optind + 2))
 		{
-			if (!parse_date( argv[optind], argv[optind+1], "", &year, &month, &data_sink, 2,
-							 opt.prefer_hebrew, opt.base_year_h, opt.base_year_g))
+			if (!hdate_parse_date( argv[optind], argv[optind+1],
+							 "", &year, &month, &data_sink, 2,
+							 opt.prefer_hebrew, HDATE_PREFER_YM,
+							 opt.base_year_h, opt.base_year_g))
 				exit_main(&opt,0);
 			/// The parse_date function returns Hebrew
 			/// month values in the range 101 - 114
@@ -2531,8 +2617,10 @@ int main (int argc, char *argv[])
 		else if (argc == (optind + 1))
 		{
 			month = 0;
-			if (!parse_date( argv[optind], "", "", &year, &month, &data_sink, 1,
-							 opt.prefer_hebrew, opt.base_year_h, opt.base_year_g))
+			if (!hdate_parse_date( argv[optind], "", "",
+							 &year, &month, &data_sink, 1,
+							 opt.prefer_hebrew, HDATE_PREFER_YM,
+							 opt.base_year_h, opt.base_year_g))
 				exit_main(&opt,0);
 			/// The parse_date function returns Hebrew
 			/// month values in the range 101 - 114

@@ -386,14 +386,41 @@ hdate_get_omer_day(hdate_struct const * h)
 */
 
 int
-hdate_get_holyday_type (int holyday)
+hdate_get_holyday_type (int day_code)
 {
-	int holyday_type;
+	int day_type = 0;
+	day_type = hdate_get_halachic_day_type ( day_code );
+	if (day_type == 0)
+		day_type = hdate_get_israeli_day_type ( day_code );
+	return day_type;
+}
+
+
+/**
+ @brief Return number of hebrew halachic day type.
+
+  Holiday types:
+    0 - Regular day
+    1 - Yom tov (plus yom kippor)
+    2 - Erev yom kippur
+    3 - Hol hamoed
+    4 - Hanuka and purim
+    5 - Tzomot
+    6 - Lag baomer ,Tu beav, Tu beshvat
+    
+ @param halachic_day the holyday number
+ @return the number of halachic_day type.
+*/
+
+int
+hdate_get_halachic_day_type (int halachic_day)
+{
+	int halachic_day_type;
 	
-	switch (holyday)
+	switch (halachic_day)
 	{
 	case 0: /* regular day */
-		holyday_type = 0;
+		halachic_day_type = 0;
 		break;
 
 	// Type 1 - Yom Tov
@@ -412,7 +439,7 @@ hdate_get_holyday_type (int holyday)
 	case 32:// Pesach (second day)
 	// An old comment said: "To find erev yom tov, check if tomorrow returns 1";
 	// However, I didn't see that being done anywhere - Boruch
-		holyday_type = 1;
+		halachic_day_type = 1;
 		break;
 
 	// Type 2 - Erev Yom Tov
@@ -420,21 +447,21 @@ hdate_get_holyday_type (int holyday)
 	case 37: /* Erev Yom Kippur */
 	case 38: /* Erev Pesach */
 	case 39: /* Erev Sukkot */
-		holyday_type = 2;
+		halachic_day_type = 2;
 		break;
 
 	// Type 3 - Chol HaMoed
 	case 6: // Hol hamoed Sukkot
 	case 7: // Hoshana raba
 	case 16:// Hol hamoed Pesach
-		holyday_type = 3;
+		halachic_day_type = 3;
 		break;
 
 	// Type 4 - Chanukah and Purim
 	case 9: // Chanukah
 	case 13:// Purim
 	case 14:// Shushan Purim
-		holyday_type = 4;
+		halachic_day_type = 4;
 		break;
 
 	// Type 5 - Fast days
@@ -443,39 +470,67 @@ hdate_get_holyday_type (int holyday)
 	case 12:// Ta'anit Esther
 	case 21:// Tzom Tammuz
 	case 22:// Tish'a B'Av
-		holyday_type = 5;
+		halachic_day_type = 5;
+		break;
+
+	// Type 6 - 
+	case 18:// Lag B'Omer
+	case 23:// Tu B'Av
+	case 11:// Tu B'Shvat
+		halachic_day_type = 6;
+		break;
+	}
+
+	return halachic_day_type;
+}
+
+/**
+ @brief Return number of israeli_day type.
+
+  Holiday types:
+    0 - Regular day
+    6 - Independance day and Yom yerushalaim
+    8 - Tzahal and Holocaust memorial days
+    9 - National days
+    
+ @param israeli_day the israeli_day number
+ @return the number of israeli_day type.
+*/
+
+int
+hdate_get_israeli_day_type (int israeli_day)
+{
+	int israeli_day_type;
+	
+	switch (israeli_day)
+	{
+	case 0: /* regular day */
+		israeli_day_type = 0;
 		break;
 
 	// Type 6 - 
 	case 17:// Yom HaAtzma'ut
 	case 26:// Yom Yerushalayim
-		holyday_type = 6;
-		break;
-
-	// Type 7 - 
-	case 18:// Lag B'Omer
-	case 23:// Tu B'Av
-	case 11:// Tu B'Shvat
-		holyday_type = 7;
+		israeli_day_type = 6;
 		break;
 
 	// Type 8 - 
 	case 24:// Yom HaShoah
 	case 25:// Yom HaZikaron
-		holyday_type = 8;
+		israeli_day_type = 8;
 		break;
 
 
 	// Type 9 - Default
-// 33 Family Day (30 Shvat)
-// 34 Memorial day for fallen whose place of burial is unknown
-//           BUGFIX - The date also seems to be unknown
-// 35 Yitzhak Rabin memorial day (mid-Cheshvan)
-// 36 Zeev Zhabotinsky day (end-Tammuz)
+	case 33:// Family Day (30 Shvat)
+	case 34:// Memorial day for fallen whose place of burial is unknown
+			// BUGFIX - The date also seems to be unknown
+	case 35:// Yitzhak Rabin memorial day (mid-Cheshvan)
+	case 36:// Zeev Zhabotinsky day (end-Tammuz)
 	default: /* National days */ 
-		holyday_type = 9;
+		israeli_day_type = 9;
 		break;
 	}
 
-	return holyday_type;
+	return israeli_day_type;
 }

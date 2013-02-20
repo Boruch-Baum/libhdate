@@ -1,3 +1,49 @@
+hcal.c
+- migrate from hdate_get_holyday to hdate_get_halachic_day
+- support for custom day symbols
+- BUGFIX: calendar line 6 in three-month mode
+- option --bold print special days in boldface monotone
+- BUGFIX: holiday colorizing of Hebrew days and custom days
+
+custom_days.c
+- add field for custom day symbol
+
+hdate.h
+- add function hdate_get_halachic_day_type
+- add function hdate_get_israeli_day_type
+- add function hdate_parse_date
+
+hdate_holyday.c
+- add function hdate_get_halachic_day_type
+- add function hdate_get_israeli_day_type
+- function hdate_get_holyday_type becomes wrapper for
+  hdate_get_israeli_day_type and hdate_get_halachic_day_type
+
+hdate_strings.c
+- more flexible latin names for Hebrew months ( eg. bul,
+  ziv, mar cheshvan, menachem av, yerech ha-eitanim )
+- more flexible Hebrew names for Hebrew months ( eg. bul, etc )
+- latin names for months, holidays, parshiot use underscore
+  instead of spaces.
+
+local_functions.c
+- transfer 'parse_date' to library as 'hdate_parse_date'
+- allow reading of newly created config files
+
+hdate_parse_date.c
+- new file
+- brings to library hdate_parse_date from local_functions.c
+- BUGFIX: many fixes to date parsing algorithm
+
+Makefile.am
+- update
+
+hcal.1
+hdate.1
+- update for flexible date entry
+- update 'not a bug' section
+
+----------------------------------------------------------------------------
 hdate.c
 - option --emesh in tabular mode
 - bugfixes in tabular mode

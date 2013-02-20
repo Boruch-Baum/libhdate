@@ -57,9 +57,6 @@
 #define TZ_MAX_VALID       14
 #define TZ_MIN_VALID      -11
 
-static char * day_text		 = N_("day");
-static char * month_text	 = N_("month");
-static char * year_text 	 = N_("year");
 static char * error_text     = N_("error");
 static char * latitude_text  = N_("l (latitude)");
 static char * longitude_text = N_("L (Longitude)");
@@ -411,7 +408,7 @@ int parse_coordinate( const int type_flag, char *input_string,
 		{
 			return FALSE; /// error_detected = FALSE; ie. success
 		}
-		print_parm_error(longitude_text);
+		print_parm_error(latitude_text);
 		*coordinate = BAD_COORDINATE;
 		return TRUE; /// error_detected = TRUE; ie failure
 	}
@@ -553,7 +550,7 @@ int parse_timezone_alpha(const char* search_string, char** result_str, int* tz, 
 * 
 ************************************************************/
 void process_location_parms( double *lat, double *lon,
-						int *tz, const char* tz_name_in, char** tz_name_out,
+						int *tz, char* tz_name_in, char** tz_name_out,
 						const time_t start_time, const time_t end_time,
 						int * num_dst_entries_ptr, void** returned_dst_data,
 						const int quiet_alerts )
@@ -672,9 +669,9 @@ void process_location_parms( double *lat, double *lon,
 		}
 		if ((*tz_name_out == NULL) || (check_localtime == TRUE)) 
 		{
-			if ( zdump( "localtime", start_time, end_time, num_dst_entries_ptr, returned_dst_data) !=0 )
-			if ( zdump( "Asia/Jerusalem", start_time, end_time, num_dst_entries_ptr, returned_dst_data) !=0 )
-			if ( zdump( "America/New York", start_time, end_time, num_dst_entries_ptr, returned_dst_data) !=0 )
+			if ( ( zdump( "localtime", start_time, end_time, num_dst_entries_ptr, returned_dst_data) !=0 )		&&
+				 ( zdump( "Asia/Jerusalem", start_time, end_time, num_dst_entries_ptr, returned_dst_data) !=0 ) &&
+				 ( zdump( "America/New York", start_time, end_time, num_dst_entries_ptr, returned_dst_data) !=0 ) )
 			{
 				error(0,0,"%s",N_("unable to parse timezone or dalight savings time data;\n      using Jerusalem Standard Time"));
 				*tz = JERUSALEM_STANDARD_TIME_IN_MINUTES;
@@ -804,504 +801,15 @@ int validate_hdate (const int parameter_to_check,
 }
 
 
-/************************************************************
-* parse_date
-* 
-* be flexible:
-*	Allow yyyy mm OR mm yyyy - check strlen
-*	Allow yyyy MMM OR MMM yyyy even with a 2-digit year
-* 
-* currently returns TRUE always, but if it encounters an
-* obvious error, it reports the error and calls exit()
-* 
-* The logic here is fuzzy and imprecise, and does not cover
-* all cases (at least yet). For example, day parameters are
-* always evaluated for the gregorian 31-day possibility, and
-* the month parameters are always evaluated for the Hebrew
-* 14-month possiblity (yes, 13 months, but libhdate internally
-* treats ADAR I/II as months 13/14).
-* 
-* SEE ALSO: validate_hdate for bounds checking of these values
-************************************************************/
-int parse_date( const char* parm_a, const char* parm_b, const char* parm_c,
-					 int* ret_year, int* ret_month, int* ret_day, const int parm_cnt,
-					 const int prefer_hebrew, const int base_year_h, const int base_year_g )
-{
-//	int a_span, b_span, c_span, a_len, b_len, c_len;
-	int a_val, b_val, c_val, a_id, b_id, c_id;
-	hdate_struct h;
-
-	// TODO - it could be that some judgement calls I make
-	// should be decided by LC_TIME (set setlocale())
-	// #include <locale.h>
-	// char* locale_time_settings_string = setlocale(LC_TIME, "");
-	// or peek in /usr/share/i18n/locales
-	// or something simpler?
-
-	/****************************************************
-	* The base_year variables are for parsing a two-digit
-	* year value. Because this is a Hebrew library with
-	* Hebrew utilities, we default to a Hebrew year 
-	* (prefer_hebrew = TRUE) and presume that the user
-	* input and desire is for a Hebrew context.
-	***************************************************/
-	#define YR_LOWER_4_BOUND 1000
-	#define YR_UPPER_2_BOUND 99
-	#define HMONTH_UPPER_BOUND 14
-	#define GMONTH_UPPER_BOUND 12
-	#define GDAY_UPPER_BOUND 31
-	#define HDAY_UPPER_BOUND 30
-	#define UNKNOWN_STATE 0
-	#define MUST_BE_YEAR 1
-	#define MUST_BE_MONTH 10
-//	#define MUST_BE_DAY 100
-
-	a_id = UNKNOWN_STATE;
-	b_id = UNKNOWN_STATE;
-	c_id = UNKNOWN_STATE;
-
-	a_val = BAD_DATE_VALUE;
-	b_val = BAD_DATE_VALUE;
-	c_val = BAD_DATE_VALUE;
-	
-
-	/****************************************************
-	* begin sub-function initial_parse
-	***************************************************/
-	int initial_parse( const char* parm_str, int* parm_val, int* parm_id )
-	{
-		const char* digits = "0123456789";
-		int parm_span, parm_len;
-
-		parm_span = strspn(parm_str, digits);
-		parm_len  = strlen(parm_str);
-		if (parm_len == parm_span) /// numeric parm
-		{
-			*parm_val = atoi(parm_str);
-			if (   (*parm_val > HEB_YR_UPPER_BOUND) ||
-				 ( (*parm_val < YR_LOWER_4_BOUND) && (*parm_val > YR_UPPER_2_BOUND) ) )
-				{print_parm_error(year_text); return FALSE;}
-			else
-			{
-				if (*parm_val <= GDAY_UPPER_BOUND) return TRUE;
-				*parm_id = MUST_BE_YEAR;
-				*ret_year = *parm_val;
-			}
-		}
-		else
-		{
-			*parm_val = hdate_parse_month_text_string(parm_str);
-			if (!*parm_val) {print_parm_error(month_text); return FALSE;}
-			*parm_id = MUST_BE_MONTH;
-			*ret_month = *parm_val;
-		}
-		return TRUE;
-	}
-	/****************************************************
-	* end sub-function initial_parse
-	***************************************************/
-
-	/****************************************************
-	* sub-function second_parse
-	*   populates *ret_month and *ret_day when we were
-	*   given three parameters and only could determine
-	*   that one was MUST_BE_YEAR (ie 32-99 or > 1000)
-	***************************************************/
-	int second_parse( int a, int b)
-	{
-		/// The prejudice here is mm dd, but you can overrule that
-		/// by just passing the parameters in reverse.
-		if (*ret_year >= HEB_YR_LOWER_BOUND)
-		{
-			if ((a > HDAY_UPPER_BOUND) || (b > HDAY_UPPER_BOUND))
-							{print_parm_error(day_text); return FALSE;};
-			if (a > HMONTH_UPPER_BOUND)
-			{
-				if (b > HMONTH_UPPER_BOUND)	{print_parm_error(month_text); return FALSE;}
-				*ret_month = b + 100;
-				*ret_day = a;
-			}
-			else
-			{
-				*ret_month = a + 100;
-				*ret_day = b;
-			}
-		}
-		else if (*ret_year >= GREG_YR_LOWER_BOUND)
-		{
-			// This should be impossible at this point, because we only
-			// get here if both a and b are <= GDAY_UPPER_BOUND
-			// if ((a > GDAY_UPPER_BOUND) || (b > GDAY_UPPER_BOUND))
-			//				{print_parm_error(day_text); return FALSE;};
-			if (a > GMONTH_UPPER_BOUND)
-			{
-				if (b > GMONTH_UPPER_BOUND)	{print_parm_error(month_text); return FALSE;}
-				*ret_month = b;
-				*ret_day = a;
-			}
-			else
-			{
-				*ret_month = a;
-				*ret_day = b;
-			}
-		}
-		else /// two digit year 32-99
-		{
-			if (a > HMONTH_UPPER_BOUND)
-			{
-				if (b > HMONTH_UPPER_BOUND)	{print_parm_error(month_text); return FALSE;}
-				if ( (b > GMONTH_UPPER_BOUND) || (prefer_hebrew) )
-				{
-					*ret_month = b + 100;
-					*ret_day = a;
-					*ret_year = *ret_year + base_year_h;
-				}
-				else
-				{
-					*ret_month = b;
-					*ret_day = a;
-					*ret_year = *ret_year + base_year_g;
-				}
-			}
-			else if (b > HMONTH_UPPER_BOUND)
-			{
-				if ( (a > GMONTH_UPPER_BOUND) || (prefer_hebrew) )
-				{
-					*ret_month = a + 100;
-					*ret_day = b;
-					*ret_year = *ret_year + base_year_h;
-				}
-				else
-				{
-					*ret_month = a;
-					*ret_day = b;
-					*ret_year = *ret_year + base_year_g;
-				}
-			}
-		}
-	return TRUE;
-	}
-	/****************************************************
-	* ends ub-function second_parse
-	***************************************************/
-
-	/****************************************************
-	* begin sub-function check_two_of_three_gt
-	***************************************************/
-	int check_two_of_three_gt( int a, int b, int c, int compare_val)
-	{
-		if ( ( (a > compare_val) && (b > compare_val) ) ||
-			 ( (b > compare_val) && (c > compare_val) ) ||
-			 ( (c > compare_val) && (a > compare_val) ) )
-			 return TRUE;
-		return FALSE;
-	}
-	/****************************************************
-	* end sub-function check_two_of_three_gt
-	***************************************************/
-
-	/****************************************************
-	* begin sub-function hebrew_three_parm_parse
-	***************************************************/
-	int hebrew_three_parm_parse()
-	{	
-		/// my personal prejudice to prefer hebrew form dd mm yy
-		if (b_val > HMONTH_UPPER_BOUND)
-		{
-			if (a_val > HMONTH_UPPER_BOUND)
-		 	{
-				/// c_val  must be hebrew month
-				*ret_month = c_val + 100;
-				/// the unattractive choices are yy dd mm or dd yy mm
-				if (b_val > HDAY_UPPER_BOUND)
-				{
-					*ret_day = a_val; *ret_year = b_val + base_year_h;
-					return TRUE;
-				}
-				*ret_year = a_val + base_year_h; *ret_day = b_val;
-				return TRUE;
-			}
-			if (b_val > HDAY_UPPER_BOUND)
-			{
-				/// b_val must be year
-				*ret_year = b_val + base_year_h;
-				if (c_val > HMONTH_UPPER_BOUND)
-				{
-					/// c_val MUST be day
-					*ret_day = c_val;
-					*ret_month = a_val + 100;
-					return TRUE;
-				}
-				else /// cover two cases
-					 /// 1] if (a_val > HMONTH_UPPER_BOUND)
-					 /// 2] both a_val, b_val could be months
-				{
-					*ret_day = a_val;
-					*ret_month = c_val + 100;
-					return TRUE;
-				}
-			}
-			*ret_month = a_val + 100; *ret_day = b_val; *ret_year = c_val + base_year_h;
-			return TRUE;
-		}
-		/// at this point, we know that b_val could be anything
-		if (a_val > HMONTH_UPPER_BOUND)
-		{
-			if (c_val > HMONTH_UPPER_BOUND)
-		 	{
-				/// b_val  must be hebrew month
-				*ret_month = b_val + 100;
-				if (a_val > HDAY_UPPER_BOUND)
-				{
-					*ret_year = a_val + base_year_h;
-					*ret_day = c_val;
-					return TRUE;
-				}
-				*ret_year = c_val + base_year_h;
-				*ret_day = a_val;
-				return TRUE;
-			}
-			if (a_val > HDAY_UPPER_BOUND)
-			{
-				*ret_year = a_val + base_year_h;
-				///if (c_val > HMONTH_UPPER_BOUND)
-				/// {
-				///	*ret_day = c_val;
-				/// *ret_month = b_val + 100;
-				///	return TRUE;
-				///}
-				*ret_day = c_val;
-				*ret_month = b_val + 100;
-				return TRUE;
-			}		
-		}
-		*ret_year = a_val + base_year_h;
-		*ret_month = b_val + 100;
-		*ret_day = c_val;
-		return TRUE;
-	}
-	/****************************************************
-	* end sub-function hebrew_three_parm_parse
-	***************************************************/
-
-	/****************************************************
-	* end sub-function gregorian_three_parm_parse
-	***************************************************/
-	int gregorian_three_parm_parse()
-	{
-		printf("ERROR: reached function gregorian_three_parm_parse in local_functions, but it hasn't been coded yet\n");
-		return TRUE;
-	}
-	/****************************************************
-	* end sub-function gregorian_three_parm_parse
-	***************************************************/
-
-
-
-	/****************************************************
-	* begin parse_date - main function 
-	***************************************************/
-	switch (parm_cnt)
-	{
-	case 3:	if (!initial_parse(parm_c, &c_val, &c_id )) return FALSE;
-			/// and fall through ...
-	case 2:	if (!initial_parse(parm_b, &b_val, &b_id )) return FALSE;
-			/// and fall through ...
-	case 1:	if (!initial_parse(parm_a, &a_val, &a_id )) return FALSE;
-			break;
-	default: return FALSE;
-	}
-
-	/// The definite ids from the initial parse are alphabetic months
-	/// and four-digit years, and there can only be one of each
-	if ( (a_id + b_id + c_id) >= (MUST_BE_MONTH*2) ) {print_parm_error(month_text); return FALSE;}
-	if ( ((a_id + b_id + c_id)%10) > MUST_BE_YEAR  ) {print_parm_error(year_text); return FALSE;}
-
-	if (parm_cnt == 1)
-	{
-		*ret_day = 0;
-		if (a_id == MUST_BE_MONTH)     /// month name was parsed 
-		{
-			// *ret_month = a_val; // done already in initial_parse()
-			hdate_set_gdate (&h, 0, 0, 0);	/// set date for today
-			if (a_val > 100) *ret_year = h.hd_year;
-			else             *ret_year = h.gd_year;
-		}
-		else if (a_id != MUST_BE_YEAR) /// two-digit value < 32
-		{
-			if (prefer_hebrew) *ret_year = a_val + base_year_h;
-			else               *ret_year = a_val + base_year_g;
-			*ret_month = 0;
-		}
-		return TRUE;
-	}
-
-	if (parm_cnt == 2)
-	{
-		*ret_day = 0;
-		if (a_id == MUST_BE_MONTH)      /// month name was parsed
-		{
-			if (b_val <= YR_UPPER_2_BOUND) /// < 99
-			{
-				if (a_val > 100) *ret_year = b_val + base_year_h;
-				else     		 *ret_year = b_val + base_year_g;
-			}
-		}
-		else if (b_id == MUST_BE_MONTH) /// month name was parsed
-		{
-			if (a_val <= YR_UPPER_2_BOUND) /// < 99
-			{
-				if (b_val > 100) *ret_year = a_val + base_year_h;
-				else     		 *ret_year = a_val + base_year_g;
-			}
-		}
-		else if (a_id == MUST_BE_YEAR)  /// 32-99 or > 1000
-		{
-			if (a_val >= YR_LOWER_4_BOUND)
-			{
-				if ( (	(a_val <= GREG_YR_UPPER_BOUND) && (b_val > GMONTH_UPPER_BOUND) ) ||
-					 (b_val > HMONTH_UPPER_BOUND) ) {print_parm_error(month_text); return FALSE;}
-				if (a_val <= GREG_YR_UPPER_BOUND)
-					 *ret_month = b_val;
-				else *ret_month = b_val + 100;
-			}
-			else /// two digit year (32-99)
-			{
-				if (prefer_hebrew) *ret_year = a_val + base_year_h;
-				else               *ret_year = a_val + base_year_g;
-			}
-		}
-		else if (b_id == MUST_BE_YEAR)  /// 32-99 or > 1000
-		{
-			if (b_val >= YR_LOWER_4_BOUND)
-			{
-				if ( (	(b_val <= GREG_YR_UPPER_BOUND) && (a_val > GMONTH_UPPER_BOUND) ) ||
-					 (a_val > HMONTH_UPPER_BOUND) ) {print_parm_error(month_text); return FALSE;}
-				if (b_val <= GREG_YR_UPPER_BOUND)
-					 *ret_month = a_val;
-				else *ret_month = a_val + 100;
-			}
-			else /// two digit year (32-99)
-			{
-				if (prefer_hebrew) *ret_year = b_val + base_year_h;
-				else               *ret_year = b_val + base_year_g;
-			}
-		}
-		else /// two parms, each <= 31 (GDAY_UPPER_BOUND)
-		{
-			if ((a_val > HMONTH_UPPER_BOUND) && (b_val > HMONTH_UPPER_BOUND)) 
-				{print_parm_error(month_text); return FALSE;}
-			if ((prefer_hebrew) || ((a_val > GMONTH_UPPER_BOUND) && (b_val > GMONTH_UPPER_BOUND)))
-			{
-				*ret_month = a_val+100;
-				*ret_year = b_val + base_year_h;
-			}
-			else
-			{
-				if (b_val > GMONTH_UPPER_BOUND)
-				{
-					*ret_month = a_val;
-					*ret_year = b_val + base_year_g;
-				}
-				else
-				{
-					*ret_month = b_val;
-					*ret_year = a_val + base_year_g;
-				}
-				
-			}
-		}
-		return TRUE;
-	}
-
-	/// three parameters
-	switch (a_id + b_id + c_id)
-	{
-	default: printf("unexpected error in parse_date\n"); return FALSE;
-	case 11:	/// MUST_BE_YEAR && MUST_BE_MONTH
-			if ( ( (*ret_year >= HEB_YR_LOWER_BOUND) && (*ret_month < 101) ) ||
-			     ( (*ret_year <= GREG_YR_UPPER_BOUND) && (*ret_month > 100) ) )
-			{
-				print_parm_mismatch_error();
-				return FALSE;
-			}
-			if (a_id == UNKNOWN_STATE) *ret_day = a_val;
-			else if (b_id == UNKNOWN_STATE) *ret_day = b_val;
-			else *ret_day = c_val;
-			// TODO - test that validate_date faults day 31 and some day 30 in Hebrew month
-			break;
-	case 10:	/// MUST_BE_MONTH
-			if (a_id == MUST_BE_MONTH)
-			{
-				/// personal prejudice to prefer mmmm dd yy
-				*ret_day = b_val; // TODO - test that validate_date faults day 31 and some day 30 in Hebrew month
-				if (a_val > 100) *ret_year = c_val + base_year_h;
-				else   			 *ret_year = c_val + base_year_g;
-			}
-			else if (b_id == MUST_BE_MONTH)
-			{
-				/// prefer dd mmmm yy because its more natural in Hebrew though
-				/// had it been three numeric fields, I would favor yy mm dd
-				*ret_day = a_val; // TODO - test that validate_date faults day 31 and some day 30 in Hebrew month
-				if (b_val > 100) *ret_year = c_val + base_year_h;
-				else   			 *ret_year = c_val + base_year_g;
-			}
-			else ///(c_id == MUST_BE_MONTH)
-			{
-				/// tough call - my intuition is yy dd mmmm
-				*ret_day = b_val; // TODO - test that validate_date faults day 31 and some day 30 in Hebrew month
-				if (c_val > 100) *ret_year = a_val + base_year_h;
-				else   			 *ret_year = a_val + base_year_g;
-			}
-			break;
-	case  1:	/// MUST_BE_YEAR
-			if      (a_id == MUST_BE_YEAR) return second_parse(b_val, c_val);
-			else if (b_id == MUST_BE_YEAR) return second_parse(a_val, c_val);
-			else return second_parse(a_val, b_val);
-			break;
-	case  0: /// all three parms are in UNKNOWN_STATE
-			 /// ie. numeric, 0 < n < 32
-			if ((a_val > HMONTH_UPPER_BOUND) &&
-				(b_val > HMONTH_UPPER_BOUND) &&
-				(c_val > HMONTH_UPPER_BOUND) )
-			{
-				print_parm_error(month_text);
-				return FALSE;
-			}
-			if ( (a_val > GMONTH_UPPER_BOUND) &&
-				 (b_val > GMONTH_UPPER_BOUND) &&
-				 (c_val > GMONTH_UPPER_BOUND) )
-			{
-				/// MUST be hebrew
-				if ( check_two_of_three_gt( a_val, b_val, c_val, HDAY_UPPER_BOUND ) )
-				{
-					print_parm_mismatch_error();
-					return FALSE;
-				}
-				return hebrew_three_parm_parse();
-			}
-			if ( check_two_of_three_gt( a_val, b_val, c_val, HDAY_UPPER_BOUND ) )
-			{
-				return gregorian_three_parm_parse();
-			}
-			if ( (prefer_hebrew) &&
-				 ( ! check_two_of_three_gt( a_val, b_val, c_val, HDAY_UPPER_BOUND ) ) )
-				return hebrew_three_parm_parse();
-			else return gregorian_three_parm_parse();
-			break;
-	} /// end switch (a_id + b_id + c_id)
-	return TRUE;
-}
-
 
 /************************************************************
 * Greeting message to new version
 ************************************************************/
-void greetings_to_version_16()
+void greetings_to_version_18()
 {
 	printf("%s\n",N_("\
-This seems to be to be your first time using this version.\n\
-Please read the new documentation in the man page and config file.\n\
+This seems to be to be your first time using this version (1.8).\n\
+Please read the new documentation in the man page and config files.\n\
 Press <enter> to continue."));
 	getchar();
 }
@@ -1338,18 +846,21 @@ FILE* get_config_file(	const char* config_dir_name,
 	void create_config_file()
 	{
 		if (!quiet_alerts) printf("Attempting to create a config file ...\n");
- 		config_file = fopen(config_file_path, "a");
+ 		config_file = fopen(config_file_path, "a+");
 		if (config_file == NULL)
 		{
 			if (!quiet_alerts) error(0, errno, "%s: %s", N_("failure attempting to create config file"), config_file_path);
 			return;
 		}
 		fprintf(config_file, "%s", default_config_file_text);
-		if (fclose(config_file) != 0)
-		{
-			if (!quiet_alerts) error(0,errno,"%s %s",N_("failure closing"),config_file_name);
-		}
-		else if (!quiet_alerts) printf("%s: %s\n\n",N_("created config file:"), config_file_path);
+		fseek(config_file, 0, SEEK_SET);
+// An example of needing to read a newly created config file
+// is custom_days, which has default custom days
+//		if (fclose(config_file) != 0)
+//		{
+//			if (!quiet_alerts) error(0,errno,"%s %s",N_("failure closing"),config_file_name);
+//		}
+//		else if (!quiet_alerts) printf("%s: %s\n\n",N_("created config file:"), config_file_path);
 	}
 
 	/************************************************************
@@ -1382,10 +893,9 @@ FILE* get_config_file(	const char* config_dir_name,
 				free(config_dir_path);
 				return FALSE;
 			}
-			greetings_to_version_16();
+			greetings_to_version_18();
 			create_config_file();
 			free(config_dir_path);
-			return FALSE;
 		}
 		return TRUE;
 	}

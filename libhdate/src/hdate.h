@@ -347,7 +347,14 @@ hdate_get_omer_day(hdate_struct const * h);
  @return the number of holyday type.
 */
 int
-hdate_get_holyday_type (int holyday);
+hdate_get_holyday_type (int day_code);
+
+int
+hdate_get_halachic_day_type (int day_code);
+
+int
+hdate_get_israeli_day_type (int day_code);
+
 
 /**
  @brief size of hebrew year in days.
@@ -787,6 +794,12 @@ char* hdate_string( int type_of_string, int index, int short_form, int hebrew_fo
  @param month_text  pointer to string to check
 */
 int hdate_parse_month_text_string( const char* month_text );
+
+
+int hdate_parse_date( const char* parm_a, const char* parm_b, const char* parm_c,
+					 int* ret_year, int* ret_month, int* ret_day, const int parm_cnt,
+					 const int prefer_hebrew, const int prefer_2_parm_ym,
+					 const int base_year_h, const int base_year_g );
 
 
 #ifdef __cplusplus
