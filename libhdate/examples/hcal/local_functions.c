@@ -50,7 +50,16 @@
 
 #define EXIT_CODE_BAD_PARMS	1
 
-#define SECONDS_PER_DAY 60*60*24
+/// Defined in header file
+/// #define SECONDS_PER_DAY 60*60*24
+/// #define MIN_CANDLES_MINUTES 15
+/// #define DEFAULT_CANDLES_MINUTES 20
+/// #define MAX_CANDLES_MINUTES 90
+/// #define MIN_MOTZASH_MINUTES 20
+/// #define DEFAULT_MOTZASH_MINUTES 72
+/// #define MAX_MOTZASH_MINUTES 90
+
+
 
 #define USING_SYSTEM_TZ    -1
 #define NOT_USING_SYSTEM_TZ 0
@@ -77,6 +86,13 @@ void print_parm_missing_error ( const char *parm_name )
 	error(0,0,"%s: %s %s %s",error_text,
 			N_("option"), parm_name, N_("missing parameter"));
 }
+
+void print_option_unknown_error ( const char *parm_name )
+{
+	error(0,0,"%s: %s%s",error_text,
+			N_("unsupported option -"), parm_name);
+}
+
 
 void print_alert_tz( int tz )
 {
@@ -217,63 +233,6 @@ int check_for_sunset (hdate_struct * h, double lat, double lon, int timezone )
 }
 
 
-/********************************************************
-*  calculate the number of days in the Hebrew month
-*  returns 0 upon parameter error
-*  returns month length upon success
-*  refer to hdate_julian.c:hdate_get_year_type() for
-*      details on Hebrew year types
-*********************************************************/
-int length_of_hmonth( const int month, const int year_type )
-{
-	int retval = 0;
-	switch (month)
-	{
-	case 1: case 5: case 7: case  9: case 11: retval = 30; break;
-	case 4: case 6: case 8: case 10: case 12: retval = 29; break;
-	/// Cheshvan
-	case 2: switch (year_type)
-			{
-			case 1: case 2: case 3: case 4: case 8: case 9: case 10: case 11: retval = 29; break;
-			case 5: case 6: case 7: case 12: case 13: case 14: retval = 30; break;
-			}; break;
-	/// Kislev
-	case 3: switch (year_type)
-			{
-			case 1: case 2: case 8: case 9: case 10: retval = 29; break;
-			case 3: case 4: case 5: case 6: case 7: case 11: case 12: case 13: case 14: retval = 30; break;
-			}; break;
-	/// Adar I and II
-	case 13: if ( (year_type >= 8) && (year_type <= 14) ) retval = 30; break;
-	case 14: if ( (year_type >= 8) && (year_type <= 14) ) retval = 29; break;
-	}
-	return retval;
-}
-
-
-/********************************************************
-*  calculate the number of days in the gregorian month
-*  returns 0 upon parameter error
-*  returns month length upon success
-*********************************************************/
-// Not sure we actually use this - check, and possibly delete
-int length_of_gmonth( const unsigned int month, const unsigned int year )
-{
-	unsigned int retval = 0;
-	switch (month)
-	{
-	case 1: case 3: case 5: case 7: case 10: case 12: retval = 31; break;
-	case 4: case 6: case 9: case 11: retval = 30; break;
-	case 2:
-		if (year%4) retval = 28;
-		else if (year%100) retval = 29;
-		else if (year%400) retval = 28;
-		else retval = 29;
-		break;
-	}
-	return retval;
-}
-
 /***********************************************************
  *  reverse a hebrew string (for visual bidi)
  *  parameters:
@@ -337,19 +296,21 @@ printf("\nrevstr: before free(tempbuff): sourcelen = %ld, source = %s\n",source_
 int parse_coordinate( const int type_flag, char *input_string,
 					  double *coordinate)
 {
-//#define NEGATIVE_NUMBER_GLOB	"-[[:digit:]]?([[:digit:]]?([[:digit:]]))?(.+([[:digit:]]))"
-//#define NEGATIVE_DMS_GLOB		"-[[:digit:]]?([[:digit:]]?([[:digit:]]))?([:\"]?([012345])[[:digit:]]?([:'\"]?([012345])[[:digit:]]))"
-//#define COORDINATE_GLOB_DECIMAL	"?([+-])[[:digit:]]?([[:digit:]]?([[:digit:]]))?(.+([[:digit:]]))"
-//#define COORDINATE_GLOB_DMS		"?([+-])[[:digit:]]?([[:digit:]]?([[:digit:]]))?([':\"]?([012345])[[:digit:]]?([:'\"]?([012345])[[:digit:]]))"
-
-#define LATITUDE_GLOB_DECIMAL	"?([nNsS+-])[[:digit:]]?([[:digit:]]?([[:digit:]]))?(.+([[:digit:]]))?([nNsS])"
-#define LONGITUDE_GLOB_DECIMAL	"?([eEwW+-])[[:digit:]]?([[:digit:]]?([[:digit:]]))?(.+([[:digit:]]))?([eEwW])"
-
-#define LATITUDE_GLOB_DMS		"?([nNsS+-])[[:digit:]]?([[:digit:]]?([[:digit:]]))?([':\"]?([012345])[[:digit:]]?([:'\"]?([012345])[[:digit:]]))?([nNsS])"
-#define LONGITUDE_GLOB_DMS		"?([eEwW+-])[[:digit:]]?([[:digit:]]?([[:digit:]]))?([':\"]?([012345])[[:digit:]]?([:'\"]?([012345])[[:digit:]]))?([eEwW])"
-
+	char* lattitude_globs[] = {
+		"?([nNsS+-])[[:digit:]]?([[:digit:]]?([[:digit:]]))?(.+([[:digit:]]))",
+		"[[:digit:]]?([[:digit:]]?([[:digit:]]))?(.+([[:digit:]]))?([nNsS])",
+		"?([nNsS+-])[[:digit:]]?([[:digit:]]?([[:digit:]]))?([':\"]?([012345])[[:digit:]]?([:'\"]?([012345])[[:digit:]]))",
+		"[[:digit:]]?([[:digit:]]?([[:digit:]]))?([':\"]?([012345])[[:digit:]]?([:'\"]?([012345])[[:digit:]]))?([nNsS])"
+		};
+	char* longitude_globs[] = {
+		"?([eEwW+-])[[:digit:]]?([[:digit:]]?([[:digit:]]))?(.+([[:digit:]]))",
+		"[[:digit:]]?([[:digit:]]?([[:digit:]]))?(.+([[:digit:]]))?([eEwW])",
+		"?([eEwW+-])[[:digit:]]?([[:digit:]]?([[:digit:]]))?([':\"]?([012345])[[:digit:]]?([:'\"]?([012345])[[:digit:]]))",
+		"[[:digit:]]?([[:digit:]]?([[:digit:]]))?([':\"]?([012345])[[:digit:]]?([:'\"]?([012345])[[:digit:]]))?([eEwW])"
+		};
+	int glob_type_found;
+	#define GLOB_NOT_FOUND 4
 	char* seconds;
-
 	double fractional_part = 0;
 	int direction_modifier = 1;
 
@@ -371,39 +332,32 @@ int parse_coordinate( const int type_flag, char *input_string,
 	************************************************************/
 	if	(type_flag == 1)
 	{
-		if(	(fnmatch( LATITUDE_GLOB_DECIMAL, input_string, FNM_EXTMATCH)!=0)
-		&&	(fnmatch( LATITUDE_GLOB_DMS, input_string, FNM_EXTMATCH) !=0) )
+		for ( glob_type_found=0; glob_type_found<GLOB_NOT_FOUND; glob_type_found++)
 		{
-			if (fnmatch("-*", input_string, FNM_NOFLAG)==0)
-				 print_parm_missing_error(latitude_text);
-			else print_parm_error(latitude_text);
+			if(	(fnmatch( lattitude_globs[glob_type_found], input_string, FNM_EXTMATCH)==0)) break;
+		}
+		if (glob_type_found == GLOB_NOT_FOUND)
+		{
+			print_parm_error(latitude_text);
 			*coordinate = BAD_COORDINATE;
 			return TRUE; /// error_detected = TRUE; ie failure
 		}
-
-
 		if ( strpbrk(input_string, "sS") != NULL ) direction_modifier = -1;
-
-
-		if (fnmatch(LATITUDE_GLOB_DECIMAL, input_string, FNM_EXTMATCH)==0)
+		if (glob_type_found < 2) /// decimal format
 		{
 			*coordinate = (double) atof( strtok( input_string, "nNsS"));
 		}
-		else if (fnmatch(LATITUDE_GLOB_DMS, input_string, FNM_EXTMATCH)==0)
+		else /// degrees, minutes, seconds format
 		{
 			*coordinate = (double) atof( strtok( input_string, "nNsS:'\""));
 			fractional_part = (double) atof( strtok( NULL, "nNsS:'\""))/60;
 			seconds = strtok( NULL, "nNsS:'\"");
 			if (seconds != NULL) fractional_part = fractional_part + (double) atof( seconds)/3600;
 		}
-
-
 		if (*coordinate > 0)
 			*coordinate = (*coordinate + fractional_part) * direction_modifier;
 		else
 			*coordinate = *coordinate - fractional_part;
-
-
 		if(	(*coordinate > -90) && (*coordinate < 90) )
 		{
 			return FALSE; /// error_detected = FALSE; ie. success
@@ -419,38 +373,32 @@ int parse_coordinate( const int type_flag, char *input_string,
 	************************************************************/
 	if	(type_flag == 2)
 	{
-		if(	(fnmatch( LONGITUDE_GLOB_DECIMAL, input_string, FNM_EXTMATCH)!=0)
-		&&	(fnmatch( LONGITUDE_GLOB_DMS, input_string, FNM_EXTMATCH) !=0) )
+		for ( glob_type_found=0; glob_type_found<GLOB_NOT_FOUND; glob_type_found++)
 		{
-			if (fnmatch("-*", input_string, FNM_NOFLAG)==0)
-				 print_parm_missing_error(longitude_text);
-			else print_parm_error(longitude_text);
+			if(	(fnmatch( longitude_globs[glob_type_found], input_string, FNM_EXTMATCH)==0)) break;
+		}
+		if (glob_type_found == GLOB_NOT_FOUND)
+		{
+			print_parm_error(longitude_text);
 			*coordinate = BAD_COORDINATE;
 			return TRUE; /// error_detected = TRUE; ie failure
 		}
-
-
 		if ( strpbrk(input_string, "wW") != NULL ) direction_modifier = -1;
-
-
-		if (fnmatch(LONGITUDE_GLOB_DECIMAL, input_string, FNM_EXTMATCH)==0)
+		if (glob_type_found < 2) /// decimal format
 		{
 			*coordinate = (double) atof( strtok( input_string, "eEwW"));
 		}
-		else if (fnmatch(LONGITUDE_GLOB_DMS, input_string, FNM_EXTMATCH)==0)
+		else /// degrees, minutes, seconds format
 		{
 			*coordinate = (double) atof( strtok( input_string, "eEwW:'\""));
 			fractional_part = (double) atof( strtok( NULL, "eEwW:'\""))/60;
 			seconds = strtok( NULL, "eEwW:'\"");
 			if (seconds != NULL) fractional_part = fractional_part + (double) atof( seconds)/3600;
 		}
-
 		if (*coordinate > 0)
 			*coordinate = (*coordinate + fractional_part) * direction_modifier;
 		else
 			*coordinate = *coordinate - fractional_part;
-
-
 		if(	(*coordinate > -180) && (*coordinate < 180) )
 		{
 			return FALSE; /// error_detected = FALSE; ie. success
@@ -517,6 +465,40 @@ int parse_timezone_alpha(const char* search_string, char** result_str, int* tz, 
 	// else handle possibility of timezone name not in zonetab file
 	// else handle possibility of timezone abbreviations
 	return FALSE;
+}
+
+/************************************************************
+* parse_epoch_value
+* 
+* returns 0 = no error detected
+*         1 = error detected
+* 
+************************************************************/
+int parse_epoch_value( const char* epoch_string, time_t* epoch_val, int* epoch_parm_received )
+{
+	if (fnmatch( "?(@)?(-)*([[:digit:]])", epoch_string, FNM_EXTMATCH) == 0)
+	{
+		int i = 0;
+		if (epoch_string[0] == '@') i = 1;
+		{
+			if      ( sizeof(time_t) == sizeof(int) )  *epoch_val = atoi(&epoch_string[i]);
+			else if ( sizeof(time_t) == sizeof(long) ) *epoch_val = atol(&epoch_string[i]);
+			else if ( sizeof(time_t) == sizeof(long long) ) *epoch_val = atoll(&epoch_string[i]);
+			else
+			{
+				error(0,0,"%s: %s", error_text, N_("internal size mismatch, parameter '--epoch' being ignored"));
+				return 1;
+			}
+// temp, delete this! */ printf("epoch string: %s, epoch value = %ld\n", epoch_string, epoch_val);
+		}
+	}
+	else
+	{
+		print_parm_error("--epoch"); // do not gettext!
+		return 1;
+	}
+	*epoch_parm_received = TRUE;
+	return 0;
 }
 
 
@@ -734,9 +716,9 @@ int validate_hdate (const int parameter_to_check,
 		/************************************************************
 		* check day in Hebrew date
 		************************************************************/
-		if (year > HEB_YR_LOWER_BOUND)
+		if (year > HDATE_HEB_YR_LOWER_BOUND)
 		{
-			if (year > HEB_YR_UPPER_BOUND) return FALSE;
+			if (year > HDATE_HEB_YR_UPPER_BOUND) return FALSE;
 			if (!h_set) hdate_set_hdate (h, 1, 1, year);
 			if ((day < 1) || (day > 30) ||
 				((day > 29) && ((month==4) || (month==6) || (month==8) || (month==10) || (month==12) || (month==14))) ||
@@ -770,9 +752,9 @@ int validate_hdate (const int parameter_to_check,
 		/************************************************************
 		* check month in Hebrew date
 		************************************************************/
-		if (year > HEB_YR_LOWER_BOUND)
+		if (year > HDATE_HEB_YR_LOWER_BOUND)
 		{
-			if (year > HEB_YR_UPPER_BOUND) return FALSE;
+			if (year > HDATE_HEB_YR_UPPER_BOUND) return FALSE;
 			if ((month <= 0) || (month > 14)) return FALSE;
 			if (!h_set) hdate_set_hdate (h, 1, 1, year);
 			if ((h->hd_size_of_year <365) && (month >12)) return FALSE;
@@ -793,7 +775,7 @@ int validate_hdate (const int parameter_to_check,
 	// (validate_hdate(CHECK_YEAR_PARM
 	// see snippet in custom_days.c:read_custom_days_file
 	case CHECK_YEAR_PARM:
-		if (year > HEB_YR_UPPER_BOUND) return FALSE;
+		if (year > HDATE_HEB_YR_UPPER_BOUND) return FALSE;
 		return TRUE;
 		break;
 	}
@@ -853,6 +835,7 @@ FILE* get_config_file(	const char* config_dir_name,
 			return;
 		}
 		fprintf(config_file, "%s", default_config_file_text);
+		if (!quiet_alerts) printf("%s: %s\n", N_("Succeeded creating config file"), config_file_path);
 		fseek(config_file, 0, SEEK_SET);
 // An example of needing to read a newly created config file
 // is custom_days, which has default custom days

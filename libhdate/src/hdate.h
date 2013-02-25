@@ -1,6 +1,6 @@
-/*  libhdate - Hebrew calendar library: http://libhdate.sourceforge.net
+/** libhdate - Hebrew calendar library: http://libhdate.sourceforge.net
  *
- *  Copyright (C) 2011-2012 Boruch Baum  <boruch-baum@users.sourceforge.net>
+ *  Copyright (C) 2011-2013 Boruch Baum  <boruch-baum@users.sourceforge.net>
  *                2004-2007 Yaacov Zamir <kzamir@walla.co.il>
  *                1984-2003 Amos Shapir
  *  
@@ -65,6 +65,17 @@ extern "C"
 */
 #define HEBREW_NUMBER_BUFFER_SIZE 17
 #define HEBREW_WNUMBER_BUFFER_SIZE 9
+
+/** for hdate_parse_date */
+#define HDATE_PREFER_YM 1
+#define HDATE_PREFER_MD 0
+
+#define HDATE_HEB_YR_UPPER_BOUND 6999
+#define HDATE_HEB_YR_LOWER_BOUND 3000
+#define HDATE_GREG_YR_UPPER_BOUND 2999
+#define HDATE_GREG_YR_LOWER_BOUND 1000
+#define HDATE_JUL_DY_LOWER_BOUND 348021
+
 
 
 /** @struct hdate_struct
@@ -801,7 +812,9 @@ int hdate_parse_date( const char* parm_a, const char* parm_b, const char* parm_c
 					 const int prefer_hebrew, const int prefer_2_parm_ym,
 					 const int base_year_h, const int base_year_g );
 
+int hdate_get_size_of_hebrew_month( const unsigned int month, const unsigned int hebrew_year_type);
 
+int hdate_get_size_of_gregorian_month( const unsigned int month, const unsigned int year);
 #ifdef __cplusplus
 }
 #endif

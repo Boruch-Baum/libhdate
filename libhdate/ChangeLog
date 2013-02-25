@@ -1,3 +1,27 @@
+hdate.c
+- option --epoch to output times in epoch format
+- option to accept a date in epoch format
+- option --usage -?
+- BUGFIXES - parameter parsing
+	
+hcal.c
+- option --usage -?
+
+hdate.1
+- update documentation
+
+hdate_parse_date.c
+- new function: hdate_get_size_of_hebrew_month
+- new function: hdate_get_size_of_gregorian_month
+- BUGFIXES - parameter parsing
+
+custom_days.c
+- added special Shabbatot examples
+
+local_functions.c
+- BUGFIX: parameter parsing
+
+----------------------------------------------------------------------------
 hcal.c
 - migrate from hdate_get_holyday to hdate_get_halachic_day
 - support for custom day symbols

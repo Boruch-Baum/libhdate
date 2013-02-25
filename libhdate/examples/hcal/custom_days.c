@@ -159,6 +159,19 @@ H, _, 3001, 0000, 1,  1, 0, 0, יום ראשון של סליחות, סליחות
 # 2] To mark the Shabbat prior to a yahrtzeit (for various customs)\n\
 H, _, 5741, 0000, 6, 27, 0, 0, שבת זכרון של פלוני, זכרון פלוני, Shabbat yahrtzeit for xxxx, Shabbat yahrtzeit,-6,-7,-1,-2,-3,-4,-5\n\
 #\n\
+# Examples - Special Shabbatot\n\
+# ============================\n\
+# These next few may in the future be hard-coded into libhdate ...\n\
+H, _, 3001, 0000,  1,  1, 0, 0, שבת שובה, שבת שובה, Shabbat Shuva, Shabbat Shuva,           0, 7, -1,  5,  4,  0,  2\n\
+H, _, 3001, 0000,  5, 15, 0, 0, סבת שירה, שבת שירה, Shabbat Shira, Shabbat Shira,           0, 0,  0, -2, -3, -4, -5\n\
+H, _, 3001, 0000,  6,  1, 0, 0, שבת שקלים, שבת שקלים, Shabbat Shekalim, Shabbat Shekalim,  -6, 0,  0, -2, -3, -4,  0\n\
+H, _, 3001, 0000,  6, 14, 0, 0, שבת זכור, זבת זכור, Shabbat Zachor, Shabbat Zachor,        -6, 0, -1,  0, -3,  0, -5\n\
+H, _, 3001, 0000,  6, 14, 0, 0, שבת פרה, שבת פרה, Shabbat Parah, Shabbat Parah,             0, 0,  6,  0,  0,  0,  0\n\
+H, _, 3001, 0000,  7,  1, 0, 0, שבת החודש, שבת החודש, Shabbat HaChodesh, Shabbat HaChodesh, 0, 0, -1,  0, -3,  0, -5\n\
+H, _, 3001, 0000,  7, 15, 0, 0, שבת הגדול, שבת הגדול, Shabbat HaGadol, Shabbat HaGadol,     0,-7, -1,  0, -3,  0, -5\n\
+H, _, 3001, 0000, 10,  9, 0, 0, שבת חזון, שבת חזון, Shabbat Chazon, Shabbat Chazon,         0, 0, -1,  0, -3,  0, -5\n\
+H, _, 3001, 0000, 10,  9, 0, 0, שבת נחמו, שבת נחמו, Shabbat Nachamu, Shabbat Nachamu,       0, 7,  6,  0,  4,  0,  2\n\
+\n\
 # Examples - Israeli national custom days\n\
 # =======================================\n\
 H, ^, 5758, 0000,  2, 12, 0, 0, יום הזכרון ליצחק רבין, יום רבין, Yitzhak Rabin memorial day, Rabin memorial day, -1, -2, 0, 0, 0, 0, 0\n\
@@ -182,14 +195,6 @@ g, :, 1980, 0000,  5,  0, 1, 2, יום הוקרת הפינגיונים לועז 
 H, :, 5750, 0000,  6,  8, 0, 0, פינגיונים מעדיפים יום ד,     _, Penguins Appreciate Wednesday test, _, -2, -3, 3, 0, 0, 0, 0, 0\n\
 G, :, 2000, 0000,  7,  1, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0, 0\n\
 ");
-// code 35 = Cheshvan 12, Rabin Day
-// code 33 = family day
-// code 24 = Nisan 27, Yom HaSho\'a
-// code 26 = Iyyar 28, yom yerushalym 1968
-// code 36 = Tammuz 29, Zhabotinsky day 2005
-// code 25 = Iyyar 4, Yom HaZikaron
-// code 17 = Iyyar 5, Yom HaAzma\'ut
-
 
 
 /*****************************************************************
@@ -482,22 +487,22 @@ int read_custom_days_file(
 		{
 		case 'G':
 		case 'g':
-			if ( (custom_start_year < GREG_YR_LOWER_BOUND) ||
-				 (custom_start_year > GREG_YR_UPPER_BOUND) ||
+			if ( (custom_start_year < HDATE_GREG_YR_LOWER_BOUND) ||
+				 (custom_start_year > HDATE_GREG_YR_UPPER_BOUND) ||
 				 ( (custom_final_year) &&
 				   ( (custom_start_year > custom_final_year)   ||
-					 (custom_final_year > GREG_YR_UPPER_BOUND) ||
-					 (custom_final_year < GREG_YR_LOWER_BOUND)
+					 (custom_final_year > HDATE_GREG_YR_UPPER_BOUND) ||
+					 (custom_final_year < HDATE_GREG_YR_LOWER_BOUND)
 				 ) ) ) continue;
 			break;
 		case 'H':
 		case 'h':
-			if ( (custom_start_year < HEB_YR_LOWER_BOUND) ||
-				 (custom_start_year > HEB_YR_UPPER_BOUND) ||
+			if ( (custom_start_year < HDATE_HEB_YR_LOWER_BOUND) ||
+				 (custom_start_year > HDATE_HEB_YR_UPPER_BOUND) ||
 				 ( (custom_final_year) &&
 				   ( (custom_start_year > custom_final_year)   ||
-					 (custom_final_year > HEB_YR_UPPER_BOUND) ||
-					 (custom_final_year < HEB_YR_LOWER_BOUND)
+					 (custom_final_year > HDATE_HEB_YR_UPPER_BOUND) ||
+					 (custom_final_year < HDATE_HEB_YR_LOWER_BOUND)
 				) ) ) continue;
 			break;
 		}
@@ -603,7 +608,7 @@ int read_custom_days_file(
 			hdate_set_gdate( &custom_day_h, custom_day_of_month + leap_adj, custom_month, range_start.gd_year);
 			custom_day_jd = custom_day_h.hd_jd + adj[custom_day_h.hd_dw-1];
 			if (adj[custom_day_h.hd_dw-1]) hdate_set_jd(&custom_day_h, custom_day_jd);
-			if ( (!d_todo) && (y_todo > HEB_YR_LOWER_BOUND) && (y_todo != custom_day_h.hd_year) )
+			if ( (!d_todo) && (y_todo > HDATE_HEB_YR_LOWER_BOUND) && (y_todo != custom_day_h.hd_year) )
 			{
 				hdate_set_gdate( &custom_day_h, custom_day_of_month, custom_month, range_start.gd_year+1);
 				custom_day_jd = custom_day_h.hd_jd + adj[custom_day_h.hd_dw-1];
@@ -653,7 +658,7 @@ int read_custom_days_file(
 			hdate_set_hdate( &custom_day_h, custom_day_of_month + leap_adj, custom_month, range_start.hd_year);
 			custom_day_jd = custom_day_h.hd_jd + adj[custom_day_h.hd_dw-1];
 			if (adj[custom_day_h.hd_dw-1]) hdate_set_jd(&custom_day_h, custom_day_jd);
-			if ( (!d_todo) && (y_todo <= HEB_YR_LOWER_BOUND) && (y_todo != custom_day_h.gd_year) )
+			if ( (!d_todo) && (y_todo <= HDATE_HEB_YR_LOWER_BOUND) && (y_todo != custom_day_h.gd_year) )
 			{
 				hdate_set_hdate( &custom_day_h, custom_day_of_month, custom_month, range_start.hd_year+1); //?
 				custom_day_jd = custom_day_h.hd_jd + adj[custom_day_h.hd_dw-1];
@@ -670,7 +675,7 @@ int read_custom_days_file(
 			hdate_set_jd(&custom_day_h, custom_day_jd);
 			if ((custom_nth==5) && ( custom_month != custom_day_h.gd_mon))
 			{
-				if ( (!d_todo) && (y_todo > HEB_YR_LOWER_BOUND) && (y_todo != custom_day_h.hd_year) )
+				if ( (!d_todo) && (y_todo > HDATE_HEB_YR_LOWER_BOUND) && (y_todo != custom_day_h.hd_year) )
 				{
 					hdate_set_gdate( &custom_day_h, 1, custom_month, range_start.gd_year+1);
 					custom_day_jd = custom_day_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - custom_day_h.hd_dw);
@@ -679,7 +684,7 @@ int read_custom_days_file(
 				}
 				else continue;
 			}
-			else if ( (!d_todo) && (y_todo > HEB_YR_LOWER_BOUND) && (y_todo != custom_day_h.hd_year) )
+			else if ( (!d_todo) && (y_todo > HDATE_HEB_YR_LOWER_BOUND) && (y_todo != custom_day_h.hd_year) )
 			{
 				hdate_set_gdate( &custom_day_h, 1, custom_month, range_start.gd_year+1);
 				custom_day_jd = custom_day_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - custom_day_h.hd_dw);
@@ -698,7 +703,7 @@ int read_custom_days_file(
 			hdate_set_jd(&custom_day_h, custom_day_jd);
 			if ((custom_nth==5) && ( custom_month != custom_day_h.hd_mon))
 			{
-				if ( (!d_todo) && (y_todo <= HEB_YR_LOWER_BOUND) && (y_todo != custom_day_h.gd_year) )
+				if ( (!d_todo) && (y_todo <= HDATE_HEB_YR_LOWER_BOUND) && (y_todo != custom_day_h.gd_year) )
 				{
 					hdate_set_hdate( &custom_day_h, 1, custom_month, range_start.hd_year+1);
 					custom_day_jd = custom_day_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - custom_day_h.hd_dw);
@@ -707,7 +712,7 @@ int read_custom_days_file(
 				}
 				else continue;
 			}
-			else if ( (!d_todo) && (y_todo <= HEB_YR_LOWER_BOUND) && (y_todo != custom_day_h.gd_year) )
+			else if ( (!d_todo) && (y_todo <= HDATE_HEB_YR_LOWER_BOUND) && (y_todo != custom_day_h.gd_year) )
 			{
 				hdate_set_hdate( &custom_day_h, 1, custom_month, range_start.hd_year+1);
 				custom_day_jd = custom_day_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - custom_day_h.hd_dw);
@@ -747,7 +752,7 @@ int read_custom_days_file(
 			if (m_todo)
 			{
 				/// interval is for an entire month
-				if (y_todo > HEB_YR_LOWER_BOUND)
+				if (y_todo > HDATE_HEB_YR_LOWER_BOUND)
 				{
 					if ( m_todo != custom_day_h.hd_mon) continue;
 				}
@@ -759,7 +764,7 @@ int read_custom_days_file(
 			else
 			{
 				/// (!m) interval is for an entire year
-				if (y_todo > HEB_YR_LOWER_BOUND)
+				if (y_todo > HDATE_HEB_YR_LOWER_BOUND)
 				{
 					if (y_todo != custom_day_h.hd_year) continue;
 				}

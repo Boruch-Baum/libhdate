@@ -23,7 +23,7 @@ hdate \- displays Hebrew date information for a given Gregorian/Julian date
 .RI [ options "] [" coordinates "] [" timezone "] [" datespec ]
 .P
 .B hdate
-.RI [ options "] [" coordinates "] [" timezone "] [" julian_day ]
+.RI [ options "] [" coordinates "] [" timezone "] [" julian_day | time_t ]
 .TP
 .IR coordinates\: " \fB\-l\fP [N|S]" yy [. yyy "] " "    \fB\-L\fP" " [E|W]" xx [. xxx ]
 .RE
@@ -43,13 +43,18 @@ hdate \- displays Hebrew date information for a given Gregorian/Julian date
 \fBhdate\fP provides the date according to the Hebrew calendar, that day's corresponding date according to the gregorian calendar, and optionally providess further information about that Hebrew date, including holidays and astronomical-related times (see section \fBLOCATIONS\fP). If no arguments are given, \fBhdate\fP provides information for the current date. If a single numeric argument is given, \fBhdate\fP interprets it as a year, and provides the requested information for \fIall\fP days of that year. If two arguments are given, \fBhdate\fP interprets them  as a month and a year, and provides the requested information for \fIall\fP days of that month.
 .PP 
 .B INPUTTING A HEBREW DATE:
-\fBhdate\fP interprets year values greater than 3000 as Hebrew dates. Numeric Hebrew months are interpreted as 1-12 for Tishrei - Elul; 13 and 14 for Adar I and Adar II. Currently, the maximum value \fBhdate\fP accepts for a Hebrew year is 10999.
+\fBhdate\fP interprets year values greater than 3000 as Hebrew dates. Numeric Hebrew months are interpreted as 1-12 for Tishrei - Elul; 13 and 14 for Adar I and Adar II. Currently, the maximum value \fBhdate\fP accepts for a Hebrew year is 6999.
 .PP 
 .B INPUTTING A GREGORIAN DATE:
 \fBhdate\fP interprets year values in the range 1000 - 2999 as gregorian. Numeric months are interpreted as 1-12 for January - December.
 .PP
 .B INPUTTING A JULIAN DAY:
 If a single numeric argument is provided, and that argument is \fIgreater\fP than 348021, \fBhdate\fP interprets it as a "julian day number" and provides information for that Julian day's corresponding Hebrew date. See section \fBJULIAN DAY\fP.
+.PP
+.B INPUTTING AN EPOCH DATE:
+\fBhdate\fP interprets a number preceded by a '@' as a \fItime_t\fP value, representing the number of seconds elapsed since the Epoch, 1970-01-01 00:00:00 +0000 (UTC). A second way to provide an epoch date value is as a parameter to the
+.BR -E " ("--epoch)
+option, without the leading '@'.
 .PP
 .B ACCEPTABLE DATE FORMATS:
 Prior versions of \fBhdate\fP insisted on the numeric date format
@@ -86,6 +91,12 @@ begin printing times-of-day at sunset or candle
 .RS 3
 .B --no-erev
 .RE
+.TP
+.B \-E --epoch
+print times of day in epoch format, ie. the number of seconds elapsed since the Epoch, 1970-01-01 00:00:00 +0000 (UTC).
+.TP
+\fB-E --epoch\fP \fItime_t\fP
+get information for this epoch date, instead of for \fIdatespec\fP.
 .TP
 .B \-h --holidays
 print holiday name if day is a holiday, and print \fIcustom day\fP name if day is marked as a \fIcustom day\fP. See section \fBHOLIDAYS AND CUSTOM DAYS\fi.
@@ -150,18 +161,19 @@ print sunrise and sunset times.
 .RS 7
 .B \ \ \ --sunset
 .TP 18
-.B \-s --shabbat
-print Shabbat start and end times. Use a specific long option to modify its default.
+.B \-s --shabbat-times
 .RS 0
-.B \ \ \ --shabbat-times
+.B \ \ \ --shabbat
+\     print Shabbat start and end times.
 .RS 0
-.B \ \ \ --candles
-\     default is 20 minutes before sunset. (17<n<91)
+
+.B \ \ \ --candles-lighting \fP[\fInn\fP]
 .RS 0
-.B \ \ \ --candle-lighting
+.B \ \ \ --candle \fP[\fInn\fP]
+\  (17<nn<91) default is 20 minutes before sunset.
 .RS 0
-.B \ \ \ --havdalah
-\    default is 3 stars. (19<n<91 minutes)
+.B \ \ \ --havdalah \fP[\fInn\fP]
+(19<nn<91 minutes) default is 3 stars.
 .TP 18
 .B \-S --short-format
 print using short format.

@@ -31,8 +31,7 @@
 #define DEFAULT_MOTZASH_MINUTES 72
 #define MAX_MOTZASH_MINUTES 90
 
-// maybe move this ...
-#define JERUSALEM_STANDARD_TIME_IN_MINUTES 120
+
 
 /// validate_hdate(...)
 #define CHECK_DAY_PARM   1
@@ -75,6 +74,7 @@ int parse_date( const char* parm_a, const char* parm_b, const char* parm_c,
 
 void print_parm_error ( const char *parm_name );
 void print_parm_missing_error ( const char *parm_name );
+void print_option_unknown_error ( const char *parm_name );
 
 int menu_select( char* menu_list[], int max_menu_items );
 int menu_item_parse(char* menuptr, size_t menu_len, int *menu_index,
@@ -93,3 +93,5 @@ void get_epoch_time_range( time_t *retval_start, time_t *retval_end,
 					const int gyear0, const int gmonth0, const int gday0,
 					const int gyear1, const int gmonth1, const int gday1
 					);
+					
+int parse_epoch_value( const char* epoch_string, time_t* epoch_val, int* epoch_parm_received );

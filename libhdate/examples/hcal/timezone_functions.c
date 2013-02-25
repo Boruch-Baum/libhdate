@@ -36,11 +36,13 @@
 #include <sys/stat.h>	/// for stat
 #include <locale.h>		/// for setlocale
 #include <zdump3.h>		/// for struct zdumpinfo
+#include "timezone_functions.h"
 
 #define TZIF1_FIELD_SIZE 4
 #define TZIF2_FIELD_SIZE 8
 
-#define JERUSALEM_STANDARD_TIME_IN_MINUTES 120
+/// defined in header file
+/// #define JERUSALEM_STANDARD_TIME_IN_MINUTES 120
 
 /***************************************************
 * 

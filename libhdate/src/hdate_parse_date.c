@@ -53,7 +53,7 @@ typedef struct {
 	int* ret_month;
 	int* ret_day;
 	int prefer_hebrew;
-	int prefer_2_parm_ym;
+	int prefer_parm;
 	int base_year_h;
 	int base_year_g;
 	} parse_date_struct;
@@ -76,6 +76,59 @@ void print_parm_mismatch_error()
 			N_("month and year parameters mismatched (Hebrew/gregorian mix)"));
 }
 
+
+
+/****************************************************
+* hdate_get_size_of_hebrew_month
+* returns -1 on error
+***************************************************/
+int hdate_get_size_of_hebrew_month( const unsigned int month, const unsigned int hebrew_year_type)
+{
+	if ((month < 1) || (month > 14) || (hebrew_year_type < 1) || (hebrew_year_type > 14)) return -1;
+	if (month == 2)
+	{
+		switch (hebrew_year_type)
+		{
+		case 1:	case 2:	case 3:	case 4:	case 8:	case 9:	case 10: case 11: return 29; break;
+		case 5: case 6: case 7:	case 12: case 13: case 14: return 30; break;
+		}
+	}
+	else if (month == 3)
+	{
+		switch (hebrew_year_type)
+		{
+		case 1: case 2: case 8: case 9: case 10: return 29; break;
+		case 3: case 4: case 5: case 6: case 7:	case 11: case 12: case 13: case 14: return 30; break;
+		}
+	}
+	else if (month%2) return 30;
+	else return 29;
+	return -1;
+}
+
+
+/****************************************************
+* hdate_get_size_of_hebrew_month
+* returns -1 on error
+***************************************************/
+int hdate_get_size_of_gregorian_month( const unsigned int month, const unsigned int year)
+{
+	if ((month < 1) || (month > 12) || (year < HDATE_GREG_YR_LOWER_BOUND) || (year > HDATE_GREG_YR_UPPER_BOUND)) return -1;
+	switch (month)
+	{
+	case 1: case 3: case 5: case 7: case 10: case 12: return 31; break;
+	case 4: case 6: case 9: case 11: return 30; break;
+	case 2:
+		if (year%4) return 28;
+		else if (year%100) return 29;
+		else if (year%400) return 28;
+		else return 29;
+		break;
+	}
+	return -1;
+}
+
+
 /****************************************************
 * initial_parse
 ***************************************************/
@@ -89,7 +142,7 @@ int initial_parse( const char* parm_str, int* parm_val, int* parm_id, parse_date
 	if (parm_len == parm_span) /// numeric parm
 	{
 		*parm_val = atoi(parm_str);
-		if (   (*parm_val > HEB_YR_UPPER_BOUND) ||
+		if (   (*parm_val > HDATE_HEB_YR_UPPER_BOUND) ||
 			 ( (*parm_val < YR_LOWER_4_BOUND) && (*parm_val > YR_UPPER_2_BOUND) ) )
 			{print_parm_error(year_text); return FALSE;}
 		else
@@ -153,7 +206,7 @@ int second_parse( int a, int b, parse_date_struct* p)
 {
 	/// The prejudice here is mm dd, but you can overrule that
 	/// by just passing the parameters in reverse.
-	if (*p->ret_year >= HEB_YR_LOWER_BOUND)
+	if (*p->ret_year >= HDATE_HEB_YR_LOWER_BOUND)
 	{
 		if ((a > HDAY_UPPER_BOUND) || (b > HDAY_UPPER_BOUND))
 						{print_parm_error(day_text); return FALSE;};
@@ -169,7 +222,7 @@ int second_parse( int a, int b, parse_date_struct* p)
 			*p->ret_day = a;
 		}
 	}
-	else if (*p->ret_year >= GREG_YR_LOWER_BOUND)
+	else if (*p->ret_year >= HDATE_GREG_YR_LOWER_BOUND)
 	{
 		// This should be impossible at this point, because we only
 		// get here if both a and b are <= GDAY_UPPER_BOUND
@@ -372,7 +425,7 @@ int gregorian_three_parm_parse()
 	// or something simpler?
 int hdate_parse_date( const char* parm_a, const char* parm_b, const char* parm_c,
 					 int* ret_year, int* ret_month, int* ret_day, const int parm_cnt,
-					 const int prefer_hebrew, const int prefer_2_parm_ym,
+					 const int prefer_hebrew, const int prefer_parm,
 					 const int base_year_h, const int base_year_g )
 {
 	hdate_struct h;
@@ -388,7 +441,7 @@ int hdate_parse_date( const char* parm_a, const char* parm_b, const char* parm_c
 	p.ret_month = ret_month;
 	p.ret_day = ret_day;
 	p.prefer_hebrew = prefer_hebrew;
-	p.prefer_2_parm_ym = prefer_2_parm_ym;
+	p.prefer_parm = prefer_parm;
 	p.base_year_g = base_year_g;
 	p.base_year_h = base_year_h;
 	
@@ -432,32 +485,70 @@ int hdate_parse_date( const char* parm_a, const char* parm_b, const char* parm_c
 		}
 		else if (p.a_id != MUST_BE_YEAR) /// two-digit value < 32
 		{
-			if (!p.prefer_hebrew)
+			if (p.prefer_parm == HDATE_PREFER_YM)
 			{
-				if (p.a_val <= GMONTH_UPPER_BOUND)
+				if (!p.prefer_hebrew)
 				{
-					*p.ret_month = p.a_val;
-					hdate_set_gdate (&h, 0, 0, 0);	/// set date for today
-					*p.ret_year = h.gd_year;
-				}
-				else
-				{
-					*p.ret_month = 0;
-					*p.ret_year = p.a_val + p.base_year_g;
-				}
-			}
-			else /// (p.prefer_hebrew)
-			{
-				if (p.a_val <= HMONTH_UPPER_BOUND)
-				{
-					hdate_set_gdate (&h, 0, 0, 0);	/// set date for today
-					if ( (p.a_val > GMONTH_UPPER_BOUND) && (h.hd_size_of_year < 383 ) )
+					if (p.a_val <= GMONTH_UPPER_BOUND)
+					{
+						*p.ret_month = p.a_val;
+						hdate_set_gdate (&h, 0, 0, 0);	/// set date for today
+						*p.ret_year = h.gd_year;
+					}
+					else
 					{
 						*p.ret_month = 0;
-						*p.ret_year = p.a_val + p.base_year_h;
+						*p.ret_year = p.a_val + p.base_year_g;
 					}
-					*p.ret_month = p.a_val + 100;
-					*p.ret_year = h.hd_year;;
+				}
+				else /// (p.prefer_hebrew)
+				{
+					if (p.a_val <= HMONTH_UPPER_BOUND)
+					{
+						hdate_set_gdate (&h, 0, 0, 0);	/// set date for today
+						if ( (p.a_val > GMONTH_UPPER_BOUND) && (h.hd_size_of_year < 383 ) )
+						{
+							*p.ret_month = 0;
+							*p.ret_year = p.a_val + p.base_year_h;
+						}
+						*p.ret_month = p.a_val + 100;
+						*p.ret_year = h.hd_year;;
+					}
+				}
+			}
+			else /// (p.prefer_parm == HDATE_PREFER_MD)
+			{
+				if (p.prefer_hebrew)
+				{
+					hdate_set_gdate (&h, 0, 0, 0);	/// set date for today
+					if (p.a_val <= hdate_get_size_of_hebrew_month(h.hd_mon, h.hd_year_type))
+					{
+						*p.ret_day = p.a_val;
+						*p.ret_month = h.hd_mon + 100;
+						*p.ret_year = h.hd_year;
+					}
+					else  /// treat as two digit Hebrew year
+					{
+						*p.ret_day = 0;
+						*p.ret_month = 0;
+						*p.ret_year = p.a_val + base_year_h;
+					}
+				}
+				else /// (!p.prefer_hebrew)
+				{
+					hdate_set_gdate (&h, 0, 0, 0);	/// set date for today
+					if ( p.a_val <= hdate_get_size_of_gregorian_month( h.gd_mon, h.gd_year) )
+					{
+						*p.ret_day = p.a_val;
+						*p.ret_month = h.gd_mon;
+						*p.ret_year = h.gd_year;
+					}
+					else /// treat as two digit gregorian year
+					{
+						*p.ret_day = 0;
+						*p.ret_month = 0;
+						*p.ret_year = p.a_val + base_year_g;
+					}
 				}
 			}
 		}
@@ -472,8 +563,8 @@ int hdate_parse_date( const char* parm_a, const char* parm_b, const char* parm_c
 			return FALSE;
 			break;
 	case 11:	/// MUST_BE_YEAR && MUST_BE_MONTH
-			if ( ( (*p.ret_year >= HEB_YR_LOWER_BOUND) && (*p.ret_month < 101) ) ||
-			     ( (*p.ret_year <= GREG_YR_UPPER_BOUND) && (*p.ret_month > 100) ) )
+			if ( ( (*p.ret_year >= HDATE_HEB_YR_LOWER_BOUND) && (*p.ret_month < 101) ) ||
+			     ( (*p.ret_year <= HDATE_GREG_YR_UPPER_BOUND) && (*p.ret_month > 100) ) )
 			{
 				print_parm_mismatch_error();
 				return FALSE;
@@ -486,7 +577,7 @@ int hdate_parse_date( const char* parm_a, const char* parm_b, const char* parm_c
 	case 10:	/// MUST_BE_MONTH
 			if (p.a_id == MUST_BE_MONTH) *p.ret_year = p.b_val;
 			else  *p.ret_year = p.a_val;
-			if (p.prefer_2_parm_ym)
+			if (p.prefer_parm == HDATE_PREFER_YM)
 			{
 				*p.ret_day = 0;
 				set_gh_year_month( *p.ret_year, *p.ret_month, &p );
@@ -529,7 +620,7 @@ int hdate_parse_date( const char* parm_a, const char* parm_b, const char* parm_c
 				print_parm_error(month_text);
 				return FALSE;
 			}
-			if (*p.ret_year >= HEB_YR_LOWER_BOUND)
+			if (*p.ret_year >= HDATE_HEB_YR_LOWER_BOUND)
 				set_hmonth( *p.ret_month, &p );
 			else if ( (*p.ret_year >= YR_LOWER_4_BOUND) &&
 					  (*p.ret_month > GMONTH_UPPER_BOUND) )
@@ -580,8 +671,8 @@ int hdate_parse_date( const char* parm_a, const char* parm_b, const char* parm_c
 			return FALSE;
 			break;
 	case 11:	/// MUST_BE_YEAR && MUST_BE_MONTH
-			if ( ( (*p.ret_year >= HEB_YR_LOWER_BOUND) && (*p.ret_month < 101) ) ||
-			     ( (*p.ret_year <= GREG_YR_UPPER_BOUND) && (*p.ret_month > 100) ) )
+			if ( ( (*p.ret_year >= HDATE_HEB_YR_LOWER_BOUND) && (*p.ret_month < 101) ) ||
+			     ( (*p.ret_year <= HDATE_GREG_YR_UPPER_BOUND) && (*p.ret_month > 100) ) )
 			{
 				print_parm_mismatch_error();
 				return FALSE;

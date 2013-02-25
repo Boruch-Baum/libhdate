@@ -4,7 +4,8 @@
  * compile:
  * gcc `pkg-config --libs --cflags libhdate` hcal.c -o hcal
  *
- * Copyright:  2011-2013 (c) Boruch Baum, 2004-2010 (c) Yaacov Zamir
+ *  Copyright (C) 2011-2013 Boruch Baum  <boruch-baum@users.sourceforge.net>
+ *                2004-2010 Yaacov Zamir <kzamir@walla.co.il>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -320,7 +321,7 @@ VERSION=2.00\n\
 *************************************************/
 int print_version ()
 {
-	printf ("hcal (libhdate) 1.6\n\
+	printf ("hcal (libhdate) 1.8\n\
 Copyright (C) 2011-2013 Boruch Baum, 2004-2010 Yaacov Zamir\n\
 License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\
 This is free software: you are free to change and redistribute it.\n\
@@ -334,10 +335,12 @@ There is NO WARRANTY, to the extent permitted by law.\n");
 void print_usage_hcal ()
 {
 	printf ("%s\n",
-N_("Usage: hcal [options] [coordinates timezone] ] [[month] year]\n\
-       coordinates: -l [NS]yy[.xxx] -L [EW]xx[.xxx]\n\
-                    -l [NS]yy[:mm[:ss]] -L [EW]xx[:mm[:ss]]\n\
-       timezone:    -z nn[( .nn | :mm )]"));
+N_("Usage: hcal [options] [coordinates] [timezone] [date_spec]\n\
+       hdate [options] [coordinates] [timezone] [julian_day|time_t]\n\n\
+       coordinates: -l [NS]yy[.xxx]     -L [EW]xx[.xxx]\n\
+                    -l [NS]yy[:mm[:ss]] -L [EW]xx[:mm[:ss]]\n\n\
+       timezone:    -z [ [nn[.nn|:mm]] | tz_name ]\n\n\
+       date_spec:   [ [[month] year] | flexible_entry ]"));
 }
 
 /**************************************************
@@ -956,7 +959,7 @@ int print_header ( const int month, const int year, const option_list* opt)
 			header.h_month_1 = h.hd_mon;
 			header.h_year_1 = h.hd_year;
 	
-			hdate_set_jd ( &h, h.hd_jd + length_of_hmonth( h.hd_mon, h.hd_year_type) -1  );
+			hdate_set_jd ( &h, h.hd_jd + hdate_get_size_of_hebrew_month( h.hd_mon, h.hd_year_type) -1  );
 			header.g_month_2 = h.gd_mon;
 			header.g_year_2 = h.gd_year;
 			header.h_month_2 = h.hd_mon;
@@ -1797,7 +1800,7 @@ int print_month ( const int month, const int year, option_list* opt)
 	int jd_counter, holiday, footnote_month;/// for opt->footnote
 	char* tz_name_input; 					/// for timezone parsing
 	/// check if hebrew year
-	if (year > HEB_YR_LOWER_BOUND)
+	if (year > HDATE_HEB_YR_LOWER_BOUND)
 	{
 		hdate_set_hdate (&h, 1, month, year);
 		calendar_type = 'H';
@@ -2232,6 +2235,7 @@ int hcal_parser( const int switch_arg, option_list *opt,
 /** --prefer-hebrew		*/	case 30: opt->prefer_hebrew = TRUE;
 /** --prefer-gregorian	*/	case 31: opt->prefer_hebrew = FALSE;
 /** --bold              */	case 32: break;
+/** --usage             */  case 33: break;
 		} /// end switch for long_options
 		break;
 
@@ -2288,10 +2292,7 @@ int hcal_parser( const int switch_arg, option_list *opt,
 		}
 		break;
 	case '?':
-		// FIXME if (strchr(short_options,optopt)!=NULL)
-			print_parm_missing_error((char*) &optopt);
-		error_detected = TRUE;
-		break;
+		if (( optopt != '?') && (long_option_index != 33) ) print_option_unknown_error ( (char*) &optopt );
 	default:
 		print_usage_hcal();
 		print_try_help_hcal();
@@ -2392,7 +2393,7 @@ int main (int argc, char *argv[])
 
 	/// support for long options
 	int long_option_index = 0;
-	int c;
+	int switch_arg;
 	const struct option long_options[] = {
 	///   name,  has_arg, flag, val
 		{"version", no_argument, 0, 0},
@@ -2428,6 +2429,7 @@ int main (int argc, char *argv[])
 		{"prefer-hebrew", no_argument, 0, 0},
 		{"prefer-gregorian", no_argument, 0, 0},
 		{"bold", no_argument, 0, 'B'},
+		{"usage", no_argument, 0, '?'},
 		{0, 0, 0, 0}
 		};
 
@@ -2481,11 +2483,11 @@ int main (int argc, char *argv[])
 	/************************************************************
 	* parse command line
 	************************************************************/
- 	while ((c = getopt_long(argc, argv,
+ 	while ((switch_arg = getopt_long(argc, argv,
 							short_options, long_options,
 							&long_option_index)) != -1)
 		error_detected = error_detected
-						+ hcal_parser(c, &opt, &lat, &lon, 
+						+ hcal_parser(switch_arg, &opt, &lat, &lon, 
 									&tz, opt.tz_name_str, long_option_index);
 
 
@@ -2508,12 +2510,12 @@ int main (int argc, char *argv[])
 			optptr = NULL;
 			optarg = NULL;
 
-			while (( c = menu_item_parse( menuptr, menu_len, &menu_index,
+			while (( switch_arg = menu_item_parse( menuptr, menu_len, &menu_index,
 								&optptr, short_options, long_options,
 								&long_option_index, &error_detected) ) != -1)
 			{
 				error_detected = error_detected + 
-					hcal_parser(c, &opt, &lat, &lon,
+					hcal_parser(switch_arg, &opt, &lat, &lon,
 								&tz, opt.tz_name_str, long_option_index);
 			}
 		}
@@ -2683,20 +2685,20 @@ int main (int argc, char *argv[])
 	{
 		if (opt.three_month)
 		{
-			if (year > HEB_YR_LOWER_BOUND) hdate_set_hdate( &h, 1, 1, year);
+			if (year > HDATE_HEB_YR_LOWER_BOUND) hdate_set_hdate( &h, 1, 1, year);
 			else hdate_set_gdate( &h, 1, 1, year);
 
 			for (month=2; month<num_of_months; month=month+3)
 			{
 				if (opt.separator != NULL ) print_border( opt );
 				if ( (h.hd_size_of_year > 355 )  &&
-					 (year > HEB_YR_LOWER_BOUND) &&
+					 (year > HDATE_HEB_YR_LOWER_BOUND) &&
 					 (month == 8)               )
 					month = 7;
 				print_month (month, year, &opt);
 			}
 
-			if  ( (year > HEB_YR_LOWER_BOUND) &&
+			if  ( (year > HDATE_HEB_YR_LOWER_BOUND) &&
 				  ( (h.hd_size_of_year > 355 ) || (opt.gregorian > 1)) )
 			{
 				if (opt.separator != NULL ) print_border( opt );
@@ -2735,7 +2737,7 @@ int main (int argc, char *argv[])
 				else print_month (month, year, &opt);
 	 			if ((opt.footnote) && (month<=num_of_months)) printf("\n");
 			}
-			if ( (opt.gregorian > 1) && (year > HEB_YR_LOWER_BOUND) )
+			if ( (opt.gregorian > 1) && (year > HDATE_HEB_YR_LOWER_BOUND) )
 			{
 	 			if (opt.footnote) printf("\n");
 				print_month( 1, year+1, &opt) ;

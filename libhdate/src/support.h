@@ -1,9 +1,7 @@
 /** support.h            http://libhdate.sourceforge.net
  *  headers and macros for hcal and hdate (part of package libhdate)
  *
- *  Copyright (c): 2012  Baruch Baum
- *                 2004-2007  Yaacov Zamir <kzamir@walla.co.il>
- *                 1984-2003 Amos Shapir
+ *  Copyright (C) 2011-2013 Boruch Baum  <boruch-baum@users.sourceforge.net>
  *  
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -74,9 +72,3 @@
 *	to go for a +14 hour timezone instead of a -10 hour one.
 **/
 #define DELTA_LONGITUDE 45
-
-#define HEB_YR_UPPER_BOUND 10999
-#define HEB_YR_LOWER_BOUND 3000
-#define GREG_YR_UPPER_BOUND 2999
-#define GREG_YR_LOWER_BOUND 1000
-#define JUL_DY_LOWER_BOUND 348021
