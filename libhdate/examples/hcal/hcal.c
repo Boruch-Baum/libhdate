@@ -215,7 +215,7 @@ VERSION=2.00\n\
 # variable PREFER_HEBREW=FALSE to have them interpreted as gregorian,\n\
 # and have BASE_YEAR_GREGORIAN added to them.\n\
 #PREFER_HEBREW=TRUE\n\
-# valid values for BASE_YEAR_HEBREW are 3000 - 10900\n\
+# valid values for BASE_YEAR_HEBREW are 3000 - 6900\n\
 #BASE_YEAR_HEBREW=5700\n\
 # valid values for BASE_YEAR_GREGORIAN are 1000 - 2900\n\
 #BASE_YEAR_GREGORIAN=2000\n\n\
@@ -1678,10 +1678,10 @@ int print_calendar ( int current_month, int current_year, option_list* opt)
 		*********************************************************/
 		if (opt->gregorian < 2)
 		{
-			if (current_month != 12)
+			if (opt->three_month != 12)
 			{
 				next_month = hmonth_next( current_month, &h );
-				next_year = (current_month==12 ? current_year+1: current_year);
+				next_year = (next_month==1 ? current_year+1: current_year);
 				hdate_set_hdate (&h, 1, next_month, next_year);
 			}
 		}
@@ -1821,13 +1821,19 @@ int print_month ( const int month, const int year, option_list* opt)
 		// TODO - 'three-month mode custom days...
 		//     at this point only for color mode highlighting because
 		//     we don't allow foornotes for three month mode
-		opt->custom_days_cnt = get_custom_days_list(
-								&opt->jdn_list_ptr, &opt->string_list_ptr,
-								0, month, year,
-								calendar_type, opt->quiet_alerts, h,
-								"/hcal", "/custom_days_v1.8",
-								HDATE_STRING_LONG, opt->force_hebrew);
-// test_print_custom_days(opt->custom_days_cnt, opt->jdn_list_ptr, opt->string_list_ptr);
+		FILE *custom_file = NULL;
+		if (get_custom_days_file( "/hcal", "/custom_days_v1.8",
+								  opt->tz_name_str, opt->quiet_alerts,
+								  &custom_file))
+		{
+			opt->custom_days_cnt = read_custom_days_file(custom_file,
+									&opt->jdn_list_ptr, &opt->string_list_ptr,
+									0, month, year,
+									calendar_type, h,
+									HDATE_STRING_LONG, opt->force_hebrew);
+			// test_print_custom_days(opt->custom_days_cnt, opt->jdn_list_ptr, opt->string_list_ptr);
+			fclose(custom_file);
+		}
 	}
 
 	/// get dst transition information, if necessary
@@ -1990,7 +1996,10 @@ void read_config_file(	FILE *config_file,
 								"THREE_MONTH",		//16
 								"MENU",
 								"CANDLE_LIGHTING",	//18
-								"HAVDALAH"
+								"HAVDALAH",
+								"PREFER_HEBREW",	//20
+								"BASE_YEAR_HEBREW",
+								"BASE_YEAR_GREGORIAN"//22
 								};
 //  TODO - parse these!
 //	opt.prefer_hebrew = TRUE;
@@ -2113,6 +2122,24 @@ void read_config_file(	FILE *config_file,
 					opt->havdalah = atoi(input_value);
 					if (opt->havdalah < MIN_MOTZASH_MINUTES) opt->havdalah = MIN_MOTZASH_MINUTES;
 					else if (opt->havdalah > MAX_MOTZASH_MINUTES) opt->havdalah = MAX_MOTZASH_MINUTES;
+				}
+				break;
+///		PREFER_HEBREW
+		case 20:if      (strcmp(input_value,"FALSE") == 0) opt->prefer_hebrew = 0;
+				else if (strcmp(input_value,"TRUE") == 0) opt->prefer_hebrew = 1;
+				break;
+///		BASE_YEAR_HEBREW
+		case 21:if (fnmatch( "[3456][[:digit:]][[:digit:]][[:digit:]]", input_value, FNM_EXTMATCH) == 0)
+				{
+					opt->base_year_h = atoi(input_value);
+					if (opt->base_year_h > (HDATE_HEB_YR_UPPER_BOUND-99)) opt->base_year_h = HDATE_DEFAULT_BASE_YEAR_H;
+				}
+				break;
+///		BASE_YEAR_GREGORIAN
+		case 22:if (fnmatch( "[12][[:digit:]][[:digit:]][[:digit:]]", input_value, FNM_EXTMATCH) == 0)
+				{
+					opt->base_year_g = atoi(input_value);
+					if (opt->base_year_g > (HDATE_GREG_YR_UPPER_BOUND-99)) opt->base_year_g = HDATE_DEFAULT_BASE_YEAR_G;
 				}
 				break;
 
@@ -2323,8 +2350,8 @@ int main (int argc, char *argv[])
 
 	option_list opt;
 	opt.prefer_hebrew = TRUE;
-	opt.base_year_h = 5700;		// TODO - Make this user-selectable
-	opt.base_year_g = 2000;		// TODO - Make this user-selectable
+	opt.base_year_h = HDATE_DEFAULT_BASE_YEAR_H;		// TODO - Make this user-selectable
+	opt.base_year_g = HDATE_DEFAULT_BASE_YEAR_G;		// TODO - Make this user-selectable
 	opt.gregorian = 0;			/// -0 don't display any gregorian information
 	opt.bidi = 0;				/// visual bidi, implies --force-hebrew
 	opt.html = 0;				/// -h html format flag
@@ -2471,8 +2498,9 @@ int main (int argc, char *argv[])
 	//# PREFER_HEBREW=TRUE
 	//# BASE_YEAR_HEBREW=5700
 	// # BASE_YEAR_GREGORIAN=2000
-	FILE *config_file = get_config_file("/hcal", "/hcalrc_v1.8", hcal_config_file_text, opt.quiet_alerts);
-	if (config_file != NULL)
+	FILE *config_file = NULL;
+	if (get_config_file("/hcal", "/hcalrc_v1.8", hcal_config_file_text,
+						opt.quiet_alerts, &config_file))
 	{
 		read_config_file(config_file, &opt, &lat, &lon, &tz, opt.tz_name_str);
 		fclose(config_file);

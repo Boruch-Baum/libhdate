@@ -47,14 +47,23 @@ int length_of_hmonth( const int month, const int year_type );
 int length_of_gmonth( const unsigned int month, const unsigned int year );
 
 
-/// check_for_sunset
+/// check_for_sunset(...)
 int check_for_sunset (hdate_struct * h, double lat, double lon, int timezone );
 
+/// assemble config file path name(...)
+char* assemnble_config_file_pathname (	const char* config_dir_name,
+										const char* config_file_name,
+										const int quiet_alerts );
+
 /// get_config_file(...)
-FILE* get_config_file(	const char* config_dir_name,
+int get_config_file(	const char* config_dir_name,
 						const char* config_file_name,
 						const char* default_config_file_text,
-						const int quiet_alerts );
+						const int quiet_alerts,
+						FILE** config_file);
+
+///  greetings_to_version_18
+void greetings_to_version_18();
 
 /// revstr(...)
 int revstr( char *source, const size_t source_len);
@@ -75,6 +84,7 @@ int parse_date( const char* parm_a, const char* parm_b, const char* parm_c,
 void print_parm_error ( const char *parm_name );
 void print_parm_missing_error ( const char *parm_name );
 void print_option_unknown_error ( const char *parm_name );
+void print_config_file_create_error( int error_code, char* config_file_path );
 
 int menu_select( char* menu_list[], int max_menu_items );
 int menu_item_parse(char* menuptr, size_t menu_len, int *menu_index,

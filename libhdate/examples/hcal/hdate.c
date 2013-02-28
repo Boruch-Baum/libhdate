@@ -206,7 +206,7 @@ VERSION=2.00\n\
 # variable PREFER_HEBREW=FALSE to have them interpreted as gregorian,\n\
 # and have BASE_YEAR_GREGORIAN added to them.\n\
 #PREFER_HEBREW=TRUE\n\
-# valid values for BASE_YEAR_HEBREW are 3000 - 10900\n\
+# valid values for BASE_YEAR_HEBREW are 3000 - 6900\n\
 #BASE_YEAR_HEBREW=5700\n\
 # valid values for BASE_YEAR_GREGORIAN are 1000 - 2900\n\
 #BASE_YEAR_GREGORIAN=2000\n\n\
@@ -1430,7 +1430,7 @@ int print_day_tabular (hdate_struct* h, option_list* opt)
 		parasha = hdate_get_parasha (h, opt->diaspora);
 
 	if ((opt->holidays) || (opt->only_if_holiday))
-		holiday = hdate_get_holyday (h, opt->diaspora);
+		holiday = hdate_get_halachic_day (h, opt->diaspora);
 
 	if ( (opt->only_if_parasha && opt->only_if_holiday && !parasha && !holiday)	|| /// eg. Shabbat Chanukah
 		 (opt->only_if_parasha && !opt->only_if_holiday && !parasha)				|| /// eg. regular Shabbat
@@ -1739,7 +1739,7 @@ int print_day (hdate_struct * h, option_list* opt)
 		parasha = hdate_get_parasha (h, opt->diaspora);
 
 	if ((opt->holidays) || (opt->only_if_holiday))
-		holiday = hdate_get_holyday (h, opt->diaspora);
+		holiday = hdate_get_halachic_day (h, opt->diaspora);
 
 	if ( (opt->only_if_parasha && opt->only_if_holiday && !parasha && !holiday)	|| /// eg. Shabbat Chanukah
 		 (opt->only_if_parasha && !opt->only_if_holiday && !parasha)				|| /// eg. regular Shabbat
@@ -2140,7 +2140,10 @@ void read_config_file(	FILE *config_file,
 								"JULIAN_DAY",		//22
 								"CANDLE_LIGHTING",
 								"HAVDALAH",			//24
-								"MENU"
+								"MENU",
+								"PREFER_HEBREW",	//26
+								"BASE_YEAR_HEBREW",
+								"BASE_YEAR_GREGORIAN"//28
 								};
 //  TODO - parse these!
 //	opt.prefer_hebrew = TRUE;
@@ -2368,6 +2371,24 @@ void read_config_file(	FILE *config_file,
 					opt->menu_item[menu_item] = malloc(menu_len+1);
 					memcpy(opt->menu_item[menu_item], input_value,menu_len);
 					menu_item++;
+				}
+				break;
+///		PREFER_HEBREW
+		case 26:if      (strcmp(input_value,"FALSE") == 0) opt->prefer_hebrew = 0;
+				else if (strcmp(input_value,"TRUE") == 0) opt->prefer_hebrew = 1;
+				break;
+///		BASE_YEAR_HEBREW
+		case 27:if (fnmatch( "[3456][[:digit:]][[:digit:]][[:digit:]]", input_value, FNM_EXTMATCH) == 0)
+				{
+					opt->base_year_h = atoi(input_value);
+					if (opt->base_year_h > (HDATE_HEB_YR_UPPER_BOUND-99)) opt->base_year_h = HDATE_DEFAULT_BASE_YEAR_H;
+				}
+				break;
+///		BASE_YEAR_GREGORIAN
+		case 28:if (fnmatch( "[12][[:digit:]][[:digit:]][[:digit:]]", input_value, FNM_EXTMATCH) == 0)
+				{
+					opt->base_year_g = atoi(input_value);
+					if (opt->base_year_g > (HDATE_GREG_YR_UPPER_BOUND-99)) opt->base_year_g = HDATE_DEFAULT_BASE_YEAR_G;
 				}
 				break;
 
@@ -2694,10 +2715,12 @@ int main (int argc, char *argv[])
 	const char* digits = "0123456789"; /// for checking a parm as numeric
 	char* tz_name_verified = NULL;
 	int error_detected = FALSE;		/// exit after reporting ALL bad parms
+	FILE *custom_file = NULL;
+	int custom_days_file_ready = FALSE;
 
 	opt.prefer_hebrew = TRUE;
-	opt.base_year_h = 5700;		// TODO - Make this user-selectable
-	opt.base_year_g = 2000;		// TODO - Make this user-selectable
+	opt.base_year_h = HDATE_DEFAULT_BASE_YEAR_H;		// TODO - Make this user-selectable
+	opt.base_year_g = HDATE_DEFAULT_BASE_YEAR_G;		// TODO - Make this user-selectable
 	opt.lat = BAD_COORDINATE;
 	opt.lon = BAD_COORDINATE;
 	opt.tz_name_str = NULL;
@@ -2884,14 +2907,14 @@ int main (int argc, char *argv[])
 				{ print_parm_error(month_text); exit_main(&opt,0); }
 
 
-			if (opt.holidays)
+			if ((opt.holidays) && (custom_days_file_ready))
 			{
 				// hdate_set_hdate(&h, 1, month, year);
-				opt.custom_days_cnt = get_custom_days_list(
-											&opt.jdn_list_ptr, &opt.string_list_ptr,
-											0, month, year,	'H', opt.quiet,
-											h_start_day, "/hdate", "/custom_days_v1.8",
-											opt.short_format, opt.hebrew);
+				opt.custom_days_cnt = read_custom_days_file(
+									custom_file, &opt.jdn_list_ptr, &opt.string_list_ptr,
+									0, month, year,
+									'H', h_start_day, opt.short_format, opt.hebrew);
+				fclose(custom_file);
 			}
 
 			if (opt.tablular_output)
@@ -2938,13 +2961,13 @@ int main (int argc, char *argv[])
 			if ((month <= 0) || (month > 12))
 				{ print_parm_error(month_text); exit_main(&opt,0); }
 
-			if (opt.holidays)
+			if ((opt.holidays) && (custom_days_file_ready))
 			{
-				opt.custom_days_cnt = get_custom_days_list(
-										&opt.jdn_list_ptr, &opt.string_list_ptr,
-										0, month, year, 'G', opt.quiet,
-										h_start_day, "/hdate", "/custom_days_v1.8",
-										opt.short_format, opt.hebrew);
+				opt.custom_days_cnt = read_custom_days_file(
+									custom_file, &opt.jdn_list_ptr, &opt.string_list_ptr,
+									0, month, year,
+									'G', h_start_day, opt.short_format, opt.hebrew);
+				fclose(custom_file);
 			}
 
 			if (opt.tablular_output)
@@ -2977,8 +3000,9 @@ int main (int argc, char *argv[])
 	char* my_locale;
 	my_locale = setlocale (LC_ALL, "");
 
-	FILE *config_file = get_config_file("/hdate", "/hdaterc_v1.8", hdate_config_file_text, opt.quiet);
-	if (config_file != NULL)
+	FILE *config_file = NULL;
+	if ( get_config_file( "/hdate", "/hdaterc_v1.8", hdate_config_file_text,
+						opt.quiet, &config_file))
 	{
 		read_config_file(config_file, &opt);
 		fclose(config_file);
@@ -3034,6 +3058,14 @@ int main (int argc, char *argv[])
 	* END   - enable user-defined menu
 	*************************************************/
 
+
+	/// We get custom days list even if the user didn't
+	/// request holidays, so that if the file doesn't
+	/// exist, we can create it
+	custom_days_file_ready = get_custom_days_file( "/hdate", "/custom_days_v1.8",
+							  opt.tz_name_str, opt.quiet,
+							  &custom_file);
+	if (!opt.holidays) fclose(custom_file);
 
 
 	#define PROCESS_NOTHING     0
@@ -3110,6 +3142,15 @@ int main (int argc, char *argv[])
 					}
 				}
 			}
+		}
+		else /// possibly month name
+		{
+			if (!hdate_parse_date( argv[optind], "", "",
+							 &year, &month, &day, 2,
+							 opt.prefer_hebrew, HDATE_PREFER_MD,
+							 opt.base_year_h, opt.base_year_g ))
+				exit_main(&opt,0);
+			hdate_action = PROCESS_MONTH;
 		}
 	}
 	else if (argc == (optind + 2))
@@ -3301,24 +3342,24 @@ case PROCESS_JULIAN_DAY:
 case PROCESS_HEBREW_DAY:
 case PROCESS_GREGOR_DAY:
 case PROCESS_TODAY:
-		if (opt.holidays)
+		if ((opt.holidays) && (custom_days_file_ready))
 		{
 			if (hdate_action == PROCESS_GREGOR_DAY)
 			{
-				opt.custom_days_cnt = get_custom_days_list(
-										&opt.jdn_list_ptr, &opt.string_list_ptr,
-										h_start_day.gd_day, h_start_day.gd_mon, h_start_day.gd_year,
-										'G', opt.quiet, h_start_day, "/hdate", "/custom_days_v1.8",
-										opt.short_format, opt.hebrew);
+				opt.custom_days_cnt = read_custom_days_file(
+									custom_file, &opt.jdn_list_ptr, &opt.string_list_ptr,
+									h_start_day.gd_day, h_start_day.gd_mon, h_start_day.gd_year,
+									'G', h_start_day, opt.short_format, opt.hebrew);
 			}
 			else
 			{
-				opt.custom_days_cnt = get_custom_days_list(
-											&opt.jdn_list_ptr, &opt.string_list_ptr,
-											h_start_day.hd_day, h_start_day.hd_mon, h_start_day.hd_year,
-											'H', opt.quiet, h_start_day, "/hdate", "/custom_days_v1.8",
-											opt.short_format, opt.hebrew);
+				opt.custom_days_cnt = read_custom_days_file(
+									custom_file, &opt.jdn_list_ptr, &opt.string_list_ptr,
+									h_start_day.hd_day, h_start_day.hd_mon, h_start_day.hd_year,
+									'H', h_start_day, opt.short_format, opt.hebrew);
 			}
+			// test_print_custom_days(opt->custom_days_cnt, opt->jdn_list_ptr, opt->string_list_ptr);
+			fclose(custom_file);
 		}
 		if (opt.tablular_output)
 		{
@@ -3341,14 +3382,14 @@ case PROCESS_MONTH:
 		process_month();
 		break;
 case PROCESS_HEBREW_YEAR:
-		if (opt.holidays)
+		if ((opt.holidays) && (custom_days_file_ready))
 		{
 			hdate_set_hdate(&h_start_day, 1, 1, year);
-			opt.custom_days_cnt = get_custom_days_list(
-										&opt.jdn_list_ptr, &opt.string_list_ptr,
-										0, 0, year,
-										'H', opt.quiet, h_start_day, "/hdate", "/custom_days_v1.8",
-										opt.short_format, opt.hebrew);
+			opt.custom_days_cnt = read_custom_days_file(
+									custom_file, &opt.jdn_list_ptr, &opt.string_list_ptr,
+									0, 0, year,
+									'H', h_start_day, opt.short_format, opt.hebrew);
+			fclose(custom_file);
 		}
 
 		if (opt.tablular_output)
@@ -3364,14 +3405,14 @@ case PROCESS_HEBREW_YEAR:
 		}
 		break;
 case PROCESS_GREGOR_YEAR:
-		if (opt.holidays)
+		if ((opt.holidays) && (custom_days_file_ready))
 		{
 			hdate_set_gdate(&h_start_day, 1, 1, year);
-			opt.custom_days_cnt = get_custom_days_list(
-									&opt.jdn_list_ptr, &opt.string_list_ptr,
-									0, 0, year, 'G', opt.quiet,
-									h_start_day, "/hdate", "/custom_days_v1.8",
-									opt.short_format, opt.hebrew);
+			opt.custom_days_cnt = read_custom_days_file(
+									custom_file, &opt.jdn_list_ptr, &opt.string_list_ptr,
+									0, 0, year,
+									'G', h_start_day, opt.short_format, opt.hebrew);
+			fclose(custom_file);
 		}
 
 		if (opt.tablular_output)

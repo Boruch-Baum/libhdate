@@ -1,3 +1,36 @@
+custom_days.c
+- improved file handling
+- israeli days integrated
+- diaspora comments for israeli days
+
+local_functions.c
+- improved file handling
+- logic for custom_days and config_rc split
+
+hcal.c
+- BUGFIX: three-month mode for ellul
+- improved file handling
+- config file parsing for base_year_g, base_year_h
+- config file parsing for prefer_hebrew
+
+hdate.c
+- improved file handling
+- create custom days file even without -hm
+- allow single month alpha as a date spec
+- interpret single parm small number as day of current month
+- interpret single parm tw0 digit larger number as a year
+- config file parsing for base_year_g, base_year_h
+- config file parsing for prefer_hebrew
+
+custom_days.h
+local_functions.h
+- updated
+
+hcal.1
+hdate.1
+- updated
+
+----------------------------------------------------------------------------
 hdate.c
 - option --epoch to output times in epoch format
 - option to accept a date in epoch format

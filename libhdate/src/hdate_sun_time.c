@@ -1,7 +1,7 @@
 /*  libhdate - Hebrew calendar library
  *
  *  Copyright (C) 1984-2003 Amos Shapir, 2004-2007  Yaacov Zamir <kzamir@walla.co.il>
- *  
+ *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
@@ -32,7 +32,7 @@
 
 /**
  @brief days from 1 january
-  
+
  @parm day this day of month
  @parm month this month
  @parm year this year
@@ -42,12 +42,12 @@ int
 hdate_get_day_of_year (const int day, const int month, const int year)
 {
 	int jd;
-	
+
 	/* get todays julian day number */
 	jd = (1461 * (year + 4800 + (month - 14) / 12)) / 4 +
 		(367 * (month - 2 - 12 * ((month - 14) / 12))) / 12 -
 		(3 * ((year + 4900 + (month - 14) / 12) / 100)) / 4 + day;
-	
+
 	/* substruct the julian day of 1/1/year and add one */
 	jd = jd - ((1461 * (year + 4799)) / 4 +
 		367 * 11 / 12 - (3 * ((year + 4899) / 100)) / 4);
@@ -87,15 +87,15 @@ hdate_get_utc_sun_time_deg_seconds ( const int day, const int month, const int y
 	double sunrise_angle = M_PI * deg / 180.0; /* sun angle at sunrise/set */
 	double latitude_radians = M_PI * latitude / 180.0; /* ratio is 2pi/360 */
 
-	
+
 	int day_of_year;
-	
+
 	/* get the day of year */
 	day_of_year = hdate_get_day_of_year (day, month, year);
-	
+
 	/* get radians of sun orbit around earth =) */
 	gamma = 2.0 * M_PI * ((double)(day_of_year - 1) / 365.0);
-	
+
 	/* get the diff betwen suns clock and wall clock in minutes */
 	eqtime = 229.18 * (0.000075 + 0.001868 * cos (gamma)
 		- 0.032077 * sin (gamma) - 0.014615 * cos (2.0 * gamma)
@@ -103,18 +103,17 @@ hdate_get_utc_sun_time_deg_seconds ( const int day, const int month, const int y
 	// FIXME - figure out the math above and convert it to directly
 	// calculate seconds. For now, ...
 	eqtime = eqtime * 60;
-	
+
 	/* calculate sun's declination at the equator in radians */
 	decl = 0.006918 - 0.399912 * cos (gamma) + 0.070257 * sin (gamma)
 		- 0.006758 * cos (2.0 * gamma) + 0.000907 * sin (2.0 * gamma)
 		- 0.002697 * cos (3.0 * gamma) + 0.00148 * sin (3.0 * gamma);
-	
-		
+
 	/* the sun real time diff from noon at sunset/rise in radians */
 	errno = 0;
 	hour_angle = acos (cos (sunrise_angle) / (cos (latitude_radians) * cos (decl))
 				- tan (latitude_radians) * tan (decl));
-	
+
 	/* check for too high altitudes and return negative values */
 	if (errno == EDOM)
 	{
@@ -122,19 +121,19 @@ hdate_get_utc_sun_time_deg_seconds ( const int day, const int month, const int y
 		*sunset = -720;
 		return;
 	}
-	
+
 	// when we used minutes, ratio was 1440min/2pi
 	// hour_angle = 720.0 * hour_angle / M_PI;
 	// now, using seconds, ratio should be 86400sec/2pi
 	hour_angle = 43200.0 * hour_angle / M_PI;
-	
+
 	// get sunset/rise times in utc wall clock in minutes from 00:00 time
 	//*sunrise = (int)(720.0 - 4.0 * longitude - hour_angle - eqtime);
 	//*sunset = (int)(720.0 - 4.0 * longitude + hour_angle - eqtime);
 	// get sunset/rise times in utc wall clock in SECONDS from 00:00 time
 	*sunrise = (int)(43200.0 - 240.0 * longitude - hour_angle - eqtime);
 	*sunset = (int)(43200.0 - 240.0 * longitude + hour_angle - eqtime);
-	
+
 	return;
 }
 

@@ -39,6 +39,8 @@
 #include <string.h>		/// For mempcpy
 #include <getopt.h>		/// For optarg, optind
 #include <stdio.h>		/// For printf, fopen, fclose, fprintf, snprintf. FILE
+#include <sys/stat.h>	/// for mkdir
+#include <sys/types.h>	/// for mkdir
 #include "local_functions.h" /// hcal,hdate common_functions
 
 
@@ -171,6 +173,20 @@ H, _, 3001, 0000,  7,  1, 0, 0, שבת החודש, שבת החודש, Shabbat Ha
 H, _, 3001, 0000,  7, 15, 0, 0, שבת הגדול, שבת הגדול, Shabbat HaGadol, Shabbat HaGadol,     0,-7, -1,  0, -3,  0, -5\n\
 H, _, 3001, 0000, 10,  9, 0, 0, שבת חזון, שבת חזון, Shabbat Chazon, Shabbat Chazon,         0, 0, -1,  0, -3,  0, -5\n\
 H, _, 3001, 0000, 10,  9, 0, 0, שבת נחמו, שבת נחמו, Shabbat Nachamu, Shabbat Nachamu,       0, 7,  6,  0,  4,  0,  2\n\
+#\n\
+# DEBUG TESTS - REMOVE PRIOR TO RELEASE\n\
+# =====================================\n\
+H, :, 5700, 0000,  2,  6, 0, 0, יום הוקרת הפינגיונים עברי,   _, Penguin Appreciation Day Heb test,  _,  0,  0, 0, 0, 0, 0, 0, 0\n\
+H, :, 5700, 0000,  2,  6, 0, 0, יום הוקרת הפינגיונים עברי,   _, Duplicate day Heb test,             _,  0,  0, 0, 0, 0, 0, 0, 0\n\
+G, :, 1960, 0000,  1,  5, 0, 0, יום הוקרת הפינגיונים לועז,   _, Penguin Appreciation Day Greg test, _,  0,  0, 0, 0, 0, 0, 0, 0\n\
+G, :, 1960, 0000,  1,  5, 0, 0, יום הוקרת הפינגיונים לועז,   _, Duplicate day Greg test,            _,  0,  0, 0, 0, 0, 0, 0, 0\n\
+h, :, 5730, 0000,  4,  0, 2, 5, יום הוקרת הפינגיונים עברי ב, _, Penguin Appreciation Day heb test,  _,  0,  0, 0, 0, 0, 0, 0, 0\n\
+g, :, 1980, 0000,  5,  0, 1, 2, יום הוקרת הפינגיונים לועז ב, _, Penguin Appreciation Day greg test, _,  0,  0, 0, 0, 0, 0, 0, 0\n\
+H, :, 5750, 0000,  6,  8, 0, 0, פינגיונים מעדיפים יום ד,     _, Penguins Appreciate Wednesday test, _, -2, -3, 3, 0, 0, 0, 0, 0\n\
+G, :, 2000, 0000,  7,  1, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0, 0\n\
+#");
+
+static const char* custom_israeli_days_text_for_israel = N_("\
 \n\
 # Examples - Israeli national custom days\n\
 # =======================================\n\
@@ -183,19 +199,22 @@ H, %, 5708, 5764,  8,  4, 0, 0, יום הזכרון, יום הזכרון, Yom Ha
 H, #, 5708, 5764,  8,  5, 0, 0, יום העצמאות, יום העצמאות, Yom HaAtzma\'ut, Yom HaAtzma\'ut, -1, -2, 0, 0, 0, 0, 0\n\
 H, %, 5765, 0000,  8,  4, 0, 0, יום הזכרון, יום הזכרון, Yom HaZikaron, Yom HaZikaron, -2, 0, 1, 0, 0, 0, -1\n\
 H, #, 5765, 0000,  8,  5, 0, 0, יום העצמאות, יום העצמאות, Yom HaAtzma\'ut, Yom HaAtzma\'ut, -1, -2, 0, 1, 0, 0, 0\n\
-#\n\
-# DEBUG TESTS - REMOVE PRIOR TO RELEASE\n\
-# =====================================\n\
-H, :, 5700, 0000,  2,  6, 0, 0, יום הוקרת הפינגיונים עברי,   _, Penguin Appreciation Day Heb test,  _,  0,  0, 0, 0, 0, 0, 0, 0\n\
-H, :, 5700, 0000,  2,  6, 0, 0, יום הוקרת הפינגיונים עברי,   _, Duplicate day Heb test,             _,  0,  0, 0, 0, 0, 0, 0, 0\n\
-G, :, 1960, 0000,  1,  5, 0, 0, יום הוקרת הפינגיונים לועז,   _, Penguin Appreciation Day Greg test, _,  0,  0, 0, 0, 0, 0, 0, 0\n\
-G, :, 1960, 0000,  1,  5, 0, 0, יום הוקרת הפינגיונים לועז,   _, Duplicate day Greg test,            _,  0,  0, 0, 0, 0, 0, 0, 0\n\
-h, :, 5730, 0000,  4,  0, 2, 5, יום הוקרת הפינגיונים עברי ב, _, Penguin Appreciation Day heb test,  _,  0,  0, 0, 0, 0, 0, 0, 0\n\
-g, :, 1980, 0000,  5,  0, 1, 2, יום הוקרת הפינגיונים לועז ב, _, Penguin Appreciation Day greg test, _,  0,  0, 0, 0, 0, 0, 0, 0\n\
-H, :, 5750, 0000,  6,  8, 0, 0, פינגיונים מעדיפים יום ד,     _, Penguins Appreciate Wednesday test, _, -2, -3, 3, 0, 0, 0, 0, 0\n\
-G, :, 2000, 0000,  7,  1, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0, 0\n\
 ");
 
+static const char* custom_israeli_days_text_for_diaspora = N_("\
+\n\
+# Examples - Israeli national custom days\n\
+# =======================================\n\
+# H, ^, 5758, 0000,  2, 12, 0, 0, יום הזכרון ליצחק רבין, יום רבין, Yitzhak Rabin memorial day, Rabin memorial day, -1, -2, 0, 0, 0, 0, 0\n\
+# H, ^, 5708, 0000,  5, 30, 0, 0, יום המשפחה, יום המשפחה, Family day, Family day, 0, 0, 0, 0, 0, 0, 0\n\
+# H, %, 5718, 0000,  7, 27, 0, 0, יום השואה, יום השואה, Yom HaShoah, Yom HaShoah, -1, 0, 1, 0, 0, 0, 0\n\
+# H, #, 5728, 0000,  8, 28, 0, 0, יום ירושלים, יום י-ם, Yom Yerushalayim, Yom Yerushalayim, 0, 0, 0, 0, 0, 0, 0\n\
+# H, ^, 5765, 0000, 10, 29, 0, 0, יום הזכרון לזאב זבוטינסק, יום זבוטינסק, Zeev Zhabotinsky day, Zhabotinsky day, 0, 1, 0, 0, 0, 0, 0\n\
+# H, %, 5708, 5764,  8,  4, 0, 0, יום הזכרון, יום הזכרון, Yom HaZikaron, Yom HaZikaron, -2,  0, 0, 0, 0, 0, -1\n\
+# H, #, 5708, 5764,  8,  5, 0, 0, יום העצמאות, יום העצמאות, Yom HaAtzma\'ut, Yom HaAtzma\'ut, -1, -2, 0, 0, 0, 0, 0\n\
+# H, %, 5765, 0000,  8,  4, 0, 0, יום הזכרון, יום הזכרון, Yom HaZikaron, Yom HaZikaron, -2, 0, 1, 0, 0, 0, -1\n\
+# H, #, 5765, 0000,  8,  5, 0, 0, יום העצמאות, יום העצמאות, Yom HaAtzma\'ut, Yom HaAtzma\'ut, -1, -2, 0, 1, 0, 0, 0\n\
+#\n");
 
 /*****************************************************************
 * get custom day text pointer
@@ -856,34 +875,56 @@ int read_custom_days_file(
 }
 
 
-
-
-
 /****************************************************
 * read, parse and filter custom_days file
 ****************************************************/
-int get_custom_days_list( int** jdn_list_ptr, char** string_list_ptr,
-			const int day, const int month, const int year,
-			const char calendar, const int quiet_alerts,
-			const hdate_struct range_start,
-			const char* config_dir, const char* config_filename,
-			const int text_short_form, const int text_hebrew_form )
+int get_custom_days_file( const char* config_dir,
+						  const char* config_filename,
+						  const char* tz_name_str,
+						  const int quiet_alerts,
+						  FILE** custom_file )
 {
-	int number_of_items = 0;
-
 	// FIXME - create an option for both hcal/hdate to allow a custom path for this file
 	//         pass the default FULL path or the custom FULL path to read_custom_days_file
 	//         and let THAT function open and close the file
-	FILE *custom_file = get_config_file(config_dir, config_filename, custom_days_file_text, quiet_alerts);
-	if (custom_file != NULL)
+
+
+	*custom_file = NULL;
+	char *custom_file_path = NULL;
+	char *last_slash_location = NULL;
+	int bytes_written = -1;
+
+	custom_file_path = assemnble_config_file_pathname (
+									config_dir, config_filename,
+									quiet_alerts );
+	if (custom_file_path == NULL) return FALSE;
+	*custom_file = fopen(custom_file_path, "r");
+	if (*custom_file == NULL)
 	{
-		number_of_items = read_custom_days_file(custom_file, jdn_list_ptr, string_list_ptr,
-										day, month, year, calendar, range_start,
-										text_short_form, text_hebrew_form );
-		fclose(custom_file);
+		if (errno != ENOENT) { free(custom_file_path); return FALSE; };
+		last_slash_location = strrchr(custom_file_path, '/');
+		if (last_slash_location ==  NULL) { free(custom_file_path); return FALSE; };
+		*last_slash_location = '\0';
+		if ((mkdir(custom_file_path, (mode_t) 0700) != 0) && (errno != EEXIST)) { free(custom_file_path); return FALSE; };
+		*last_slash_location = '/';
+		greetings_to_version_18();
+		if (!quiet_alerts) printf("%s\n", N_("attempting to create a config file ..."));
+		*custom_file = fopen(custom_file_path, "a+");
+		if (*custom_file != NULL) bytes_written = fprintf(*custom_file, "%s", custom_days_file_text);
+		if (bytes_written > 0)
+		{
+			if ((tz_name_str == NULL) || (strcmp(tz_name_str, "Asia/Jerusalem") != 0))
+				 bytes_written = fprintf(*custom_file, "%s", custom_israeli_days_text_for_diaspora);
+			else bytes_written = fprintf(*custom_file, "%s", custom_israeli_days_text_for_israel);
+		}
+		if (bytes_written <= 0)
+		{
+			if (!quiet_alerts) print_config_file_create_error(errno, custom_file_path);
+			{ free(custom_file_path); return FALSE; };
+		}
+		if (!quiet_alerts) printf("%s: %s\n", N_("succeeded creating config file"), custom_file_path);
+		if ( fseek(*custom_file, 0, SEEK_SET) != 0 ) { free(custom_file_path); return FALSE; };
 	}
-//  test_print_custom_days(number_of_items, *jdn_list_ptr, *string_list_ptr);
-	return number_of_items;
+	free(custom_file_path);
+	return TRUE;
 }
-
-

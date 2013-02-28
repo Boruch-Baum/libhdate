@@ -41,8 +41,8 @@
 #include <stdio.h>		/// For printf, fopen, fclose, fprintf, snprintf. FILE
 #include <pwd.h>		/// for get pwuid
 #include <unistd.h>		/// for getuid
-#include <sys/stat.h>	
-#include <sys/types.h>	/// for mkdir,
+#include <sys/stat.h>	/// for mkdir	
+#include <sys/types.h>	/// for mkdir
 
 #include "local_functions.h"	/// for macro definitions used by other programs
 #include "timezone_functions.h" /// for get_lat_lon_from_zonetab_file, read_sys_tz_string_from_file
@@ -141,6 +141,12 @@ void print_parm_mismatch_error()
 {
 	error(0,0,"%s: %s",error_text,
 			N_("month and year parameters mismatched (Hebrew/gregorian mix)"));
+}
+
+void print_config_file_create_error( int error_code, char* config_file_path )
+{
+	error(0, error_code, "%s: %s",
+			N_("failure attempting to create config file"), config_file_path);
 }
 
 /************************************************************
@@ -798,95 +804,19 @@ Press <enter> to continue."));
 
 
 
-
-
 /************************************************************
-* Open config file, or create one
-*  - returns filepointer or NULL
-*  - if file does not exist, attempt to create it
+* assemnble_config_file_pathname
 ************************************************************/
-FILE* get_config_file(	const char* config_dir_name,
-						const char* config_file_name,
-						const char* default_config_file_text,
-						const int quiet_alerts )
+char* assemnble_config_file_pathname (	const char* config_dir_name,
+										const char* config_file_name,
+										const int quiet_alerts )
 {
 	size_t path_len;
 
 	char* config_home_path_name = "";
 	char* config_sub_path_name = "";
+	char* config_file_path = "";
 
-	char* config_dir_path;
-	char* config_file_path;
-
-	FILE* config_file;
-
-	/************************************************************
-	* sub-function to get_config_file: create_config_file
-	************************************************************/
-	// FIXME - identify name of config file being created
-	//         hdaterc or custom_days, or....
-	void create_config_file()
-	{
-		if (!quiet_alerts) printf("Attempting to create a config file ...\n");
- 		config_file = fopen(config_file_path, "a+");
-		if (config_file == NULL)
-		{
-			if (!quiet_alerts) error(0, errno, "%s: %s", N_("failure attempting to create config file"), config_file_path);
-			return;
-		}
-		fprintf(config_file, "%s", default_config_file_text);
-		if (!quiet_alerts) printf("%s: %s\n", N_("Succeeded creating config file"), config_file_path);
-		fseek(config_file, 0, SEEK_SET);
-// An example of needing to read a newly created config file
-// is custom_days, which has default custom days
-//		if (fclose(config_file) != 0)
-//		{
-//			if (!quiet_alerts) error(0,errno,"%s %s",N_("failure closing"),config_file_name);
-//		}
-//		else if (!quiet_alerts) printf("%s: %s\n\n",N_("created config file:"), config_file_path);
-	}
-
-	/************************************************************
-	* sub-function to get_config_file: open_config_file
-	************************************************************/
-	int open_config_file()
-	{
-		config_file = fopen(config_file_path, "r");
-		if (config_file == NULL)
-		{
-			if (errno != ENOENT) return FALSE;
-			// maybe replace all this with a single line asprintf()
-			path_len = strlen(config_home_path_name)
-						+ strlen(config_sub_path_name)
-						+ strlen(config_dir_name) +1;
-			if (path_len < 1) return FALSE;
-			config_dir_path = malloc(path_len);
-			if ( (config_dir_path == NULL) && (!quiet_alerts) )
-			{
-				error(0,errno,"%s",N_("memory allocation failure"));
-				return FALSE;
-			}
-			snprintf(config_dir_path, path_len, "%s%s%s",
-					config_home_path_name, config_sub_path_name,
-					config_dir_name);
-	
-			if ((mkdir(config_dir_path, (mode_t) 0700) != 0) &&
-				(errno != EEXIST))
-			{
-				free(config_dir_path);
-				return FALSE;
-			}
-			greetings_to_version_18();
-			create_config_file();
-			free(config_dir_path);
-		}
-		return TRUE;
-	}
-
-
-/************************************************************
-* main part of function get_config_file
-************************************************************/
 	config_home_path_name = getenv("XDG_CONFIG_HOME");
 	if (config_home_path_name == NULL)
 	{
@@ -913,16 +843,57 @@ FILE* get_config_file(	const char* config_dir_name,
 	snprintf(config_file_path, path_len, "%s%s%s%s",
 			config_home_path_name, config_sub_path_name,
 			config_dir_name, config_file_name);
-
-	if (open_config_file() == TRUE)
-	{
-		free(config_file_path);
-		return config_file;
-	}
-	else
-		free(config_file_path);
-		return NULL;
+	return config_file_path;
 }
+
+
+/****************************************************
+* get_config_file
+* 
+*   read, create, read a config file for hcal/hdate
+****************************************************/
+// TODO - report errors at every step!
+int get_config_file(	const char* config_dir_name,
+						const char* config_file_name,
+						const char* default_config_file_text,
+						const int quiet_alerts,
+						FILE** config_file)
+{
+	*config_file = NULL;
+	char *config_file_path = NULL;
+	char *last_slash_location = NULL;
+
+	config_file_path = assemnble_config_file_pathname (
+									config_dir_name, config_file_name,
+									quiet_alerts );
+	if (config_file_path == NULL) return FALSE;
+	*config_file = fopen(config_file_path, "r");
+	if (*config_file == NULL)
+	{
+		if (errno != ENOENT) { free(config_file_path); return FALSE; };
+		last_slash_location = strrchr(config_file_path, '/');
+		if (last_slash_location ==  NULL) { free(config_file_path); return FALSE; };
+		*last_slash_location = '\0';
+		if ((mkdir(config_file_path, (mode_t) 0700) != 0) && (errno != EEXIST)) { free(config_file_path); return FALSE; };
+		*last_slash_location = '/';
+		greetings_to_version_18();
+		if (!quiet_alerts) printf("%s\n", N_("attempting to create a config file ..."));
+		*config_file = fopen(config_file_path, "a+");
+		if ( (*config_file == NULL) ||
+			 ( fprintf(*config_file, "%s", default_config_file_text) < 0 ) )
+
+		{
+			if (!quiet_alerts) print_config_file_create_error(errno, config_file_path);
+			{ free(config_file_path); return FALSE; };
+		}
+		if (!quiet_alerts) printf("%s: %s\n", N_("succeeded creating config file"), config_file_path);
+		if ( fseek(*config_file, 0, SEEK_SET) != 0 ) { free(config_file_path); return FALSE; }
+	}
+	free(config_file_path);
+	return TRUE;
+}
+
+
 
 
 

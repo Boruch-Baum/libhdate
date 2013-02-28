@@ -59,7 +59,7 @@ option, without the leading '@'.
 .B ACCEPTABLE DATE FORMATS:
 Prior versions of \fBhdate\fP insisted on the numeric date format
 .RI [[ yyyy " [" mm "  [" dd ]]].
-\fBhdate\fP now accepts numeric date elements in any easily discernable order. \fBhdate\fP now accepts Hebrew month names and gregorian month names in both full and abbreviated formats, and not case-sensitive. Gregorian month names may be entered in either your locale's language or in English. Hebrew month names may be entered in either Hebrew characters or in many transliteration forms to latin characters (see \fBEXAMPLES\fP). \fBhdate\fP will intelligently interpret ambiguous numeric \fIdatespec\fP parameters. For example, a parameter "32" could only legitimately be a two-digit year, so \fBhdate\fP will, by default, interpretat it as a two-digit Hebrew year in the current (58th) century (see option \fB--prefer-gregorian\fP and section \fBCONFIG FILES\fP).
+\fBhdate\fP now accepts numeric date elements in any easily discernable order. \fBhdate\fP now accepts Hebrew month names and gregorian month names in both full and abbreviated formats, and not case-sensitive. Gregorian month names may be entered in either your locale's language or in English. Hebrew month names may be entered in either Hebrew characters or in many transliteration forms to latin characters (see \fBEXAMPLES\fP). \fBhdate\fP will intelligently interpret ambiguous numeric \fIdatespec\fP parameters. For example, a parameter "32" could only legitimately be a two-digit year, so \fBhdate\fP will, by default, interpret it as a two-digit Hebrew year in the current (58th) century (see option \fB--prefer-gregorian\fP, section \fBCONFIG FILES\fP, and the config file options to change the default base years).
 .PP
 .SH "OPTIONS"
 .TP 18
@@ -283,9 +283,9 @@ display data descriptions before the data itself
 how to interpret ambiguous month and year
 .RS 0
 .B \ \ \ --prefer-gregorian
-\ parameters. (eg. interpret "6 10" as
+\ parameters. (eg. interpret "6 10" as "Adar 5710"
 .RS 23
-"Adar 5710" or as "June 2010")
+or as "June 2010"). Hebrew is the default.
 .SH NOTES
 .SS TIMEZONES
 \fBhdate\fP accepts as timezone parameters either an absolute numeric offset from UTC, or an official timezone name, as found on many *nix operating systems at \fI/usr/share/zoneinfo/zone.tab\fP. These names are typically in the form 'continent/city' (eg. Asia/Jerusalem); however, \fBhdate\fP is flexible and will accept any unique substring of a timezone name, and will report how it interpreted your input. For example, 'jer' will be interpreted as Israel time. Names use underscores in place of spaces, but \fBhdate\fP will accept spaces as long as the parameter is quoted ("w y" is acceptable for America/New_York, but so would be 'new'). When given a timezone name, \fBhdate\fP will be aware of daylight savings time transitions and will report times-of-day accordingly. When given no timezone information, \fBhdate\fP will try to find out your computer's local timezone. If that fails, it will attempt to find your computer's UTC offset. If all else fails, Jerusalem Standard time is used.
