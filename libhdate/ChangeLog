@@ -1,3 +1,16 @@
+hcal.c
+- spelling error detected by lintian
+
+hcal.1
+hdate.1
+- updated
+- change hyphens to minus signs (lintian-compliance)
+
+hdate.h.3
+- tweak so lintian doesn't reject SH macro
+- change hyphens to minus signs (lintian-compliance)
+
+----------------------------------------------------------------------------
 custom_days.c
 - improved file handling
 - israeli days integrated

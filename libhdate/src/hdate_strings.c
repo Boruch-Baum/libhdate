@@ -91,7 +91,7 @@ static char *gregorian_months[2][12] = {
 /**
  @brief helper function to find hebrew locale
  
- @return 0 - latin locale, -1 - hebrew locale
+ @return 0 = latin locale, -1 = hebrew locale
 */
 int
 hdate_is_hebrew_locale()

@@ -206,7 +206,7 @@ VERSION=2.00\n\
 # and its (limited, and maybe biased) of the dominant Jewish community\n\
 # in that timezone. When hcal is forced to guess, it alerts the user\n\
 # with a message that includes the guessed location.\n\
-# hcal's guesses will also affect its default behaviour for ouput of\n\
+# hcal's guesses will also affect its default behaviour for output of\n\
 # Shabbat times, parshiot, and choice of Israel/diaspora hoidays\n\
 #SUNSET_AWARE=TRUE\n\n\
 # Base Years\n\

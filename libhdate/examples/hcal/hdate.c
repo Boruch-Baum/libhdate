@@ -2707,8 +2707,6 @@ int main (int argc, char *argv[])
 	hdate_struct h_start_day;
 	hdate_struct h_day_after_final_day;
 	hdate_struct h_month_to_print;
-	option_list opt;
-	int getopt_retval;
 	int day   = BAD_DATE_VALUE;	/// user-input (Hebrew or gregorian)
 	int month = BAD_DATE_VALUE;	/// user-input (Hebrew or gregorian)
 	int year  = BAD_DATE_VALUE;	/// user-input (Hebrew or gregorian)
@@ -2718,9 +2716,10 @@ int main (int argc, char *argv[])
 	FILE *custom_file = NULL;
 	int custom_days_file_ready = FALSE;
 
+	option_list opt;
 	opt.prefer_hebrew = TRUE;
-	opt.base_year_h = HDATE_DEFAULT_BASE_YEAR_H;		// TODO - Make this user-selectable
-	opt.base_year_g = HDATE_DEFAULT_BASE_YEAR_G;		// TODO - Make this user-selectable
+	opt.base_year_h = HDATE_DEFAULT_BASE_YEAR_H;		// TODO - Make this user-selectable from command line
+	opt.base_year_g = HDATE_DEFAULT_BASE_YEAR_G;		// TODO - Make this user-selectable from command line
 	opt.lat = BAD_COORDINATE;
 	opt.lon = BAD_COORDINATE;
 	opt.tz_name_str = NULL;
@@ -2791,10 +2790,10 @@ int main (int argc, char *argv[])
 	char *menuptr, *optptr;
 	int i; for (i=0; i<MAX_MENU_ITEMS; i++) opt.menu_item[i] = NULL;
 
-	/// getopt short options
+	int getopt_retval;
+	/// getopt short options:
 	const char * short_options = "bcdeE::hHjimoqrRsStTvl:L:z:";
-
-	/// getopt long options
+	/// getopt long options:
 	int long_option_index = 0;
 	const struct option long_options[] = {
 	///       name,  has_arg, flag, val
@@ -3082,6 +3081,11 @@ int main (int argc, char *argv[])
 	/// if user input --epoch=@nnnnnn, ignore date-spec
 	if (opt.epoch_parm_received)
 	{
+		if (argc != optind)
+		{
+			if (!opt.quiet) error(0,0,"%s",N_("parameter conflict: you entered both a date_spec and an option --epoch date_spec"));
+			exit_main(&opt, EXIT_CODE_BAD_PARMS); // need to work on exit codes !
+		}
 		hdate_action = PROCESS_EPOCH_DAY;
 	}
 	else if (argc == optind)
@@ -3218,7 +3222,7 @@ int main (int argc, char *argv[])
 	{
 		print_usage_hdate();
 		print_try_help_hdate();
-		exit(EXIT_CODE_BAD_PARMS);
+		exit_main(&opt, EXIT_CODE_BAD_PARMS);
 	}
 
 						
@@ -3321,20 +3325,20 @@ int main (int argc, char *argv[])
 	// not sure about this next one
 	opt.tz_name_str = tz_name_verified;
 
-if (hdate_action == PROCESS_EPOCH_DAY)
-{
-	// 86,400 seconds per day
-	opt.epoch_start = opt.epoch_today + (60 * get_tz_adjustment(  opt.epoch_today, opt.tz_offset,
-									&opt.tzif_index, opt.tzif_entries, opt.tzif_data ));
-/* temp, delete this! */ printf("epoch value = %ld, epoch start = %ld, adjustment = %ld\n", opt.epoch_today, opt.epoch_start, opt.epoch_start - opt.epoch_today);
-	opt.epoch_end = opt.epoch_start + SECONDS_PER_DAY;
-	opt.epoch_today = opt.epoch_start;
-	gmtime_r( &opt.epoch_today, &epoch_tm );
-/* temp, delete this! */ printf("d=%d, m=%d, y=%d, %02d:%02d\n", epoch_tm.tm_mday, epoch_tm.tm_mon+1,
-											1900+epoch_tm.tm_year, epoch_tm.tm_hour, epoch_tm.tm_min);
-	hdate_set_gdate (&h_start_day, epoch_tm.tm_mday, epoch_tm.tm_mon+1, 1900+epoch_tm.tm_year);
-	hdate_action = PROCESS_HEBREW_DAY;
-}
+	if (hdate_action == PROCESS_EPOCH_DAY)
+	{
+		// 86,400 seconds per day
+		opt.epoch_start = opt.epoch_today + (60 * get_tz_adjustment(  opt.epoch_today, opt.tz_offset,
+										&opt.tzif_index, opt.tzif_entries, opt.tzif_data ));
+	/* temp, delete this! */ printf("epoch value = %ld, epoch start = %ld, adjustment = %ld\n", opt.epoch_today, opt.epoch_start, opt.epoch_start - opt.epoch_today);
+		opt.epoch_end = opt.epoch_start + SECONDS_PER_DAY;
+		opt.epoch_today = opt.epoch_start;
+		gmtime_r( &opt.epoch_today, &epoch_tm );
+	/* temp, delete this! */ printf("d=%d, m=%d, y=%d, %02d:%02d\n", epoch_tm.tm_mday, epoch_tm.tm_mon+1,
+												1900+epoch_tm.tm_year, epoch_tm.tm_hour, epoch_tm.tm_min);
+		hdate_set_gdate (&h_start_day, epoch_tm.tm_mday, epoch_tm.tm_mon+1, 1900+epoch_tm.tm_year);
+		hdate_action = PROCESS_HEBREW_DAY;
+	}
 
 	switch (hdate_action)
 	{
