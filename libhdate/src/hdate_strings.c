@@ -714,20 +714,20 @@ int hdate_parse_month_text_string( const char* month_text )
 	/// Alternative latin character spellings of Hebrew Months
 	/// and alternative names of Hebrew months in latin characters
 	static char *alt_latin_spell_hebrew_months[14] = {
-		"@(?(Yere@(ch|kh|x|j)?( |_|-)Ha?(-))@(A|Ai|Ay|Ei)t?(h)an@(i|ee)m|Ti[cs]hr@([ie]?(y)|a[iy]))",  
-		"@(b@(oo|ou|u)?(l)l|?(Mar?( |-|_))@([CK]h|X|J)e[sc]hvan)",
+		"@(?(@(Y|J)ere@(ch|kh|h|x|j)?( |_|-)Ha?(-))@(A|Ai|Ay|Ei)t?(h)a?(h)n@(i|ee)m|Ti[cs]hr@([ie]?(y)|a[iy]))",  
+		"@(b@(oo|ou|u)?(l)l|?(Mar?( |-|_))@(?(C|K)h|X|J)e[sc]hva?(h)n)",
 		"Kisl@(e|[ae][iy])v",
 		"T@(e|[ae][iy])v@(e|[ae][iy])t",
 		"[SC]h?([e'])vat",
-		"Ad?(d)ar",
-		"N@(i|ee)s?(s)an",
-		"@(ziv|zeev|@(I|Ee)y?(y)ar)",
-		"[SC]@(i|ee)v?(v)an",
+		"Ad?(d)a?(h)r",
+		"N@(i|ee)s?(s)a?(h)n",
+		"@(ziv|zeev|@(I|e|Ee)?(y|yy|j)?(')a?(h)r)",
+		"[SC]@(i|ee)v?(v)a?(h)n",
 		"Tam?(m)uz",
-		"?(Mena@(ch|kh|x|j)@(e|ei|ey|ai|ay)m?( |_|-))Av",
+		"?(Mena@(ch|kh|x|j)@(e|ei|ey|ai|ay|i)m?( |_|-))A?(h)v",
 		"El?(l)@(u|ou|oo)l?(l)",
-		"Ad?(d)ar?( |-|_)@(A|1|I|alef|aleph)",
-		"Ad?(d)ar?( |-|_)@(B|2|II|bet?(h))"
+		"Ad?(d)a?(h)r?( |-|_)@(A|1|I|alef|aleph)",
+		"Ad?(d)a?(h)r?( |-|_)@(B|2|II|bet?(h))"
 		};
 
 	for (i=0; i<14; i++)

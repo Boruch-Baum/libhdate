@@ -146,6 +146,7 @@ typedef struct {
 			int bidi;
 			double lat;
 			double lon;
+			double tz_lon;			/// for sanity checking against user-entered longitude
 			int tz;
 			char* tz_name_str;
 			int custom_days_cnt;
@@ -1860,8 +1861,8 @@ int print_month ( const int month, const int year, option_list* opt)
 					h.gd_year, h.gd_mon, h.gd_day,
 					h_final_day.gd_year, h_final_day.gd_mon, h_final_day.gd_day);
 		tz_name_input = opt->tz_name_str;
-		process_location_parms(	&opt->lat, &opt->lon, &opt->tz,
-								tz_name_input, &opt->tz_name_str,
+		process_location_parms(	&opt->lat, &opt->lon, opt->tz_lon, 
+								&opt->tz, tz_name_input, &opt->tz_name_str,
 								opt->epoch_start, opt->epoch_end,
 								&opt->tzif_entries, &opt->tzif_data,
 								opt->quiet_alerts);
@@ -1958,7 +1959,7 @@ void read_config_file(	FILE *config_file,
 						char*	tz_name_str )
 
 {
-	double tz_lat, tz_lon;
+	double tz_lat;
 	char	*input_string = NULL;
 	size_t	input_str_len;	// unnecessary to initialize, per man(3) getline
 //	size_t	input_str_len = 200;	// WARNING: if you change this value
@@ -2038,11 +2039,11 @@ void read_config_file(	FILE *config_file,
 		case  3:
 				if  (!parse_timezone_numeric(input_value, tz))
 				{
-					if (parse_timezone_alpha(input_value, &tz_name_str, tz, &tz_lat, &tz_lon))
+					if (parse_timezone_alpha(input_value, &tz_name_str, tz, &tz_lat, &opt->tz_lon))
 					{
 						// TODO - really, at this point, shouldn't either both be bad or botha be good?
 						if (*latitude  == BAD_COORDINATE) *latitude = tz_lat;
-						if (*longitude == BAD_COORDINATE) *longitude = tz_lon;
+						if (*longitude == BAD_COORDINATE) *longitude = opt->tz_lon;
 					}
 				}
 				break;
@@ -2185,11 +2186,11 @@ void exit_main( option_list *opt, const int exit_code)
 // for parsing both the command line and the menu options'
 // command lines
 int hcal_parser( const int switch_arg, option_list *opt,
-					double *lat, double *lon, 
-					int *tz, char* tz_name_str, int long_option_index)
+				double *lat, double *lon, int *tz, char* tz_name_str,
+				int long_option_index)
 
 {
-	double tz_lat, tz_lon;
+	double tz_lat;
 	static char *timezone_text  = N_("z (timezone)");
 
 	int error_detected = 0;
@@ -2306,7 +2307,7 @@ int hcal_parser( const int switch_arg, option_list *opt,
 		}
 		else if (!parse_timezone_numeric(optarg, tz))
 		{
-			if (!parse_timezone_alpha(optarg, &tz_name_str, tz, &tz_lat, &tz_lon))
+			if (!parse_timezone_alpha(optarg, &tz_name_str, tz, &tz_lat, &opt->tz_lon))
 			{
 				error_detected = error_detected + 1;
 				print_parm_error(timezone_text);
@@ -2314,7 +2315,7 @@ int hcal_parser( const int switch_arg, option_list *opt,
 			else
 			{
 				if (*lat  == BAD_COORDINATE) *lat = tz_lat;
-				if (*lon == BAD_COORDINATE) *lon = tz_lon;
+				if (*lon == BAD_COORDINATE) *lon = opt->tz_lon;
 			}
 		}
 		break;
@@ -2378,6 +2379,7 @@ int main (int argc, char *argv[])
 	opt.lon = BAD_COORDINATE;
 	opt.tz = BAD_TIMEZONE;
 	opt.tz_name_str = NULL;
+	opt.tz_lon = BAD_COORDINATE;
 	//-z number (absolute over-ride of system time zone)
           //longitude mis-sync -> just alert
           //no longitude -> guess (including zone.tab for current)
@@ -2515,7 +2517,7 @@ int main (int argc, char *argv[])
 							short_options, long_options,
 							&long_option_index)) != -1)
 		error_detected = error_detected
-						+ hcal_parser(switch_arg, &opt, &lat, &lon, 
+						+ hcal_parser(switch_arg, &opt, &lat, &lon,
 									&tz, opt.tz_name_str, long_option_index);
 
 

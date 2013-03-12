@@ -1,4 +1,22 @@
 hcal.c
+hdate.c
+- BUGFIX process_location_parms
+
+hdate.c
+- option epoch print in tabular mode
+- BUGFIX sane output when user enters insane UTC adjustment
+- BUGFIX sane output when user enters insane longitudes
+
+local_functions.c
+- BUGFIX process_location_parms
+- improve alerts to user
+- set default locations consistent with zone.tab file
+
+hdate_strings.c
+- more transliteration options for Hebrew months
+
+----------------------------------------------------------------------------
+hcal.c
 - spelling error detected by lintian
 
 hcal.1

@@ -69,7 +69,10 @@
 static char * error_text     = N_("error");
 static char * latitude_text  = N_("l (latitude)");
 static char * longitude_text = N_("L (Longitude)");
-
+static char * equator_text   = N_("equator");
+static char * lon_midpoint_text = N_("midpoint of theoretical timezone");
+static char * absolute_utc_offset_text = N_("absolute UTC offset entered");
+static char * no_timezone_entered_text = N_("no timezone entered");
 
 /************************************************************
 * begin - error message functions
@@ -97,7 +100,7 @@ void print_option_unknown_error ( const char *parm_name )
 void print_alert_tz( int tz )
 {
 	error(0,0,"%s: %s, %+d:%d UTC",
-			N_("ALERT: time zone not entered, using system local time zone"),
+			N_("ALERT: time zone not entered, using current system UTC offset"),
 			*tzname, tz/60, tz%60);
 }
 
@@ -108,13 +111,17 @@ void print_alert_timezone( const char* tz_name_ptr )
 			tz_name_ptr);
 }
 
-void print_alert_missing_coordinate( char* name, double val )
+void print_alert_using_utc_offset( const int utc_offset )
+{
+	error(0,0,"%s %+.2f %s", N_("ALERT: time zone not entered, guessing UTC offset"), (double) utc_offset/60, N_("hours, based upon longitude") );
+}
+
+void print_alert_missing_coordinate( char* parm_name, double val, char* tz_name )
 {
 	error(0,0,"%s",
 			N_("ALERT: coordinate not entered or invalid..."));
-	error(0,0,"%s %s %lf",
-			N_("ALERT: guessing... will use"),
-			name, val);
+	error(0,0,"%s %s %s %s: %lf",
+			N_("ALERT: guessing"), parm_name, N_("of"), tz_name, val );
 }
 
 void print_alert_delta_coordinate( char* coordinate, double hdate_val , double zonetab_val)
@@ -124,10 +131,10 @@ void print_alert_delta_coordinate( char* coordinate, double hdate_val , double z
 			N_("is at great variance from the chosen time zone default value"), zonetab_val );
 }
 
-void print_alert_not_dst_aware()
+void print_alert_not_dst_aware( char* reason_text)
 {
-	error(0,0,"%s",
-			N_("ALERT: absolute timezone value entered, so daylight savings time can not be determined") );
+	error(0,0,"%s ( %s )",
+			N_("ALERT: daylight savings time can not be determined"), reason_text );
 }
 
 
@@ -159,7 +166,7 @@ void print_config_file_create_error( int error_code, char* config_file_path )
 /************************************************************
 * set default location
 ************************************************************/
-int set_default_location( const int tz, char* tz_name_ptr,
+int set_default_location( const int tz, char** tz_name_ptr,
 						  double *lat, double *lon)
 {
 
@@ -192,24 +199,25 @@ int set_default_location( const int tz, char* tz_name_ptr,
 	switch (tz)
 	{
 /** hours       minutes */
-/** -8 **/	case -480:	*lat =  34.05;	*lon =-118.25;	tz_name_ptr = N_("Los Angeles"); break;
-/** -6 **/	case -360:	*lat =  19.43;	*lon = -99.13;	tz_name_ptr = N_("Mexico City"); break;
-/** -5 **/	case -300:	*lat =  40.75;	*lon = -74.0;	tz_name_ptr = N_("New York City"); break;
-/** -5 **///case -300:	*lat =  43.71;	*lon = -79.43;	tz_name_ptr = N_("Toronto"); break;
-/** -5 **///case -300:	*lat = -23.55;	*lon = -46.61;	tz_name_ptr = N_("Sao Paolo"); break;
-/** -4.5 **/case -270:	*lat =  10.54;	*lon = -66.93;	tz_name_ptr = N_("Caracas"); break;
-/** -3 **/	case -180:	*lat = -34.61;	*lon = -58.37;	tz_name_ptr = N_("Buenos Aires"); break;
-/**  0 **/	case    0:	*lat =  51.5;	*lon =   0.0;	tz_name_ptr = N_("London"); break;
-/**  1 **/	case   60:	*lat =  48.86;	*lon =   2.39;	tz_name_ptr = N_("Paris"); break;
-/**  2 **/	case  120:	*lat =  32.0;	*lon =  34.75;	tz_name_ptr = N_("Tel-Aviv"); break;
-/**  3.5 **/case  210:	*lat =  35,67;	*lon =  51.43;	tz_name_ptr = N_("Tehran"); break;
-/**  4 **/	case  240:	*lat =  55.75;	*lon =  37.62;	tz_name_ptr = N_("Moscow"); break;
-/**  5 **/	case  300:	*lat =  41.27;	*lon =  69.22;	tz_name_ptr = N_("Tashkent"); break;
-/**  5.5 **/case  330:	*lat =  22.57;	*lon =  88.36;	tz_name_ptr = N_("Calcutta"); break;
-/**  8 **/	case  480:	*lat =  39.90;	*lon = 116.38;	tz_name_ptr = N_("Beijing"); break;
-/**  8 **///case  480:	*lat =  22.26;	*lon = 114.15;	tz_name_ptr = N_("Hong Kong");break;
-/** 10 **///case  600:	*lat =  21.30;	*lon = 157.82;	tz_name_ptr = N_("Honolulu");break;
-/** 10 **/	case  600:	*lat = -33.87;	*lon = 151.21;	tz_name_ptr = N_("Sydney");break;
+/** -8 **/	case -480:	*lat =  34.052222;	*lon =-118.242778;	*tz_name_ptr = N_("America/Los_Angeles"); break;
+/** -6 **/	case -360:	*lat =  19.400000;	*lon = -99.150000;	*tz_name_ptr = N_("America/Mexico_City"); break;
+/** -5 **/	case -300:	*lat =  40.714167;	*lon = -74.638800;	*tz_name_ptr = N_("America/New_York"); break;
+/** -5 **///case -300:	*lat =  43.71;	*lon = -79.43;	*tz_name_ptr = N_("Toronto"); break;
+/** -5 **///case -300:	*lat = -23.55;	*lon = -46.61;	*tz_name_ptr = N_("Sao Paolo"); break;
+/** -4.5 **/case -270:	*lat =  10.500000;	*lon = -66.933333;	*tz_name_ptr = N_("America/Caracas"); break;
+/** -3 **/	case -180:	*lat = -34.600000;	*lon = -58.450000;	*tz_name_ptr = N_("America/Argentina/Buenos_Aires"); break;
+/**  0 **/	case    0:	*lat =  51.508333;	*lon =   0.125278;	*tz_name_ptr = N_("Europe/London"); break;
+/**  1 **/	case   60:	*lat =  48.866667;	*lon =   2.333333;	*tz_name_ptr = N_("Europe/Paris"); break;
+/**  2 **/	case  120:	*lat =  31.766667;	*lon =  35.233333;	*tz_name_ptr = N_("Asia/Jerusalem"); break;
+/**  3.5 **/case  210:	*lat =  35,666667;	*lon =  51.433333;	*tz_name_ptr = N_("Asia/Tehran"); break;
+/**  4 **/	case  240:	*lat =  55.750000;	*lon =  37.583333;	*tz_name_ptr = N_("Europe/Moscow"); break;
+/**  5 **/	case  300:	*lat =  41.333333;	*lon =  69.300000;	*tz_name_ptr = N_("Asia/Tashkent"); break;
+/**  5.5 **/case  330:	*lat =  22.533333;	*lon =  88.366667;	*tz_name_ptr = N_("Asia/Kolkata"); break;
+/**  8 **/	case  480:	*lat =  31.233333;	*lon = 121.466667;	*tz_name_ptr = N_("Asia/Shanghai"); break;
+/**  8 **///case  480:	*lat =  39.90;	*lon = 116.38;	*tz_name_ptr = N_("Asia/Beijing"); break;
+/**  8 **///case  480:	*lat =  22.26;	*lon = 114.15;	*tz_name_ptr = N_("Hong Kong");break;
+/** 10 **///case  600:	*lat =  21.30;	*lon = 157.82;	*tz_name_ptr = N_("Honolulu");break;
+/** 10 **/	case  600:	*lat = -33.866667;	*lon = 151.216667;	*tz_name_ptr = N_("Australia/Sydney");break;
 	default:	/// .25 = (15 degrees) / 60 [because tz is in minutes, not hours]
 				*lat =   0.0;	*lon =  tz * .25;
 				return FALSE; break;
@@ -537,7 +545,7 @@ int parse_epoch_value( const char* epoch_string, time_t* epoch_val, int* epoch_p
 *           no longitude -> use zone.tab entry
 * 
 ************************************************************/
-void process_location_parms( double *lat, double *lon,
+void process_location_parms( double *lat, double *lon, double tz_lon,
 						int *tz, char* tz_name_in, char** tz_name_out,
 						const time_t start_time, const time_t end_time,
 						int * num_dst_entries_ptr, void** returned_dst_data,
@@ -546,7 +554,9 @@ void process_location_parms( double *lat, double *lon,
 	char* zonetab_name  = NULL;
 	double guessed_lat = BAD_COORDINATE;
 	double guessed_lon = BAD_COORDINATE;
+	int    guessed_tz  = BAD_TIMEZONE;
 	int    guess_found = FALSE;
+	char*  guess_name  = NULL;
 	
 	#define DELTA_LONGITUDE 45
 	#define DELTA_LATITUDE  60
@@ -564,11 +574,40 @@ void process_location_parms( double *lat, double *lon,
 	{
 		if (tz_name_in==NULL)
 		{
-			/// case HDVL_NO_INFO:
 			*tz_name_out = read_sys_tz_string_from_file();
 			// now *tz_name_out must be free()d
-			if (*tz_name_out == NULL) input_info = HDVL_LOCAL_INFO;
-			else input_info = HDVL_NAME_INFO;
+			if (*lon == BAD_COORDINATE)
+			{
+				if (*tz_name_out == NULL) input_info = HDVL_LOCAL_INFO;
+				else input_info = HDVL_NAME_INFO;
+			}
+			else /// (*lon != BAD_COORDINATE)
+			{
+				if ( get_lat_lon_from_zonetab_file( *tz_name_out, &zonetab_name, 
+							&guessed_lat, &guessed_lon, quiet_alerts ) )
+				{
+					if (abs(*lon - guessed_lon) > DELTA_LONGITUDE)
+					{
+						guessed_tz = (((int) *lon) / 15 ) * 60; /// we use tz in minutes
+						*tz = guessed_tz;
+						guessed_lat = 0; /// equator
+						free(*tz_name_out);
+						*tz_name_out = NULL;
+						input_info = HDVL_TZ_INFO;
+					}
+					else input_info = HDVL_NAME_INFO;
+				}
+				else
+				{
+					// NOTE: if we reached here via case HDVL_NO_INFO:
+					// something very wrong has happened
+					// ie. /etc/timezone had a value for which no entry
+					// exists in zonetab file, so no default lat/lon available
+					// however,  there may be a valid tzif file
+					if (!quiet_alerts) print_alert_timezone( tz_name_in );
+					input_info = HDVL_LOCAL_INFO;
+				}
+			}
 		}
 		else
 		{
@@ -583,11 +622,11 @@ void process_location_parms( double *lat, double *lon,
 		if( get_lat_lon_from_zonetab_file( *tz_name_out, &zonetab_name, 
 							&guessed_lat, &guessed_lon, quiet_alerts ) )
 		{
+			guess_found = TRUE;
 			// But what if zonetab_tz_name_ptr isn't identical to tz_name_ptr?
 			// free(zonetab_tz_name_ptr);
-			*lat = guessed_lat;
-			*lon = guessed_lon;
 			*tz_name_out = zonetab_name;
+			if (!quiet_alerts) print_alert_timezone(zonetab_name);
 		}
 		else
 		{
@@ -609,40 +648,63 @@ void process_location_parms( double *lat, double *lon,
 		*tz = timezone / (-60);
 		// double-check that when using non-system default timezone that
 		// *tz is set properly
-		if (!quiet_alerts) print_alert_tz( *tz );
+		if (!quiet_alerts)
+		{
+			print_alert_tz( *tz );
+			print_alert_not_dst_aware( no_timezone_entered_text );
+		}
 		// try reading tzif file from /etc/localtime
 		if ( (*lat==BAD_COORDINATE) || (*lon==BAD_COORDINATE) )
-			guess_found = set_default_location( *tz, *tz_name_out,
+		{
+			guess_found = set_default_location( *tz, tz_name_out,
 												&guessed_lat, &guessed_lon );
+		}
 	}
 
 	if (input_info == HDVL_TZ_INFO)
 	{
-		print_alert_not_dst_aware();
-		if ( (*lat==BAD_COORDINATE) || (*lon==BAD_COORDINATE) )
-			guess_found = set_default_location( *tz, *tz_name_out,
+		if (guessed_tz != BAD_TIMEZONE)
+		{
+			print_alert_using_utc_offset( guessed_tz );
+			print_alert_not_dst_aware( no_timezone_entered_text );
+		}
+		else
+		{
+			print_alert_not_dst_aware( absolute_utc_offset_text );
+			if ( (*lat==BAD_COORDINATE) || (*lon==BAD_COORDINATE) )
+				guess_found = set_default_location( *tz, tz_name_out,
 												&guessed_lat, &guessed_lon );
+		}
 	}
 
 
 	if (*lon==BAD_COORDINATE)
 	{
 		*lon = guessed_lon;
-		if (!quiet_alerts) print_alert_missing_coordinate(longitude_text, *lon);
+		if (!quiet_alerts)
+		{
+			if (guess_found) guess_name = *tz_name_out;
+			else             guess_name = lon_midpoint_text;
+			print_alert_missing_coordinate(longitude_text, *lon, guess_name );
+		}
 	}
-	else if ( (!quiet_alerts) && (guess_found) && (abs(*lon - guessed_lon) > DELTA_LONGITUDE) )
+//	else if ( (!quiet_alerts) && (guessed_tz == BAD_TIMEZONE) && (abs(*lon - guessed_lon) > DELTA_LONGITUDE) )
+	else if ( (!quiet_alerts) && (guessed_tz == BAD_TIMEZONE) )
 	{
-		print_alert_delta_coordinate(longitude_text, *lon, guessed_lon);
+		if (guess_found) tz_lon = guessed_lon;
+		if (abs(*lon - tz_lon) > DELTA_LONGITUDE)
+			print_alert_delta_coordinate(longitude_text, *lon, tz_lon);
 	}
 
 	if (*lat==BAD_COORDINATE)
 	{
 		*lat = guessed_lat;
-		if (!quiet_alerts) print_alert_missing_coordinate(latitude_text, *lat);
-	}
-	else if ( (!quiet_alerts) && (guess_found) && (abs(*lat - guessed_lat) > DELTA_LATITUDE) )
-	{
-		print_alert_delta_coordinate(latitude_text, *lat, guessed_lat);
+		if (!quiet_alerts)
+		{
+			if (guess_found) guess_name = *tz_name_out;
+			else             guess_name = equator_text;
+			print_alert_missing_coordinate(latitude_text, *lat, guess_name );
+		}
 	}
 
 

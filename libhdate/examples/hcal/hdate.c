@@ -157,6 +157,8 @@ typedef struct  {
 				int menu;
 				char* menu_item[MAX_MENU_ITEMS];
 				char* tz_name_str;
+				/// double tz_lat;		/// unnecessary, here for parallelism
+				double tz_lon;			/// for sanity checking user input longitude
 				int tzif_entries;
 				int tzif_index;			/// counter into tzif_entries
 				void* tzif_data;
@@ -547,18 +549,19 @@ int print_astronomical_time( char *description,	const int timeval_0, option_list
 	if (!opt->print_epoch)
 	{
 		timeval_1 = ( timeval_0 / 60 ) +
-				get_tz_adjustment(  timeval_1, opt->tz_offset, &opt->tzif_index,
+				get_tz_adjustment( timeval_1, opt->tz_offset, &opt->tzif_index,
 									opt->tzif_entries, opt->tzif_data );
+		if (timeval_1 < 0) timeval_1 = SECONDS_PER_DAY + timeval_1;
 	}
 	if (opt->data_first)
 	{
 		if (opt->print_epoch) printf("%10ld %s\n", timeval_1, descr);
-		else printf("%02ld:%02ld %s\n", timeval_1 / 60, timeval_1 % 60, descr);
+		else printf("%02ld:%02ld %s\n", (timeval_1 / 60) % 24, timeval_1 % 60, descr );
 	}
 	else /// (!opt->data_first)
 	{
 		if (opt->print_epoch) printf("%s%c %10ld\n", descr, delim, timeval_1);
-		else printf("%s%c %02ld:%02ld\n", descr, delim, timeval_1 / 60, timeval_1 % 60 );
+		else printf("%s%c %02ld:%02ld\n", descr, delim, (timeval_1 / 60) % 24, timeval_1 % 60 );
 	}
 	return DATA_WAS_PRINTED;
 }
@@ -568,18 +571,23 @@ int print_astronomical_time( char *description,	const int timeval_0, option_list
 ************************************************************/
 void print_astronomical_time_tabular( const int  timeval_0, option_list* opt)
 {
-	int timeval_1;
+	time_t timeval_1 = 0;
 
-	if (timeval_0 < 0) printf(",--:--");
-	else
+	if (timeval_0 < 0)
 	{
-		timeval_1 = ( timeval_0 / 60 )
-			  + get_tz_adjustment( timeval_0 + opt->epoch_today,
-						 opt->tz_offset, &opt->tzif_index,
-						 opt->tzif_entries, opt->tzif_data );
-
-		printf(",%02d:%02d", timeval_1 / 60, timeval_1 % 60 );
+		printf(",--:--");
+		return;
 	}
+	timeval_1 = opt->epoch_today + timeval_0;
+	if (!opt->print_epoch)
+	{
+		timeval_1 = ( timeval_0 / 60 ) +
+				get_tz_adjustment( timeval_1, opt->tz_offset, &opt->tzif_index,
+									opt->tzif_entries, opt->tzif_data );
+		if (timeval_1 < 0) timeval_1 = SECONDS_PER_DAY + timeval_1;
+		printf(",%02ld:%02ld", (timeval_1 / 60) % 24, timeval_1 % 60 );
+	}
+	else printf(",%10ld", timeval_1);
 	return;
 }
 
@@ -2096,7 +2104,8 @@ int print_hyear ( option_list* opt, const int year)
 void read_config_file(	FILE *config_file,
 						option_list *opt )
 {
-	double tz_lat, tz_lon;
+	double tz_lat = BAD_COORDINATE;
+///	double tz_lon = BAD_COORDINATE;
 	char	*input_string = NULL;
 	size_t	input_str_len;	// unnecessary to initialize, per man(3) getline
 //	size_t	input_str_len = 200;	// WARNING: if you change this value
@@ -2201,11 +2210,11 @@ void read_config_file(	FILE *config_file,
 		case  3:
 				if  (!parse_timezone_numeric(input_value, &opt->tz_offset))
 				{
-					if (parse_timezone_alpha(input_value, &opt->tz_name_str, &opt->tz_offset, &tz_lat, &tz_lon))
+					if (parse_timezone_alpha(input_value, &opt->tz_name_str, &opt->tz_offset, &tz_lat, &opt->tz_lon))
 					{
 						// TODO - really, at this point, shouldn't either both be bad or botha be good?
 						if (opt->lat  == BAD_COORDINATE) opt->lat = tz_lat;
-						if (opt->lon == BAD_COORDINATE) opt->lon = tz_lon;
+						if (opt->lon == BAD_COORDINATE) opt->lon = opt->tz_lon;
 					}
 				}
 				break;
@@ -2433,9 +2442,9 @@ void exit_main( option_list *opt, int exit_code)
 int parameter_parser( int switch_arg, option_list *opt,
 					  int long_option_index)
 {
-	double tz_lat, tz_lon;
 	static char *timezone_text  = N_("-z (timezone)");
-
+	double tz_lat = BAD_COORDINATE;
+	/// double tz_lon = BAD_COORDINATE;
 	int error_detected = 0;
 
 	switch (switch_arg)
@@ -2666,7 +2675,7 @@ int parameter_parser( int switch_arg, option_list *opt,
 		}
 		else if (!parse_timezone_numeric(optarg, &opt->tz_offset))
 		{
-			if (!parse_timezone_alpha(optarg, &opt->tz_name_str, &opt->tz_offset, &tz_lat, &tz_lon))
+			if (!parse_timezone_alpha(optarg, &opt->tz_name_str, &opt->tz_offset, &tz_lat, &opt->tz_lon))
 			{
 				error_detected = error_detected + 1;
 				print_parm_error(timezone_text);
@@ -2674,7 +2683,7 @@ int parameter_parser( int switch_arg, option_list *opt,
 			else
 			{
 				if (opt->lat  == BAD_COORDINATE) opt->lat = tz_lat;
-				if (opt->lon == BAD_COORDINATE) opt->lon = tz_lon;
+				if (opt->lon == BAD_COORDINATE) opt->lon = opt->tz_lon;
 			}
 		}
 		break;
@@ -2723,6 +2732,8 @@ int main (int argc, char *argv[])
 	opt.lat = BAD_COORDINATE;
 	opt.lon = BAD_COORDINATE;
 	opt.tz_name_str = NULL;
+	/// opt.tz_lat = BAD_COORDINATE;
+	opt.tz_lon = BAD_COORDINATE;
 	opt.tz_offset = BAD_TIMEZONE;
 	opt.tzif_entries =0;
 	opt.tzif_data = NULL;
@@ -3311,14 +3322,21 @@ int main (int argc, char *argv[])
 	if ( (opt.tzif_data == NULL) && (opt.time_option_requested) &&
 		 (!opt.epoch_parm_received) )
 	{
-		get_epoch_time_range( &opt.epoch_start, &opt.epoch_end,	opt.tz_name_str, opt.tz_offset,
-					h_start_day.gd_year,           h_start_day.gd_mon,           h_start_day.gd_day,
-					h_day_after_final_day.gd_year, h_day_after_final_day.gd_mon, h_day_after_final_day.gd_day);
+		get_epoch_time_range( &opt.epoch_start,
+							&opt.epoch_end,
+							opt.tz_name_str,
+							opt.tz_offset,
+							h_start_day.gd_year,
+							h_start_day.gd_mon,
+							h_start_day.gd_day,
+							h_day_after_final_day.gd_year,
+							h_day_after_final_day.gd_mon,
+							h_day_after_final_day.gd_day);
 		opt.epoch_today = opt.epoch_start;
 	}
 
-	process_location_parms(	&opt.lat, &opt.lon, &opt.tz_offset,
-							opt.tz_name_str, &tz_name_verified,
+	process_location_parms(	&opt.lat, &opt.lon, opt.tz_lon,
+							&opt.tz_offset,	opt.tz_name_str, &tz_name_verified,
 							opt.epoch_start, opt.epoch_end,
 							&opt.tzif_entries, &opt.tzif_data,
 							opt.quiet);
