@@ -204,14 +204,14 @@ VERSION=2.00\n\
 #SUNSET_AWARE=TRUE\n\n\
 # Base Years\n\
 # hdate, by default, interprets two-digit year parameters as Hebrew\n\
-# years, and adds the value BASE_YEAR_HEBREW to them. Set\n\
+# years, and adds the value BASE_YEAR_HEBREW * 100 to them. Set\n\
 # variable PREFER_HEBREW=FALSE to have them interpreted as gregorian,\n\
-# and have BASE_YEAR_GREGORIAN added to them.\n\
+# and have BASE_YEAR_GREGORIAN * 100 added to them.\n\
 #PREFER_HEBREW=TRUE\n\
-# valid values for BASE_YEAR_HEBREW are 3000 - 6900\n\
-#BASE_YEAR_HEBREW=5700\n\
-# valid values for BASE_YEAR_GREGORIAN are 1000 - 2900\n\
-#BASE_YEAR_GREGORIAN=2000\n\n\
+# valid values for BASE_YEAR_HEBREW are 30 - 69\n\
+#BASE_YEAR_HEBREW=57\n\
+# valid values for BASE_YEAR_GREGORIAN are 10 - 29\n\
+#BASE_YEAR_GREGORIAN=20\n\n\
 # LATITUDE and LONGITUDE may be in decimal format or in the form\n\
 # degrees[:minutes[:seconds]] with the characters :'\" as possible\n\
 # delimiters. Use negative values to indicate South and West, or\n\
@@ -1512,6 +1512,7 @@ int print_day_tabular (hdate_struct* h, option_list* opt)
 	************************************************************/
 	if (opt->emesh)
 	{
+		if (opt->print_epoch) opt->epoch_today = opt->epoch_today - SECONDS_PER_DAY;
 		if ( (opt->candles) || (opt->havdalah) )
 		{
 			/// also for day of week
@@ -1560,6 +1561,7 @@ int print_day_tabular (hdate_struct* h, option_list* opt)
 				print_astronomical_time_tabular( havdalah_time, opt);
 			}
 		}
+		if (opt->print_epoch) opt->epoch_today = opt->epoch_today + SECONDS_PER_DAY;
 	}
 
 	hdate_get_utc_sun_time_deg_seconds (h->gd_day, h->gd_mon, h->gd_year, opt->lat, opt->lon, 90.833, &sunrise, &sunset);
@@ -1658,6 +1660,11 @@ int print_day_tabular (hdate_struct* h, option_list* opt)
 	/************************************************************
 	* end - print times of day
 	************************************************************/
+
+	/// necessary only for printing month or year
+	opt->epoch_today = opt->epoch_today + SECONDS_PER_DAY;
+
+
 	if (opt->daf_yomi) print_daf_yomi(h->hd_jd, opt->hebrew, opt->bidi, TRUE, opt->data_first);
 
 	if (opt->omer)
@@ -1904,7 +1911,6 @@ int print_gmonth ( option_list* opt, int month, int year)
 	while (h.gd_mon == month)
 	{
 		print_day (&h, opt);
-
 		jd++;
 		hdate_set_jd (&h, jd);
 	}
@@ -2122,7 +2128,8 @@ void read_config_file(	FILE *config_file,
 	int		line_count = 0;
 	int		match_count;
 	int		end_of_input_file = FALSE;
-	int		i;
+	int		key_index = 0;
+	int		temp_base_year = 0;
 	const int	num_of_keys = 26;
 	const char*	key_list[] = {	"SUNSET_AWARE",		// 0
 								"LATITUDE",
@@ -2184,11 +2191,11 @@ void read_config_file(	FILE *config_file,
 			if (errno != 0) error(0,errno,"scan error at line %d", line_count);
 			if (match_count ==2)
 			{
-				for (i=0; i<num_of_keys; i++)
+				for (key_index=0; key_index<num_of_keys; key_index++)
 				{
-					if (strcmp(input_key, key_list[i]) == 0)
+					if (strcmp(input_key, key_list[key_index]) == 0)
 					{
-						switch(i)
+						switch(key_index)
 						{
 
 ///		SUNSET_AWARE
@@ -2389,15 +2396,21 @@ void read_config_file(	FILE *config_file,
 ///		BASE_YEAR_HEBREW
 		case 27:if (fnmatch( "[3456][[:digit:]][[:digit:]][[:digit:]]", input_value, FNM_EXTMATCH) == 0)
 				{
-					opt->base_year_h = atoi(input_value);
-					if (opt->base_year_h > (HDATE_HEB_YR_UPPER_BOUND-99)) opt->base_year_h = HDATE_DEFAULT_BASE_YEAR_H;
+					temp_base_year = atoi(input_value);
+					if ( (temp_base_year < (HDATE_HEB_YR_LOWER_BOUND/100)) ||
+						 (temp_base_year > (HDATE_HEB_YR_UPPER_BOUND/100)) )
+						 opt->base_year_h = HDATE_DEFAULT_BASE_YEAR_H;
+					else opt->base_year_h = temp_base_year;
 				}
 				break;
 ///		BASE_YEAR_GREGORIAN
 		case 28:if (fnmatch( "[12][[:digit:]][[:digit:]][[:digit:]]", input_value, FNM_EXTMATCH) == 0)
 				{
-					opt->base_year_g = atoi(input_value);
-					if (opt->base_year_g > (HDATE_GREG_YR_UPPER_BOUND-99)) opt->base_year_g = HDATE_DEFAULT_BASE_YEAR_G;
+					temp_base_year = atoi(input_value);
+					if ( (temp_base_year < (HDATE_GREG_YR_LOWER_BOUND/100)) ||
+						 (temp_base_year > (HDATE_GREG_YR_UPPER_BOUND/100)) )
+						 opt->base_year_g = HDATE_DEFAULT_BASE_YEAR_G;
+					else opt->base_year_g = temp_base_year;
 				}
 				break;
 
@@ -2884,127 +2897,6 @@ int main (int argc, char *argv[])
 	/** eof*/{0, 0, 0, 0}
 		};
 
-
-	/*************************************************************
-	* sub-function process_month
-	* - This code was originally a normal part of main(). However,
-	*   when I wanted the flexibility of having a single alphabetic
-	*   month parameter accepted as the entire month for the
-	*   current year, I needed to make this a function and, at least
-	*   for now, am keeping it as a sub-function within main()
-	**************************************************************/
-	// TODO - consider moving this out of main()
-	// The comments above seems to be nonsense - this function is only
-	// called once, so it can be returned in-line to main
-	void process_month()
-	{
-		/// handle errors
-		// Hmm... suspicious. why so little checking here ...
-		if (year <= 0) { print_parm_error(year_text); exit_main(&opt,0); }
-
-		/************************************************************
-		* process entire Hebrew month
-		************************************************************/
-		if (year > HDATE_HEB_YR_LOWER_BOUND)
-		{
-			/// The parse_date function returns Hebrew month values in
-			/// the range 101 - 114
-			if (month > 100) month = month - 100;
-
-			/// bounds check for month
-			if (!validate_hdate(CHECK_MONTH_PARM, 0, month, year,
-						TRUE, &h_start_day))
-				{ print_parm_error(month_text); exit_main(&opt,0); }
-
-
-			if ((opt.holidays) && (custom_days_file_ready))
-			{
-				// hdate_set_hdate(&h, 1, month, year);
-				opt.custom_days_cnt = read_custom_days_file(
-									custom_file, &opt.jdn_list_ptr, &opt.string_list_ptr,
-									0, month, year,
-									'H', h_start_day, opt.short_format, opt.hebrew);
-				fclose(custom_file);
-			}
-
-			if (opt.tablular_output)
-			{
-				print_tabular_header( &opt );
-
-				/// if leap year, print both Adar months
-				if (h_start_day.hd_size_of_year > 365 && month == 6)
-				{
-					print_hmonth_tabular ( &opt, 13, year);
-					print_hmonth_tabular ( &opt, 14, year);
-				}
-				else
-				{
-					print_hmonth_tabular ( &opt, month, year);
-				}
-			}
-			else
-			{
-				if (opt.iCal) print_ical_header ();
-
-				/// if leap year, print both Adar months
-				if (h_start_day.hd_size_of_year > 365 && month == 6)
-				{
-					hdate_set_hdate (&h_month_to_print, 1, 13, year);
-					print_hmonth (&h_month_to_print, &opt, 13, year);
-					hdate_set_hdate (&h_month_to_print, 1, 14, year);
-					print_hmonth (&h_month_to_print, &opt, 14, year);
-				}
-				else
-				{
-					print_hmonth (&h_start_day, &opt, month, year);
-				}
-				if (opt.iCal)
-					print_ical_footer ();
-			}
-		}
-
-		/************************************************************
-		* process entire Gregorian month
-		************************************************************/
-		else
-		{
-			if ((month <= 0) || (month > 12))
-				{ print_parm_error(month_text); exit_main(&opt,0); }
-
-			if ((opt.holidays) && (custom_days_file_ready))
-			{
-				opt.custom_days_cnt = read_custom_days_file(
-									custom_file, &opt.jdn_list_ptr, &opt.string_list_ptr,
-									0, month, year,
-									'G', h_start_day, opt.short_format, opt.hebrew);
-				fclose(custom_file);
-			}
-
-			if (opt.tablular_output)
-			{
-				print_tabular_header( &opt );
-				print_gmonth_tabular( &opt, month, year);
-			}
-
-			else
-			{
-				if (opt.iCal)print_ical_header ();
-
-				print_gmonth (&opt, month, year);
-
-				if (opt.iCal) print_ical_footer ();
-			}
-		}
-	}
-	/*************************************************************
-	* end sub-function process_month
-	*************************************************************/
-
-
-	/*************************************************************
-	* BEGIN - main execution section of main ()
-	*************************************************************/
-
 	/// init locale - see man (3) setlocale, and see hcal.c for the full lecture...
 	//  TODO - verify that I'm not needlessly doing this again (and again...)
 	char* my_locale;
@@ -3023,8 +2915,7 @@ int main (int argc, char *argv[])
  	while ((getopt_retval = getopt_long(argc, argv,
 							short_options, long_options,
 							&long_option_index)) != -1)
-		error_detected = error_detected
-						+ parameter_parser( getopt_retval, &opt, long_option_index);
+		error_detected = error_detected + parameter_parser( getopt_retval, &opt, long_option_index);
 
 	/// undocumented feature - afikomen
 	if (opt.afikomen)
@@ -3118,7 +3009,7 @@ int main (int argc, char *argv[])
 		else if ( strspn(argv[optind], digits) == strlen(argv[optind]) )
 		{
 			year = atoi (argv[optind]);
-			if (year > HDATE_JUL_DY_LOWER_BOUND)
+			if ( (year >= HDATE_JUL_DY_LOWER_BOUND) && (year <= HDATE_JUL_DY_UPPER_BOUND) )
 			{
 				hdate_set_jd (&h_start_day, year);
 				hdate_action = PROCESS_JULIAN_DAY;
@@ -3143,18 +3034,15 @@ int main (int argc, char *argv[])
 						hdate_set_gdate (&h_start_day, day, month, year);
 					}
 				}
-				else
+				else if ((year >= HDATE_HEB_YR_LOWER_BOUND) && (year <= HDATE_HEB_YR_UPPER_BOUND))
 				{
-					if (year > HDATE_HEB_YR_LOWER_BOUND)
-					{
-						hdate_action = PROCESS_HEBREW_YEAR;
-						hdate_set_hdate (&h_start_day, 1, 1, year);
-					}
-					else
-					{
-						hdate_action = PROCESS_GREGOR_YEAR;
-						hdate_set_gdate (&h_start_day, 1, 1, year);
-					}
+					hdate_action = PROCESS_HEBREW_YEAR;
+					hdate_set_hdate (&h_start_day, 1, 1, year);
+				}
+				else if ((year >= HDATE_GREG_YR_LOWER_BOUND) && (year <= HDATE_GREG_YR_UPPER_BOUND))
+				{
+					hdate_action = PROCESS_GREGOR_YEAR;
+					hdate_set_gdate (&h_start_day, 1, 1, year);
 				}
 			}
 		}
@@ -3283,10 +3171,8 @@ int main (int argc, char *argv[])
 		}
 	}
 
-	// if ( (opt.tzif_data == NULL) && (opt.time_option_requested) ) 
-	// {
-		switch (hdate_action)
-		{
+	switch (hdate_action)
+	{
 	case PROCESS_NOTHING    :
 	case PROCESS_EPOCH_DAY	: break;
 	case PROCESS_TODAY      :
@@ -3317,7 +3203,7 @@ int main (int argc, char *argv[])
 			hdate_set_gdate (&h_start_day, 1, 1, year);
 			hdate_set_gdate (&h_day_after_final_day, 1, 1, year+1);
 			break;
-		} /// end switch (hdate_action)
+	} /// end switch (hdate_action)
 		
 	if ( (opt.tzif_data == NULL) && (opt.time_option_requested) &&
 		 (!opt.epoch_parm_received) )
@@ -3345,10 +3231,10 @@ int main (int argc, char *argv[])
 
 	if (hdate_action == PROCESS_EPOCH_DAY)
 	{
-		// 86,400 seconds per day
 		opt.epoch_start = opt.epoch_today + (60 * get_tz_adjustment(  opt.epoch_today, opt.tz_offset,
 										&opt.tzif_index, opt.tzif_entries, opt.tzif_data ));
-	/* temp, delete this! */ printf("epoch value = %ld, epoch start = %ld, adjustment = %ld\n", opt.epoch_today, opt.epoch_start, opt.epoch_start - opt.epoch_today);
+	/* temp, delete this! */ printf("epoch value = %ld, epoch start = %ld, adjustment = %ld\n", opt.epoch_today,
+												opt.epoch_start, opt.epoch_start - opt.epoch_today);
 		opt.epoch_end = opt.epoch_start + SECONDS_PER_DAY;
 		opt.epoch_today = opt.epoch_start;
 		gmtime_r( &opt.epoch_today, &epoch_tm );
@@ -3380,7 +3266,6 @@ case PROCESS_TODAY:
 									h_start_day.hd_day, h_start_day.hd_mon, h_start_day.hd_year,
 									'H', h_start_day, opt.short_format, opt.hebrew);
 			}
-			// test_print_custom_days(opt->custom_days_cnt, opt->jdn_list_ptr, opt->string_list_ptr);
 			fclose(custom_file);
 		}
 		if (opt.tablular_output)
@@ -3400,13 +3285,10 @@ case PROCESS_TODAY:
 			if (opt.iCal) print_ical_footer ();
 		}
 		break;
-case PROCESS_MONTH:
-		process_month();
-		break;
 case PROCESS_HEBREW_YEAR:
 		if ((opt.holidays) && (custom_days_file_ready))
 		{
-			hdate_set_hdate(&h_start_day, 1, 1, year);
+// (done above)	hdate_set_hdate(&h_start_day, 1, 1, year);
 			opt.custom_days_cnt = read_custom_days_file(
 									custom_file, &opt.jdn_list_ptr, &opt.string_list_ptr,
 									0, 0, year,
@@ -3429,7 +3311,7 @@ case PROCESS_HEBREW_YEAR:
 case PROCESS_GREGOR_YEAR:
 		if ((opt.holidays) && (custom_days_file_ready))
 		{
-			hdate_set_gdate(&h_start_day, 1, 1, year);
+// (done above)	hdate_set_gdate(&h_start_day, 1, 1, year);
 			opt.custom_days_cnt = read_custom_days_file(
 									custom_file, &opt.jdn_list_ptr, &opt.string_list_ptr,
 									0, 0, year,
@@ -3447,6 +3329,93 @@ case PROCESS_GREGOR_YEAR:
 			if (opt.iCal) print_ical_header ();
 			print_gyear ( &opt, year);
 			if (opt.iCal) print_ical_footer ();
+		}
+		break;
+case PROCESS_MONTH:
+		/************************************************************
+		* process entire Hebrew month
+		************************************************************/
+		if (year >= HDATE_HEB_YR_LOWER_BOUND)
+		{
+			/// The parse_date function returns Hebrew month values in
+			/// the range 101 - 114
+			if (month > 100) month = month - 100;
+
+
+			if ((opt.holidays) && (custom_days_file_ready))
+			{
+				// hdate_set_hdate(&h, 1, month, year);
+				opt.custom_days_cnt = read_custom_days_file(
+									custom_file, &opt.jdn_list_ptr, &opt.string_list_ptr,
+									0, month, year,
+									'H', h_start_day, opt.short_format, opt.hebrew);
+				fclose(custom_file);
+			}
+
+			if (opt.tablular_output)
+			{
+				print_tabular_header( &opt );
+
+				/// if leap year, print both Adar months
+				if (h_start_day.hd_size_of_year > 365 && month == 6)
+				{
+					print_hmonth_tabular ( &opt, 13, year);
+					print_hmonth_tabular ( &opt, 14, year);
+				}
+				else
+				{
+					print_hmonth_tabular ( &opt, month, year);
+				}
+			}
+			else
+			{
+				if (opt.iCal) print_ical_header ();
+
+				/// if leap year, print both Adar months
+				if (h_start_day.hd_size_of_year > 365 && month == 6)
+				{
+					hdate_set_hdate (&h_month_to_print, 1, 13, year);
+					print_hmonth (&h_month_to_print, &opt, 13, year);
+					hdate_set_hdate (&h_month_to_print, 1, 14, year);
+					print_hmonth (&h_month_to_print, &opt, 14, year);
+				}
+				else
+				{
+					print_hmonth (&h_start_day, &opt, month, year);
+				}
+				if (opt.iCal)
+					print_ical_footer ();
+			}
+		}
+
+		/************************************************************
+		* process entire Gregorian month
+		************************************************************/
+		else
+		{
+			if ((month <= 0) || (month > 12))
+				{ print_parm_error(month_text); exit_main(&opt,0); }
+
+			if ((opt.holidays) && (custom_days_file_ready))
+			{
+				opt.custom_days_cnt = read_custom_days_file(
+									custom_file, &opt.jdn_list_ptr, &opt.string_list_ptr,
+									0, month, year,
+									'G', h_start_day, opt.short_format, opt.hebrew);
+				fclose(custom_file);
+			}
+
+			if (opt.tablular_output)
+			{
+				print_tabular_header( &opt );
+				print_gmonth_tabular( &opt, month, year);
+			}
+			else
+			{
+				if (opt.iCal)print_ical_header ();
+				print_gmonth (&opt, month, year);
+				if (opt.iCal) print_ical_footer ();
+			}
 		}
 		break;
 	} /// end of switch (hdate_action)

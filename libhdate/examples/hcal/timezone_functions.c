@@ -72,7 +72,7 @@ long parse_tz_long( const char *sourceptr, const int field_size)
 {
 	long retval = 0;
 	char *long_ptr;
-
+// TODO - big endian / little endian etc.
 //	if (sizeof(long) < field_size)
 //		printf("warning: field truncated because it is larger than a 'long' integer\n\n");
 
@@ -726,21 +726,6 @@ char* read_sys_tz_string_from_file()
 	// printf("system timezone name = %s\n\n",retval_ptr);
 	return retval_ptr;
 }
-
-
-
-/***********************************************************************
-* print_alert_coordinate
-* 
-***********************************************************************/
-//void print_alert_coordinate_pair( const char *city_name )
-//{
-//	error(0,0,"%s",
-//			N_("ALERT: coordinates not entered or invalid..."));
-//	error(0,0,"%s %s",
-//			N_("ALERT: guessing... will use co-ordinates for"),
-//			city_name);
-//}
 
 
 /***********************************************************************

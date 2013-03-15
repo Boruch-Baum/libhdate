@@ -82,7 +82,7 @@ static char *gregorian_months[2][12] = {
 	 N_("October"), N_("November"), N_("December")},
 	{N_("Jan"), N_("Feb"), N_("Mar"), N_("Apr"), N_("May"),
 	 N_("Jun"), N_("Jul"), N_("Aug"), N_("Sep"), N_("Oct"),
-	 N_("Nov"), N_("Dec")},
+	 N_("Nov"), N_("Dec")}
 };
 
 
@@ -490,7 +490,7 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 		 "שני של סוכות",	"שני של פסח",
 		 "יום המשפחה",		"יום זכרון...", 
 		 "יום הזכרון ליצחק רבין","יום ז\'בוטינסקי",
-		 "עיוה\"כ",			"ערב פסח",
+		 "ערב יום הכפורים",	"ערב פסח",
 		 "ערב סוכות"},
 		{ /// begin hebrew short
 		 "חול",
@@ -572,7 +572,7 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 	 ** using nl_langinfo(), which requires glibc/gcc constant literals
 	 ** so I've defined an array 'langinfo_months' with the list, for
 	 ** all month full names an abbreviations **/
-		langinfo_ptr = nl_langinfo(langinfo_months[ ((index-1) * (short_form+1)) ]);
+		langinfo_ptr = nl_langinfo(langinfo_months[ ((index-1)+(short_form*12)) ]);
 
 	/** nl_langinfo may return a pointer to a null string if it does
 	 ** not have the requested value. In such a case return the English

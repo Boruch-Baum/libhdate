@@ -46,10 +46,10 @@ hdate \- displays Hebrew date information for a given Gregorian/Julian date
 \fBhdate\fP interprets year values greater than 3000 as Hebrew dates. Numeric Hebrew months are interpreted as 1-12 for Tishrei - Elul; 13 and 14 for Adar I and Adar II. Currently, the maximum value \fBhdate\fP accepts for a Hebrew year is 6999.
 .PP 
 .B INPUTTING A GREGORIAN DATE:
-\fBhdate\fP interprets year values in the range 1000 - 2999 as gregorian. Numeric months are interpreted as 1-12 for January - December.
+\fBhdate\fP interprets year values in the range 1000 - 2999 as either gregorian, or (see section \fBBUGS\fP, subsection \fBHistorical\fP) julian. Numeric months are interpreted as 1-12 for January - December.
 .PP
 .B INPUTTING A JULIAN DAY:
-If a single numeric argument is provided, and that argument is \fIgreater\fP than 348021, \fBhdate\fP interprets it as a "julian day number" and provides information for that Julian day's corresponding Hebrew date. See section \fBJULIAN DAY\fP.
+If a single numeric argument is provided, and that argument is in the range 1443377 <= \fIn\fP <= 2904342, \fBhdate\fP interprets it as a "julian day number" and provides information for that Julian day's corresponding Hebrew date. See section \fBJULIAN DAY\fP.
 .PP
 .B INPUTTING AN EPOCH DATE:
 \fBhdate\fP interprets a number preceded by a '@' as a \fItime_t\fP value, representing the number of seconds elapsed since the Epoch, 1970-01-01 00:00:00 +0000 (UTC). A second way to provide an epoch date value is as a parameter to the
@@ -93,7 +93,7 @@ begin printing times-of-day at sunset or candle
 .RE
 .TP
 .B \-E \-\-epoch
-print times of day in epoch format, ie. the number of seconds elapsed since the Epoch, 1970-01-01 00:00:00 +0000 (UTC).
+print times of day in epoch format, ie. the number of seconds elapsed since the Epoch, 1970-01-01 00:00:00 +0000 (UTC). This option will also cause \fB\-\-sun-hour\fP to display in seconds instead of hh:mm:ss.
 .TP
 \fB-E \-\-epoch\fP \fItime_t\fP
 get information for this epoch date, instead of for \fIdatespec\fP.
@@ -352,9 +352,9 @@ outputs the requested data for any single day in comma-delimited format, with no
 The config files and their parent folder will be automatically created. Each file includes its own documentation, in-line. Should you ever wish to restore a config file to its original text, rename or delete your current one; \fBhdate\fP will create a replacement automatically on its next invocation. Both \fBhdate\fP and \fBhcal\fP make use of identically formatted \fIcustom_days\fP files, so you may freely copy that file from one config folder to the other, or use a symbolic link so both programs will always use the same \fIcustom_days\fP information.
 
 .RS 5
-.RI ${ XDG_CONFIG_HOME } /hdate/hdaterc
+.RI ${ XDG_CONFIG_HOME } /hdate/hdaterc_v1.8
 
-.RI ${ XDG_CONFIG_HOME } /hdate/custom_days
+.RI ${ XDG_CONFIG_HOME } /hdate/custom_days_v1.8
 .P
 .RE
 If ${\fIXDG_CONFIG_HOME\fP} is undefined:

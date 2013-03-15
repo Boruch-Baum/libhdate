@@ -1,3 +1,24 @@
+hdate.c
+- BUGFIX tabular month DST awareness
+- Improve range checking for years, and julian days
+- Improve range checking for base_years
+
+hcal.c
+- BUGFIX timezone alpha recognition
+- BUGFIX html output
+- Improve range checking for base_years
+
+hdate.h
+- tweak ranges for julian days
+
+hcal.1
+hdate.1
+- updated
+
+hdate_strings.c
+- BUGFIX nlang_months indexing for short month names
+
+----------------------------------------------------------------------------
 hcal.c
 hdate.c
 - BUGFIX process_location_parms

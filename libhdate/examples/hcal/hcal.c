@@ -212,14 +212,14 @@ VERSION=2.00\n\
 #SUNSET_AWARE=TRUE\n\n\
 # Base Years\n\
 # hcal, by default, interprets two-digit year parameters as Hebrew\n\
-# years, and adds the value BASE_YEAR_HEBREW to them. Set\n\
+# years, and adds the value BASE_YEAR_HEBREW *100 to them. Set\n\
 # variable PREFER_HEBREW=FALSE to have them interpreted as gregorian,\n\
-# and have BASE_YEAR_GREGORIAN added to them.\n\
+# and have BASE_YEAR_GREGORIAN * 100 added to them.\n\
 #PREFER_HEBREW=TRUE\n\
-# valid values for BASE_YEAR_HEBREW are 3000 - 6900\n\
-#BASE_YEAR_HEBREW=5700\n\
-# valid values for BASE_YEAR_GREGORIAN are 1000 - 2900\n\
-#BASE_YEAR_GREGORIAN=2000\n\n\
+# valid values for BASE_YEAR_HEBREW are 30 - 69\n\
+#BASE_YEAR_HEBREW=57\n\
+# valid values for BASE_YEAR_GREGORIAN are 10 - 29\n\
+#BASE_YEAR_GREGORIAN=20\n\n\
 # LATITUDE and LONGITUDE may be in decimal format or in the form\n\
 # degrees[:minutes[:seconds]] with the characters :'\" as possible\n\
 # delimiters. Use negative values to indicate South and West, or\n\
@@ -410,36 +410,40 @@ General help using GNU software: <http://www.gnu.org/gethelp/>\n"));
 /**************************************************
 *  HTML - print css section
 *************************************************/
-int print_css (const int external_css)
+int html_print_css (const int external_css)
 {
 	if (external_css) printf ("\n\t@import \"hcal.css\";\n");
 	else
 	{
-		printf ("\nbody.hebrew { direction: rtl;}\n\
+		printf ("\n\
 img { margin:0; padding: 0;	vertical-align: middle;	border: 0;}\n\
 p {}\n\
-table.main { width: 90%%; table-layout: fixed; font-size: 14pt; border: solid #aaaaaa; }\n\
+body { background-color: #ffffff; color: #000000; }\n\
+# body.hebrew { direction: rtl;}\n\
+table.main { table-layout: fixed; font-size: 14pt; border: solid #aaaaaa; }\n\
 table.day {	width: 100%%; height: 100%%; table-layout: fixed; font-size: 14pt; }\n\
 th.gmonth { font-size: 30pt; font-weight: bold }\n\
 th.gyear { font-size: 30pt; font-weight: bold}\n\
 th.hmonth { font-size: 30pt; font-weight: bold}\n\
 th.hyear {font-size: 30pt; font-weight: bold }\n\
 th.week { background-color: #aaaaaa;	text-align: center; }\n\
-td.gday { font-size: 30pt; vertical-align: top; }\n\
-td.hday { font-size: 12pt; vertical-align: top; }\n\
-td.sat { border: solid #777777; }\n\
+# td.gday { font-size: 30pt; vertical-align: top; }\n\
+# td.hday { font-size: 12pt; vertical-align: top; }\n\
+td.primary_day   { width: 25%%; font-size: 26pt; vertical-align: top; }\n\
+td.secondary_day { width: 70%%; font-size: 12pt; vertical-align: top; }\n\
+td.sat { color: #000099; border: solid #000099; }\n\
 td.regular { border: solid #aaaaaa; }\n\
-td.holiday { color: #990000; border: solid #888888; }\n\
-td.out_of_month { color: #dddddd; border: solid #dddddd; }\n\
+td.holiday { color: #000099; border: solid #000099; }\n\
+td.holiday_name { font-size: 12pt; color: #000099; }\n\
+td.out_of_month { background-color: #dddddd; color: #aaaaaa; border: solid #aaaaa; }\n\
 tr.line1 { height: 30%%; }\n\
 tr.line2 { height: 50%%; font-size: 30pt; }\n\
-tr.line3 { height: 20%%; font-size: 12pt; vertical-align: bottom; }\n\
+tr.line3 { height: 20%%; font-size: 80%%; vertical-align: bottom; }\n\
 span.today { }\n\
 span.gmonth { font-size: 24pt; }\n\
 span.gyear { font-size: 24pt; }\n\
 span.hmonth { font-size: 24pt; }\n\
-span.hyear { font-size: 24pt; }\n\
-span.holiday_name { }\n");
+span.hyear { font-size: 24pt; }\n");
 	}
 
 	return 0;
@@ -450,7 +454,7 @@ span.holiday_name { }\n");
 /**************************************************
 *  HTML - print header
 *************************************************/
-int print_header_html ( const int external_css, const int force_hebrew)
+int html_print_header ( const int external_css, const int force_hebrew)
 {
 	printf ("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"\"http://www.w3.org/TR/html4/strict.dtd\">\n\
 <html>\n\
@@ -459,7 +463,7 @@ int print_header_html ( const int external_css, const int force_hebrew)
 <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n\
 <style title=\"Normal\" type=\"text/css\" media=\"all\">");
 
-	print_css (external_css);
+	html_print_css (external_css);
 
 	printf ("</style>\n");
 
@@ -482,7 +486,7 @@ int print_header_html ( const int external_css, const int force_hebrew)
 /**************************************************
  *  HTML - print footer
  *************************************************/
-int print_html_footer ()
+int html_print_footer ()
 {
 	printf ("<!-- <p>\n\
 <a href=\"http://validator.w3.org/check/referer\">\n<img \
@@ -501,57 +505,114 @@ alt=\"Valid HTML 4.01!\" height=\"31\" width=\"88\" />\n</a>\n");
 /**************************************************
 *  Print HTML header - month line
 *************************************************/
-void print_header_month_line_html( const header_info header)
+void html_print_calendar_header( const header_info header, const int calendar_type, int calendar_lang)
 {
-
 //  TODO - fix bug ellul xxxx - tishrei xxxx+1
 //	char *h_year_1;
 //	h_year_1 = malloc(HEBREW_NUMBER_BUFFER_SIZE);
 //	char h_year_1[HEBREW_NUMBER_BUFFER_SIZE + 1];
 	char *h_year_1 = NULL;
+	char *h_year_2 = NULL;
+	char *align1 = NULL;
+	char *align2 = NULL;
+	char *bidi_dir = NULL;
 
-	/**************************************************
-	*  Print Gregorian month and year
-	**************************************************/
-	printf ("<table width=90%%><tr><td align=left><span class=\"gmonth\">%s <span class=\"gyear\">%d</span></td>\n",
-			hdate_string( HDATE_STRING_GMONTH, header.g_month_1, HDATE_STRING_LONG, HDATE_STRING_LOCAL),
-			header.g_year_1);
-
-	h_year_1 = hdate_string(HDATE_STRING_INT, header.h_year_1, HDATE_STRING_LONG, HDATE_STRING_HEBREW);
-	/**************************************************
-	*  Print Hebrew month and year
-	**************************************************/
-	printf ("<td align=right><span class=\"hmonth\">");
-	if (header.h_month_1 != header.h_month_2)
+	switch (calendar_type)
 	{
-		printf ("%s-",
-			hdate_string( HDATE_STRING_HMONTH , header.h_month_1, HDATE_STRING_LONG, HDATE_STRING_LOCAL));
-	}
-	printf ("%s ", hdate_string( HDATE_STRING_HMONTH , header.h_month_2, HDATE_STRING_LONG, HDATE_STRING_LOCAL));
-	printf ("</span>\n");
-	printf ("<span class=\"hyear\">%s</span></td></tr></table>\n", h_year_1);
-
-	printf ("<span class=\"month_table\">\n<table class=main>\n");
-
-
+case 0: /// Hebrew only
+		if (calendar_lang) { align1="right"; bidi_dir="rtl"; }
+		else               { align1="left";  bidi_dir="ltr"; }
+		h_year_1 = hdate_string(HDATE_STRING_INT, header.h_year_1, HDATE_STRING_LONG, calendar_lang);
+		/// Hebrew month and year
+		printf ("<table width=90%% dir=%s><tr><th align=%s><span class=\"hmonth\">%s </span><span class=\"hyear\">%s</th></tr></table>\n",
+				bidi_dir, align1,
+				hdate_string( HDATE_STRING_HMONTH , header.h_month_2, HDATE_STRING_LONG, calendar_lang),
+				h_year_1);
+		break;
+case 1: /// Hebrew primary, with gregorian correspondence
+		if (calendar_lang) { align1="right"; align2="left";   bidi_dir="rtl"; }
+		else               { align1="left";  align2="right";  bidi_dir="ltr"; }
+		h_year_1 = hdate_string(HDATE_STRING_INT, header.h_year_1, HDATE_STRING_LONG, calendar_lang);
+		/// Hebrew month and year
+		printf ("<table width=90%% dir=%s><tr><th align=%s><span class=\"hmonth\">%s </span><span class=\"hyear\">%s</span></th>",
+				bidi_dir, align1,
+				hdate_string( HDATE_STRING_HMONTH , header.h_month_2, HDATE_STRING_LONG, calendar_lang),
+				h_year_1);
+		/// gregorian month and year
+		printf ("<th align=%s><span class=\"gmonth\">", align2);
+		if (header.g_month_1 == header.g_month_2)
+		{
+			printf ("%s </span><span class=\"gyear\">%d</span></th></tr></table>\n",
+					hdate_string( HDATE_STRING_GMONTH , header.g_month_1, HDATE_STRING_LONG, calendar_lang),
+					header.g_year_1);
+		}
+		else
+		{
+			if (header.g_year_1 != header.g_year_2)
+			{
+				printf ("%s </span><span class=\"gyear\">%d - </span><span class=\"gmonth\">%s </span><span class=\"gyear\">%d</span></th></tr></table>\n",
+					hdate_string( HDATE_STRING_GMONTH , header.g_month_1, HDATE_STRING_LONG, calendar_lang),
+					header.g_year_1,
+					hdate_string( HDATE_STRING_GMONTH , header.g_month_2, HDATE_STRING_LONG, calendar_lang),
+					header.g_year_2);
+			}
+			else
+			{
+				printf ("%s - %s </span><span class=\"gyear\">%d</span></th></tr></table>\n",
+					hdate_string( HDATE_STRING_GMONTH , header.g_month_1, HDATE_STRING_LONG, calendar_lang),
+					hdate_string( HDATE_STRING_GMONTH , header.g_month_2, HDATE_STRING_LONG, calendar_lang),
+					header.g_year_1);
+			}
+		}
+		break;
+default:/// gregorian primary, with Hebrew correspondence
+		/// gregorian month and year
+		printf ("<table width=90%% dir=ltr><tr><th align=left><span class=\"gmonth\">%s </span><span class=\"gyear\">%d</span></th>",
+				hdate_string( HDATE_STRING_GMONTH, header.g_month_1, HDATE_STRING_LONG, calendar_lang),
+				header.g_year_1);
+		h_year_1 = hdate_string(HDATE_STRING_INT, header.h_year_1, HDATE_STRING_LONG, calendar_lang);
+		/// Hebrew month and year
+		printf ("<th align=right><span class=\"hmonth\">");
+		if (header.h_month_1 == header.h_month_2)
+		{
+			printf ("%s </span><span class=\"hyear\">%s</span></th></tr></table>\n",
+					hdate_string( HDATE_STRING_HMONTH , header.h_month_1, HDATE_STRING_LONG, calendar_lang),
+					h_year_1);
+		}
+		else
+		{
+			if (header.h_year_1 != header.h_year_2)
+			{
+				h_year_2 = hdate_string(HDATE_STRING_INT, header.h_year_2, HDATE_STRING_LONG, calendar_lang);
+				printf ("%s </span><span class=\"hyear\">%s - </span><span class=\"hmonth\">%s </span><span class=\"hyear\">%s</span></th></tr></table>\n",
+					hdate_string( HDATE_STRING_HMONTH , header.h_month_1, HDATE_STRING_LONG, calendar_lang),
+					h_year_1,
+					hdate_string( HDATE_STRING_HMONTH , header.h_month_2, HDATE_STRING_LONG, calendar_lang),
+					h_year_2);
+				free(h_year_2);
+			}
+			else
+			{
+				printf ("%s - %s </span><span class=\"hyear\">%s</span></th></tr></table>\n",
+					hdate_string( HDATE_STRING_HMONTH , header.h_month_1, HDATE_STRING_LONG, calendar_lang),
+					hdate_string( HDATE_STRING_HMONTH , header.h_month_2, HDATE_STRING_LONG, calendar_lang),
+					h_year_1);
+			}
+			bidi_dir="ltr";		/// force days of week to appear in ltr
+								// BUG ? - what if locale is Israel or other rtl locale?
+			calendar_lang = 0;	/// force days of week to appear in local language
+		}
+		break;
+	} /// end switch (gregorian
 	if (h_year_1 != NULL) free(h_year_1);
-}
-
-
-/**************************************************
-*  HTML - print column headings for days of weeks
-**************************************************/
-void print_header_dow_line_html()
-{
+	printf ("<table class=main dir=%s>\n", bidi_dir);
+	printf ("<tr>");
 	int j;
-
 	for (j = 1; j < 8; j++)
-		printf ("<th class=\"week\">%3s</th>",
-			hdate_string( HDATE_STRING_DOW, j, HDATE_STRING_SHORT, HDATE_STRING_LOCAL));
+		printf ("<th class=\"week\">%s</th>",
+				hdate_string( HDATE_STRING_DOW, j, HDATE_STRING_LONG, calendar_lang));
+	printf ("</tr>\n");
 }
-
-
-
 /**************************************************
  *  end HTML functions
  *************************************************/
@@ -606,7 +667,7 @@ void colorize_element ( const int color_scheme, const int element )
 /**************************************************
  *  print header - month line to stdout
  *************************************************/
-void print_header_month_line_stdout( const header_info header, const option_list* opt )
+void print_month_line( const header_info header, const option_list* opt )
 {
 	char *g_month, *h1_month, *h2_month;
 	char *h1_year = NULL;
@@ -809,7 +870,7 @@ void print_header_month_line_stdout( const header_info header, const option_list
 /**************************************************
 *  print column headings for days of weeks
 **************************************************/
-void print_header_dow_line_stdout( const int colorize, const int gregorian, const int force_hebrew )
+void print_dow_line( const int colorize, const int gregorian, const int force_hebrew )
 {
 	int column;
 
@@ -846,7 +907,7 @@ void print_header_dow_line_stdout( const int colorize, const int gregorian, cons
 	}
 
 	/**************************************************
-	*  begin function - print_header_dow_line_stdout
+	*  begin function - print_dow_line
 	**************************************************/
 	if (colorize) colorize_element(colorize, ELEMENT_WEEKDAY_NAMES);
 	for (column = 1; column < 7; column++) print_dow_column(column);
@@ -985,10 +1046,7 @@ int print_header ( const int month, const int year, const option_list* opt)
 		*****************************************************/
 		if (opt->gregorian == 0)
 		{
-			current_month.h_month_1 = month;
-			current_month.h_year_1 = year;
-			current_month.h_month_2 = month;
-			current_month.h_year_2 = year;
+			current_month = hcal_start_end(month, year);
 			if ( (opt->three_month) && (opt->three_month != 12) )
 			{
 				if ( (month == 5) || (month == 7) )
@@ -1047,11 +1105,13 @@ int print_header ( const int month, const int year, const option_list* opt)
 
 		}
 
-	/**************************************************
-	*  HTML output - month header line
-	*************************************************/
-	if (opt->html) print_header_month_line_html(current_month);
-
+	/******************************************************
+	*  HTML output - print month header line and dow line
+	******************************************************/
+	if (opt->html)
+	{
+		html_print_calendar_header(current_month, opt->gregorian, opt->force_hebrew);
+	}
 
 	/**************************************************
 	*  STDOUT output - month header line
@@ -1067,55 +1127,37 @@ int print_header ( const int month, const int year, const option_list* opt)
 					else calendar_width = CALENDAR_WIDTH_WIDE;
 					printf("%*s",calendar_width," ");
 			}
-			else print_header_month_line_stdout(previous_month, opt);
+			else print_month_line(previous_month, opt);
 			printf("%s", opt->spacing);
 		}
-
-		print_header_month_line_stdout(current_month, opt);
-
+		print_month_line(current_month, opt);
 		if (opt->three_month)
 		{
 			printf("%s", opt->spacing);
 			if (opt->three_month != 12)
-				print_header_month_line_stdout(next_month, opt);
+				print_month_line(next_month, opt);
 		}
-	}
-
-	/**************************************************
-	*  terminate line
-	**************************************************/
-	if (opt->html) printf ("</tr>\n");
-	else printf ("\n");
-
-
-	/**************************************************
-	*  print column headings for days of weeks
-	**************************************************/
-	if (opt->html) print_header_dow_line_html();
-	else
-	{
+		printf ("\n");
+		/**************************************************
+		*  print column headings for days of weeks
+		**************************************************/
 		if (opt->three_month)
 		{
 			if  ( (opt->three_month == 12) && 
 				( (fourteenth_month == FALSE) || (opt->gregorian <2) ) )
 				printf("%*s",calendar_width," ");
-			else print_header_dow_line_stdout(opt->colorize ,opt->gregorian, opt->force_hebrew);
+			else print_dow_line(opt->colorize ,opt->gregorian, opt->force_hebrew);
 			printf("%s", opt->spacing);
 		}
-		print_header_dow_line_stdout(opt->colorize ,opt->gregorian, opt->force_hebrew);
+		print_dow_line(opt->colorize ,opt->gregorian, opt->force_hebrew);
 		if (opt->three_month)
 		{
 			printf("%s", opt->spacing);
 			if (opt->three_month != 12)
-				print_header_dow_line_stdout(opt->colorize ,opt->gregorian, opt->force_hebrew);
+				print_dow_line(opt->colorize ,opt->gregorian, opt->force_hebrew);
 		}
+		printf ("\n");
 	}
-
-	/**************************************************
-	*  terminate line
-	**************************************************/
-	if (opt->html) printf ("</tr>\n");
-	else printf ("\n");
 
 	return 0;
 }
@@ -1124,36 +1166,83 @@ int print_header ( const int month, const int year, const option_list* opt)
 /**************************************************
 *  print HTML calendar entry (ie. a single day)
 *************************************************/
-void print_day_html ( const hdate_struct h, const int month, const option_list* opt)
+void html_print_day ( const hdate_struct h, const int month, option_list* opt)
 {
 
-	int holiday_type;
-//	char *hd_day;
-//	hd_day = malloc(HEBREW_NUMBER_BUFFER_SIZE);
-//	char hd_day_buffer[HEBREW_NUMBER_BUFFER_SIZE + 1];
+	int halachic_day;
+	char *day_text_ptr = NULL;
 	char *hd_day_str = NULL;
+	char *holiday_name_class_str = "holiday_name";
+	char *holiday_name_align="left";
 
-	holiday_type = hdate_get_holyday_type(hdate_get_halachic_day(&h, opt->diaspora));
-
-
-	if (h.gd_mon != month) printf ("<td class=\"out_of_month\">");
+	halachic_day = hdate_get_halachic_day(&h, opt->diaspora);
+	if ((!halachic_day) && (opt->custom_days_cnt))
+	{
+		// logic is almost duplicate of snippet from function print_day
+		int* jdn_list_ptr;
+		for (	opt->custom_days_index = 0,
+				jdn_list_ptr = opt->jdn_list_ptr
+				;
+				(opt->custom_days_index < opt->custom_days_cnt) &&
+				(!halachic_day)
+				;
+				opt->custom_days_index = opt->custom_days_index + 1,
+				jdn_list_ptr = jdn_list_ptr + 1
+			)
+		{
+			if (h.hd_jd == *jdn_list_ptr)
+			{
+				halachic_day = BAD_HOLIDAY_TYPE;
+			}
+		}
+	}
+	if (( (opt->gregorian < 2) && (h.hd_mon != month)) ||
+		( (opt->gregorian > 1) && (h.gd_mon != month)) )
+	{
+		holiday_name_class_str = "out_of_month";
+		printf ("<td class=\"out_of_month\">");
+	}
 	else if (h.hd_dw == SHABBAT) printf ("<td class=\"sat\">");
-	else if (holiday_type) printf ("<td class=\"holiday\">");
+	else if (halachic_day) printf ("<td class=\"holiday\">");
 	else printf ("<td class=\"regular\">");
-
 	/// Print a day
-	hd_day_str = hdate_string(HDATE_STRING_INT, h.hd_day, HDATE_STRING_LONG,opt->force_hebrew);
-	printf ("<table class=day><tr class=line1><td class=\"gday\">%2d</td>\n\
-<td class=\"hday\">%3s&nbsp;%s</td></tr><tr class=line2><td>&nbsp;</td></tr>",
-		h.gd_day,
-		hd_day_str,
-		hdate_string( HDATE_STRING_HMONTH , h.hd_mon, HDATE_STRING_LONG, opt->force_hebrew));
-	if (holiday_type) printf ("<tr class=line3><td class=\"holiday_name\">%s</td></tr>",
-			hdate_string( HDATE_STRING_HOLIDAY,
-					hdate_get_halachic_day (&h, opt->diaspora),
-					HDATE_STRING_SHORT, HDATE_STRING_LOCAL)
-			);
-	else printf ("<tr class=line3><td class=\"holiday_name\">&nbsp;</td></tr>");
+	if (opt->gregorian == 0) /// calendar type = Hebrew only
+	{
+		hd_day_str = hdate_string(HDATE_STRING_INT, h.hd_day, HDATE_STRING_LONG,opt->force_hebrew);
+		printf ("<table class=day><tr class=line1><td class=\"primary_day\">%3s</td></tr>\
+<tr class=line2><td>&nbsp;</td></tr>", hd_day_str);
+	}
+	else if (opt->gregorian == 1) /// calendar type = Hebrew primary
+	{	// TODO - here
+		hd_day_str = hdate_string(HDATE_STRING_INT, h.hd_day, HDATE_STRING_LONG,opt->force_hebrew);
+		printf ("<table class=day><tr class=line1><td class=\"primary_day\">%3s</td>\
+<td class=\"secondary_day\">%2d&nbsp;%s</td></tr><tr class=line2><td>&nbsp;</td></tr>",
+			hd_day_str, h.gd_day,
+			hdate_string( HDATE_STRING_GMONTH , h.gd_mon, HDATE_STRING_LONG, opt->force_hebrew));
+	}
+	else /// (opt->gregorian > 1) /// calendar type = Gregorian primary
+	{
+		hd_day_str = hdate_string(HDATE_STRING_INT, h.hd_day, HDATE_STRING_LONG,opt->force_hebrew);
+		printf ("<table class=day><tr class=line1><td class=\"primary_day\">%2d</td>\
+<td class=\"secondary_day\">%3s&nbsp;%s</td></tr><tr class=line2><td>&nbsp;</td></tr>",
+			h.gd_day, hd_day_str,
+			hdate_string( HDATE_STRING_HMONTH , h.hd_mon, HDATE_STRING_LONG, opt->force_hebrew));
+	}
+	if (halachic_day)
+	{
+		if (opt->force_hebrew) holiday_name_align="right";
+		if (halachic_day == BAD_HOLIDAY_TYPE)
+		{
+			day_text_ptr = get_custom_day_text_ptr(opt->custom_days_index, opt->string_list_ptr);
+		}
+		else
+		{
+			day_text_ptr = hdate_string( HDATE_STRING_HOLIDAY, halachic_day, HDATE_STRING_LONG, opt->force_hebrew);
+		}
+		printf ("<tr class=line3><td align=%s class=\"%s\" colspan=2>%s</td></tr>",
+				holiday_name_align, holiday_name_class_str, day_text_ptr);
+	}
+	else printf ("<tr class=line3><td class=\"%s\">&nbsp;</td></tr>",holiday_name_class_str);
 
 	printf ("</table></td>\n");
 
@@ -1389,7 +1478,7 @@ void print_week( int jd, const int month, option_list* opt)
 		/**************************************************
 		*  HTML calendar option
 		*************************************************/
-		if (opt->html) print_day_html ( h, month, opt );
+		if (opt->html) html_print_day ( h, month, opt );
 
 
 
@@ -1936,9 +2025,6 @@ int print_month ( const int month, const int year, option_list* opt)
 	
 					}
 				}
-
-
-
 			}
 			jd_counter++;
 			hdate_set_jd (&h, jd_counter);
@@ -1976,7 +2062,8 @@ void read_config_file(	FILE *config_file,
 	size_t	menu_len = 0;
 	int		match_count;
 	int		end_of_input_file = FALSE;
-	int		i;
+	int		key_index = 0;
+	int		temp_base_year = 0;
 	const int	num_of_keys = 20;
 	const char*	key_list[] = {	"SUNSET_AWARE",		// 0
 								"LATITUDE",
@@ -2020,11 +2107,11 @@ void read_config_file(	FILE *config_file,
 //					line_count, match_count, input_key, input_value, input_string);
 			if (match_count == 2)
 			{
-				for (i=0; i<num_of_keys; i++)
+				for (key_index=0; key_index<num_of_keys; key_index++)
 				{
-					if (strcmp(input_key, key_list[i]) == 0)
+					if (strcmp(input_key, key_list[key_index]) == 0)
 					{
-						switch(i)
+						switch(key_index)
 						{
 
 		case  0:if      (strcmp(input_value,"FALSE") == 0) opt->not_sunset_aware = 1;
@@ -2132,15 +2219,21 @@ void read_config_file(	FILE *config_file,
 ///		BASE_YEAR_HEBREW
 		case 21:if (fnmatch( "[3456][[:digit:]][[:digit:]][[:digit:]]", input_value, FNM_EXTMATCH) == 0)
 				{
-					opt->base_year_h = atoi(input_value);
-					if (opt->base_year_h > (HDATE_HEB_YR_UPPER_BOUND-99)) opt->base_year_h = HDATE_DEFAULT_BASE_YEAR_H;
+					temp_base_year = atoi(input_value);
+					if ( (temp_base_year < (HDATE_HEB_YR_LOWER_BOUND/100)) ||
+						 (temp_base_year > (HDATE_HEB_YR_UPPER_BOUND/100)) )
+						 opt->base_year_h = HDATE_DEFAULT_BASE_YEAR_H;
+					else opt->base_year_h = temp_base_year;
 				}
 				break;
 ///		BASE_YEAR_GREGORIAN
 		case 22:if (fnmatch( "[12][[:digit:]][[:digit:]][[:digit:]]", input_value, FNM_EXTMATCH) == 0)
 				{
-					opt->base_year_g = atoi(input_value);
-					if (opt->base_year_g > (HDATE_GREG_YR_UPPER_BOUND-99)) opt->base_year_g = HDATE_DEFAULT_BASE_YEAR_G;
+					temp_base_year = atoi(input_value);
+					if ( (temp_base_year < (HDATE_HEB_YR_LOWER_BOUND/100)) ||
+						 (temp_base_year > (HDATE_HEB_YR_UPPER_BOUND/100)) )
+						 opt->base_year_h = HDATE_DEFAULT_BASE_YEAR_H;
+					else opt->base_year_h = temp_base_year;
 				}
 				break;
 
@@ -2314,6 +2407,7 @@ int hcal_parser( const int switch_arg, option_list *opt,
 			}
 			else
 			{
+				opt->tz_name_str = tz_name_str;
 				if (*lat  == BAD_COORDINATE) *lat = tz_lat;
 				if (*lon == BAD_COORDINATE) *lon = opt->tz_lon;
 			}
@@ -2705,7 +2799,7 @@ int main (int argc, char *argv[])
 	/************************************************************
 	* print HTML header
 	************************************************************/
-	if (opt.html) print_header_html (opt.external_css, opt.force_hebrew);
+	if (opt.html) html_print_header (opt.external_css, opt.force_hebrew);
 
 
 	/************************************************************
@@ -2785,7 +2879,7 @@ int main (int argc, char *argv[])
 	/************************************************************
 	* print HTML footer
 	************************************************************/
-	if (opt.html) print_html_footer ();
+	if (opt.html) html_print_footer ();
 
 	exit_main(&opt, 0);
 	return 0;
