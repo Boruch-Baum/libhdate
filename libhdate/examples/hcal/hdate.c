@@ -70,7 +70,6 @@ char *debug_var;				/// system environment variable
 static char * day_text   = N_("day");
 static char * month_text = N_("month");
 static char * year_text  = N_("year");
-
 static char * sunrise_text = N_("sunrise");
 static char * sunset_text  = N_("sunset");
 static char * first_light_text = N_("first_light");
@@ -93,8 +92,8 @@ static char * parasha_text = N_("parasha");
 static char * holiday_text = N_("holiday");
 static char * custom_day_text = N_("today is also");
 static char * custom_day_tabular_text = N_("custom_day");
-static char * creation_year_text = N_("Creation Year");
-
+//  Decided to limit range of dates
+// static char * creation_year_text = N_("Creation Year");
 static char *sof_achilat_chametz_ma_text  = N_("end_eating_chometz_(M\"A)");
 static char *sof_achilat_chametz_gra_text  = N_("end_eating_chometz_(GR\"A)");
 static char *sof_biur_chametz_ma_text  = N_("end_owning_chometz_(M\"A)");
@@ -906,9 +905,11 @@ int print_date (hdate_struct* h, hdate_struct* tomorrow, const option_list* opt)
 
 		hday_int_str  = hdate_string(HDATE_STRING_INT, h->hd_day,  HDATE_STRING_LONG, opt->hebrew);
 
+		//  Decided to limit range of dates
 		/// year 0 is the six-day long 'year' of creation
-		if (h->hd_year == 0) hyear_int_str = creation_year_text;
-		else hyear_int_str = hdate_string(HDATE_STRING_INT, h->hd_year, HDATE_STRING_LONG, opt->hebrew);
+		//  if (h->hd_year == 0) hyear_int_str = creation_year_text;
+		//  else hyear_int_str = hdate_string(HDATE_STRING_INT, h->hd_year, HDATE_STRING_LONG, opt->hebrew);
+		hyear_int_str = hdate_string(HDATE_STRING_INT, h->hd_year, HDATE_STRING_LONG, opt->hebrew);
 		/************************************************************
 		* prepare buffers with Hebrew dd mmmm yyyy
 		************************************************************/
@@ -1527,7 +1528,7 @@ int print_day_tabular (hdate_struct* h, option_list* opt)
 		if (opt->candles)
 		{
 			if ( (h_emesh.hd_dw != 6) && (!opt->only_if_parasha) )
-				print_astronomical_time_tabular( -1, opt); //printf(",");
+				print_astronomical_time_tabular( -1, opt);
 			else
 			{
 				// FIXME - allow for further minhag variation
@@ -1552,7 +1553,7 @@ int print_day_tabular (hdate_struct* h, option_list* opt)
 		if (opt->havdalah) 
 		{
 			if ( (h_emesh.hd_dw != 7)  && (!opt->only_if_parasha) )
-				print_astronomical_time_tabular( -1, opt); //printf(",");
+				print_astronomical_time_tabular( -1, opt);
 			else
 			{
 				// FIXME - allow for further minhag variation
@@ -1631,7 +1632,7 @@ int print_day_tabular (hdate_struct* h, option_list* opt)
 
 	if (opt->candles)
 	{
-		if ( (h->hd_dw != 6) && (!opt->only_if_parasha) ) candles_time = -1; //printf(",");
+		if ( (h->hd_dw != 6) && (!opt->only_if_parasha) ) candles_time = -1;
 		else
 		{
 			// FIXME - allow for further minhag variation
@@ -1646,7 +1647,7 @@ int print_day_tabular (hdate_struct* h, option_list* opt)
 	if (opt->three_stars) print_astronomical_time_tabular( three_stars, opt);
 	if (opt->havdalah)
 	{
-		if ( (h->hd_dw != 7)  && (!opt->only_if_parasha) ) havdalah_time = -1; //printf(",");
+		if ( (h->hd_dw != 7)  && (!opt->only_if_parasha) ) havdalah_time = -1;
 		else
 		{
 			// FIXME - allow for further minhag variation
@@ -1934,7 +1935,6 @@ int print_hmonth_tabular
 	jd = h.hd_jd;
 
 	/// print month days
-	// print_tabular_header( opt );
 	while (h.hd_mon == month)
 	{
 		print_day_tabular (&h, opt);
@@ -2131,40 +2131,38 @@ void read_config_file(	FILE *config_file,
 	int		key_index = 0;
 	int		temp_base_year = 0;
 	const int	num_of_keys = 26;
-	const char*	key_list[] = {	"SUNSET_AWARE",		// 0
-								"LATITUDE",
-								"LONGITUDE",		// 2
-								"TIMEZONE",
-								"DIASPORA",			// 4
-								"FORCE_ISRAEL",
-								"PARASHA_NAMES",	// 6
-								"SHABBAT_INFO",
-								"FORCE_HEBREW",		// 8
-								"OUTPUT_BIDI",
-								"QUIET_ALERTS",		//10
-								"YOM",
-								"LESHABBAT",		//12
-								"LESEDER",
-								"TABULAR",			//14
-								"ICAL",
-								"SEFIRAT_HAOMER",	//16
-								"SHORT_FORMAT",
-								"TIMES_OF_DAY",		//18
-								"SUN_RISE_SET",
-								"ONLY_IF_PARASHA_IS_READ",
-								"ONLY_IF_HOLIDAY",
-								"JULIAN_DAY",		//22
-								"CANDLE_LIGHTING",
-								"HAVDALAH",			//24
-								"MENU",
-								"PREFER_HEBREW",	//26
-								"BASE_YEAR_HEBREW",
-								"BASE_YEAR_GREGORIAN"//28
-								};
+	const char*	key_list[] = {
+		"SUNSET_AWARE",		// 0
+		"LATITUDE",
+		"LONGITUDE",		// 2
+		"TIMEZONE",
+		"DIASPORA",			// 4
+		"FORCE_ISRAEL",
+		"PARASHA_NAMES",	// 6
+		"SHABBAT_INFO",
+		"FORCE_HEBREW",		// 8
+		"OUTPUT_BIDI",
+		"QUIET_ALERTS",		//10
+		"YOM",
+		"LESHABBAT",		//12
+		"LESEDER",
+		"TABULAR",			//14
+		"ICAL",
+		"SEFIRAT_HAOMER",	//16
+		"SHORT_FORMAT",
+		"TIMES_OF_DAY",		//18
+		"SUN_RISE_SET",
+		"ONLY_IF_PARASHA_IS_READ",
+		"ONLY_IF_HOLIDAY",
+		"JULIAN_DAY",		//22
+		"CANDLE_LIGHTING",
+		"HAVDALAH",			//24
+		"MENU",
+		"PREFER_HEBREW",	//26
+		"BASE_YEAR_HEBREW",
+		"BASE_YEAR_GREGORIAN"//28
+		};
 //  TODO - parse these!
-//	opt.prefer_hebrew = TRUE;
-//	opt.base_year_h = 5700;		// TODO - Make this user-selectable
-//	opt.base_year_g = 2000;		// TODO - Make this user-selectable
 //	opt.emesh
 
 //	input_string = malloc(input_str_len+1); unnecessary - done by getline
@@ -2394,23 +2392,23 @@ void read_config_file(	FILE *config_file,
 				else if (strcmp(input_value,"TRUE") == 0) opt->prefer_hebrew = 1;
 				break;
 ///		BASE_YEAR_HEBREW
-		case 27:if (fnmatch( "[3456][[:digit:]][[:digit:]][[:digit:]]", input_value, FNM_EXTMATCH) == 0)
+		case 27:if (fnmatch( "[3456][[:digit:]]", input_value, FNM_EXTMATCH) == 0)
 				{
 					temp_base_year = atoi(input_value);
 					if ( (temp_base_year < (HDATE_HEB_YR_LOWER_BOUND/100)) ||
 						 (temp_base_year > (HDATE_HEB_YR_UPPER_BOUND/100)) )
 						 opt->base_year_h = HDATE_DEFAULT_BASE_YEAR_H;
-					else opt->base_year_h = temp_base_year;
+					else opt->base_year_h = temp_base_year * 100;
 				}
 				break;
 ///		BASE_YEAR_GREGORIAN
-		case 28:if (fnmatch( "[12][[:digit:]][[:digit:]][[:digit:]]", input_value, FNM_EXTMATCH) == 0)
+		case 28:if (fnmatch( "[12][[:digit:]]", input_value, FNM_EXTMATCH) == 0)
 				{
 					temp_base_year = atoi(input_value);
 					if ( (temp_base_year < (HDATE_GREG_YR_LOWER_BOUND/100)) ||
 						 (temp_base_year > (HDATE_GREG_YR_UPPER_BOUND/100)) )
 						 opt->base_year_g = HDATE_DEFAULT_BASE_YEAR_G;
-					else opt->base_year_g = temp_base_year;
+					else opt->base_year_g = temp_base_year * 100;
 				}
 				break;
 
@@ -3064,7 +3062,20 @@ int main (int argc, char *argv[])
 						 opt.prefer_hebrew, HDATE_PREFER_MD,
 						 opt.base_year_h, opt.base_year_g ))
 			exit_main(&opt,0);
-		hdate_action = PROCESS_MONTH;
+		if (!day) hdate_action = PROCESS_MONTH;
+		else
+		{
+			if (month > 100)
+			{
+				hdate_set_hdate (&h_start_day, day, month-100, year);
+				hdate_action = PROCESS_HEBREW_DAY;
+			}
+			else
+			{
+				hdate_set_gdate (&h_start_day, day, month, year);
+				hdate_action = PROCESS_GREGOR_DAY;
+			}
+		}
 	}
 	else if (argc == (optind + 3))
 	{

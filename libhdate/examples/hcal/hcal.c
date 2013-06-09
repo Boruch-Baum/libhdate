@@ -105,7 +105,8 @@ static const char* year_text = N_("year");
 
 #define BAD_HOLIDAY_TYPE 999
 static char holiday_flag[] = { '/', '+', '*', '~', '!', '@', '$' };
-/*  Holiday types: (reference hdate_holyday.c)
+/**********************************************************
+    Holiday types: (reference hdate_holyday.c)
 	/ - 0 - Regular day
 	+ - 1 - Yom tov (plus yom kippor)
 	* - 2 - Erev yom kippur, Erev Pesach, Erev Shavuot
@@ -113,9 +114,7 @@ static char holiday_flag[] = { '/', '+', '*', '~', '!', '@', '$' };
 	! - 4 - Hanuka and purim
 	@ - 5 - Tzomot
 	$ - 6 - Lag baomer ,Tu beav, Tu beshvat
-*/
-
-
+**********************************************************/
 
 typedef struct {
 			int prefer_hebrew;	// TODO - Make this user-selectable
@@ -162,16 +161,14 @@ typedef struct {
 			char* menu_item[MAX_MENU_ITEMS];
 				} option_list;
 
-
 /// for option --borders
 static char* default_borders_spacing = " | ";
 static char* default_borders_separator = "=";
 
-
 /// for option --three-month
 static char* default_spacing = "  ";
 
-
+/// for first line of all calendars
 typedef struct {
 			int g_month_1;
 			int g_year_1;
@@ -353,7 +350,6 @@ void print_try_help_hcal ()
 			N_("Try \'hcal --help\' for more information"));
 }
 
-
 /**************************************************
 *  print help
 *************************************************/
@@ -408,10 +404,17 @@ General help using GNU software: <http://www.gnu.org/gethelp/>\n"));
 
 
 /**************************************************
-*  HTML - print css section
+*  HTML - print header
 *************************************************/
-int html_print_css (const int external_css)
+int html_print_header ( const int external_css, const int force_hebrew)
 {
+	printf ("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"\"http://www.w3.org/TR/html4/strict.dtd\">\n\
+<html>\n\
+<head>\n\
+<meta name=\"generator\" content=\"hcal (libhdate)\">\n\
+<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n\
+<style title=\"Normal\" type=\"text/css\" media=\"all\">");
+
 	if (external_css) printf ("\n\t@import \"hcal.css\";\n");
 	else
 	{
@@ -445,26 +448,6 @@ span.gyear { font-size: 24pt; }\n\
 span.hmonth { font-size: 24pt; }\n\
 span.hyear { font-size: 24pt; }\n");
 	}
-
-	return 0;
-}
-
-
-
-/**************************************************
-*  HTML - print header
-*************************************************/
-int html_print_header ( const int external_css, const int force_hebrew)
-{
-	printf ("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"\"http://www.w3.org/TR/html4/strict.dtd\">\n\
-<html>\n\
-<head>\n\
-<meta name=\"generator\" content=\"hcal (libhdate)\">\n\
-<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n\
-<style title=\"Normal\" type=\"text/css\" media=\"all\">");
-
-	html_print_css (external_css);
-
 	printf ("</style>\n");
 
 	/// some alternative css styles
@@ -472,12 +455,10 @@ int html_print_header ( const int external_css, const int force_hebrew)
 <link rel=\"alternate stylesheet\" title=\"High contrast\" type=\"text/css\" media=\"screen\" href=\"high_contrast.css\">\n\
 <link rel=\"alternate stylesheet\" title=\"Colorful\" type=\"text/css\" media=\"screen\" href=\"colorful.css\">\n\
 <link rel=\"alternate stylesheet\" title=\"Print\" type=\"text/css\" media=\"all\" href=\"print.css\">\n");
-
 	if ( (force_hebrew) || (hdate_is_hebrew_locale()) )
 		printf ("<title>Hebrew Calendar</title>\n</head>\n<body class=\"hebrew\"><center>\n");
 	else
 		printf ("<title>Hebrew Calendar</title>\n</head>\n<body><center>\n");
-
 	return 0;
 }
 
@@ -491,13 +472,10 @@ int html_print_footer ()
 	printf ("<!-- <p>\n\
 <a href=\"http://validator.w3.org/check/referer\">\n<img \
 src=\"http://www.w3.org/Icons/valid-html401\"\n\
-alt=\"Valid HTML 4.01!\" height=\"31\" width=\"88\" />\n</a>\n");
-	printf ("<a href=\"http://jigsaw.w3.org/css-validator\">\n\
+alt=\"Valid HTML 4.01!\" height=\"31\" width=\"88\" />\n</a>\n\
+<a href=\"http://jigsaw.w3.org/css-validator\">\n\
 <img src=\"http://www.w3.org/Icons/valid-css\" alt=\"Valid CSS!\">\n\
-</a>\n</p> -->\n");
-
-	printf ("</body></html>\n");
-
+</a>\n</p> -->\n</body></html>\n");
 	return 0;
 }
 
@@ -507,10 +485,6 @@ alt=\"Valid HTML 4.01!\" height=\"31\" width=\"88\" />\n</a>\n");
 *************************************************/
 void html_print_calendar_header( const header_info header, const int calendar_type, int calendar_lang)
 {
-//  TODO - fix bug ellul xxxx - tishrei xxxx+1
-//	char *h_year_1;
-//	h_year_1 = malloc(HEBREW_NUMBER_BUFFER_SIZE);
-//	char h_year_1[HEBREW_NUMBER_BUFFER_SIZE + 1];
 	char *h_year_1 = NULL;
 	char *h_year_2 = NULL;
 	char *align1 = NULL;
@@ -605,8 +579,7 @@ default:/// gregorian primary, with Hebrew correspondence
 		break;
 	} /// end switch (gregorian
 	if (h_year_1 != NULL) free(h_year_1);
-	printf ("<table class=main dir=%s>\n", bidi_dir);
-	printf ("<tr>");
+	printf ("<table class=main dir=%s>\n<tr>", bidi_dir);
 	int j;
 	for (j = 1; j < 8; j++)
 		printf ("<th class=\"week\">%s</th>",
@@ -641,27 +614,7 @@ void colorize_element ( const int color_scheme, const int element )
 	case ELEMENT_TODAY_HOLIDAY_DAY: printf(CODE_LIGHT_GREEN); break;
 	case ELEMENT_TODAY_HOLIDAY_NAME: printf(CODE_LIGHT_GREEN); break;
 	}
-
-/*	else switch (element) {
-	case ELEMENT_WEEKDAY_G: printf(CODE_BOLD_VIDEO); printf(CODE_LIGHT_GREY); break;
-	case ELEMENT_WEEKDAY_H: printf(CODE_BOLD_VIDEO); printf(CODE_LIGHT_BROWN); break;
-	case ELEMENT_MONTH_G: printf(CODE_BOLD_VIDEO); printf(CODE_LIGHT_GREY); break;
-	case ELEMENT_MONTH_H: printf(CODE_BOLD_VIDEO); printf(CODE_LIGHT_BROWN); break;
-	case ELEMENT_WEEKDAY_NAMES: printf(CODE_BOLD_VIDEO); printf(CODE_LIGHT_GREEN); break;
-	case ELEMENT_SHABBAT_NAME: printf(CODE_BOLD_VIDEO); printf(CODE_LIGHT_AQUA); break;
-	case ELEMENT_SHABBAT_DAY: printf(CODE_BOLD_VIDEO); printf(CODE_LIGHT_AQUA); break;
-	case ELEMENT_HOLIDAY_DAY: printf(CODE_BOLD_VIDEO); printf(CODE_LIGHT_AQUA); break;
-	case ELEMENT_SHABBAT_TIMES: printf(CODE_BOLD_VIDEO); printf(CODE_LIGHT_PURPLE); break;
-	case ELEMENT_PARASHA: printf(CODE_BOLD_VIDEO); printf(CODE_LIGHT_GREEN); break;
-	case ELEMENT_THIS_SHABBAT_TIMES: printf(CODE_BOLD_VIDEO); printf(CODE_LIGHT_GREEN); break;
-	case ELEMENT_THIS_PARASHA: printf(CODE_BOLD_VIDEO); printf(CODE_LIGHT_GREEN); break;
-	case ELEMENT_HOLIDAY_NAME: printf(CODE_BOLD_VIDEO); printf(CODE_LIGHT_GREY); break;
-	case ELEMENT_TODAY_HOLIDAY_DAY: printf(CODE_BOLD_VIDEO); printf(CODE_LIGHT_GREEN); break;
-	case ELEMENT_TODAY_HOLIDAY_NAME: printf(CODE_BOLD_VIDEO); printf(CODE_LIGHT_GREEN); break;
-	}
-*/
 }
-
 
 
 /**************************************************
@@ -676,8 +629,8 @@ void print_month_line( const header_info header, const option_list* opt )
 	int padding = 0;
 	size_t g_month_len, g_year_len, h1_month_len, h2_month_len, h1_year_len, h2_year_len;
 	int calendar_width = CALENDAR_WIDTH_WIDE;
-	#define DASH_WIDTH      3 // includes surrounding spaces
-	#define YEAR_WIDTH      5 // includes surrounding spaces
+	#define DASH_WIDTH      3 /// includes surrounding spaces
+	#define YEAR_WIDTH      5 /// includes surrounding spaces
 	#define SPACE_WIDTH		1
 
 	char *hebrew_buffer, *hebrew_buffer_next;
@@ -891,15 +844,13 @@ void print_dow_line( const int colorize, const int gregorian, const int force_he
 		else
 		{
 			if (gregorian == 0)
-//				printf ("%s%c", " ",
-//					hdate_string( HDATE_STRING_DOW, column, HDATE_STRING_SHORT, HDATE_STRING_LOCAL));
 			{
 				putchar(' ');
 				putchar( *(hdate_string( HDATE_STRING_DOW, column, HDATE_STRING_SHORT, HDATE_STRING_LOCAL)));
 			}
-			else// presume three character heading
+			else
 				printf ("%s%3s", " ",
-				hdate_string( HDATE_STRING_DOW, column, HDATE_STRING_SHORT, HDATE_STRING_LOCAL));
+						hdate_string( HDATE_STRING_DOW, column, HDATE_STRING_SHORT, HDATE_STRING_LOCAL));
 		}
 
 		if ( (column == 7) || (!gregorian) ) padding = 1;
@@ -1170,6 +1121,8 @@ void html_print_day ( const hdate_struct h, const int month, option_list* opt)
 {
 
 	int halachic_day;
+	int* jdn_list_ptr;
+	int custom_day_index_to_print;
 	char *day_text_ptr = NULL;
 	char *hd_day_str = NULL;
 	char *holiday_name_class_str = "holiday_name";
@@ -1178,8 +1131,6 @@ void html_print_day ( const hdate_struct h, const int month, option_list* opt)
 	halachic_day = hdate_get_halachic_day(&h, opt->diaspora);
 	if ((!halachic_day) && (opt->custom_days_cnt))
 	{
-		// logic is almost duplicate of snippet from function print_day
-		int* jdn_list_ptr;
 		for (	opt->custom_days_index = 0,
 				jdn_list_ptr = opt->jdn_list_ptr
 				;
@@ -1193,6 +1144,7 @@ void html_print_day ( const hdate_struct h, const int month, option_list* opt)
 			if (h.hd_jd == *jdn_list_ptr)
 			{
 				halachic_day = BAD_HOLIDAY_TYPE;
+				custom_day_index_to_print = opt->custom_days_index;
 			}
 		}
 	}
@@ -1233,7 +1185,7 @@ void html_print_day ( const hdate_struct h, const int month, option_list* opt)
 		if (opt->force_hebrew) holiday_name_align="right";
 		if (halachic_day == BAD_HOLIDAY_TYPE)
 		{
-			day_text_ptr = get_custom_day_text_ptr(opt->custom_days_index, opt->string_list_ptr);
+			day_text_ptr = get_custom_day_text_ptr(custom_day_index_to_print, opt->string_list_ptr);
 		}
 		else
 		{
@@ -1397,8 +1349,8 @@ void print_day ( const hdate_struct h, const int month, option_list* opt, const 
 		}
 		if  ( ( (opt->force_hebrew) || (hdate_is_hebrew_locale()) )  &&
 			( (h.hd_day < 11) || (h.hd_day == 20) || (h.hd_day == 30) ) )
-		{	// need to pad Hebrew dates 1-10, 20, 30
-			printf ("%s%s"," ",hd_day_str);
+		{
+			printf ("%s%s"," ",hd_day_str); /// needed to pad Hebrew dates 1-10, 20, 30
 		}
 		else printf ("%2s", hd_day_str);
 
@@ -1442,67 +1394,30 @@ void print_day ( const hdate_struct h, const int month, option_list* opt, const 
 void print_week( int jd, const int month, option_list* opt)
 {
 	#define long_parasha_name 0
-
 	hdate_struct h;
-
 	int calendar_column;
-
 	/// for opt.shabbat
 	int sun_hour, first_light, talit, sunrise;
 	int midday, sunset, first_stars, three_stars;
 	int this_week;
 	hdate_struct yom_shishi;
-
 	/// for opt->parasha
 	int shabbat_name;
 	char *shabbat_name_str, *shabbat_name_buffer;
 	size_t shabbat_name_str_len;
-
 	/// for bidi column alignment
 	int print_len;
 
-	/**************************************************
-	*  for each column of calendar
-	*************************************************/
 	for (calendar_column = 0; calendar_column < 7; calendar_column++)
 	{
-
-		/**************************************************
-		* Get this day's information
-		*************************************************/
 		hdate_set_jd (&h, jd);
 		if ( ((opt->shabbat) || (opt->parasha)) && (calendar_column == 5) )
 			yom_shishi = h;
-
-
-		/**************************************************
-		*  HTML calendar option
-		*************************************************/
 		if (opt->html) html_print_day ( h, month, opt );
-
-
-
-		/**************************************************
-		*  non-HTML calendar option
-		*************************************************/
 		else print_day ( h, month, opt, FALSE, NULL);
-
-
-		/**************************************************
-		*  space between days of week
-		*************************************************/
 		if (calendar_column != 6)	printf (" ");
-
-		/**************************************************
-		*  advance to next day of week
-		*************************************************/
 		jd++;
 	}
-
-	/**************************************************
-	*  print end of calendar line
-	*************************************************/
-//	if ((!opt->html) && ( (h.gd_mon == month) || (h.gd_day < SHABBAT) ) )
 	if (!opt->html)
 	{
 		/********************************************************
@@ -1921,13 +1836,11 @@ int print_month ( const int month, const int year, option_list* opt)
 									0, month, year,
 									calendar_type, h,
 									HDATE_STRING_LONG, opt->force_hebrew);
-			// test_print_custom_days(opt->custom_days_cnt, opt->jdn_list_ptr, opt->string_list_ptr);
 			fclose(custom_file);
 		}
 	}
 
 	/// get dst transition information, if necessary
-	// this snippet was moved from main, so some variables may need to be passed here
 	if ( (opt->tzif_data == NULL) &&
 	   ( (opt->shabbat) || (opt->candles) || (opt->havdalah) ) )
 	{
@@ -2217,23 +2130,23 @@ void read_config_file(	FILE *config_file,
 				else if (strcmp(input_value,"TRUE") == 0) opt->prefer_hebrew = 1;
 				break;
 ///		BASE_YEAR_HEBREW
-		case 21:if (fnmatch( "[3456][[:digit:]][[:digit:]][[:digit:]]", input_value, FNM_EXTMATCH) == 0)
+		case 21:if (fnmatch( "[3456][[:digit:]]", input_value, FNM_EXTMATCH) == 0)
 				{
 					temp_base_year = atoi(input_value);
 					if ( (temp_base_year < (HDATE_HEB_YR_LOWER_BOUND/100)) ||
 						 (temp_base_year > (HDATE_HEB_YR_UPPER_BOUND/100)) )
 						 opt->base_year_h = HDATE_DEFAULT_BASE_YEAR_H;
-					else opt->base_year_h = temp_base_year;
+					else opt->base_year_h = temp_base_year * 100;
 				}
 				break;
 ///		BASE_YEAR_GREGORIAN
-		case 22:if (fnmatch( "[12][[:digit:]][[:digit:]][[:digit:]]", input_value, FNM_EXTMATCH) == 0)
+		case 22:if (fnmatch( "[12][[:digit:]]", input_value, FNM_EXTMATCH) == 0)
 				{
 					temp_base_year = atoi(input_value);
 					if ( (temp_base_year < (HDATE_HEB_YR_LOWER_BOUND/100)) ||
 						 (temp_base_year > (HDATE_HEB_YR_UPPER_BOUND/100)) )
 						 opt->base_year_h = HDATE_DEFAULT_BASE_YEAR_H;
-					else opt->base_year_h = temp_base_year;
+					else opt->base_year_h = temp_base_year * 100;
 				}
 				break;
 
@@ -2370,7 +2283,10 @@ int hcal_parser( const int switch_arg, option_list *opt,
 	case 'd': opt->diaspora = 1; break;
 	case 'f': opt->footnote = 1; break;
 	case 'g': opt->gregorian = opt->gregorian + 1; break;
-	case 'h': opt->html = 1; break;
+	case 'h': opt->html = 1;
+		// TODO - give this parameter an option argument 'filename'
+		//        to use for output instead of stdout	
+		break;
 	case 'H': opt->force_hebrew = 1; break;
 	case 'I': opt->force_israel = 1; break;
 	case 'i': opt->external_css = 1; break;
@@ -2433,16 +2349,11 @@ int hcal_parser( const int switch_arg, option_list *opt,
 **************************************************/
 int main (int argc, char *argv[])
 {
-
+	hdate_struct h;
 	int error_detected = FALSE;	/// exit after reporting ALL bad parms
 	int data_sink;				/// store unwanted stuff here
-
-	/// dates
-	hdate_struct h;
-
 	int month, year;
 	const int num_of_months = 12;	/// how many months in the year
-
 	option_list opt;
 	opt.prefer_hebrew = TRUE;
 	opt.base_year_h = HDATE_DEFAULT_BASE_YEAR_H;		// TODO - Make this user-selectable
@@ -2471,49 +2382,87 @@ int main (int argc, char *argv[])
 
 	opt.lat = BAD_COORDINATE;
 	opt.lon = BAD_COORDINATE;
-	opt.tz = BAD_TIMEZONE;
-	opt.tz_name_str = NULL;
-	opt.tz_lon = BAD_COORDINATE;
-	//-z number (absolute over-ride of system time zone)
-          //longitude mis-sync -> just alert
-          //no longitude -> guess (including zone.tab for current)
-          //alert no dst awareness
-	//-z name   (absolute over-ride of system time zone)
-          //longitude mis-sync -> just alert
-          //latitude mis-sync (re:zone.tab) - just alert
-          //no longitude -> use zone.tab entry
-	//-z null   system time zone (/etc/localtime)
-          //longitude mis-sync -> just alert
-          //latitude mis-sync (re:zone.tab) - just alert
-          //no longitude -> use zone.tab entry
-
-	opt.custom_days_cnt = BAD_CUSTOM_DAY_CNT;
-	opt.custom_days_index = 0;
-	opt.jdn_list_ptr = NULL;		/// custom days - julian day numbers (array)
-	opt.string_list_ptr = NULL;		/// custom days - text descriptions (array)
-
-	/// for checking dst transitions (candle-lighting, havdalah)
-	opt.tzif_entries = 0;
-	opt.tzif_data = NULL;
-	opt.tzif_index = 0;			/// counter into tzif_entries, tzif_data
-	opt.epoch_start = 0;
-	opt.epoch_end = 0;
-
-	opt.menu = 0;					/// -m print menus for user-selection
-
 	// explain why the duplication of these next variables
 	double lat = BAD_COORDINATE;	/// set to this value for error handling
 	double lon = BAD_COORDINATE;	/// set to this value for error handling
 	int tz = BAD_TIMEZONE;
-
-
+	/******************************************************************
+	*
+	* TIME ZONE POLICY EXPLAINED:
+	* 
+	* -z number (absolute over-ride of system time zone)
+    *      longitude mis-sync -> just alert
+    *      no longitude -> guess (including zone.tab for current)
+    *      alert no dst awareness
+	* -z name   (absolute over-ride of system time zone)
+    *      longitude mis-sync -> just alert
+    *      latitude mis-sync (re:zone.tab) - just alert
+    *      no longitude -> use zone.tab entry
+	* -z null   system time zone (/etc/localtime)
+    *      longitude mis-sync -> just alert
+    *      latitude mis-sync (re:zone.tab) - just alert
+    *      no longitude -> use zone.tab entry
+    *
+	*****************************************************************/
+	opt.tz = BAD_TIMEZONE;
+	opt.tz_name_str = NULL;
+	opt.tz_lon = BAD_COORDINATE;
+	/******************************************************************
+	*
+	* CUSTOM DAYS DATA STRUCTUES EXPLAINED:
+	* 
+	* custom_days_cnt - number of custom days found for interval,
+	*        and the number of entries in each of the associated
+	*        data structures.
+	* custom_days_index - presuming custom days are sorted in 
+	*        ascending date order, this is useful for resuming a
+	*        a scan/search of custom days. However, currently
+	*        sorting has not been coded.
+    * jdn_list_ptr - a malloc'ed list of {custom_days_cnt} julian
+    *        day numbers of the custom days found for interval.
+    * string_list_ptr - a malloc'ed list of {custom_days_cnt}
+    *        uniform lenth strings describing the custom days.
+    *        The first {sizeof(size_t)} bytes is the size of each
+    *        element in this array
+    * 
+	*****************************************************************/
+	opt.custom_days_cnt = BAD_CUSTOM_DAY_CNT;
+	opt.custom_days_index = 0;
+	opt.jdn_list_ptr = NULL;
+	opt.string_list_ptr = NULL;
+	/******************************************************************
+	*
+	* DAYLIGHT SAVINGS TIME DATA STRUCTUES EXPLAINED:
+	* 
+	* These elements are necessary for displaying Shabbat times,
+	* and for sunset-awareness.
+	* 
+	* tzif_entries - number of DST transitions found for the interval
+	*        and the number of entries in each of the associated
+	*        data structures.
+	* tzif_index - DST transition information will always be sorted
+	*        in ascending date order, so this is useful for resuming
+	*        a scan/search
+	* tzif_data -
+	* epoch_start - date, in epoch format for the beginning of the
+	*        interval
+	* epoch_end - date, in epoch format for the end of the interval.
+    * 
+	*****************************************************************/
+	opt.tzif_entries = 0;
+	opt.tzif_index = 0;
+	opt.tzif_data = NULL;
+	opt.epoch_start = 0;
+	opt.epoch_end = 0;
+	/// -m print menus for user-selection
+	opt.menu = 0;
 	int i;
 	for (i=0; i<MAX_MENU_ITEMS; i++) opt.menu_item[i] = NULL;
-
-
+	size_t	menu_len = 0;
+	int menu_index;
+	char *menuptr, *optptr;
 	/// support for getopt short options
 	const char * short_options = "013bBcdfghHiImpqsl:L:z:";
-
 	/// support for long options
 	int long_option_index = 0;
 	int switch_arg;
@@ -2556,11 +2505,6 @@ int main (int argc, char *argv[])
 		{0, 0, 0, 0}
 		};
 
-	// for config file user-defined menus
-	size_t	menu_len = 0;
-	int menu_index;
-	char *menuptr, *optptr;
-
 	/************************************************************
 	* init locale
 	*
@@ -2590,10 +2534,6 @@ int main (int argc, char *argv[])
 	/************************************************************
 	* parse config file
 	************************************************************/
-	// TODO - these config file fields need to be processed
-	//# PREFER_HEBREW=TRUE
-	//# BASE_YEAR_HEBREW=5700
-	// # BASE_YEAR_GREGORIAN=2000
 	FILE *config_file = NULL;
 	if (get_config_file("/hcal", "/hcalrc_v1.8", hcal_config_file_text,
 						opt.quiet_alerts, &config_file))
@@ -2601,8 +2541,6 @@ int main (int argc, char *argv[])
 		read_config_file(config_file, &opt, &lat, &lon, &tz, opt.tz_name_str);
 		fclose(config_file);
 	}
-
-
 
 	/************************************************************
 	* parse command line
@@ -2613,7 +2551,6 @@ int main (int argc, char *argv[])
 		error_detected = error_detected
 						+ hcal_parser(switch_arg, &opt, &lat, &lon,
 									&tz, opt.tz_name_str, long_option_index);
-
 
 	/**************************************************
 	* BEGIN - enable user-defined menu
@@ -2662,6 +2599,20 @@ int main (int argc, char *argv[])
 			opt.footnote = 0;
 		}
 		if (opt.spacing == NULL) opt.spacing = default_spacing;
+	}
+
+	/**************************************************
+	* html month mode checks
+	*************************************************/
+	if	(opt.html)
+	{
+		if ((opt.parasha) || (opt.shabbat) || (opt.footnote) )
+		{
+			error(0,0,"%s", N_("ALERT: options --parasha, --shabbat, --footnote are not supported in 'html' mode"));
+			opt.parasha = 0;
+			opt.shabbat = 0;
+			opt.footnote = 0;
+		}
 	}
 
 	// MISSING - validation of lat lon tz !!

@@ -170,9 +170,6 @@ int set_default_location( const int tz, char** tz_name_ptr,
 						  double *lat, double *lon)
 {
 
-	/*	Temporarily, set some default lat/lon coordinates
-		for certain timezones */
-
 /**
 { 00 }  ( Latitude : 31.78;  Longitude : 35.22;  Name : 'Jerusalem'     ),
 { 01 }  ( Latitude : 32.07;  Longitude : 34.77;  Name : 'Tel Aviv-Jafa' ),
@@ -195,15 +192,14 @@ int set_default_location( const int tz, char** tz_name_ptr,
 { 18 }  ( Latitude : 31.96;  Longitude : 34.90;  Name : 'Lod'           ),
 { 19 }  ( Latitude : 31.93;  Longitude : 34.86;  Name : 'Ramla'         )
 **/
-
 	switch (tz)
 	{
 /** hours       minutes */
 /** -8 **/	case -480:	*lat =  34.052222;	*lon =-118.242778;	*tz_name_ptr = N_("America/Los_Angeles"); break;
 /** -6 **/	case -360:	*lat =  19.400000;	*lon = -99.150000;	*tz_name_ptr = N_("America/Mexico_City"); break;
 /** -5 **/	case -300:	*lat =  40.714167;	*lon = -74.638800;	*tz_name_ptr = N_("America/New_York"); break;
-/** -5 **///case -300:	*lat =  43.71;	*lon = -79.43;	*tz_name_ptr = N_("Toronto"); break;
-/** -5 **///case -300:	*lat = -23.55;	*lon = -46.61;	*tz_name_ptr = N_("Sao Paolo"); break;
+/** -5 **///case -300:	*lat =  43.71    ;	*lon = -79.43    ;	*tz_name_ptr = N_("Toronto"); break;
+/** -5 **///case -300:	*lat = -23.55    ;	*lon = -46.61    ;	*tz_name_ptr = N_("Sao Paolo"); break;
 /** -4.5 **/case -270:	*lat =  10.500000;	*lon = -66.933333;	*tz_name_ptr = N_("America/Caracas"); break;
 /** -3 **/	case -180:	*lat = -34.600000;	*lon = -58.450000;	*tz_name_ptr = N_("America/Argentina/Buenos_Aires"); break;
 /**  0 **/	case    0:	*lat =  51.508333;	*lon =   0.125278;	*tz_name_ptr = N_("Europe/London"); break;
@@ -214,9 +210,9 @@ int set_default_location( const int tz, char** tz_name_ptr,
 /**  5 **/	case  300:	*lat =  41.333333;	*lon =  69.300000;	*tz_name_ptr = N_("Asia/Tashkent"); break;
 /**  5.5 **/case  330:	*lat =  22.533333;	*lon =  88.366667;	*tz_name_ptr = N_("Asia/Kolkata"); break;
 /**  8 **/	case  480:	*lat =  31.233333;	*lon = 121.466667;	*tz_name_ptr = N_("Asia/Shanghai"); break;
-/**  8 **///case  480:	*lat =  39.90;	*lon = 116.38;	*tz_name_ptr = N_("Asia/Beijing"); break;
-/**  8 **///case  480:	*lat =  22.26;	*lon = 114.15;	*tz_name_ptr = N_("Hong Kong");break;
-/** 10 **///case  600:	*lat =  21.30;	*lon = 157.82;	*tz_name_ptr = N_("Honolulu");break;
+/**  8 **///case  480:	*lat =  39.90    ;	*lon = 116.38    ;	*tz_name_ptr = N_("Asia/Beijing"); break;
+/**  8 **///case  480:	*lat =  22.26    ;	*lon = 114.15    ;	*tz_name_ptr = N_("Hong Kong");break;
+/** 10 **///case  600:	*lat =  21.30    ;	*lon = 157.82    ;	*tz_name_ptr = N_("Honolulu");break;
 /** 10 **/	case  600:	*lat = -33.866667;	*lon = 151.216667;	*tz_name_ptr = N_("Australia/Sydney");break;
 	default:	/// .25 = (15 degrees) / 60 [because tz is in minutes, not hours]
 				*lat =   0.0;	*lon =  tz * .25;
@@ -503,7 +499,6 @@ int parse_epoch_value( const char* epoch_string, time_t* epoch_val, int* epoch_p
 				error(0,0,"%s: %s", error_text, N_("internal size mismatch, parameter '--epoch' being ignored"));
 				return 1;
 			}
-// temp, delete this! */ printf("epoch string: %s, epoch value = %ld\n", epoch_string, epoch_val);
 		}
 	}
 	else

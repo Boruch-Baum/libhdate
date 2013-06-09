@@ -1,4 +1,34 @@
 hdate.c
+- BUGFIX parse for user entry dd mm
+
+hcal.c
+- BUGFIX custom days print for html output
+
+custom_days.c
+- BUGFIX month IDs for Shabbat Chazon, Nachamu
+- BUGFIX for custom day parsing and error reporting
+
+BEGIN migration away from using doxygen
+
+NOTE ON DOCUMENTATION STATE - libhdate seems unique in having
+a man page for its header file, ie. apropos -s3 .h | grep "\.h (3)".
+This will be removed, and replaced with a libhdate(3) man page
+
+hdate_struct.3
+- write this man page independent of doxygen, so that
+  that it is comprehensible and useful.
+
+libhdate.3
+- new documentation file evolving from hdate.h.3
+- added to version control
+- update makefile.am
+
+hdate.h.3
+- deleted, removed from version control
+- update makefile.am
+
+----------------------------------------------------------------------------
+hdate.c
 - BUGFIX tabular month DST awareness
 - Improve range checking for years, and julian days
 - Improve range checking for base_years

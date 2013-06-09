@@ -77,6 +77,12 @@ FEBRUARY_29 =-1\n\n\
 #    2 - Mark the event in Adar II\n\
 #ADAR_IN_LEAP_YEAR = 2\n\
 ADAR_IN_LEAP_YEAR = 2\n\n\
+# How to handle events scheduled for days 1 - 29 of Adar I in a year\n\
+# with only one Adar (eg. Purim katan)\n\
+#    0 - Do not mark the event in such a calendar year\n\
+#    1 - Mark the event in Adar\n\
+#ADAR_I = 0\n\
+ADAR_I = 0\n\n\n\
 # How to handle events scheduled for the 30th day of Adar I in a year\n\
 # with only one Adar (which only has 29 days)\n\
 #    0 - Do not mark the event in such a calendar year\n\
@@ -98,7 +104,7 @@ ADAR_II = -1\n\n\
 #       can have the rule \"CHESHVAN_30=1\" for one custom_day, and the\n\
 #       rule  \"CHESHVAN_30=0\" for another custom_day\n\n\
 # Format of Custom Day entries\n\
-# Each entry consists of 17 fields, comma-delimited, on a single\n\
+# Each entry consists of 19 fields, comma-delimited, on a single\n\
 # 'logical' line, meaning that if you insist on splitting an entry over\n\
 # more than one physical line, use a '\\' to mark the continuation. All\n\
 # fields are mandatory. The fields are:\n\
@@ -171,19 +177,25 @@ H, _, 3001, 0000,  6, 14, 0, 0, שבת זכור, זבת זכור, Shabbat Zachor
 H, _, 3001, 0000,  6, 14, 0, 0, שבת פרה, שבת פרה, Shabbat Parah, Shabbat Parah,             0, 0,  6,  0,  0,  0,  0\n\
 H, _, 3001, 0000,  7,  1, 0, 0, שבת החודש, שבת החודש, Shabbat HaChodesh, Shabbat HaChodesh, 0, 0, -1,  0, -3,  0, -5\n\
 H, _, 3001, 0000,  7, 15, 0, 0, שבת הגדול, שבת הגדול, Shabbat HaGadol, Shabbat HaGadol,     0,-7, -1,  0, -3,  0, -5\n\
-H, _, 3001, 0000, 10,  9, 0, 0, שבת חזון, שבת חזון, Shabbat Chazon, Shabbat Chazon,         0, 0, -1,  0, -3,  0, -5\n\
-H, _, 3001, 0000, 10,  9, 0, 0, שבת נחמו, שבת נחמו, Shabbat Nachamu, Shabbat Nachamu,       0, 7,  6,  0,  4,  0,  2\n\
-#\n\
+H, _, 3001, 0000, 11,  9, 0, 0, שבת חזון, שבת חזון, Shabbat Chazon, Shabbat Chazon,         0, 0, -1,  0, -3,  0, -5\n\
+H, _, 3001, 0000, 11,  9, 0, 0, שבת נחמו, שבת נחמו, Shabbat Nachamu, Shabbat Nachamu,       0, 7,  6,  0,  4,  0,  2\n\
+\n\
+# Examples - Other special days\n\
+# =============================\n\
+# These next few may in the future be hard-coded into libhdate ...\n\
+H, _, 3001, 0000,  8, 14, 0, 0, פסח שני, פסח שני, Pesach Sheni, Pesach Sheni,               0, 0,  0,  0,  0,  0,  0\n\
+H, _, 3001, 0000, 13, 14, 0, 0, פורים קטן, פורים קטן, Purim Katan, Purim Katan,             0, 0,  0,  0,  0,  0,  0\n\
+\n\
 # DEBUG TESTS - REMOVE PRIOR TO RELEASE\n\
 # =====================================\n\
-H, :, 5700, 0000,  2,  6, 0, 0, יום הוקרת הפינגיונים עברי,   _, Penguin Appreciation Day Heb test,  _,  0,  0, 0, 0, 0, 0, 0, 0\n\
-H, :, 5700, 0000,  2,  6, 0, 0, יום הוקרת הפינגיונים עברי,   _, Duplicate day Heb test,             _,  0,  0, 0, 0, 0, 0, 0, 0\n\
-G, :, 1960, 0000,  1,  5, 0, 0, יום הוקרת הפינגיונים לועז,   _, Penguin Appreciation Day Greg test, _,  0,  0, 0, 0, 0, 0, 0, 0\n\
-G, :, 1960, 0000,  1,  5, 0, 0, יום הוקרת הפינגיונים לועז,   _, Duplicate day Greg test,            _,  0,  0, 0, 0, 0, 0, 0, 0\n\
-h, :, 5730, 0000,  4,  0, 2, 5, יום הוקרת הפינגיונים עברי ב, _, Penguin Appreciation Day heb test,  _,  0,  0, 0, 0, 0, 0, 0, 0\n\
-g, :, 1980, 0000,  5,  0, 1, 2, יום הוקרת הפינגיונים לועז ב, _, Penguin Appreciation Day greg test, _,  0,  0, 0, 0, 0, 0, 0, 0\n\
-H, :, 5750, 0000,  6,  8, 0, 0, פינגיונים מעדיפים יום ד,     _, Penguins Appreciate Wednesday test, _, -2, -3, 3, 0, 0, 0, 0, 0\n\
-G, :, 2000, 0000,  7,  1, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0, 0\n\
+H, :, 5700, 0000,  2,  6, 0, 0, יום הוקרת הפינגיונים עברי,   _, Penguin Appreciation Day Heb test,  _,  0,  0, 0, 0, 0, 0, 0\n\
+H, :, 5700, 0000,  2,  6, 0, 0, יום הוקרת הפינגיונים עברי,   _, Duplicate day Heb test,             _,  0,  0, 0, 0, 0, 0, 0\n\
+G, :, 1960, 0000,  1,  5, 0, 0, יום הוקרת הפינגיונים לועז,   _, Penguin Appreciation Day Greg test, _,  0,  0, 0, 0, 0, 0, 0\n\
+G, :, 1960, 0000,  1,  5, 0, 0, יום הוקרת הפינגיונים לועז,   _, Duplicate day Greg test,            _,  0,  0, 0, 0, 0, 0, 0\n\
+h, :, 5730, 0000,  4,  0, 2, 5, יום הוקרת הפינגיונים עברי ב, _, Penguin Appreciation Day heb test,  _,  0,  0, 0, 0, 0, 0, 0\n\
+g, :, 1980, 0000,  5,  0, 1, 2, יום הוקרת הפינגיונים לועז ב, _, Penguin Appreciation Day greg test, _,  0,  0, 0, 0, 0, 0, 0\n\
+H, :, 5750, 0000,  6,  8, 0, 0, פינגיונים מעדיפים יום ד,     _, Penguins Appreciate Wednesday test, _, -2, -3, 3, 0, 0, 0, 0\n\
+G, :, 2000, 0000,  7,  1, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
 #");
 
 static const char* custom_israeli_days_text_for_israel = N_("\
@@ -283,8 +295,7 @@ void test_print_custom_days(int custom_days_cnt, int* jdn_list_ptr, char* string
 *      Put the pointer to the final string_list (or NULL) in string_list_ptr
 *      return the number of items found
 ************************************************************/
-//	TODO - handle CHESHVAN_30, KISLEV_30, FEBRUARY_29, ADAR_II, ADAR_IN_LEAP_YEAR
-//  TODO - advancements/postponements for day_types h/g when erev khag, khag, or motzei khag (in the
+//  TODO - advancements/postponements for day_types h/g when erev khag, khag, or motzei khag
 int read_custom_days_file(
 			FILE* config_file,
 			int** jdn_list_ptr, char** string_list_ptr,
@@ -333,17 +344,19 @@ int read_custom_days_file(
 	int 	input_value;
 	int		key_name_found = FALSE;
 	int		key_value_found = FALSE;
-	const int	num_of_keys = 6;
+	const int	num_of_keys = 7;
 	const char*	key_list[] = {
 		"CHESHVAN_30",
 		"KISLEV_30",
 		"FEBRUARY_29",
+		"ADAR_I",
 		"ADAR_I_30",
 		"ADAR_II",
 		"ADAR_IN_LEAP_YEAR" };
-	int 	key_hleap[2] = {-1,-1};	/// for Cheshvan_30, Kislev_30
+	int 	key_hleap[2] = {1,1};	/// for Cheshvan_30, Kislev_30
 	int 	key_february_29 =  1;
 	int		key_adar_I_30   =  1;
+	int		key_adar_I		=  0;
 	int 	key_adar_II     = -1;
 	int 	key_adar_in_leap_year = 2;
 	int		i;
@@ -361,7 +374,7 @@ int read_custom_days_file(
 	#define WHEN_DAY_5   4
 	int adj[7] = {0,0,0,0,0,0,0};
 
-	int custom_day_jd;
+	int temp_jd;
 	hdate_struct custom_day_h,
 				 range_end;
 
@@ -401,10 +414,10 @@ int read_custom_days_file(
 		if ( (input_string[0] == '#') || (input_string[0] == '\n') || (bytes_read == 0) ) continue;
 		free_my_mallocs();
 		const char* scan_spec[4] = {
-			"%1[gGhHY], %1[][({})a-zA-Z#%^&_=\\;:?.,|-], %u, %u, %u, %u, %u, %u,  %m[^,] , %*m[^,] , %*m[^,] , %*m[^,] , %i, %i, %i, %i, %i, %i, %i",
-			"%1[gGhHY], %1[][({})a-zA-Z#%^&_=\\;:?.,|-], %u, %u, %u, %u, %u, %u, %*m[^,] ,  %m[^,] , %*m[^,] , %*m[^,] , %i, %i, %i, %i, %i, %i, %i",
-			"%1[gGhHY], %1[][({})a-zA-Z#%^&_=\\;:?.,|-], %u, %u, %u, %u, %u, %u, %*m[^,] , %*m[^,] ,  %m[^,] , %*m[^,] , %i, %i, %i, %i, %i, %i, %i",
-			"%1[gGhHY], %1[][({})a-zA-Z#%^&_=\\;:?.,|-], %u, %u, %u, %u, %u, %u, %*m[^,] , %*m[^,] , %*m[^,] ,  %m[^,] , %i, %i, %i, %i, %i, %i, %i" };
+			"%1[gGhHY], %1[][({})a-zA-Z#%^&_=\\;:?.,|-], %u, %u, %u, %u, %u, %u,  %m[^,] , %*m[^,] , %*m[^,] , %*m[^,] , %d, %d, %d, %d, %d, %d, %d",
+			"%1[gGhHY], %1[][({})a-zA-Z#%^&_=\\;:?.,|-], %u, %u, %u, %u, %u, %u, %*m[^,] ,  %m[^,] , %*m[^,] , %*m[^,] , %d, %d, %d, %d, %d, %d, %d",
+			"%1[gGhHY], %1[][({})a-zA-Z#%^&_=\\;:?.,|-], %u, %u, %u, %u, %u, %u, %*m[^,] , %*m[^,] ,  %m[^,] , %*m[^,] , %d, %d, %d, %d, %d, %d, %d",
+			"%1[gGhHY], %1[][({})a-zA-Z#%^&_=\\;:?.,|-], %u, %u, %u, %u, %u, %u, %*m[^,] , %*m[^,] , %*m[^,] ,  %m[^,] , %d, %d, %d, %d, %d, %d, %d" };
 		match_count = sscanf(input_string, scan_spec[ (abs(text_hebrew_form-1)*2) + text_short_form],
 			&custom_day_type, &custom_symbol, &custom_start_year, &custom_final_year, &custom_month, &custom_day_of_month, &custom_nth, &custom_day_of_week,
 			&print_ptr,	&adj[WHEN_SHISHI], &adj[WHEN_SHABBAT], &adj[WHEN_RISHON],
@@ -412,26 +425,23 @@ int read_custom_days_file(
 		if (errno)
 		{
 			// test this error message
-			error(0,errno,"scan error (a)%d at line %d of custom days file, field %d\n", errno, line_count, match_count+1);
-			continue; // exit(0); // FIXME - why so fatal?
+			error(0,errno,"scan error (a)%d at line %d of custom days file, field %d\n", errno, line_count, (match_count<10 ? match_count+1 : match_count+4) );
+			continue;
 		}
-		if (line_count == 124) 
-		{ ; }
-
 		if (match_count != NUMBER_OF_CUSTOM_DAYS_FIELDS)
 		{
 			key_name_found = FALSE;
 			key_value_found = FALSE;
 			key_match_count = sscanf(input_string,"%m[A-Z_0-9] = %i",&input_key,&input_value);
-			if (errno != 0) error(0,errno,"scan error (b)%d at line %d of custom days file, field %d\n", errno, line_count, match_count);
-			if (key_match_count == 2)
+			if (errno != 0) error(0,errno,"scan error (b)%d at line %d of custom days file, field %d\n", errno, line_count, match_count+1 );
+			if (key_match_count)
 			{
-				for (i=0; (i<num_of_keys) && (key_value_found == FALSE); i++)
+				for (i=0; (i<num_of_keys) && (!key_name_found) && (!key_value_found) ; i++)
 				{
 					if (strcmp(input_key, key_list[i]) == 0)
 					{
 						key_name_found = TRUE;
-						switch(i)
+						if (key_match_count == 2) switch(i)
 						{
 						/** CHESHVAN_30 */	
 						case  0: if ((input_value >= -1) && (input_value <= 1))
@@ -454,23 +464,29 @@ int read_custom_days_file(
 									 key_value_found = TRUE;
 								 }
 								 break;
+						/** ADAR_I   */
+						case  3: if ((input_value == 1) || (input_value == 0))
+								 {
+									 key_adar_I = input_value;
+									 key_value_found = TRUE;
+								 }
+								 break;
 						/** ADAR_I_30   */
-						case  3: if ((input_value >= -1) && (input_value <= 1))
+						case  4: if ((input_value >= -1) && (input_value <= 1))
 								 {
 									 key_adar_I_30 = input_value;
 									 key_value_found = TRUE;
 								 }
 								 break;
-						
 						/** ADAR_II     */
-						case  4: if ((input_value >= -1) && (input_value <= 1))
+						case  5: if ((input_value >= -1) && (input_value <= 1))
 								 {
 									 key_adar_II = input_value;
 									 key_value_found = TRUE;
 								 }
 								 break;
 						/** ADAR_IN_LEAP_YEAR */
-						case  5: if ((input_value == 1) || (input_value == 2))
+						case  6: if ((input_value == 1) || (input_value == 2))
 								 {
 									 key_adar_in_leap_year = input_value;
 									 key_value_found = TRUE;
@@ -480,17 +496,18 @@ int read_custom_days_file(
 					} /// end comparison to key
 				} /// end loop of all keys
 			}
-			if (key_match_count > 0 ) free(input_key);
+			if (key_match_count) free(input_key);
 			if ( !key_value_found )
 			{
 				if (key_name_found == TRUE) match_count = 1;
-				error(0,errno,"scan error (c)%d at line %d of custom days file, field %d\n", errno, line_count, match_count+1);
-				continue;
+				error(0,errno,"scan error (c)%d at line %d of custom days file, field %d\n", errno, line_count, (match_count<10 ? match_count+1 : match_count+4) );
 			}
+			continue;
 		}
 
 		/************************************************************
 		* At this point, we have successfully scanned/parsed a line
+		* as a basically valid adjustment line of 19 ( minus 3) fields
 		* and are ready to begin sanity and bounds checking. The
 		* sscanf call above has already insured that the values for
 		* adjustments are signed integers, and for years are
@@ -499,7 +516,11 @@ int read_custom_days_file(
 		int i;
 		for ( i = 0; i < 7; i++ )
 		{
-			if ( ( adj[i] < -9 ) || ( adj[i] > 9 ) ) continue;
+			if ( ( adj[i] < -9 ) || ( adj[i] > 9 ) )
+			{
+				error(0,errno,"error at line %d of custom days file, adjustment field %d invalid: %d\n", line_count, i+1, adj[i]);
+				continue;
+			}
 		}
 
 		switch ( custom_day_type )
@@ -512,7 +533,11 @@ int read_custom_days_file(
 				   ( (custom_start_year > custom_final_year)   ||
 					 (custom_final_year > HDATE_GREG_YR_UPPER_BOUND) ||
 					 (custom_final_year < HDATE_GREG_YR_LOWER_BOUND)
-				 ) ) ) continue;
+				 ) ) )
+			{
+				error(0,errno,"parameter error (a)%d at line %d of custom days file, start year: %d. end year: %d\n", errno, line_count, custom_start_year, custom_final_year);
+				continue;
+			}
 			break;
 		case 'H':
 		case 'h':
@@ -522,12 +547,19 @@ int read_custom_days_file(
 				   ( (custom_start_year > custom_final_year)   ||
 					 (custom_final_year > HDATE_HEB_YR_UPPER_BOUND) ||
 					 (custom_final_year < HDATE_HEB_YR_LOWER_BOUND)
-				) ) ) continue;
+				) ) )
+			{
+				error(0,errno,"parameter error (a)%d at line %d of custom days file, start year: %d. end year: %d\n", errno, line_count, custom_start_year, custom_final_year);
+				continue;
+			}
 			break;
-		}
+		} /// end switch ( custom_day_type )
+
 
 		/// These are easy checks to eliminate ALMOST all custom
 		/// days for which the the custom day will be out of bounds
+		/// The bit operation on custom_day_type 
+		/// is to make g==G and h==H
 		if (calendar_type == (custom_day_type & 0xdf) )
 		{
 			if ( (y_todo < (custom_start_year - 1) ) ||
@@ -544,7 +576,7 @@ int read_custom_days_file(
 		}
 		else
 		{
-			if (calendar_type == 'G') /// o&& (custom_day_type == 'H' or 'h')
+			if (calendar_type == 'G') /// && (custom_day_type == 'H' or 'h')
 			{
 				if ( (y_todo < (custom_start_year - 3761) ) ||
 					 ( (y_todo == (custom_start_year - 3761) ) && /// aug-dec or tish-shvat may be good
@@ -569,43 +601,13 @@ int read_custom_days_file(
 		// TODO - d_to_do, m_to_do, y_to_do may still be out of bounds. We 
 		// must take into account that adjustments may be +/-9 days which could
 		// bump the year and also Heb year switching in Autumn
-//		compute adjusted custom day 
-		/*
-			hdate_set_gdate( &range_end, d_to_do, m_to_do, y_to_do);
-		*/
-/**
-(for aa in $(seq 5400 5773); do hdate -q 20 12 $aa | awk '{print $3}' ; done; ) | sort |uniq -c
-    374 
-     75 August
-    299 September
-(for aa in $(seq 5400 5773); do hdate -q 1 1 $aa | awk '{print $3}' ; done; ) | sort |uniq -c
-    374 
-     45 October
-    329 September
-(for aa in $(seq 5400 5773); do hdate -q 8 1 $aa | awk '{print $3}' ; done; ) | sort |uniq -c
-    374 
-    136 October
-    238 September
-(for aa in $(seq 1700 2012); do hdate -q 22 12 $aa | awk '{print $6}' ; done; ) | sort |uniq -c
-    313 
-    108 Kislev
-    205 Tevet
-(for aa in $(seq 1700 2012); do hdate -q 1 1 $aa | awk '{print $6}' ; done; ) | sort |uniq -c
-    313 
-      5 Kislev
-      8 Sh'vat
-    300 Tevet
-(for aa in $(seq 1700 2012); do hdate -q 8 1 $aa | awk '{print $6}' ; done; ) | sort |uniq -c
-    313 
-     82 Sh'vat
-    231 Tevet
-**/
 
 		/************************************************************
-		* Perform sanity and bounds checking of the remaining
-		* parameters scanned/parsed, convert the custom_day to the
-		* julian_day_number for the year the user requested, and
-		* apply any advancements/postponements.
+		* 1] Perform sanity and bounds checking of the remaining
+		*    parameters scanned/parsed
+		* 2] convert the custom_day to the julian_day_number for the 
+		*    year the user requested, and
+		* 3] apply any advancements/postponements.
 		************************************************************/
 		leap_adj = 0;
 		switch ( custom_day_type )
@@ -625,13 +627,19 @@ int read_custom_days_file(
 					continue;
 			}
 			hdate_set_gdate( &custom_day_h, custom_day_of_month + leap_adj, custom_month, range_start.gd_year);
-			custom_day_jd = custom_day_h.hd_jd + adj[custom_day_h.hd_dw-1];
-			if (adj[custom_day_h.hd_dw-1]) hdate_set_jd(&custom_day_h, custom_day_jd);
+			if (adj[custom_day_h.hd_dw-1])
+			{
+				temp_jd = custom_day_h.hd_jd + adj[custom_day_h.hd_dw-1];
+				hdate_set_jd(&custom_day_h, temp_jd);
+			}
 			if ( (!d_todo) && (y_todo > HDATE_HEB_YR_LOWER_BOUND) && (y_todo != custom_day_h.hd_year) )
 			{
 				hdate_set_gdate( &custom_day_h, custom_day_of_month, custom_month, range_start.gd_year+1);
-				custom_day_jd = custom_day_h.hd_jd + adj[custom_day_h.hd_dw-1];
-				if (adj[custom_day_h.hd_dw-1]) hdate_set_jd(&custom_day_h, custom_day_jd);
+				if (adj[custom_day_h.hd_dw-1])
+				{
+					temp_jd = custom_day_h.hd_jd + adj[custom_day_h.hd_dw-1];
+					hdate_set_jd(&custom_day_h, temp_jd);
+				}
 			}
 			break;
 		case 'H':
@@ -640,33 +648,38 @@ int read_custom_days_file(
 				(!validate_hdate(CHECK_DAY_PARM, custom_day_of_month, custom_month, range_start.hd_year, TRUE, &range_start))	)
 			{
 				if (!key_hleap[custom_month-2]) continue;
-				if (key_hleap[custom_month-2] == -1) leap_adj = -1;
+				else if (key_hleap[custom_month-2] == -1) leap_adj = -1;
 			}
 			/// now deal with Adar II when user request isn't a leap year
-			if ((custom_month==14) && (custom_day_of_month > 0) &&
+			else if ((custom_month==14) && (custom_day_of_month > 0) &&
 				(custom_day_of_month < 30) && (range_start.hd_size_of_year < 383) )
 			{
 				if (!key_adar_II) continue;
-				if (key_adar_II == -1) custom_month = 6;
-				else custom_month = 7; /// case key_adar_II = 1;
+				else if (key_adar_II == -1) custom_month = 6;
+				else if (key_adar_II == 1) custom_month = 7;
 			}
 			/// now deal with Adar I when user request isn't a leap year
-			if ((custom_month==13) && (custom_day_of_month > 0) && (range_start.hd_size_of_year < 383) )
+			else if ((custom_month==13) && (custom_day_of_month > 0) && (range_start.hd_size_of_year < 383) )
 			{
-				if (custom_day_of_month > 30) continue;
+				if (custom_day_of_month > 30) continue; // ?? This should never be possible !
 				custom_month = 6;
-				if (custom_month == 30)
+				if (custom_day_of_month == 30)
 				{
 					if (!key_adar_I_30) continue;
-					if (key_adar_I_30 == -1) leap_adj = -1;
+					else if (key_adar_I_30 == -1) leap_adj = -1;
+				}
+				else ///  (custom_day_of_month < 30)
+				{
+					if (!key_adar_I) continue;
 				}
 			}
 			/// now deal with Adar in a leap year
-			if ((custom_month==6) && (custom_day_of_month > 0) &&
+			else if ((custom_month==6) && (custom_day_of_month > 0) &&
 				(custom_day_of_month < 31) && (range_start.hd_size_of_year > 355) )
 			{
 				if (key_adar_in_leap_year == 1) custom_month = 13;
-				else custom_month = 14; /// case key_adar_in_leap_year = 2;
+				else if (key_adar_in_leap_year == 2) custom_month = 14;
+				else continue;
 			}
 			else /// not a Cheshvan 30, Kislev 30, or Adar custom day for years that don't have them
 			{
@@ -675,13 +688,19 @@ int read_custom_days_file(
 					continue;
 			}
 			hdate_set_hdate( &custom_day_h, custom_day_of_month + leap_adj, custom_month, range_start.hd_year);
-			custom_day_jd = custom_day_h.hd_jd + adj[custom_day_h.hd_dw-1];
-			if (adj[custom_day_h.hd_dw-1]) hdate_set_jd(&custom_day_h, custom_day_jd);
+			if (adj[custom_day_h.hd_dw-1])
+			{
+				temp_jd = custom_day_h.hd_jd + adj[custom_day_h.hd_dw-1];
+				hdate_set_jd(&custom_day_h, temp_jd);
+			}
 			if ( (!d_todo) && (y_todo <= HDATE_HEB_YR_LOWER_BOUND) && (y_todo != custom_day_h.gd_year) )
 			{
 				hdate_set_hdate( &custom_day_h, custom_day_of_month, custom_month, range_start.hd_year+1); //?
-				custom_day_jd = custom_day_h.hd_jd + adj[custom_day_h.hd_dw-1];
-				if (adj[custom_day_h.hd_dw-1]) hdate_set_jd(&custom_day_h, custom_day_jd);
+				if (adj[custom_day_h.hd_dw-1])
+				{
+					temp_jd = custom_day_h.hd_jd + adj[custom_day_h.hd_dw-1];
+					hdate_set_jd(&custom_day_h, temp_jd);
+				}
 			}
 			break;
 		case 'g':
@@ -690,15 +709,15 @@ int read_custom_days_file(
 				(custom_day_of_week < 1) || (custom_day_of_week > 7) )
 				continue;
 			hdate_set_gdate( &custom_day_h, 1, custom_month, range_start.gd_year);
-			custom_day_jd = custom_day_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - custom_day_h.hd_dw);
-			hdate_set_jd(&custom_day_h, custom_day_jd);
+			temp_jd = custom_day_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - custom_day_h.hd_dw);
+			hdate_set_jd(&custom_day_h, temp_jd);
 			if ((custom_nth==5) && ( custom_month != custom_day_h.gd_mon))
 			{
 				if ( (!d_todo) && (y_todo > HDATE_HEB_YR_LOWER_BOUND) && (y_todo != custom_day_h.hd_year) )
 				{
 					hdate_set_gdate( &custom_day_h, 1, custom_month, range_start.gd_year+1);
-					custom_day_jd = custom_day_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - custom_day_h.hd_dw);
-					hdate_set_jd(&custom_day_h, custom_day_jd);
+					temp_jd = custom_day_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - custom_day_h.hd_dw);
+					hdate_set_jd(&custom_day_h, temp_jd);
 					if ((custom_nth==5) && ( custom_month != custom_day_h.gd_mon)) continue;
 				}
 				else continue;
@@ -706,8 +725,8 @@ int read_custom_days_file(
 			else if ( (!d_todo) && (y_todo > HDATE_HEB_YR_LOWER_BOUND) && (y_todo != custom_day_h.hd_year) )
 			{
 				hdate_set_gdate( &custom_day_h, 1, custom_month, range_start.gd_year+1);
-				custom_day_jd = custom_day_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - custom_day_h.hd_dw);
-				hdate_set_jd(&custom_day_h, custom_day_jd);
+				temp_jd = custom_day_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - custom_day_h.hd_dw);
+				hdate_set_jd(&custom_day_h, temp_jd);
 				if ((custom_nth==5) && ( custom_month != custom_day_h.gd_mon)) continue;
 			}
 			// perform adjustments and verify (again!?!)
@@ -718,15 +737,15 @@ int read_custom_days_file(
 				(custom_day_of_week < 1) || (custom_day_of_week > 7) )
 				continue;
 			hdate_set_hdate( &custom_day_h, 1, custom_month, range_start.hd_year);
-			custom_day_jd = custom_day_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - custom_day_h.hd_dw);
-			hdate_set_jd(&custom_day_h, custom_day_jd);
+			temp_jd = custom_day_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - custom_day_h.hd_dw);
+			hdate_set_jd(&custom_day_h, temp_jd);
 			if ((custom_nth==5) && ( custom_month != custom_day_h.hd_mon))
 			{
 				if ( (!d_todo) && (y_todo <= HDATE_HEB_YR_LOWER_BOUND) && (y_todo != custom_day_h.gd_year) )
 				{
 					hdate_set_hdate( &custom_day_h, 1, custom_month, range_start.hd_year+1);
-					custom_day_jd = custom_day_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - custom_day_h.hd_dw);
-					hdate_set_jd(&custom_day_h, custom_day_jd);
+					temp_jd = custom_day_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - custom_day_h.hd_dw);
+					hdate_set_jd(&custom_day_h, temp_jd);
 					if ((custom_nth==5) && ( custom_month != custom_day_h.hd_mon)) continue;
 				}
 				else continue;
@@ -734,16 +753,16 @@ int read_custom_days_file(
 			else if ( (!d_todo) && (y_todo <= HDATE_HEB_YR_LOWER_BOUND) && (y_todo != custom_day_h.gd_year) )
 			{
 				hdate_set_hdate( &custom_day_h, 1, custom_month, range_start.hd_year+1);
-				custom_day_jd = custom_day_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - custom_day_h.hd_dw);
-				hdate_set_jd(&custom_day_h, custom_day_jd);
+				temp_jd = custom_day_h.hd_jd + ((custom_nth-1) * 7) + (custom_day_of_week - custom_day_h.hd_dw);
+				hdate_set_jd(&custom_day_h, temp_jd);
 				if ((custom_nth==5) && ( custom_month != custom_day_h.hd_mon)) continue;
 			}
 			// perform adjustments and verify (again!?!)
 			break;
 		default:
-			// report system error; possibly intentionally crash
+			error(0,0,"%s: %c %s %d",N_("internal error: illegal custom day type"),custom_day_type, N_("at line number"), line_count);
 			break;
-		}
+		} /// end switch ( custom_day_type )
 
 		/************************************************************
 		* At this point, we have computed the jd of the occurrence
@@ -761,12 +780,12 @@ int read_custom_days_file(
 		if (d_todo)
 		{
 			/// interval is a single day
-			if (custom_day_jd != range_start.hd_jd) continue;
+			if (custom_day_h.hd_jd != range_start.hd_jd) continue;
 		}
 		else
 		{
 			/// our custom_day is too early
-			if (custom_day_jd < range_start.hd_jd) continue;
+			if (custom_day_h.hd_jd < range_start.hd_jd) continue;
 
 			if (m_todo)
 			{
@@ -831,7 +850,7 @@ int read_custom_days_file(
 		}
 
 		/// store the custom_day's jdn
-		*jdn_entry = custom_day_jd;
+		*jdn_entry = custom_day_h.hd_jd;
 		jdn_entry = jdn_entry + 1;
 
 		/// manage 'text string' target buffer size
@@ -884,11 +903,9 @@ int get_custom_days_file( const char* config_dir,
 						  const int quiet_alerts,
 						  FILE** custom_file )
 {
-	// FIXME - create an option for both hcal/hdate to allow a custom path for this file
-	//         pass the default FULL path or the custom FULL path to read_custom_days_file
-	//         and let THAT function open and close the file
-
-
+	// TODO - create an option for both hcal/hdate to allow a custom path for this file
+	//        pass the default FULL path or the custom FULL path to read_custom_days_file
+	//        and let THAT function open and close the file
 	*custom_file = NULL;
 	char *custom_file_path = NULL;
 	char *last_slash_location = NULL;
