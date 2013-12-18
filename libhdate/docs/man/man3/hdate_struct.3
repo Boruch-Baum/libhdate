@@ -45,7 +45,23 @@ int \fBhd_day\fP
 The day in the Hebrew month (1..30)
 .TP
 int \fBhd_mon\fP
-The number of the Hebrew month (1...14), where 1 is Tishrei, Adar_I is 13, and Adar_II is 14
+The number of the Hebrew month (1...14)
+.br
+.B "   number  month      number  month"
+.br
+     1     Tishrei      8     Iyyar
+.br
+     2     Cheshvan     9     Sivan
+.br
+     3     Kislev      10     Tammuz
+.br
+     4     Tevet       11     Av
+.br
+     5     Shevat      12     Ellul
+.br
+     6     Adar        13     Adar_I
+.br
+     7     Nissan      14     Adar_II
 .TP
 int \fBhd_year\fP
 The number of the Hebrew year. 
@@ -90,9 +106,13 @@ The number of days since the Hebrew New Year (1 Tishrei)
 .TP
 int \fBhd_weeks\fP
 The number of weeks since the Hebrew New Year (1 Tishrei)
-.SH "Author"
+.SH "SEE ALSO"
+.BR libhdate "(3), " hcal "(1), " hdate  "(1)"
+.SH "Authors"
 .PP 
-Boruch Baum, 2013.
+For libhdate: Boruch Baum 2011-2013, Yaacov Zamir 2005-2010.
+
+For this documentation: Boruch Baum, 2013.
 .PP
 project home page: http://libhdate.sourceforge.net
 .PP

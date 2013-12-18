@@ -2510,16 +2510,19 @@ int parameter_parser( int switch_arg, option_list *opt,
 			if (optarg == NULL) opt->candles = 1;
 			else
 			{
+				// BUG - Does not support numbers with leading zeros,
+				//       which could be valid in range
+				//       (eg. 0022 for 22 minutes
 				if (fnmatch( "[[:digit:]]?([[:digit:]])", optarg, FNM_EXTMATCH) == 0)
-				{
 					opt->candles = atoi(optarg);
-					if 	( (opt->candles < MIN_CANDLES_MINUTES) ||
-						(opt->candles > MAX_CANDLES_MINUTES) )
-					{
-						print_parm_error("--candles"); // do not gettext!
-						error_detected++;
-						break;
-					}
+				/// explanation: if the parse fails, then opt->candles must be
+				/// zero, which will be out of bounds
+				if 	( (opt->candles < MIN_CANDLES_MINUTES) ||
+					  (opt->candles > MAX_CANDLES_MINUTES) )
+				{
+					print_parm_error("--candles"); // do not gettext!
+					error_detected++;
+					break;
 				}
 			}
 			opt->time_option_requested = TRUE;
@@ -2528,16 +2531,19 @@ int parameter_parser( int switch_arg, option_list *opt,
 			if (optarg == NULL) opt->havdalah = 1;
 			else
 			{
+				// BUG - Does not support numbers with leading zeros,
+				//       which could be valid in range
+				//       (eg. 0022 for 22 minutes
 				if (fnmatch( "[[:digit:]]?([[:digit:]])", optarg, FNM_EXTMATCH) == 0)
-				{
 					opt->havdalah = atoi(optarg);
-					if 	( (opt->havdalah < MIN_MOTZASH_MINUTES) ||
-						(opt->havdalah > MAX_MOTZASH_MINUTES) ) break;
-					{
-						print_parm_error("--havdalah"); // do not gettext!
-						error_detected++;
-						break;
-					}
+				/// explanation: if the parse fails, then opt->candles must be
+				/// zero, which will be out of bounds
+				if 	( (opt->havdalah < MIN_MOTZASH_MINUTES) ||
+					  (opt->havdalah > MAX_MOTZASH_MINUTES) )
+				{
+					print_parm_error("--havdalah"); // do not gettext!
+					error_detected++;
+					break;
 				}
 			}
 			opt->time_option_requested = TRUE;
@@ -2609,18 +2615,19 @@ int parameter_parser( int switch_arg, option_list *opt,
 	case 'b': opt->bidi = 1; opt->hebrew = 1; break;
 	case 'd': opt->diaspora = 1; break;
 	case 'e': opt->emesh = TRUE; break;
-	case 'E':
-			if (optarg == NULL) opt->print_epoch = TRUE;
-			else error_detected = error_detected +
+	case 'E': if (optarg == NULL) opt->print_epoch = TRUE;
+			  else error_detected = error_detected +
 							parse_epoch_value( optarg, &opt->epoch_today, &opt->epoch_parm_received );
-			break;
+			  break;
 	case 'H': opt->only_if_holiday = 1; /// There is no break here, because -H implies -h
 	case 'h': opt->holidays = 1; break;
 	case 'i': opt->iCal = 1; break;
 	case 'j': opt->julian = 1; break;
-	case 'q': opt->quiet = opt->quiet + 1; break;
+	case 'q': if (opt->quiet < 4) opt->quiet = opt->quiet + 1;
+			  break;
 	case 'm': opt->menu = 1; break;
-	case 'o': opt->omer = opt->omer + 1; break;
+	case 'o': if (opt->omer < 3) opt->omer = opt->omer + 1;
+			  break;
 	case 'R': opt->only_if_parasha = 1; /// There is no break here, because -R implies -r
 	case 'r': opt->parasha = 1; break;
 	case 'S': opt->short_format = 1; break;
@@ -2630,15 +2637,16 @@ int parameter_parser( int switch_arg, option_list *opt,
 			  if (opt->havdalah == 0) opt->havdalah = 1;
 			  opt->time_option_requested = TRUE;
 			  break;
-	case 't': opt->times = opt->times + 1; opt->time_option_requested = TRUE; break;
+	case 't': if (opt->times < 3) opt->times = opt->times + 1;
+			  opt->time_option_requested = TRUE;
+			  break;
 	case 'T': opt->tablular_output = 1; break;
-	case 'l':
-		error_detected = error_detected + parse_coordinate(1, optarg, &opt->lat);
-		break;
-	case 'L':
-		error_detected = error_detected + parse_coordinate(2, optarg, &opt->lon);
-		break;
-	case 'v': opt->afikomen = opt->afikomen + 1; break;
+	case 'l': error_detected = error_detected + parse_coordinate(1, optarg, &opt->lat);
+			  break;
+	case 'L': error_detected = error_detected + parse_coordinate(2, optarg, &opt->lon);
+			  break;
+	case 'v': if (opt->afikomen < 9) opt->afikomen = opt->afikomen + 1;
+			  break;
 	case 'z':
 		/***************************************************************
 		* 
@@ -2918,7 +2926,6 @@ int main (int argc, char *argv[])
 	/// undocumented feature - afikomen
 	if (opt.afikomen)
 	{
-		if (opt.afikomen > 9) opt.afikomen = 9;
 		printf("%s\n", afikomen[opt.afikomen-1]);
 		exit(0);
 	}

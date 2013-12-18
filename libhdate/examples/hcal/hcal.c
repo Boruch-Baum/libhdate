@@ -2235,28 +2235,38 @@ int hcal_parser( const int switch_arg, option_list *opt,
 			if ( (optarg == NULL) && (opt->candles == 0) ) opt->candles = 1;
 			else
 			{
+				// BUG - Does not support numbers with leading zeros,
+				//       which could be valid in range
+				//       (eg. 0022 for 22 minutes
 				if (fnmatch( "[[:digit:]]?([[:digit:]])", optarg, FNM_EXTMATCH) == 0)
-				{
 					opt->candles = atoi(optarg);
-					if 	( (opt->candles >= MIN_CANDLES_MINUTES) &&
-						(opt->candles <= MAX_CANDLES_MINUTES) ) break;
+				/// explanation: if the parse fails, then opt->candles must be
+				/// zero, which will be out of bounds
+				if 	( (opt->candles < MIN_CANDLES_MINUTES) ||
+					  (opt->candles > MAX_CANDLES_MINUTES) )
+				{
+					print_parm_error("--candles");
+					error_detected++;
 				}
-				print_parm_error("--candles");
-				error_detected++;
 			}
 			break;
 /** --havdalah */	case 25:
 			if ( (optarg == NULL) && (opt->havdalah == 0) ) opt->havdalah = 1;
 			else
 			{
+				// BUG - Does not support numbers with leading zeros,
+				//       which could be valid in range
+				//       (eg. 0022 for 22 minutes
 				if (fnmatch( "[[:digit:]]?([[:digit:]])", optarg, FNM_EXTMATCH) == 0)
-				{
 					opt->havdalah = atoi(optarg);
-					if 	( (opt->havdalah >= MIN_MOTZASH_MINUTES) &&
-						(opt->havdalah <= MAX_MOTZASH_MINUTES) ) break;
+				/// explanation: if the parse fails, then opt->candles must be
+				/// zero, which will be out of bounds
+				if 	( (opt->havdalah < MIN_MOTZASH_MINUTES) ||
+					  (opt->havdalah > MAX_MOTZASH_MINUTES) )
+				{
+					print_parm_error("--havdalah");
+					error_detected++;
 				}
-				print_parm_error("--havdalah");
-				error_detected++;
 			}
 			break;
 /** --spacing */			case 26: opt->spacing = optarg; break;
@@ -2279,10 +2289,15 @@ int hcal_parser( const int switch_arg, option_list *opt,
 	case '3': opt->three_month = 1; break;
 	case 'b': opt->bidi = 1; opt->force_hebrew = 1; break;
 	case 'B': opt->bold = 1; opt->colorize = 0; break;
-	case 'c': opt->colorize = opt->colorize + 1; opt->bold = 0; break;
+	case 'c':
+		if (opt->colorize < 2) opt->colorize = opt->colorize + 1;
+		opt->bold = 0;
+		break;
 	case 'd': opt->diaspora = 1; break;
 	case 'f': opt->footnote = 1; break;
-	case 'g': opt->gregorian = opt->gregorian + 1; break;
+	case 'g':
+		if (opt->gregorian < 2) opt->gregorian = opt->gregorian + 1;
+		break;
 	case 'h': opt->html = 1;
 		// TODO - give this parameter an option argument 'filename'
 		//        to use for output instead of stdout	
