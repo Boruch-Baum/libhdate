@@ -1,4 +1,39 @@
+custom_days.c
+- BUGFIX account for adjustments causing custom days to cross year boundaries
 
+hdate.c
+- BUGFIX custom_days respects -qqq option
+- BUGFIX holidays display in hebrew and bidi
+- BUGFIX custom days display in hebrew and bidi
+- BUGFIX tabular holidays display in hebrew and bidi
+- BUGFIX tabular custom days display in hebrew and bidi
+- BUGFIX parasha display in hebrew and bidi
+- BUGFIX parasha display data-first or label-first
+- BUGFIX apostrophe for Shabbat prefix "yom sh"
+- BUGFIX omer labels and english for -ooo
+- BUGFIX omer -o display in hebrew and bidi
+- BUGFIX all data labels convert spaces to underscores
+- BUGFIX daf yomi masechtaot convert spaces to underscores
+- BUGFIX omer convert spaces to underscores
+
+hcal.c
+- BUGFIX footnotes properly display in -gg mode
+
+hdate_strings.c
+- BUGFIX convert spaces to underscores (eg. אדר א, כי תשא)
+
+he.po
+- performed make update-po
+- added and corrected many translations
+----------------------------------------------------------------------------
+hcal.c
+- limits check for options -c -g --candles --havdalah
+
+hdate.c
+- limits check for options -q -t -o -v --candles --havdalah
+
+libhdate.3
+- continue transition from doxygen
 
 ----------------------------------------------------------------------------
 hdate.c

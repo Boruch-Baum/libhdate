@@ -6,7 +6,7 @@
  * compile:
  * gcc `pkg-config --libs --cflags libhdate` custom_days.c -o custom_days
  *
- * Copyright:  2012-2013 (c) Boruch Baum
+ * Copyright:  2012-2014 (c) Boruch Baum  <boruch-baum@users.sourceforge.net>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -330,6 +330,7 @@ int read_custom_days_file(
 	int		number_of_items = 0;
 
 	int		leap_adj = 0;
+	int		year_bound_adj = 0;
 	char	custom_day_type = '\0'; /// H, G, h, g
 	#define CUSTOM_SYMBOL_LEN 1
 	char	custom_symbol[2] = {'\0','\0'}; /// single char, and string delimiter
@@ -373,11 +374,8 @@ int read_custom_days_file(
 	#define WHEN_DAY_4   3
 	#define WHEN_DAY_5   4
 	int adj[7] = {0,0,0,0,0,0,0};
-
 	int temp_jd;
-	hdate_struct custom_day_h,
-				 range_end;
-
+	hdate_struct custom_day_h;
 	char* print_ptr = NULL;
 	size_t print_len;
 	int* new_jdn_list_ptr = NULL;
@@ -556,9 +554,15 @@ int read_custom_days_file(
 		} /// end switch ( custom_day_type )
 
 
-		/// These are easy checks to eliminate ALMOST all custom
-		/// days for which the the custom day will be out of bounds
-		/// The bit operation on custom_day_type 
+		/************************************************************
+		* Perform the relatively easy checks to eliminate ALMOST all
+		* the cases of custom days being out of bounds.
+		************************************************************/
+		//* 
+		//* The more difficult cases are those in which a custom day's
+		//* 'adjustments' will make it cross over a year boundary.
+		/************************************************************/
+		/// The bit operation on custom_day_type
 		/// is to make g==G and h==H
 		if (calendar_type == (custom_day_type & 0xdf) )
 		{
@@ -626,7 +630,15 @@ int read_custom_days_file(
 					(!validate_hdate(CHECK_DAY_PARM, custom_day_of_month, custom_month, range_start.gd_year, TRUE, &range_start)         )  )
 					continue;
 			}
-			hdate_set_gdate( &custom_day_h, custom_day_of_month + leap_adj, custom_month, range_start.gd_year);
+			/// deal with cases where an adjustment causes a date to cross between December and January
+			year_bound_adj = 0;
+			if (!d_todo)
+			{
+				if      ((m_todo == 12) && (custom_month ==  1)) year_bound_adj =  1;
+				else if ((m_todo ==  1) && (custom_month == 12)) year_bound_adj = -1;
+			}
+
+			hdate_set_gdate( &custom_day_h, custom_day_of_month + leap_adj, custom_month, range_start.gd_year + year_bound_adj);
 			if (adj[custom_day_h.hd_dw-1])
 			{
 				temp_jd = custom_day_h.hd_jd + adj[custom_day_h.hd_dw-1];
@@ -687,7 +699,15 @@ int read_custom_days_file(
 					(!validate_hdate(CHECK_DAY_PARM, custom_day_of_month, custom_month, range_start.hd_year, TRUE, &range_start)         )  )
 					continue;
 			}
-			hdate_set_hdate( &custom_day_h, custom_day_of_month + leap_adj, custom_month, range_start.hd_year);
+			/// deal with cases where an adjustment causes a date to cross between Ellul and Tishrei
+			year_bound_adj = 0;
+			if (!d_todo)
+			{
+				if      ((m_todo == 12) && (custom_month ==  1)) year_bound_adj =  1;
+				else if ((m_todo ==  1) && (custom_month == 12)) year_bound_adj = -1;
+			}
+
+			hdate_set_hdate( &custom_day_h, custom_day_of_month + leap_adj, custom_month, range_start.hd_year + year_bound_adj);
 			if (adj[custom_day_h.hd_dw-1])
 			{
 				temp_jd = custom_day_h.hd_jd + adj[custom_day_h.hd_dw-1];
@@ -890,6 +910,9 @@ int read_custom_days_file(
 		number_of_items++;
 	}
 	free_my_mallocs();
+
+	// debug routine
+	// test_print_custom_days(number_of_items, *jdn_list_ptr, *string_list_ptr);
 	return number_of_items;
 }
 

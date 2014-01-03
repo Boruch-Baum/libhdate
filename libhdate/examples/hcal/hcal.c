@@ -4,7 +4,7 @@
  * compile:
  * gcc `pkg-config --libs --cflags libhdate` hcal.c -o hcal
  *
- *  Copyright (C) 2011-2013 Boruch Baum  <boruch-baum@users.sourceforge.net>
+ *  Copyright (C) 2011-2014 Boruch Baum  <boruch-baum@users.sourceforge.net>
  *                2004-2010 Yaacov Zamir <kzamir@walla.co.il>
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -1892,7 +1892,7 @@ int print_month ( const int month, const int year, option_list* opt)
 	{
 		jd_counter = h.hd_jd;
 		if (opt->gregorian < 2) footnote_month = h.hd_mon;
-		else footnote_month = month;
+		else footnote_month = h.gd_mon;  // bugfix: was = month -  but CHECK THIS for accuracy !
 		while ( ( (opt->gregorian > 1) && (footnote_month == h.gd_mon ) ) ||
 				( (opt->gregorian < 2) && (footnote_month == h.hd_mon ) )  )
 		{

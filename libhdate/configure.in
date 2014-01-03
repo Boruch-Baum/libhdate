@@ -259,7 +259,7 @@ dnl gettext
 dnl Languages which your application supports
 ALL_LINGUAS="he es_MX ru fr sv"
 AM_GNU_GETTEXT([external])
-AM_GNU_GETTEXT_VERSION([0.18.1])
+AM_GNU_GETTEXT_VERSION([0.18.3])
 
 if test "$DATADIRNAME" = ""; then
    DATADIRNAME="share"
@@ -289,7 +289,7 @@ AC_SUBST(LIBS)
 
 dnl =======================================================================================
 
-AC_OUTPUT([
+AC_OUTPUT([ po/Makefile.in
 Makefile
 libhdate.pc
 po/Makefile.in

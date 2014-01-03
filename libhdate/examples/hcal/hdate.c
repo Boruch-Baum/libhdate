@@ -1,7 +1,7 @@
 /** hdate.c            http://libhdate.sourceforge.net
  * Hebrew date/times information (part of package libhdate)
  *
- *  Copyright (C) 2011-2013 Boruch Baum  <boruch-baum@users.sourceforge.net>
+ *  Copyright (C) 2011-2014 Boruch Baum  <boruch-baum@users.sourceforge.net>
  *                2004-2010 Yaacov Zamir <kzamir@walla.co.il>
  *
  * compile:
@@ -89,8 +89,9 @@ static char * havdalah_text = N_("havdalah");
 static char * daf_yomi_text = N_("daf_yomi");
 static char * omer_text = N_("omer");
 static char * parasha_text = N_("parasha");
-static char * holiday_text = N_("holiday");
-static char * custom_day_text = N_("today is also");
+static char * holiday_text = N_("holiday_today");
+static char * holiday_tabular_text = N_("holiday");
+static char * custom_day_text = N_("today_is_also");
 static char * custom_day_tabular_text = N_("custom_day");
 //  Decided to limit range of dates
 // static char * creation_year_text = N_("Creation Year");
@@ -331,10 +332,10 @@ static const limud_unit daf_yomi[] = {
 { 464,  87, N_("Yoma"), "יומא" },
 { 551,  55, N_("Sukkah"), "סוכה" },
 { 606,  39, N_("Beitzah"), "ביצה" },
-{ 645,  34, N_("Rosh_HaShannah"), "ראש השנה" },
+{ 645,  34, N_("Rosh_HaShannah"), "ראש_השנה" },
 { 679,  30, N_("Taanit"), "תענית" },
 { 709,  31, N_("Megillah"), "מגילה" },
-{ 740,  28, N_("Moed_Katan"), "מועד קטן" },
+{ 740,  28, N_("Moed_Katan"), "מועד_קטן" },
 { 768,  26, N_("Chagigah"), "חגיגה" },
 { 794, 121, N_("Yevamot"), "יבמות" },
 { 915, 111, N_("Ketubot"), "כתובות" },
@@ -343,13 +344,13 @@ static const limud_unit daf_yomi[] = {
 {1181,  48, N_("Sotah"), "סוטה" },
 {1229,  89, N_("Gittin"), "גיטין" },
 {1318,  81, N_("Kiddushin"), "קידושין" },
-{1399, 118, N_("Bava_Kamma"), "בבא קמא" },
-{1517, 118, N_("Bava_Metzia"), "בבא מציעא" },
-{1635, 175, N_("Bava_Batra"), "בבא בתרא" },
+{1399, 118, N_("Bava_Kamma"), "בבא_קמא" },
+{1517, 118, N_("Bava_Metzia"), "בבא_מציעא" },
+{1635, 175, N_("Bava_Batra"), "בבא_בתרא" },
 {1810, 112, N_("Sanhedrin"), "סנהדרין" },
 {1922,  23, N_("Makkot"), "מכות" },
 {1945,  48, N_("Shevuot"), "שבועות" },
-{1993,  75, N_("Avodah_Zara"), "עבודה זרה" },
+{1993,  75, N_("Avodah_Zara"), "עבודה_זרה" },
 {2068,  13, N_("Horayot"), "הוריות" },
 {2081, 119, N_("Zevachim"), "זבחים" },
 {2200, 109, N_("Menachot"), "מנחות" },
@@ -359,9 +360,9 @@ static const limud_unit daf_yomi[] = {
 {2543,  33, N_("Temurah"), "תמורה" },
 {2576,  27, N_("Keritut"), "כריתות" },
 {2603,  20, N_("Meilah"), "מעילה" },
-{2623,   1, N_("Meilah-Kinnim"), "מעילה - קינים" },
+{2623,   1, N_("Meilah-Kinnim"), "מעילה_-_קינים" },
 {2625,   2, N_("Kinnim"), "קינים" },
-{2626,   1, N_("Kinnim-Tamid"), "קינים - תמיד" },
+{2626,   1, N_("Kinnim-Tamid"), "קינים_-_תמיד" },
 {2627,   8, N_("Tamid"), "תמיד" },
 {2635,   4, N_("Middot"), "מדות" },
 {2639,  72, N_("Niddah"), "נדה" },
@@ -743,15 +744,6 @@ int print_date (hdate_struct* h, hdate_struct* tomorrow, const option_list* opt)
 	hday_int_str = hdate_string(HDATE_STRING_INT, h->hd_day, HDATE_STRING_LONG, opt->hebrew);
 	hyear_int_str = hdate_string(HDATE_STRING_INT, h->hd_year, HDATE_STRING_LONG, opt->hebrew);
 
-/*
-#ifdef ENABLE_NLS
-	locale = setlocale (LC_MESSAGES, NULL);
-	language = getenv ("LANGUAGE");
-#else
-	locale = NULL;
-	language = NULL;
-#endif
-*/
 
 	/************************************************************
 	* preliminary - if it's after sunset, it's tomorrow already
@@ -781,8 +773,16 @@ int print_date (hdate_struct* h, hdate_struct* tomorrow, const option_list* opt)
 		if (opt->yom)
 		{
 			if ( !((opt->print_tomorrow) && (h->hd_dw==6))) for_day_of_h="יום";
-			if  ( ((h->hd_dw!=7) || ((h->hd_dw==7) && (opt->print_tomorrow))) &&
-				( !((opt->print_tomorrow) && (h->hd_dw==6))) ) apostrophe = "'";
+// This version does not put an apostrophe on shabbat
+// - good if we are not abbreviating days of the week, but we are
+//			if  ( ((h->hd_dw!=7) || ((h->hd_dw==7) && (opt->print_tomorrow))) &&
+//				( !((opt->print_tomorrow) && (h->hd_dw==6))) ) apostrophe = "'";
+//
+// This version does put an apostrophe on shabbat
+// - good if we are abbreviating shabbat as a single letter
+//   but the single letter we are using is Shin, not Zayin, which seems weird
+//			if ( !((opt->print_tomorrow) && (h->hd_dw==6))) apostrophe = "'";
+			if ( !((opt->print_tomorrow) && (h->hd_dw==6))) apostrophe = "'";
 			if ((h->hd_dw==6) && (opt->print_tomorrow)) h_dow_form = HDATE_STRING_LONG;
 			psik_mark=",";
 
@@ -947,10 +947,9 @@ int print_date (hdate_struct* h, hdate_struct* tomorrow, const option_list* opt)
 		if (hebrew_buffer1_len > 0) free(hebrew_buffer1);
 		if (hebrew_buffer2_len > 0) free(hebrew_buffer2);
 		if (hebrew_buffer3_len > 0) free(hebrew_buffer3);
-		free(hebrew_buffer4);
-		free(hebrew_buffer);
+		if (hebrew_buffer4 != NULL) free(hebrew_buffer4);
+		if (hebrew_buffer  != NULL) free(hebrew_buffer);
 	}
-
 
 	/************************************************************
 	* CLEANUP - free allocated memory
@@ -1163,31 +1162,44 @@ int print_times ( hdate_struct * h, option_list* opt, const int holiday)
 int print_omer (hdate_struct * h, const option_list* opt)
 {
 	int omer_day;
+	char* omer_int_str;
+	char* bidi_buffer;
+	size_t bidi_buffer_len;
 	char* empty_text = "";
 	char* days_text = N_("days");
-	char* in_the_omer_text = N_("in the omer");
-	char* today_is_day_text = N_("today is day");
+	char* in_the_omer_text = N_("in_the_omer");
+	char* today_is_day_text = N_("today_is_day");
 
 	omer_day = hdate_get_omer_day(h);
 	if (omer_day == 0) 	return DATA_WAS_NOT_PRINTED;
 
-	if (opt->omer == 1) /// short format; just the numeric value
+	if ((!opt->data_first) && (opt->quiet < QUIET_DESCRIPTIONS)) 
+		printf ("%s: ", omer_text);
+
+	/// short format; just the numeric value
+	if (opt->omer == 1)
 	{
-		if (opt->quiet >= QUIET_DESCRIPTIONS) printf ("%d\n", omer_day);
+		if (!opt->hebrew) printf ("%5d", omer_day);
 		else
 		{
-			if (opt->data_first) printf ("   %d %s\n", omer_day, omer_text);
-			else printf ("%s: %d\n", omer_text, omer_day);
+			omer_int_str = hdate_string(HDATE_STRING_INT, omer_day, HDATE_STRING_LONG, HDATE_STRING_HEBREW);
+			if (!opt->bidi) printf("  %*s", (strlen(omer_int_str)==5?5:4), omer_int_str);
+			else
+			{
+				bidi_buffer_len = asprintf (&bidi_buffer, "%s",	omer_int_str);
+				revstr(bidi_buffer, bidi_buffer_len);
+				printf("  %*s", (int)(bidi_buffer_len==5?5:4), bidi_buffer);
+				free(bidi_buffer);
+			}
+			free(omer_int_str);
 		}
 	}
-	else if (opt->omer == 2) /// short text format
+
+	/// short text format
+	else if (opt->omer == 2)
 	{
-		if (opt->data_first)
-		{
-			if (omer_day == 1) days_text = day_text;
-			printf ("   %2d %s %s\n", omer_day, day_text, in_the_omer_text);
-		}
-		else printf ("%s %d %s \n", today_is_day_text, omer_day, in_the_omer_text);
+		if (omer_day == 1) days_text = day_text;
+		printf ("%2d_%s_%s", omer_day, days_text, in_the_omer_text);
 	}
 	else /// long text format
 	{
@@ -1197,13 +1209,13 @@ int print_omer (hdate_struct * h, const option_list* opt)
 			/// Let's try to construct all the options
 			/// for this Hebrew sentence as atoms
 			/// for a single call to asprintf ....
-			char* hayom = "היום ";
+			char* hayom = "היום_";
 			char* yom = "";
 			char* days = "";
-			char* that_are = "שהם ";
+			char* that_are = "שהם_";
 			char* weeks = "שבועות";
-			char* vav = " ו";
-			char* days2 = "ימים, ";
+			char* vav = "_ו";
+			char* days2 = "ימים,_";
 			char* b_l_omer = "בעומר";
 			
 			char* n1 = NULL;
@@ -1212,20 +1224,17 @@ int print_omer (hdate_struct * h, const option_list* opt)
 			
 			int n2_needs_free = FALSE;
 			int n3_needs_free = FALSE;
-			
-			char* bidi_buffer;
-			int bidi_buffer_len;
 
 			if (opt->la_omer) b_l_omer = "לעומר";
 
 			n1 = hdate_string(HDATE_STRING_OMER, omer_day, HDATE_STRING_LONG, HDATE_STRING_HEBREW);
 			
-			if (omer_day == 1) yom = "יום ";
+			if (omer_day == 1) yom = "יום_";
 			else
 			{
-				if (omer_day > 10) days = "יום, ";
-				else if (omer_day > 6) days = "ימים, ";
-				else days = "ימים ";
+				if (omer_day > 10) days = "יום,_";
+				else if (omer_day > 6) days = "ימים,_";
+				else days = "ימים_";
 			}
 
 			if  (omer_day < 7)
@@ -1241,7 +1250,7 @@ int print_omer (hdate_struct * h, const option_list* opt)
 			{
 				if (omer_day < 14)
 				{
-					weeks = "שבוע אחד";
+					weeks = "שבוע_אחד";
 					n2 = empty_text;
 				}
 				else
@@ -1252,7 +1261,7 @@ int print_omer (hdate_struct * h, const option_list* opt)
 
 				if (omer_day%7 == 0)
 				{
-					vav = ", ";
+					vav = ",_";
 					days2 = empty_text;
 					n3 = empty_text;
 				}
@@ -1260,7 +1269,7 @@ int print_omer (hdate_struct * h, const option_list* opt)
 				{
 					if (omer_day%7 == 1)
 					{
-						vav = " ויום אחד, ";
+						vav = "_ויום_אחד,_";
 						days2 = empty_text;
 						n3 = empty_text;
 					}
@@ -1276,8 +1285,7 @@ int print_omer (hdate_struct * h, const option_list* opt)
 				hayom, yom,	n1,	days, that_are,	n2,	weeks, vav,	n3,	days2, b_l_omer);
 			
 			if (opt->bidi) revstr(bidi_buffer, bidi_buffer_len);
-			
-			printf("%s\n", bidi_buffer);
+			printf("%s", bidi_buffer);
 			
 			if (n1 != NULL) free(n1);
 			if (n2_needs_free && (n2 != NULL)) free(n2);
@@ -1287,32 +1295,33 @@ int print_omer (hdate_struct * h, const option_list* opt)
 		else /// !opt->hebrew
 		{
 			if (omer_day == 1) printf ("%s ", today_is_day_text);
-			else printf ("%s ", N_("today is"));
+			else printf ("%s_", N_("today_is"));
 
 			printf("%d",omer_day);
 
-			if (omer_day > 1) printf(" %s", days_text);
+			if (omer_day > 1) printf("_%s", days_text);
 
 			if (omer_day > 6)
 			{
-				printf("%s %d ", N_(", which is"),omer_day/7);
+				printf("%s_%d_", N_(",_which_is"),omer_day/7);
 
 				if (omer_day < 14) printf ("%s", N_("week"));
 				else printf("%s", N_("weeks"));
 	
 				if (omer_day%7 != 0)
 				{
-					printf (" %s %d", N_("and"), omer_day%7);
+					printf ("_%s_%d", N_("and"), omer_day%7);
 					if (omer_day%7 != 1) printf (" %s",	days_text);
-					else printf (" %s",	day_text);
+					else printf ("_%s",	day_text);
 				}
-	
 				printf("%s", N_(","));
 			}
-
-		printf(" %s\n", in_the_omer_text);
+			printf("_%s", in_the_omer_text);
 		}
 	}
+	if ((opt->data_first) && (opt->quiet < QUIET_DESCRIPTIONS))
+		printf (" %s", omer_text);
+	printf("\n");
 	return DATA_WAS_PRINTED;
 }
 
@@ -1384,7 +1393,7 @@ void print_tabular_header( const option_list* opt)
 	if (opt->daf_yomi) printf(",%s",daf_yomi_text);
 	if (opt->omer) printf(",%s",omer_text);
 	if (opt->parasha) printf(",%s", parasha_text);
-	if (opt->holidays) printf(",%s", holiday_text);
+	if (opt->holidays) printf(",%s", holiday_tabular_text);
 	if ((opt->holidays) && (opt->custom_days_cnt)) printf(";%s", custom_day_tabular_text);
 	printf("\n");
 return;
@@ -1687,16 +1696,27 @@ int print_day_tabular (hdate_struct* h, option_list* opt)
 						hdate_string( HDATE_STRING_PARASHA, parasha, opt->short_format, opt->hebrew));
 				revstr(hebrew_buffer, hebrew_buffer_len);
 				printf (",%s", hebrew_buffer);
-				if (hebrew_buffer != NULL) free(hebrew_buffer);
+				free(hebrew_buffer);
 			}
 		}
 		else printf(",");
 	}
 
 	if (opt->holidays)
-	// TODO - bidi ?? check out logic for opt->parasha, above
 	{
-		if (holiday) printf(",%s", hdate_string( HDATE_STRING_HOLIDAY, holiday, opt->short_format, opt->hebrew));
+		if (holiday)
+		{
+			if (!opt->bidi)
+				printf(",%s", hdate_string( HDATE_STRING_HOLIDAY, holiday, opt->short_format, opt->hebrew));
+			else
+			{
+				hebrew_buffer_len =	asprintf (&hebrew_buffer, "%s",
+									hdate_string( HDATE_STRING_HOLIDAY, holiday, opt->short_format, opt->hebrew));
+				revstr(hebrew_buffer, hebrew_buffer_len);
+				printf (",%s", hebrew_buffer);
+				free(hebrew_buffer);
+			}
+		}
 		else printf (",");
 
 		// TODO - I could shrink the jdn_list array upon finding a match. This would require a
@@ -1709,7 +1729,18 @@ int print_day_tabular (hdate_struct* h, option_list* opt)
 			for (i=0; i<opt->custom_days_cnt; i++)
 			{
 				if (h->hd_jd == *jdn_list_ptr)
-					printf(";%s", get_custom_day_text_ptr(i, opt->string_list_ptr));
+				{
+					if (!opt->bidi)
+						printf(";%s", get_custom_day_text_ptr(i, opt->string_list_ptr));
+					else
+					{
+						hebrew_buffer_len =	asprintf (&hebrew_buffer, "%s",
+											get_custom_day_text_ptr(i, opt->string_list_ptr));
+						revstr(hebrew_buffer, hebrew_buffer_len);
+						printf (";%s", hebrew_buffer);
+						free(hebrew_buffer);
+					}
+				}
 				else jdn_list_ptr = jdn_list_ptr + 1;
 			}
 		}
@@ -1733,6 +1764,8 @@ int print_day (hdate_struct * h, option_list* opt)
 
 	time_t t;
 	hdate_struct tomorrow;
+	char *hebrew_buffer = NULL;		/// for bidi (revstr)
+	size_t hebrew_buffer_len = 0;	/// for bidi (revstr)
 
 	int iCal_uid_counter = 0;
 	int data_printed = 0;
@@ -1808,11 +1841,17 @@ int print_day (hdate_struct * h, option_list* opt)
 	{
 		if (holiday)
 		{
-			if (opt->quiet < QUIET_DESCRIPTIONS) printf ("%s: ", N_("holiday_today"));
-//			TODO - allow option to force hebrew here; This is not trivial as it entails bidi
-//					when the locale for the label is LTR.
-//			printf ("%s\n",	hdate_string( HDATE_STRING_HOLIDAY, holiday, opt->short_format, opt->hebrew));
-			printf ("%s\n",	hdate_string( HDATE_STRING_HOLIDAY, holiday, opt->short_format, 0));
+			if (opt->quiet < QUIET_DESCRIPTIONS) printf ("%s: ", holiday_text);
+			if (!opt->bidi)
+				printf ("%s\n",	hdate_string( HDATE_STRING_HOLIDAY, holiday, opt->short_format, opt->hebrew));
+			else
+			{
+				hebrew_buffer_len =	asprintf (&hebrew_buffer, "%s",
+									hdate_string( HDATE_STRING_HOLIDAY, holiday, opt->short_format, opt->hebrew));
+				revstr(hebrew_buffer, hebrew_buffer_len);
+				printf ("%s\n", hebrew_buffer);
+				free(hebrew_buffer);
+			}
 			data_printed = DATA_WAS_PRINTED;
 		}
 		if (opt->custom_days_cnt)
@@ -1822,7 +1861,20 @@ int print_day (hdate_struct * h, option_list* opt)
 			for (i=0; i<opt->custom_days_cnt; i++)
 			{
 				if (h->hd_jd == *jdn_list_ptr)
-					printf("%s: %s\n", custom_day_text, get_custom_day_text_ptr(i, opt->string_list_ptr));
+				{
+					if (opt->quiet < QUIET_DESCRIPTIONS) printf ("%s: ", custom_day_text);
+					if (!opt->bidi)
+						printf("%s\n", get_custom_day_text_ptr(i, opt->string_list_ptr));
+					else
+					{
+						hebrew_buffer_len =	asprintf (&hebrew_buffer, "%s",
+											get_custom_day_text_ptr(i, opt->string_list_ptr));
+						revstr(hebrew_buffer, hebrew_buffer_len);
+						printf ("%s\n", hebrew_buffer);
+						free(hebrew_buffer);
+					}
+					data_printed = DATA_WAS_PRINTED;
+				}
 				jdn_list_ptr = jdn_list_ptr + 1;
 			}
 		}
@@ -1830,11 +1882,19 @@ int print_day (hdate_struct * h, option_list* opt)
 	if (opt->omer) data_printed = data_printed | print_omer (h, opt);
 	if (opt->parasha && parasha)
 	{
-		if (opt->quiet < QUIET_DESCRIPTIONS) printf ("%s: ", N_("parasha"));
-//		TODO - allow option to force hebrew here; This is not trivial as it entails bidi
-//				when the locale for the label is LTR.
-//		printf("%s\n", hdate_string( HDATE_STRING_PARASHA, parasha, opt->short_format, opt->hebrew));
-		printf("%s\n", hdate_string( HDATE_STRING_PARASHA, parasha, opt->short_format, 0));
+		if ((opt->quiet < QUIET_DESCRIPTIONS) && (!opt->data_first)) printf ("%s: ", parasha_text);
+		if (!opt->bidi) printf ("%s",
+					hdate_string( HDATE_STRING_PARASHA, parasha, opt->short_format, opt->hebrew));
+		else
+		{
+			hebrew_buffer_len =	asprintf (&hebrew_buffer, "%s",
+					hdate_string( HDATE_STRING_PARASHA, parasha, opt->short_format, opt->hebrew));
+			revstr(hebrew_buffer, hebrew_buffer_len);
+			printf ("%s", hebrew_buffer);
+			free(hebrew_buffer);
+		}
+		if ((opt->quiet < QUIET_DESCRIPTIONS) && (opt->data_first)) printf (" %s", parasha_text);
+		printf("\n");
 		data_printed = DATA_WAS_PRINTED;
 	}
 	if (opt->daf_yomi) data_printed = data_printed | print_daf_yomi(h->hd_jd, opt->hebrew, opt->bidi, FALSE, opt->data_first);

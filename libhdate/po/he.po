@@ -1,13 +1,13 @@
 # Hebrew translations for libhdate strings
-# Copyright (C) 2011 Boruch baum
+# Copyright (C) 2014 Boruch Baum  <boruch-baum@users.sourceforge.net>
 # This file is distributed under the same license as the PACKAGE package.
 # Koby Zamir <EMAIL@ADDRESS>, 1994.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-08-19 10:38+0300\n"
+"Report-Msgid-Bugs-To: <boruch-baum@users.sourceforge.net>\n"
+"POT-Creation-Date: 2014-01-03 04:01-0500\n"
 "PO-Revision-Date: 2010-10-26 16:11+0200\n"
 "Last-Translator: Boruch Baum\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,675 +16,719 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/hdate_strings.c:55 src/hdate_strings.c:60
+#: src/hdate_strings.c:51 src/hdate_strings.c:56
 msgid "Tishrei"
 msgstr "תשרי"
 
-#: src/hdate_strings.c:55 src/hdate_strings.c:60
+#: src/hdate_strings.c:51 src/hdate_strings.c:56
 msgid "Cheshvan"
 msgstr "חשון"
 
-#: src/hdate_strings.c:55 src/hdate_strings.c:60
+#: src/hdate_strings.c:51 src/hdate_strings.c:56
 msgid "Kislev"
 msgstr "כסלו"
 
-#: src/hdate_strings.c:55 src/hdate_strings.c:60
+#: src/hdate_strings.c:51 src/hdate_strings.c:56
 msgid "Tevet"
 msgstr "טבת"
 
-#: src/hdate_strings.c:56 src/hdate_strings.c:61
+#: src/hdate_strings.c:52 src/hdate_strings.c:57
 msgid "Shevat"
-msgstr ""
+msgstr "שבט"
 
-#: src/hdate_strings.c:56 src/hdate_strings.c:61
+#: src/hdate_strings.c:52 src/hdate_strings.c:57
 msgid "Adar"
 msgstr "אדר"
 
-#: src/hdate_strings.c:56 src/hdate_strings.c:61
+#: src/hdate_strings.c:52 src/hdate_strings.c:57
 msgid "Nisan"
 msgstr "ניסן"
 
-#: src/hdate_strings.c:56 src/hdate_strings.c:61
+#: src/hdate_strings.c:52 src/hdate_strings.c:57
 msgid "Iyyar"
 msgstr "אייר"
 
-#: src/hdate_strings.c:57 src/hdate_strings.c:62
+#: src/hdate_strings.c:53 src/hdate_strings.c:58
 msgid "Sivan"
 msgstr "סיון"
 
-#: src/hdate_strings.c:57 src/hdate_strings.c:62
+#: src/hdate_strings.c:53 src/hdate_strings.c:58
 msgid "Tammuz"
 msgstr "תמוז"
 
-#: src/hdate_strings.c:57 src/hdate_strings.c:62
+#: src/hdate_strings.c:53 src/hdate_strings.c:58
 msgid "Av"
 msgstr "אב"
 
-#: src/hdate_strings.c:57 src/hdate_strings.c:62
+#: src/hdate_strings.c:53 src/hdate_strings.c:58
 msgid "Elul"
 msgstr "אלול"
 
-#: src/hdate_strings.c:57 src/hdate_strings.c:62
-msgid "Adar I"
-msgstr "אדר א"
+#: src/hdate_strings.c:53 src/hdate_strings.c:58
+#, fuzzy
+msgid "Adar_I"
+msgstr "אדר_א"
 
-#: src/hdate_strings.c:58 src/hdate_strings.c:63
-msgid "Adar II"
-msgstr "אדר ב"
+#: src/hdate_strings.c:54 src/hdate_strings.c:59
+#, fuzzy
+msgid "Adar_II"
+msgstr "אדר_ב"
 
-#: src/hdate_strings.c:78
+#: src/hdate_strings.c:74
 msgid "January"
 msgstr "ינואר"
 
-#: src/hdate_strings.c:78
+#: src/hdate_strings.c:74
 msgid "February"
 msgstr "פברואר"
 
-#: src/hdate_strings.c:78
+#: src/hdate_strings.c:74
 msgid "March"
 msgstr "מרץ"
 
-#: src/hdate_strings.c:79
+#: src/hdate_strings.c:75
 msgid "April"
 msgstr "אפריל"
 
-#: src/hdate_strings.c:79 src/hdate_strings.c:82
+#: src/hdate_strings.c:75 src/hdate_strings.c:78
 msgid "May"
 msgstr "מאי"
 
-#: src/hdate_strings.c:79
+#: src/hdate_strings.c:75
 msgid "June"
 msgstr "יוני"
 
-#: src/hdate_strings.c:80
+#: src/hdate_strings.c:76
 msgid "July"
 msgstr "יולי"
 
-#: src/hdate_strings.c:80
+#: src/hdate_strings.c:76
 msgid "August"
 msgstr "אוגוסט"
 
-#: src/hdate_strings.c:80
+#: src/hdate_strings.c:76
 msgid "September"
 msgstr "ספטמבר"
 
-#: src/hdate_strings.c:81
+#: src/hdate_strings.c:77
 msgid "October"
 msgstr "אוקטובר"
 
-#: src/hdate_strings.c:81
+#: src/hdate_strings.c:77
 msgid "November"
 msgstr "נובמבר"
 
-#: src/hdate_strings.c:81
+#: src/hdate_strings.c:77
 msgid "December"
 msgstr "דצמבר"
 
-#: src/hdate_strings.c:82
+#: src/hdate_strings.c:78
 msgid "Jan"
 msgstr "ינו"
 
-#: src/hdate_strings.c:82
+#: src/hdate_strings.c:78
 msgid "Feb"
 msgstr "פבר"
 
-#: src/hdate_strings.c:82
+#: src/hdate_strings.c:78
 msgid "Mar"
 msgstr "מרץ"
 
-#: src/hdate_strings.c:82
+#: src/hdate_strings.c:78
 msgid "Apr"
 msgstr "אפר"
 
-#: src/hdate_strings.c:83
+#: src/hdate_strings.c:79
 msgid "Jun"
 msgstr "יוני"
 
-#: src/hdate_strings.c:83
+#: src/hdate_strings.c:79
 msgid "Jul"
 msgstr "יולי"
 
-#: src/hdate_strings.c:83
+#: src/hdate_strings.c:79
 msgid "Aug"
 msgstr "אוג"
 
-#: src/hdate_strings.c:83
+#: src/hdate_strings.c:79
 msgid "Sep"
 msgstr "ספט"
 
-#: src/hdate_strings.c:83
+#: src/hdate_strings.c:79
 msgid "Oct"
 msgstr "אוקט"
 
-#: src/hdate_strings.c:84
+#: src/hdate_strings.c:80
 msgid "Nov"
 msgstr "נוב"
 
-#: src/hdate_strings.c:84
+#: src/hdate_strings.c:80
 msgid "Dec"
 msgstr "דצמ"
 
-#: src/hdate_strings.c:243 src/hdate_strings.c:247
+#: src/hdate_strings.c:239 src/hdate_strings.c:243
 msgid "translator"
 msgstr "יעקב זמיר"
 
-#: src/hdate_strings.c:310
+#: src/hdate_strings.c:306
 msgid "Sunday"
 msgstr "ראשון"
 
-#: src/hdate_strings.c:310
+#: src/hdate_strings.c:306
 msgid "Monday"
 msgstr "שני"
 
-#: src/hdate_strings.c:310
+#: src/hdate_strings.c:306
 msgid "Tuesday"
 msgstr "שלישי"
 
-#: src/hdate_strings.c:310
+#: src/hdate_strings.c:306
 msgid "Wednesday"
 msgstr "רביעי"
 
-#: src/hdate_strings.c:311
+#: src/hdate_strings.c:307
 msgid "Thursday"
 msgstr "חמישי"
 
-#: src/hdate_strings.c:311
+#: src/hdate_strings.c:307
 msgid "Friday"
 msgstr "שישי"
 
-#: src/hdate_strings.c:311
+#: src/hdate_strings.c:307
 msgid "Saturday"
 msgstr "שבת"
 
-#: src/hdate_strings.c:313
+#: src/hdate_strings.c:309
 msgid "Sun"
 msgstr "א"
 
-#: src/hdate_strings.c:313
+#: src/hdate_strings.c:309
 msgid "Mon"
 msgstr "ב"
 
-#: src/hdate_strings.c:313
+#: src/hdate_strings.c:309
 msgid "Tue"
 msgstr "ג"
 
-#: src/hdate_strings.c:313
+#: src/hdate_strings.c:309
 msgid "Wed"
 msgstr "ד"
 
-#: src/hdate_strings.c:313
+#: src/hdate_strings.c:309
 msgid "Thu"
 msgstr "ה"
 
-#: src/hdate_strings.c:314
+#: src/hdate_strings.c:310
 msgid "Fri"
 msgstr "ו"
 
-#: src/hdate_strings.c:314
+#: src/hdate_strings.c:310
 msgid "Sat"
 msgstr "ש"
 
-#: src/hdate_strings.c:327 src/hdate_strings.c:350
+#: src/hdate_strings.c:323 src/hdate_strings.c:346
 msgid "none"
 msgstr "חסר"
 
-#: src/hdate_strings.c:327 src/hdate_strings.c:350
+#: src/hdate_strings.c:323 src/hdate_strings.c:346
 msgid "Bereshit"
 msgstr "בראשית"
 
-#: src/hdate_strings.c:327 src/hdate_strings.c:350
+#: src/hdate_strings.c:323 src/hdate_strings.c:346
 msgid "Noach"
 msgstr "נח"
 
-#: src/hdate_strings.c:328 src/hdate_strings.c:351
+#: src/hdate_strings.c:324 src/hdate_strings.c:347
 msgid "Lech-Lecha"
-msgstr "לך לך"
+msgstr "לך_לך"
 
-#: src/hdate_strings.c:328 src/hdate_strings.c:351
+#: src/hdate_strings.c:324 src/hdate_strings.c:347
 msgid "Vayera"
 msgstr "וירא"
 
-#: src/hdate_strings.c:328 src/hdate_strings.c:351
-msgid "Chayei Sara"
-msgstr "חיי שרה"
+#: src/hdate_strings.c:324 src/hdate_strings.c:347
+#, fuzzy
+msgid "Chayei_Sara"
+msgstr "חיי_שרה"
 
-#: src/hdate_strings.c:329 src/hdate_strings.c:352
+#: src/hdate_strings.c:325 src/hdate_strings.c:348
 msgid "Toldot"
 msgstr "תולדות"
 
-#: src/hdate_strings.c:329 src/hdate_strings.c:352
+#: src/hdate_strings.c:325 src/hdate_strings.c:348
 msgid "Vayetzei"
 msgstr "ויצא"
 
-#: src/hdate_strings.c:329 src/hdate_strings.c:352
+#: src/hdate_strings.c:325 src/hdate_strings.c:348
 msgid "Vayishlach"
 msgstr "וישלח"
 
-#: src/hdate_strings.c:330 src/hdate_strings.c:353
+#: src/hdate_strings.c:326 src/hdate_strings.c:349
 msgid "Vayeshev"
 msgstr "וישב"
 
-#: src/hdate_strings.c:330 src/hdate_strings.c:353
+#: src/hdate_strings.c:326 src/hdate_strings.c:349
 msgid "Miketz"
 msgstr "מקץ"
 
-#: src/hdate_strings.c:330 src/hdate_strings.c:353
+#: src/hdate_strings.c:326 src/hdate_strings.c:349
 msgid "Vayigash"
 msgstr "ויגש"
 
-#: src/hdate_strings.c:331 src/hdate_strings.c:354
+#: src/hdate_strings.c:327 src/hdate_strings.c:350
 msgid "Vayechi"
 msgstr "ויחי"
 
-#: src/hdate_strings.c:331 src/hdate_strings.c:354
+#: src/hdate_strings.c:327 src/hdate_strings.c:350
 msgid "Shemot"
 msgstr "שמות"
 
-#: src/hdate_strings.c:331 src/hdate_strings.c:354
+#: src/hdate_strings.c:327 src/hdate_strings.c:350
 msgid "Vaera"
 msgstr "וארא"
 
-#: src/hdate_strings.c:332 src/hdate_strings.c:355
+#: src/hdate_strings.c:328 src/hdate_strings.c:351
 msgid "Bo"
 msgstr "בא"
 
-#: src/hdate_strings.c:332 src/hdate_strings.c:355
+#: src/hdate_strings.c:328 src/hdate_strings.c:351
 msgid "Beshalach"
 msgstr "בשלח"
 
-#: src/hdate_strings.c:332 src/hdate_strings.c:355
+#: src/hdate_strings.c:328 src/hdate_strings.c:351
 msgid "Yitro"
 msgstr "יתרו"
 
-#: src/hdate_strings.c:333 src/hdate_strings.c:356
+#: src/hdate_strings.c:329 src/hdate_strings.c:352
 msgid "Mishpatim"
 msgstr "משפטים"
 
-#: src/hdate_strings.c:333 src/hdate_strings.c:356
+#: src/hdate_strings.c:329 src/hdate_strings.c:352
 msgid "Terumah"
 msgstr "תרומה"
 
-#: src/hdate_strings.c:333 src/hdate_strings.c:356
+#: src/hdate_strings.c:329 src/hdate_strings.c:352
 msgid "Tetzaveh"
 msgstr "תצווה"
 
-#: src/hdate_strings.c:334 src/hdate_strings.c:357
-msgid "Ki Tisa"
-msgstr "כי תשא"
+#: src/hdate_strings.c:330 src/hdate_strings.c:353
+#, fuzzy
+msgid "Ki_Tisa"
+msgstr "כי_תשא"
 
-#: src/hdate_strings.c:334 src/hdate_strings.c:357
+#: src/hdate_strings.c:330 src/hdate_strings.c:353
 msgid "Vayakhel"
 msgstr "ויקהל"
 
-#: src/hdate_strings.c:334 src/hdate_strings.c:357
+#: src/hdate_strings.c:330 src/hdate_strings.c:353
 msgid "Pekudei"
 msgstr "פקודי"
 
-#: src/hdate_strings.c:335 src/hdate_strings.c:358
+#: src/hdate_strings.c:331 src/hdate_strings.c:354
 msgid "Vayikra"
 msgstr "ויקרא"
 
-#: src/hdate_strings.c:335 src/hdate_strings.c:358
+#: src/hdate_strings.c:331 src/hdate_strings.c:354
 msgid "Tzav"
 msgstr "צו"
 
-#: src/hdate_strings.c:335 src/hdate_strings.c:358
+#: src/hdate_strings.c:331 src/hdate_strings.c:354
 msgid "Shmini"
 msgstr "שמיני"
 
-#: src/hdate_strings.c:336 src/hdate_strings.c:359
+#: src/hdate_strings.c:332 src/hdate_strings.c:355
 msgid "Tazria"
 msgstr "תזריע"
 
-#: src/hdate_strings.c:336 src/hdate_strings.c:359
+#: src/hdate_strings.c:332 src/hdate_strings.c:355
 msgid "Metzora"
 msgstr "מצורע"
 
-#: src/hdate_strings.c:336 src/hdate_strings.c:359
-msgid "Achrei Mot"
-msgstr "אחרי מות"
+#: src/hdate_strings.c:332 src/hdate_strings.c:355
+#, fuzzy
+msgid "Achrei_Mot"
+msgstr "אחרי_מות"
 
-#: src/hdate_strings.c:337 src/hdate_strings.c:360
+#: src/hdate_strings.c:333 src/hdate_strings.c:356
 msgid "Kedoshim"
 msgstr "קדושים"
 
-#: src/hdate_strings.c:337 src/hdate_strings.c:360
+#: src/hdate_strings.c:333 src/hdate_strings.c:356
 msgid "Emor"
 msgstr "אמור"
 
-#: src/hdate_strings.c:337 src/hdate_strings.c:360
+#: src/hdate_strings.c:333 src/hdate_strings.c:356
 msgid "Behar"
 msgstr "בהר"
 
-#: src/hdate_strings.c:338 src/hdate_strings.c:361
+#: src/hdate_strings.c:334 src/hdate_strings.c:357
 msgid "Bechukotai"
 msgstr "בחוקותי"
 
-#: src/hdate_strings.c:338 src/hdate_strings.c:361
+#: src/hdate_strings.c:334 src/hdate_strings.c:357
 msgid "Bamidbar"
 msgstr "במדבר"
 
-#: src/hdate_strings.c:338 src/hdate_strings.c:361
+#: src/hdate_strings.c:334 src/hdate_strings.c:357
 msgid "Nasso"
 msgstr "נשא"
 
-#: src/hdate_strings.c:339 src/hdate_strings.c:362
+#: src/hdate_strings.c:335 src/hdate_strings.c:358
 msgid "Beha'alotcha"
 msgstr "בהעלותך"
 
-#: src/hdate_strings.c:339 src/hdate_strings.c:362
+#: src/hdate_strings.c:335 src/hdate_strings.c:358
 msgid "Sh'lach"
 msgstr "שלח"
 
-#: src/hdate_strings.c:339 src/hdate_strings.c:362
+#: src/hdate_strings.c:335 src/hdate_strings.c:358
 msgid "Korach"
 msgstr "קרח"
 
-#: src/hdate_strings.c:340 src/hdate_strings.c:363
+#: src/hdate_strings.c:336 src/hdate_strings.c:359
 msgid "Chukat"
 msgstr "חוקת"
 
-#: src/hdate_strings.c:340 src/hdate_strings.c:363
+#: src/hdate_strings.c:336 src/hdate_strings.c:359
 msgid "Balak"
 msgstr "בלק"
 
-#: src/hdate_strings.c:340 src/hdate_strings.c:363
+#: src/hdate_strings.c:336 src/hdate_strings.c:359
 msgid "Pinchas"
 msgstr "פינחס"
 
-#: src/hdate_strings.c:341 src/hdate_strings.c:364
+#: src/hdate_strings.c:337 src/hdate_strings.c:360
 msgid "Matot"
 msgstr "מטות"
 
-#: src/hdate_strings.c:341 src/hdate_strings.c:364
+#: src/hdate_strings.c:337 src/hdate_strings.c:360
 msgid "Masei"
 msgstr "מסעי"
 
-#: src/hdate_strings.c:341 src/hdate_strings.c:364
+#: src/hdate_strings.c:337 src/hdate_strings.c:360
 msgid "Devarim"
 msgstr "דברים"
 
-#: src/hdate_strings.c:342 src/hdate_strings.c:365
+#: src/hdate_strings.c:338 src/hdate_strings.c:361
 msgid "Vaetchanan"
 msgstr "ואתחנן"
 
-#: src/hdate_strings.c:342 src/hdate_strings.c:365
+#: src/hdate_strings.c:338 src/hdate_strings.c:361
 msgid "Eikev"
 msgstr "עקב"
 
-#: src/hdate_strings.c:342 src/hdate_strings.c:365
+#: src/hdate_strings.c:338 src/hdate_strings.c:361
 msgid "Re'eh"
 msgstr "ראה"
 
-#: src/hdate_strings.c:343 src/hdate_strings.c:366
+#: src/hdate_strings.c:339 src/hdate_strings.c:362
 msgid "Shoftim"
 msgstr "שופטים"
 
-#: src/hdate_strings.c:343 src/hdate_strings.c:366
-msgid "Ki Teitzei"
-msgstr "כי תצא"
+#: src/hdate_strings.c:339 src/hdate_strings.c:362
+msgid "Ki_Teitzei"
+msgstr "כי_תצא"
 
-#: src/hdate_strings.c:343 src/hdate_strings.c:366
-msgid "Ki Tavo"
-msgstr "כי תבוא"
+#: src/hdate_strings.c:339 src/hdate_strings.c:362
+msgid "Ki_Tavo"
+msgstr "כי_תבוא"
 
-#: src/hdate_strings.c:344 src/hdate_strings.c:367
+#: src/hdate_strings.c:340 src/hdate_strings.c:363
 msgid "Nitzavim"
 msgstr "נצבים"
 
-#: src/hdate_strings.c:344 src/hdate_strings.c:367
+#: src/hdate_strings.c:340 src/hdate_strings.c:363
 msgid "Vayeilech"
 msgstr "וילך"
 
-#: src/hdate_strings.c:344 src/hdate_strings.c:367
+#: src/hdate_strings.c:340 src/hdate_strings.c:363
 msgid "Ha'Azinu"
 msgstr "האזינו"
 
-#: src/hdate_strings.c:345 src/hdate_strings.c:368
-msgid "Vezot Habracha"
-msgstr "וזאת הברכה"
+#: src/hdate_strings.c:341 src/hdate_strings.c:364
+#, fuzzy
+msgid "Vezot_HaBracha"
+msgstr "וזאת_הברכה"
 
-#: src/hdate_strings.c:346 src/hdate_strings.c:369
+#: src/hdate_strings.c:342 src/hdate_strings.c:365
 msgid "Vayakhel-Pekudei"
-msgstr "ויקהל פקודי"
+msgstr "ויקהל-פקודי"
 
-#: src/hdate_strings.c:346 src/hdate_strings.c:369
+#: src/hdate_strings.c:342 src/hdate_strings.c:365
 msgid "Tazria-Metzora"
-msgstr "תזריע מצורע"
+msgstr "תזריע-מצורע"
 
-#: src/hdate_strings.c:346 src/hdate_strings.c:369
-msgid "Achrei Mot-Kedoshim"
-msgstr "אחרי מות קדושים"
+#: src/hdate_strings.c:342 src/hdate_strings.c:365
+msgid "Achrei_Mot-Kedoshim"
+msgstr "אחרי_מות-קדושים"
 
-#: src/hdate_strings.c:347 src/hdate_strings.c:370
+#: src/hdate_strings.c:343 src/hdate_strings.c:366
 msgid "Behar-Bechukotai"
-msgstr "בהר בחוקותי"
+msgstr "בהר-בחוקותי"
 
-#: src/hdate_strings.c:347 src/hdate_strings.c:370
+#: src/hdate_strings.c:343 src/hdate_strings.c:366
 msgid "Chukat-Balak"
-msgstr "חוקת בלק"
+msgstr "חוקת-בלק"
 
-#: src/hdate_strings.c:347 src/hdate_strings.c:370
+#: src/hdate_strings.c:343 src/hdate_strings.c:366
 msgid "Matot-Masei"
-msgstr "מטות מסעי"
+msgstr "מטות-מסעי"
 
-#: src/hdate_strings.c:348 src/hdate_strings.c:371
+#: src/hdate_strings.c:344 src/hdate_strings.c:367
 msgid "Nitzavim-Vayeilech"
-msgstr "נצבים וילך"
+msgstr "נצבים-וילך"
 
-#: src/hdate_strings.c:427
-msgid "regular weekday (no holiday)"
-msgstr ""
+#: src/hdate_strings.c:423
+msgid "regular_weekday_(no_holiday)"
+msgstr "יום_חול"
 
-#: src/hdate_strings.c:428
+#: src/hdate_strings.c:424
 #, fuzzy
-msgid "Rosh Hashana (first day)"
-msgstr "א ראש השנה"
+msgid "Rosh_HaShana_(first_day)"
+msgstr "א_ראש_השנה"
 
-#: src/hdate_strings.c:428
+#: src/hdate_strings.c:424
 #, fuzzy
-msgid "Rosh Hashana (second day)"
-msgstr "א ראש השנה"
+msgid "Rosh HaShana_(second_day)"
+msgstr "ב_ראש_השנה"
 
-#: src/hdate_strings.c:429 src/hdate_strings.c:451
-msgid "Tzom Gedaliah"
-msgstr "צום גדליה"
+#: src/hdate_strings.c:425 src/hdate_strings.c:447
+#, fuzzy
+msgid "Tzom_Gedaliah"
+msgstr "צום_גדליה"
 
-#: src/hdate_strings.c:429 src/hdate_strings.c:451
-msgid "Yom Kippur"
-msgstr "יום כיפור"
+#: src/hdate_strings.c:425 src/hdate_strings.c:447
+#, fuzzy
+msgid "Yom_Kippur"
+msgstr "יום_כיפור"
 
-#: src/hdate_strings.c:430 src/hdate_strings.c:452
+#: src/hdate_strings.c:426 src/hdate_strings.c:448
 msgid "Sukkot"
 msgstr "סוכות"
 
-#: src/hdate_strings.c:430 src/hdate_strings.c:452
-msgid "Hol hamoed Sukkot"
-msgstr "חול המועד סוכות"
+#: src/hdate_strings.c:426 src/hdate_strings.c:448
+#, fuzzy
+msgid "Hol_HaMoed_Sukkot"
+msgstr "חול_המועד_סוכות"
 
-#: src/hdate_strings.c:431 src/hdate_strings.c:453
-msgid "Hoshana raba"
-msgstr "הושענא רבה"
+#: src/hdate_strings.c:427 src/hdate_strings.c:449
+#, fuzzy
+msgid "Hoshana_Rabbah"
+msgstr "הושענא_רבה"
 
-#: src/hdate_strings.c:431 src/hdate_strings.c:453
-msgid "Simchat Torah"
-msgstr "שמחת תורה"
+#: src/hdate_strings.c:427 src/hdate_strings.c:449
+#, fuzzy
+msgid "Simchat_Torah"
+msgstr "שמחת_תורה"
 
-#: src/hdate_strings.c:432 src/hdate_strings.c:454
+#: src/hdate_strings.c:428 src/hdate_strings.c:450
 msgid "Chanukah"
 msgstr "חנוכה"
 
-#: src/hdate_strings.c:432 src/hdate_strings.c:454
-msgid "Asara B'Tevet"
-msgstr "עשרה בטבת"
+#: src/hdate_strings.c:428 src/hdate_strings.c:450
+#, fuzzy
+msgid "Asara_B'Tevet"
+msgstr "עשרה_בטבת"
 
-#: src/hdate_strings.c:433 src/hdate_strings.c:455
-msgid "Tu B'Shvat"
-msgstr "ט\"ו בשבט"
+#: src/hdate_strings.c:429 src/hdate_strings.c:451
+#, fuzzy
+msgid "Tu_B'Shvat"
+msgstr "ט\"ו_בשבט"
 
-#: src/hdate_strings.c:433 src/hdate_strings.c:455
-msgid "Ta'anit Esther"
-msgstr "תענית אסתר"
+#: src/hdate_strings.c:429 src/hdate_strings.c:451
+#, fuzzy
+msgid "Ta'anit_Esther"
+msgstr "תענית_אסתר"
 
-#: src/hdate_strings.c:434 src/hdate_strings.c:456
+#: src/hdate_strings.c:430 src/hdate_strings.c:452
 msgid "Purim"
 msgstr "פורים"
 
-#: src/hdate_strings.c:434 src/hdate_strings.c:456
-msgid "Shushan Purim"
-msgstr "שושן פורים"
+#: src/hdate_strings.c:430 src/hdate_strings.c:452
+#, fuzzy
+msgid "Shushan_Purim"
+msgstr "שושן_פורים"
 
-#: src/hdate_strings.c:435 src/hdate_strings.c:457
+#: src/hdate_strings.c:431 src/hdate_strings.c:453
 msgid "Pesach"
 msgstr "פסח"
 
-#: src/hdate_strings.c:435 src/hdate_strings.c:457
-msgid "Hol hamoed Pesach"
-msgstr "חול המועד פסח"
+#: src/hdate_strings.c:431 src/hdate_strings.c:453
+#, fuzzy
+msgid "Hol_HaMoed_Pesach"
+msgstr "חול_המועד_פסח"
 
-#: src/hdate_strings.c:436 src/hdate_strings.c:458
-msgid "Yom HaAtzma'ut"
-msgstr "יום העצמאות"
+#: src/hdate_strings.c:432 src/hdate_strings.c:454
+#, fuzzy
+msgid "Yom_HaAtzma'ut"
+msgstr "יום_העצמאות"
 
-#: src/hdate_strings.c:436 src/hdate_strings.c:458
-msgid "Lag B'Omer"
-msgstr "ל\"ג בעומר"
+#: src/hdate_strings.c:432 src/hdate_strings.c:454
+#, fuzzy
+msgid "Lag_B'Omer"
+msgstr "ל\"ג_בעומר"
 
-#: src/hdate_strings.c:437 src/hdate_strings.c:459
-msgid "Erev Shavuot"
-msgstr "ערב שבועות"
+#: src/hdate_strings.c:433 src/hdate_strings.c:455
+#, fuzzy
+msgid "Erev_Shavuot"
+msgstr "ערב_שבועות"
 
-#: src/hdate_strings.c:437 src/hdate_strings.c:459
+#: src/hdate_strings.c:433 src/hdate_strings.c:455
 msgid "Shavuot"
 msgstr "שבועות"
 
-#: src/hdate_strings.c:438 src/hdate_strings.c:460
-msgid "Tzom Tammuz"
-msgstr "י\"ז תמוז"
+#: src/hdate_strings.c:434 src/hdate_strings.c:456
+#, fuzzy
+msgid "Tzom_Tammuz"
+msgstr "י\"ז_ תמוז"
 
-#: src/hdate_strings.c:438 src/hdate_strings.c:460
-msgid "Tish'a B'Av"
-msgstr "תשעה באב"
+#: src/hdate_strings.c:434 src/hdate_strings.c:456
+#, fuzzy
+msgid "Tish'a_B'Av"
+msgstr "תשעה_באב"
 
-#: src/hdate_strings.c:439 src/hdate_strings.c:461
-msgid "Tu B'Av"
-msgstr "ט\"ו באב"
+#: src/hdate_strings.c:435 src/hdate_strings.c:457
+#, fuzzy
+msgid "Tu_B'Av"
+msgstr "ט\"ו_באב"
 
-#: src/hdate_strings.c:439 src/hdate_strings.c:461
-msgid "Yom HaShoah"
-msgstr "יום השואה"
+#: src/hdate_strings.c:435 src/hdate_strings.c:457
+#, fuzzy
+msgid "Yom_HaShoah"
+msgstr "יום_השואה"
+
+#: src/hdate_strings.c:436 src/hdate_strings.c:458
+#, fuzzy
+msgid "Yom_HaZikaron"
+msgstr "יום_הזכרון"
+
+#: src/hdate_strings.c:436 src/hdate_strings.c:458
+#, fuzzy
+msgid "Yom_Yerushalayim"
+msgstr "יום_ירושלים"
+
+#: src/hdate_strings.c:437 src/hdate_strings.c:459
+#, fuzzy
+msgid "Shmini_Atzeret"
+msgstr "שמיני_עצרת"
+
+#: src/hdate_strings.c:437
+msgid "Shevi'i_shel_Pesach"
+msgstr "שביעי_של_פסח"
+
+#: src/hdate_strings.c:438
+#, fuzzy
+msgid "Acharon_shel_Pesach"
+msgstr "חול_המועד_פסח"
+
+#: src/hdate_strings.c:438
+#, fuzzy
+msgid "Shavuot_(second_day)"
+msgstr "שני_של_שבועות"
+
+#: src/hdate_strings.c:439
+#, fuzzy
+msgid "Sukkot_(second_day)"
+msgstr "שני_של_סוכות"
+
+#: src/hdate_strings.c:439
+#, fuzzy
+msgid "Pesach_(second_day)"
+msgstr "שני_של_פסח"
 
 #: src/hdate_strings.c:440 src/hdate_strings.c:462
-msgid "Yom HaZikaron"
-msgstr "יום הזכרון"
+#, fuzzy
+msgid "Family_Day"
+msgstr "יום_המשפחה"
 
 #: src/hdate_strings.c:440 src/hdate_strings.c:462
-msgid "Yom Yerushalayim"
-msgstr "יום ירושלים"
-
-#: src/hdate_strings.c:441 src/hdate_strings.c:463
-msgid "Shmini Atzeret"
-msgstr "שמיני עצרת"
+#, fuzzy
+msgid "Memorial_day_for_fallen_whose_place_of_burial_is_unknown"
+msgstr "יום_הזכרון_לחללי_מלחמות_ישראל_שמקום_קבורתם_לא_נודע"
 
 #: src/hdate_strings.c:441
-msgid "Shevi'i shel Pesach"
-msgstr ""
-
-#: src/hdate_strings.c:442
 #, fuzzy
-msgid "Acharon shel Pesach"
-msgstr "חול המועד פסח"
+msgid "Yitzhak_Rabin_memorial_day"
+msgstr "יום_הזכרון_ליצחק_רבין"
 
-#: src/hdate_strings.c:442
-msgid "Shavuot (second day)"
-msgstr ""
-
-#: src/hdate_strings.c:443
-msgid "Sukkot (second day)"
-msgstr ""
-
-#: src/hdate_strings.c:443
-msgid "Pesach (second day)"
-msgstr ""
-
-#: src/hdate_strings.c:444 src/hdate_strings.c:466
-msgid "Family Day"
-msgstr "יום המשפחה"
-
-#: src/hdate_strings.c:444 src/hdate_strings.c:466
-msgid "Memorial day for fallen whose place of burial is unknown"
-msgstr "יום הזכרון לחללי מלחמות ישראל שמקום קבורתם לא נודע"
-
-#: src/hdate_strings.c:445
-msgid "Yitzhak Rabin memorial day"
-msgstr "יום הזכרון ליצחק רבין"
-
-#: src/hdate_strings.c:445
-msgid "Zeev Zhabotinsky day"
-msgstr "יום זאב זבוטינסקי"
-
-#: src/hdate_strings.c:446 src/hdate_strings.c:468
-msgid "Erev Yom Kippur"
-msgstr "ערב יום כיפור"
-
-#: src/hdate_strings.c:446 src/hdate_strings.c:468
+#: src/hdate_strings.c:441
 #, fuzzy
-msgid "Erev Pesach"
-msgstr "פסח"
+msgid "Zeev_Zhabotinsky_day"
+msgstr "יום_זאב_זבוטינסקי"
 
-#: src/hdate_strings.c:447 src/hdate_strings.c:469
+#: src/hdate_strings.c:442 src/hdate_strings.c:464
+#, fuzzy
+msgid "Erev_Yom_Kippur"
+msgstr "ערב_יום_כיפור"
+
+#: src/hdate_strings.c:442 src/hdate_strings.c:464
+#, fuzzy
+msgid "Erev_Pesach"
+msgstr "ערב_פסח"
+
+#: src/hdate_strings.c:443 src/hdate_strings.c:465
 #, fuzzy
 msgid "Erev_Sukkot"
-msgstr "סוכות"
+msgstr "ערב_סוכות"
 
-#: src/hdate_strings.c:449
-msgid "regular day"
-msgstr ""
+#: src/hdate_strings.c:445
+msgid "regular_day"
+msgstr "ייום_חול"
 
-#: src/hdate_strings.c:450
+#: src/hdate_strings.c:446
 #, fuzzy
-msgid "Rosh Hashana (day 1)"
-msgstr "א ראש השנה"
+msgid "Rosh HaShana_(day_1)"
+msgstr "א_ראש_השנה"
 
-#: src/hdate_strings.c:450
+#: src/hdate_strings.c:446
 #, fuzzy
-msgid "Rosh Hashana (day 2)"
-msgstr "א ראש השנה"
+msgid "Rosh HaShana_(day_2)"
+msgstr "ב_ראש_השנה"
+
+#: src/hdate_strings.c:459
+#, fuzzy
+msgid "Pesach_(day_7)"
+msgstr "שביעי_של_פסח"
+
+#: src/hdate_strings.c:460
+#, fuzzy
+msgid "Pesach_(day_8)"
+msgstr "אחרון_של_פסח"
+
+#: src/hdate_strings.c:460
+#, fuzzy
+msgid "Shavuot_(day_2)"
+msgstr "שני_של_שבועות"
+
+#: src/hdate_strings.c:461
+#, fuzzy
+msgid "Sukkot_(day_2)"
+msgstr "שני_של_סוכות"
+
+#: src/hdate_strings.c:461
+#, fuzzy
+msgid "Pesach_(day_2)"
+msgstr "שני_של_פסח"
 
 #: src/hdate_strings.c:463
 #, fuzzy
-msgid "Pesach (day 7)"
-msgstr "שני של פסח"
+msgid "Rabin_memorial_day"
+msgstr "יום_הזכרון_ליצחק_רבין"
 
-#: src/hdate_strings.c:464
+#: src/hdate_strings.c:463
 #, fuzzy
-msgid "Pesach (day 8)"
-msgstr "שני של פסח"
+msgid "Zhabotinsky_day"
+msgstr "יום_זבוטינסקי"
 
-#: src/hdate_strings.c:464
-#, fuzzy
-msgid "Shavuot (day 2)"
-msgstr "שני של שבועות"
+#: examples/hcal/hcal.c:103 examples/hcal/hdate.c:71
+msgid "month"
+msgstr "חודש"
 
-#: src/hdate_strings.c:465
-#, fuzzy
-msgid "Sukkot (day 2)"
-msgstr "סוכות שני"
+#: examples/hcal/hcal.c:104 examples/hcal/hdate.c:72
+msgid "year"
+msgstr "שנה"
 
-#: src/hdate_strings.c:465
-#, fuzzy
-msgid "Pesach (day 2)"
-msgstr "שני של פסח"
-
-#: src/hdate_strings.c:467
-msgid "Rabin memorial day"
-msgstr "יום הזכרון ליצחק רבין"
-
-#: src/hdate_strings.c:467
-msgid "Zhabotinsky day"
-msgstr "יום זבוטינסקי"
-
-#: examples/hcal/hcal.c:164
+#: examples/hcal/hcal.c:184
 msgid ""
 "# configuration file for hcal - Hebrew calendar program\n"
 "# part of package libhdate\n"
@@ -710,9 +754,21 @@ msgid ""
 "# and its (limited, and maybe biased) of the dominant Jewish community\n"
 "# in that timezone. When hcal is forced to guess, it alerts the user\n"
 "# with a message that includes the guessed location.\n"
-"# hcal's guesses will also affect its default behaviour for ouput of\n"
+"# hcal's guesses will also affect its default behaviour for output of\n"
 "# Shabbat times, parshiot, and choice of Israel/diaspora hoidays\n"
 "#SUNSET_AWARE=TRUE\n"
+"\n"
+"# Base Years\n"
+"# hcal, by default, interprets two-digit year parameters as Hebrew\n"
+"# years, and adds the value BASE_YEAR_HEBREW *100 to them. Set\n"
+"# variable PREFER_HEBREW=FALSE to have them interpreted as gregorian,\n"
+"# and have BASE_YEAR_GREGORIAN * 100 added to them.\n"
+"#PREFER_HEBREW=TRUE\n"
+"# valid values for BASE_YEAR_HEBREW are 30 - 69\n"
+"#BASE_YEAR_HEBREW=57\n"
+"# valid values for BASE_YEAR_GREGORIAN are 10 - 29\n"
+"#BASE_YEAR_GREGORIAN=20\n"
+"\n"
 "# LATITUDE and LONGITUDE may be in decimal format or in the form\n"
 "# degrees[:minutes[:seconds]] with the characters :'\" as possible\n"
 "# delimiters. Use negative values to indicate South and West, or\n"
@@ -821,25 +877,24 @@ msgid ""
 "#MENU= -l 22.26 -L 114.15 -z 8        # supplier in Hong Kong\n"
 msgstr ""
 
-#: examples/hcal/hcal.c:293
+#: examples/hcal/hcal.c:336
 msgid ""
-"hcal - Hebrew calendar\n"
-"version 1.6"
-msgstr ""
-
-#: examples/hcal/hcal.c:303
-msgid ""
-"Usage: hcal [options] [coordinates timezone] ] [[month] year]\n"
-"       coordinates: -l [NS]yy[.xxx] -L [EW]xx[.xxx]\n"
+"Usage: hcal [options] [coordinates] [timezone] [date_spec]\n"
+"       hdate [options] [coordinates] [timezone] [julian_day|time_t]\n"
+"\n"
+"       coordinates: -l [NS]yy[.xxx]     -L [EW]xx[.xxx]\n"
 "                    -l [NS]yy[:mm[:ss]] -L [EW]xx[:mm[:ss]]\n"
-"       timezone:    -z nn[( .nn | :mm )]"
+"\n"
+"       timezone:    -z [ [nn[.nn|:mm]] | tz_name ]\n"
+"\n"
+"       date_spec:   [ [[month] year] | flexible_entry ]"
 msgstr ""
 
-#: examples/hcal/hcal.c:315
+#: examples/hcal/hcal.c:350
 msgid "Try 'hcal --help' for more information"
 msgstr ""
 
-#: examples/hcal/hcal.c:326
+#: examples/hcal/hcal.c:360
 msgid ""
 "Hebrew calendar\n"
 "OPTIONS:\n"
@@ -855,9 +910,10 @@ msgid ""
 "      --visual\n"
 "      --no-bidi       over-ride config file setting if you had set\n"
 "      --no-visual     option -bidi as a default there\n"
-"   -c --colorize      displays in calming, muted tones. -cc will display\n"
+"   -B --bold          display special days in boldface, no color\n"
+"   -c --colorize      display in calming, muted tones. -cc will display\n"
 "                      in bolder, and mildy irritating, colors\n"
-"      --no-color      over-ride a --colorize setting in your config file\n"
+"      --no-color      over-ride a --colorize or --bold setting\n"
 "   -d --diaspora      use diaspora reading and holidays.\n"
 "   -f --footnote      print descriptive notes of holidays\n"
 "      --no-footnote   over-ride a footnote setting in your config file\n"
@@ -878,158 +934,159 @@ msgid ""
 "   -l --latitude yy   latitude yy degrees. Negative values are South\n"
 "   -L --longitude xx  longitude xx degrees. Negative values are West\n"
 "\n"
+"   --prefer-hebrew    interpret ambiguous mm yy as Hebrew date\n"
+"   --prefer-gregorian interpret ambiguous mm yy as gregorian date\n"
+"\n"
 "All options can be made default in the config file, or menu-ized for\n"
-"easy selection."
+"easy selection.\n"
+"Report bugs to: <http://sourceforge.net/tracker/?"
+"group_id=63109&atid=502872>\n"
+"libhdate home page: <http://libhdate.sourceforge.net>\n"
+"General help using GNU software: <http://www.gnu.org/gethelp/>\n"
 msgstr ""
 
-#: examples/hcal/hcal.c:2279
+#: examples/hcal/hcal.c:2200
+msgid "z (timezone)"
+msgstr ""
+
+#: examples/hcal/hcal.c:2611
 msgid ""
 "ALERT: options --parasha, --shabbat, --footnote are not supported in 'three-"
 "month' mode"
 msgstr ""
 
-#: examples/hcal/hcal.c:2370 examples/hcal/local_functions.c:58
-#: examples/hcal/local_functions.c:65 examples/hcal/local_functions.c:78
-#: examples/hcal/local_functions.c:443 examples/hcal/local_functions.c:448
+#: examples/hcal/hcal.c:2626
+msgid ""
+"ALERT: options --parasha, --shabbat, --footnote are not supported in 'html' "
+"mode"
+msgstr ""
+
+#: examples/hcal/hcal.c:2724 examples/hcal/local_functions.c:69
 msgid "error"
 msgstr ""
 
-#: examples/hcal/hcal.c:2370
+#: examples/hcal/hcal.c:2724
 msgid ""
 "too many parameters received (expected at most month and year after options "
 "list)"
 msgstr ""
 
-#: examples/hcal/hcal.c:2379 examples/hcal/hdate.c:59
-#: examples/hcal/local_functions.c:690 examples/hcal/local_functions.c:767
-msgid "year"
-msgstr ""
-
-#: examples/hcal/hcal.c:2387 examples/hcal/hdate.c:58
-#: examples/hcal/local_functions.c:702 examples/hcal/local_functions.c:724
-#: examples/hcal/local_functions.c:738 examples/hcal/local_functions.c:766
-#: examples/hcal/local_functions.c:794 examples/hcal/local_functions.c:800
-#: examples/hcal/local_functions.c:854 examples/hcal/local_functions.c:860
-#: examples/hcal/local_functions.c:874
-msgid "month"
-msgstr ""
-
-#: examples/hcal/hdate.c:57 examples/hcal/local_functions.c:721
-#: examples/hcal/local_functions.c:735
+#: examples/hcal/hdate.c:70
 #, fuzzy
 msgid "day"
-msgstr "מאי"
-
-#: examples/hcal/hdate.c:61
-msgid "sunrise"
-msgstr ""
-
-#: examples/hcal/hdate.c:62
-msgid "sunset"
-msgstr ""
-
-#: examples/hcal/hdate.c:63
-msgid "first_light"
-msgstr ""
-
-#: examples/hcal/hdate.c:64
-msgid "talit"
-msgstr ""
-
-#: examples/hcal/hdate.c:65
-msgid "end_Shema (GR\"A)"
-msgstr ""
-
-#: examples/hcal/hdate.c:66
-msgid "end_Shema (M\"A)"
-msgstr ""
-
-#: examples/hcal/hdate.c:67
-msgid "end_amidah"
-msgstr ""
-
-#: examples/hcal/hdate.c:68
-msgid "midday"
-msgstr ""
-
-#: examples/hcal/hdate.c:69
-msgid "mincha_gedola"
-msgstr ""
-
-#: examples/hcal/hdate.c:70
-msgid "mincha_ketana"
-msgstr ""
-
-#: examples/hcal/hdate.c:71
-msgid "plag_hamincha"
-msgstr ""
-
-#: examples/hcal/hdate.c:72
-msgid "first_stars"
-msgstr ""
+msgstr "יום"
 
 #: examples/hcal/hdate.c:73
-msgid "three_stars"
-msgstr ""
+msgid "sunrise"
+msgstr "הנץ_החמה"
 
 #: examples/hcal/hdate.c:74
-msgid "sun_hour"
-msgstr ""
+msgid "sunset"
+msgstr "שקיעת_החמה"
 
 #: examples/hcal/hdate.c:75
-msgid "candle-lighting"
-msgstr ""
+msgid "first_light"
+msgstr "נלות_השחר"
 
 #: examples/hcal/hdate.c:76
-msgid "havdalah"
-msgstr ""
+msgid "talit"
+msgstr "טלית"
 
 #: examples/hcal/hdate.c:77
-msgid "daf yomi"
-msgstr ""
+msgid "end_Shema_(GR\"A)"
+msgstr "סופ\"ז ק\"ש (גר\"א)"
 
 #: examples/hcal/hdate.c:78
-msgid "omer"
-msgstr ""
+msgid "end_Shema_(M\"A)"
+msgstr "סופ\"ז ק\"ש (מ\"א)"
 
-#: examples/hcal/hdate.c:79 examples/hcal/hdate.c:1602
-msgid "parasha"
-msgstr ""
+#: examples/hcal/hdate.c:79
+msgid "end_amidah"
+msgstr "סופ\"ז תפילה"
 
 #: examples/hcal/hdate.c:80
-#, fuzzy
-msgid "holiday"
-msgstr "שישי"
+msgid "mid-day"
+msgstr "חצות"
 
 #: examples/hcal/hdate.c:81
-msgid "today is also"
-msgstr ""
+msgid "mincha_gedola"
+msgstr "מנחה גדולה"
 
 #: examples/hcal/hdate.c:82
-msgid "custom_day"
-msgstr ""
+msgid "mincha_ketana"
+msgstr "מנחה קטנה"
 
 #: examples/hcal/hdate.c:83
-msgid "Creation Year"
-msgstr ""
+msgid "plag_hamincha"
+msgstr "פלג המנחה"
+
+#: examples/hcal/hdate.c:84
+msgid "first_stars"
+msgstr "צאת הכוכבים"
 
 #: examples/hcal/hdate.c:85
-msgid "end_eating_chometz_(M\"A)"
-msgstr ""
+msgid "three_stars"
+msgstr "שלש כוכבים"
 
 #: examples/hcal/hdate.c:86
-msgid "end_eating_chometz_(GR\"A)"
-msgstr ""
+msgid "sun_hour"
+msgstr "שעה זנמיה"
 
 #: examples/hcal/hdate.c:87
-msgid "end_owning_chometz_(M\"A)"
-msgstr ""
+msgid "candle-lighting"
+msgstr "הדלקת נרות"
 
 #: examples/hcal/hdate.c:88
-msgid "end_owning_chometz_(GR\"A)"
-msgstr ""
+msgid "havdalah"
+msgstr "הבדלה"
 
-#: examples/hcal/hdate.c:143
+#: examples/hcal/hdate.c:89
+msgid "daf_yomi"
+msgstr "דף יומי"
+
+#: examples/hcal/hdate.c:90
+msgid "omer"
+msgstr "עומר"
+
+#: examples/hcal/hdate.c:91
+msgid "parasha"
+msgstr "פרשת השבוע"
+
+#: examples/hcal/hdate.c:92
+#, fuzzy
+msgid "holiday_today"
+msgstr "חג היום"
+
+#: examples/hcal/hdate.c:93
+#, fuzzy
+msgid "holiday"
+msgstr "חג"
+
+#: examples/hcal/hdate.c:94
+msgid "today_is_also"
+msgstr "היום גם"
+
+#: examples/hcal/hdate.c:95
+msgid "custom_day"
+msgstr "יום אישי"
+
+#: examples/hcal/hdate.c:98
+msgid "end_eating_chometz_(M\"A)"
+msgstr "סופ\"ז אכילת חמץ (מ\"א)"
+
+#: examples/hcal/hdate.c:99
+msgid "end_eating_chometz_(GR\"A)"
+msgstr "סופ\"ז אכילת חמץ (גר\"א)"
+
+#: examples/hcal/hdate.c:100
+msgid "end_owning_chometz_(M\"A)"
+msgstr "סופ\"ז ביעור חמץ (מ\"א)"
+
+#: examples/hcal/hdate.c:101
+msgid "end_owning_chometz_(GR\"A)"
+msgstr "סופ\"ז ביעור חמץ (גר\"א)"
+
+#: examples/hcal/hdate.c:178
 msgid ""
 "# configuration file for hdate - Hebrew date information program\n"
 "# part of package libhdate\n"
@@ -1059,6 +1116,18 @@ msgid ""
 "# hdate's guesses will also affect its default behaviour for ouput of\n"
 "# Shabbat times, parshiot, and choice of Israel/diaspora hoidays.\n"
 "#SUNSET_AWARE=TRUE\n"
+"\n"
+"# Base Years\n"
+"# hdate, by default, interprets two-digit year parameters as Hebrew\n"
+"# years, and adds the value BASE_YEAR_HEBREW * 100 to them. Set\n"
+"# variable PREFER_HEBREW=FALSE to have them interpreted as gregorian,\n"
+"# and have BASE_YEAR_GREGORIAN * 100 added to them.\n"
+"#PREFER_HEBREW=TRUE\n"
+"# valid values for BASE_YEAR_HEBREW are 30 - 69\n"
+"#BASE_YEAR_HEBREW=57\n"
+"# valid values for BASE_YEAR_GREGORIAN are 10 - 29\n"
+"#BASE_YEAR_GREGORIAN=20\n"
+"\n"
 "# LATITUDE and LONGITUDE may be in decimal format or in the form\n"
 "# degrees[:minutes[:seconds]] with the characters :'\" as possible\n"
 "# delimiters. Use negative values to indicate South and West, or\n"
@@ -1102,6 +1171,10 @@ msgid ""
 "#LESHABBAT=FALSE\n"
 "#LESEDER=FALSE\n"
 "\n"
+"# This value directs times-of-day to be printed beginning with sunset\n"
+"# or candle-lighting of the Hebrew date, instead of beginning with\n"
+"# the first time-of-day in the morning.\n"
+"#EMESH=TRUE\n"
 "#SUN_RISE_SET=FALSE\n"
 "#TIMES_OF_DAY=FALSE\n"
 "#SHORT_FORMAT=FALSE\n"
@@ -1163,215 +1236,215 @@ msgid ""
 "#MENU= -bd -l 22.26 -L 114.15 -z 8   # supplier in Hong Kong\n"
 msgstr ""
 
-#: examples/hcal/hdate.c:278
+#: examples/hcal/hdate.c:327
 msgid "Berachot"
-msgstr ""
+msgstr "ברכות"
 
-#: examples/hcal/hdate.c:279
+#: examples/hcal/hdate.c:328
 msgid "Shabbat"
-msgstr ""
+msgstr "שבת"
 
-#: examples/hcal/hdate.c:280
+#: examples/hcal/hdate.c:329
 msgid "Eiruvin"
-msgstr ""
+msgstr "עירובין"
 
-#: examples/hcal/hdate.c:281
+#: examples/hcal/hdate.c:330
 #, fuzzy
 msgid "Pesachim"
-msgstr "פסח"
+msgstr "פסחים"
 
-#: examples/hcal/hdate.c:282
+#: examples/hcal/hdate.c:331
 msgid "Shekalim"
-msgstr ""
+msgstr "שקלים"
 
-#: examples/hcal/hdate.c:283
+#: examples/hcal/hdate.c:332
 msgid "Yoma"
-msgstr ""
+msgstr "יומא"
 
-#: examples/hcal/hdate.c:284
+#: examples/hcal/hdate.c:333
 #, fuzzy
 msgid "Sukkah"
-msgstr "סוכות"
+msgstr "סוכה"
 
-#: examples/hcal/hdate.c:285
+#: examples/hcal/hdate.c:334
 msgid "Beitzah"
-msgstr ""
+msgstr "ביצה"
 
-#: examples/hcal/hdate.c:286
+#: examples/hcal/hdate.c:335
 #, fuzzy
 msgid "Rosh_HaShannah"
-msgstr "א ראש השנה"
+msgstr "ראש השנה"
 
-#: examples/hcal/hdate.c:287
+#: examples/hcal/hdate.c:336
 #, fuzzy
 msgid "Taanit"
-msgstr "תענית אסתר"
+msgstr "תענית"
 
-#: examples/hcal/hdate.c:288
+#: examples/hcal/hdate.c:337
 msgid "Megillah"
-msgstr ""
+msgstr "מגילה"
 
-#: examples/hcal/hdate.c:289
+#: examples/hcal/hdate.c:338
 msgid "Moed_Katan"
-msgstr ""
+msgstr "מועד קטן"
 
-#: examples/hcal/hdate.c:290
+#: examples/hcal/hdate.c:339
 msgid "Chagigah"
-msgstr ""
+msgstr "חגיגה"
 
-#: examples/hcal/hdate.c:291
+#: examples/hcal/hdate.c:340
 msgid "Yevamot"
-msgstr ""
+msgstr "יבמות"
 
-#: examples/hcal/hdate.c:292
+#: examples/hcal/hdate.c:341
 msgid "Ketubot"
-msgstr ""
+msgstr "כתובות"
 
-#: examples/hcal/hdate.c:293
+#: examples/hcal/hdate.c:342
 #, fuzzy
 msgid "Nedarim"
-msgstr "דברים"
+msgstr "נדרים"
 
-#: examples/hcal/hdate.c:294
+#: examples/hcal/hdate.c:343
 msgid "Nazir"
-msgstr ""
+msgstr "נזיר"
 
-#: examples/hcal/hdate.c:295
+#: examples/hcal/hdate.c:344
 msgid "Sotah"
-msgstr ""
+msgstr "סוטה"
 
-#: examples/hcal/hdate.c:296
+#: examples/hcal/hdate.c:345
 msgid "Gittin"
-msgstr ""
+msgstr "גיטין"
 
-#: examples/hcal/hdate.c:297
+#: examples/hcal/hdate.c:346
 msgid "Kiddushin"
-msgstr ""
+msgstr "קידושין"
 
-#: examples/hcal/hdate.c:298
+#: examples/hcal/hdate.c:347
 msgid "Bava_Kamma"
-msgstr ""
+msgstr "בבא קמא"
 
-#: examples/hcal/hdate.c:299
+#: examples/hcal/hdate.c:348
 msgid "Bava_Metzia"
-msgstr ""
+msgstr "בבא מציעא"
 
-#: examples/hcal/hdate.c:300
+#: examples/hcal/hdate.c:349
 msgid "Bava_Batra"
-msgstr ""
+msgstr "בבא בתרא"
 
-#: examples/hcal/hdate.c:301
+#: examples/hcal/hdate.c:350
 msgid "Sanhedrin"
-msgstr ""
+msgstr "סנהדרין"
 
-#: examples/hcal/hdate.c:302
+#: examples/hcal/hdate.c:351
 #, fuzzy
 msgid "Makkot"
-msgstr "סוכות"
+msgstr "מוכות"
 
-#: examples/hcal/hdate.c:303
+#: examples/hcal/hdate.c:352
 #, fuzzy
 msgid "Shevuot"
 msgstr "שבועות"
 
-#: examples/hcal/hdate.c:304
+#: examples/hcal/hdate.c:353
 msgid "Avodah_Zara"
-msgstr ""
+msgstr "עבודה זרה"
 
-#: examples/hcal/hdate.c:305
+#: examples/hcal/hdate.c:354
 msgid "Horayot"
-msgstr ""
+msgstr "הוריות"
 
-#: examples/hcal/hdate.c:306
+#: examples/hcal/hdate.c:355
 msgid "Zevachim"
-msgstr ""
+msgstr "זבחים"
 
-#: examples/hcal/hdate.c:307
+#: examples/hcal/hdate.c:356
 msgid "Menachot"
-msgstr ""
+msgstr "מנחות"
 
-#: examples/hcal/hdate.c:308
+#: examples/hcal/hdate.c:357
 msgid "Chullin"
-msgstr ""
+msgstr "חולין"
 
-#: examples/hcal/hdate.c:309
+#: examples/hcal/hdate.c:358
 #, fuzzy
 msgid "Bechorot"
-msgstr "בחוקותי"
+msgstr "בכורות"
 
-#: examples/hcal/hdate.c:310
+#: examples/hcal/hdate.c:359
 msgid "Erchin"
-msgstr ""
+msgstr "ערכין"
 
-#: examples/hcal/hdate.c:311
+#: examples/hcal/hdate.c:360
 msgid "Temurah"
-msgstr ""
+msgstr "תמורה"
 
-#: examples/hcal/hdate.c:312
+#: examples/hcal/hdate.c:361
 msgid "Keritut"
-msgstr ""
+msgstr "כריתות"
 
-#: examples/hcal/hdate.c:313
+#: examples/hcal/hdate.c:362
 msgid "Meilah"
-msgstr ""
+msgstr "מעילה"
 
-#: examples/hcal/hdate.c:314
+#: examples/hcal/hdate.c:363
 msgid "Meilah-Kinnim"
-msgstr ""
+msgstr "מעילה-קינים"
 
-#: examples/hcal/hdate.c:315
+#: examples/hcal/hdate.c:364
 msgid "Kinnim"
-msgstr ""
+msgstr "קינים"
 
-#: examples/hcal/hdate.c:316
+#: examples/hcal/hdate.c:365
 msgid "Kinnim-Tamid"
-msgstr ""
+msgstr "קינים-תמיד"
 
-#: examples/hcal/hdate.c:317
+#: examples/hcal/hdate.c:366
 #, fuzzy
 msgid "Tamid"
-msgstr "במדבר"
+msgstr "תמיד"
 
-#: examples/hcal/hdate.c:318
+#: examples/hcal/hdate.c:367
 msgid "Middot"
-msgstr ""
+msgstr "מדות"
 
-#: examples/hcal/hdate.c:319
+#: examples/hcal/hdate.c:368
 msgid "Niddah"
-msgstr ""
+msgstr "נדה"
 
-#: examples/hcal/hdate.c:324
+#: examples/hcal/hdate.c:373
 msgid "There are no easter eggs in this program. Go away."
 msgstr ""
 
-#: examples/hcal/hdate.c:325
+#: examples/hcal/hdate.c:374
 msgid "There is no Chanukah gelt in this program. Leave me alone."
 msgstr ""
 
-#: examples/hcal/hdate.c:326
+#: examples/hcal/hdate.c:375
 msgid "Nope, no Hamentashen either. Scram kid, your parents are calling you"
 msgstr ""
 
-#: examples/hcal/hdate.c:327
+#: examples/hcal/hdate.c:376
 msgid "Nada. No cheesecake, no apples with honey, no pomegranate seeds. Happy?"
 msgstr ""
 
-#: examples/hcal/hdate.c:328
+#: examples/hcal/hdate.c:377
 msgid "Afikomen? Afikomen! Ehrr... Huh?"
 msgstr ""
 
-#: examples/hcal/hdate.c:329
+#: examples/hcal/hdate.c:378
 msgid "(grumble...) You win... (moo)"
 msgstr ""
 
-#: examples/hcal/hdate.c:330
+#: examples/hcal/hdate.c:379
 msgid ""
 "Okay! enough already! MOO! MOO! MoooooH!\n"
 "\n"
 "Satisfied now?"
 msgstr ""
 
-#: examples/hcal/hdate.c:331
+#: examples/hcal/hdate.c:380
 msgid ""
 "Etymology: Pesach\n"
 "   Derived from the ancient Egyptian word \"Feh Tzach\" meaning \"purchase a "
@@ -1380,31 +1453,28 @@ msgid ""
 "hygiene."
 msgstr ""
 
-#: examples/hcal/hdate.c:332
+#: examples/hcal/hdate.c:381
 msgid "You have reached Wit's End."
 msgstr ""
 
-#: examples/hcal/hdate.c:341
+#: examples/hcal/hdate.c:404
 msgid ""
-"hdate - display Hebrew date information\n"
-"version 1.6"
-msgstr ""
-
-#: examples/hcal/hdate.c:351
-msgid ""
-"Usage: hdate [options] [coordinates timezone] [[[day] month] year]\n"
-"       hdate [options] [coordinates timezone] [julian_day]\n"
+"Usage: hdate [options] [coordinates] [timezone] [date_spec]\n"
+"       hdate [options] [coordinates] [timezone] [julian_day|time_t]\n"
 "\n"
-"       coordinates: -l [NS]yy[.yyy] -L [EW]xx[.xxx]\n"
+"       coordinates: -l [NS]yy[.yyy]     -L [EW]xx[.xxx]\n"
 "                    -l [NS]yy[:mm[:ss]] -L [EW]xx[:mm[:ss]]\n"
-"       timezone:    -z nn[( .nn | :mm )]"
+"\n"
+"       timezone:    -z [ [nn[.nn|:mm]] | tz_name ]\n"
+"\n"
+"       date_spec:   [ [[[day] month] year] | flexible_entry ]\n"
 msgstr ""
 
-#: examples/hcal/hdate.c:364
+#: examples/hcal/hdate.c:418
 msgid "Try 'hdate --help' for more information"
 msgstr ""
 
-#: examples/hcal/hdate.c:375
+#: examples/hcal/hdate.c:429
 msgid ""
 "hdate - display Hebrew date information\n"
 "OPTIONS:\n"
@@ -1413,6 +1483,11 @@ msgid ""
 "   -d --diaspora      force diaspora readings and holidays.\n"
 "      --israel        force Eretz Yisroel readings an holidays\n"
 "      --daf-yomi\n"
+"   -e --emesh         begin printing times-of-day at sunset or candles.\n"
+"      --erev          this is the default and can be over-ridden with\n"
+"                      --no-emesh or --no-erev\n"
+"   -E --epoch         print times of day in epoch format\n"
+"   -E --epoch time_t  get information for this epoch date\n"
 "   -h --holidays      print holiday information.\n"
 "   -H                 print only if day is a holiday.\n"
 "   -i --ical          use iCal formated output.\n"
@@ -1471,243 +1546,284 @@ msgid ""
 "   --not-sunset-aware don't display next day if after sunset\n"
 "   --data-first       display data, followed by it's description\n"
 "   --labels-first     display data descriptions before the data itself\n"
+"   --prefer-hebrew    interpret ambiguous mm yy as Hebrew date\n"
+"   --prefer-gregorian interpret ambiguous mm yy as gregorian date\n"
+"\n"
 "All options can be made default in the config file, or menu-ized for\n"
-"easy selection."
+"easy selection.\n"
+"Report bugs to: <http://sourceforge.net/tracker/?"
+"group_id=63109&atid=502872>\n"
+"libhdate home page: <http://libhdate.sourceforge.net>\n"
+"General help using GNU software: <http://www.gnu.org/gethelp/>\n"
 msgstr ""
 
-#: examples/hcal/hdate.c:446
+#: examples/hcal/hdate.c:510
 msgid ""
 "ALERT: The information displayed is for today's Hebrew date.\n"
 "              Because it is now after sunset, that means the data is\n"
 "              for the Gregorian day beginning at midnight."
 msgstr ""
 
-#: examples/hcal/hdate.c:662
+#: examples/hcal/hdate.c:762
 msgid "eve of "
-msgstr ""
+msgstr "ערב"
 
-#: examples/hcal/hdate.c:993
+#: examples/hcal/hdate.c:1169
 msgid "days"
-msgstr ""
+msgstr "ימים"
 
-#: examples/hcal/hdate.c:994
+#: examples/hcal/hdate.c:1170
 #, fuzzy
-msgid "in the omer"
+msgid "in_the_omer"
 msgstr "לספירת העומר"
 
-#: examples/hcal/hdate.c:995
-msgid "today is day"
-msgstr ""
+#: examples/hcal/hdate.c:1171
+#, fuzzy
+msgid "today_is_day"
+msgstr "היום יום"
 
-#: examples/hcal/hdate.c:1116
-msgid "today is"
-msgstr ""
+#: examples/hcal/hdate.c:1298
+msgid "today_is"
+msgstr "היום"
 
-#: examples/hcal/hdate.c:1124
-msgid ", which is"
-msgstr ""
+#: examples/hcal/hdate.c:1306
+msgid ",_which_is"
+msgstr "שהם"
 
-#: examples/hcal/hdate.c:1126
+#: examples/hcal/hdate.c:1308
 msgid "week"
-msgstr ""
+msgstr "שבוע"
 
-#: examples/hcal/hdate.c:1127
+#: examples/hcal/hdate.c:1309
 msgid "weeks"
-msgstr ""
+msgstr "שבועות"
 
-#: examples/hcal/hdate.c:1131
+#: examples/hcal/hdate.c:1313
 #, fuzzy
 msgid "and"
-msgstr "ינו"
+msgstr "יו"
 
-#: examples/hcal/hdate.c:1136
+#: examples/hcal/hdate.c:1317
 msgid ","
-msgstr ""
+msgstr ","
 
-#: examples/hcal/hdate.c:1220
+#: examples/hcal/hdate.c:1359
 msgid "Gregorian date"
-msgstr ""
+msgstr "תאריך לועזי"
 
-#: examples/hcal/hdate.c:1221
+#: examples/hcal/hdate.c:1360
 msgid "Hebrew Date"
+msgstr "תאריך עברי"
+
+#: examples/hcal/hdate.c:2516
+msgid "-z (timezone)"
 msgstr ""
 
-#: examples/hcal/hdate.c:1580
-#, fuzzy
-msgid "holiday_today"
-msgstr "שישי"
+#: examples/hcal/hdate.c:3053
+msgid ""
+"parameter conflict: you entered both a date_spec and an option --epoch "
+"date_spec"
+msgstr ""
 
-#: examples/hcal/hdate.c:3057
+#: examples/hcal/hdate.c:3189
 msgid ""
 "too many arguments (expected at most day, month and year after options list)"
 msgstr ""
 
-#: examples/hcal/local_functions.c:59
-msgid "parameter"
-msgstr ""
-
-#: examples/hcal/local_functions.c:60
-msgid "is non-numeric or out of bounds"
-msgstr ""
-
-#: examples/hcal/local_functions.c:66 examples/hcal/local_functions.c:79
-msgid "option"
-msgstr ""
-
-#: examples/hcal/local_functions.c:66
-msgid "missing parameter"
-msgstr ""
-
-#: examples/hcal/local_functions.c:72
-msgid "ALERT: time zone not entered, using system local time zone"
-msgstr ""
-
-#: examples/hcal/local_functions.c:79
-msgid "is not a valid option"
-msgstr ""
-
-#: examples/hcal/local_functions.c:140
-msgid "Los Angeles"
-msgstr ""
-
-#: examples/hcal/local_functions.c:141
-msgid "Mexico City"
-msgstr ""
-
-#: examples/hcal/local_functions.c:142
-msgid "New York City"
-msgstr ""
-
-#: examples/hcal/local_functions.c:145
-msgid "Caracas"
-msgstr ""
-
-#: examples/hcal/local_functions.c:146
-msgid "Buenos Aires"
-msgstr ""
-
-#: examples/hcal/local_functions.c:147
-msgid "London"
-msgstr ""
-
-#: examples/hcal/local_functions.c:148
-msgid "Paris"
-msgstr ""
-
-#: examples/hcal/local_functions.c:149
-msgid "Tel-Aviv"
-msgstr ""
-
-#: examples/hcal/local_functions.c:150
-msgid "Tehran"
-msgstr ""
-
-#: examples/hcal/local_functions.c:151
-msgid "Moscow"
-msgstr ""
-
-#: examples/hcal/local_functions.c:152
-msgid "Tashkent"
-msgstr ""
-
-#: examples/hcal/local_functions.c:153
-msgid "Calcutta"
-msgstr ""
-
-#: examples/hcal/local_functions.c:154
-msgid "Beijing"
-msgstr ""
-
-#: examples/hcal/local_functions.c:157
-msgid "Sydney"
-msgstr ""
-
-#: examples/hcal/local_functions.c:160
-msgid "Hmmm, ... hate to do this, really ..."
-msgstr ""
-
-#: examples/hcal/local_functions.c:161
-msgid "using co-ordinates for the equator, at the center of time zone"
-msgstr ""
-
-#: examples/hcal/local_functions.c:275 examples/hcal/local_functions.c:289
-#: examples/hcal/local_functions.c:290
+#: examples/hcal/local_functions.c:70
 msgid "l (latitude)"
 msgstr ""
 
-#: examples/hcal/local_functions.c:276
-msgid "L (Longitue)"
-msgstr ""
-
-#: examples/hcal/local_functions.c:322 examples/hcal/local_functions.c:336
-#: examples/hcal/local_functions.c:337 examples/hcal/local_functions.c:368
+#: examples/hcal/local_functions.c:71
 msgid "L (Longitude)"
 msgstr ""
 
-#: examples/hcal/local_functions.c:399
-msgid "z (time zone)"
+#: examples/hcal/local_functions.c:72
+msgid "equator"
 msgstr ""
 
-#: examples/hcal/local_functions.c:419
-msgid "z (timezone)"
+#: examples/hcal/local_functions.c:73
+msgid "midpoint of theoretical timezone"
 msgstr ""
 
-#: examples/hcal/local_functions.c:443
-msgid "valid longitude parameter missing for given latitude"
+#: examples/hcal/local_functions.c:74
+msgid "absolute UTC offset entered"
 msgstr ""
 
-#: examples/hcal/local_functions.c:448
-msgid "valid latitude parameter missing for given longitude"
+#: examples/hcal/local_functions.c:75
+msgid "no timezone entered"
 msgstr ""
 
-#: examples/hcal/local_functions.c:490
-msgid "time zone value of"
+#: examples/hcal/local_functions.c:83
+msgid "parameter"
 msgstr ""
 
-#: examples/hcal/local_functions.c:491
-msgid "is incompatible with a longitude of"
+#: examples/hcal/local_functions.c:84
+msgid "is non-numeric or out of bounds"
 msgstr ""
 
-#: examples/hcal/local_functions.c:491
-msgid "degrees"
+#: examples/hcal/local_functions.c:90 examples/hcal/local_functions.c:144
+msgid "option"
 msgstr ""
 
-#: examples/hcal/local_functions.c:897
-msgid ""
-"This seems to be to be your first time using this version.\n"
-"Please read the new documentation in the man page and config file.\n"
-"Press <enter> to continue."
+#: examples/hcal/local_functions.c:90
+msgid "missing parameter"
 msgstr ""
 
-#: examples/hcal/local_functions.c:944
+#: examples/hcal/local_functions.c:96
+msgid "unsupported option -"
+msgstr ""
+
+#: examples/hcal/local_functions.c:103
+msgid "ALERT: time zone not entered, using current system UTC offset"
+msgstr ""
+
+#: examples/hcal/local_functions.c:110
+msgid "ALERT: time zone not entered, using system local time zone"
+msgstr ""
+
+#: examples/hcal/local_functions.c:116
+msgid "ALERT: time zone not entered, guessing UTC offset"
+msgstr ""
+
+#: examples/hcal/local_functions.c:116
+msgid "hours, based upon longitude"
+msgstr ""
+
+#: examples/hcal/local_functions.c:122
+msgid "ALERT: coordinate not entered or invalid..."
+msgstr ""
+
+#: examples/hcal/local_functions.c:124
+msgid "ALERT: guessing"
+msgstr ""
+
+#: examples/hcal/local_functions.c:124
+msgid "of"
+msgstr ""
+
+#: examples/hcal/local_functions.c:130
+msgid "ALERT: the input"
+msgstr ""
+
+#: examples/hcal/local_functions.c:131
+msgid "is at great variance from the chosen time zone default value"
+msgstr ""
+
+#: examples/hcal/local_functions.c:137
+msgid "ALERT: daylight savings time can not be determined"
+msgstr ""
+
+#: examples/hcal/local_functions.c:144
+msgid "is not a valid option"
+msgstr ""
+
+#: examples/hcal/local_functions.c:150
+msgid "month and year parameters mismatched (Hebrew/gregorian mix)"
+msgstr ""
+
+#: examples/hcal/local_functions.c:156
 msgid "failure attempting to create config file"
 msgstr ""
 
-#: examples/hcal/local_functions.c:950
-msgid "failure closing"
+#: examples/hcal/local_functions.c:198
+msgid "America/Los_Angeles"
+msgstr "אמריקה\\לוס אנגלס"
+
+#: examples/hcal/local_functions.c:199
+msgid "America/Mexico_City"
+msgstr "אמריקה\\מקסיקו סיטי"
+
+#: examples/hcal/local_functions.c:200
+msgid "America/New_York"
+msgstr "אמריקה\\ניו יורק"
+
+#: examples/hcal/local_functions.c:203
+msgid "America/Caracas"
+msgstr "אמריקה\\קרקאס"
+
+#: examples/hcal/local_functions.c:204
+msgid "America/Argentina/Buenos_Aires"
 msgstr ""
 
-#: examples/hcal/local_functions.c:952
-msgid "created config file:"
+#: examples/hcal/local_functions.c:205
+msgid "Europe/London"
+msgstr "אירופה\\לונדון"
+
+#: examples/hcal/local_functions.c:206
+msgid "Europe/Paris"
+msgstr "אירופה\\פריס"
+
+#: examples/hcal/local_functions.c:207
+msgid "Asia/Jerusalem"
+msgstr "אסיה\\ירושלים"
+
+#: examples/hcal/local_functions.c:208
+msgid "Asia/Tehran"
+msgstr "אסיה\\טהראן"
+
+#: examples/hcal/local_functions.c:209
+msgid "Europe/Moscow"
+msgstr "אירופה\\מוסקווה"
+
+#: examples/hcal/local_functions.c:210
+msgid "Asia/Tashkent"
+msgstr "אסיה\\תשקנט"
+
+#: examples/hcal/local_functions.c:211
+msgid "Asia/Kolkata"
 msgstr ""
 
-#: examples/hcal/local_functions.c:972
-msgid "memory allocation failure"
+#: examples/hcal/local_functions.c:212
+msgid "Asia/Shanghai"
 msgstr ""
 
-#: examples/hcal/local_functions.c:1185
+#: examples/hcal/local_functions.c:216
+msgid "Australia/Sydney"
+msgstr ""
+
+#: examples/hcal/local_functions.c:335
+msgid "L (Longitue)"
+msgstr ""
+
+#: examples/hcal/local_functions.c:499
+msgid "internal size mismatch, parameter '--epoch' being ignored"
+msgstr ""
+
+#: examples/hcal/local_functions.c:721
+msgid ""
+"unable to parse timezone or dalight savings time data;\n"
+"      using Jerusalem Standard Time"
+msgstr ""
+
+#: examples/hcal/local_functions.c:855
+msgid ""
+"This seems to be to be your first time using this version (1.8).\n"
+"Please read the new documentation in the man page and config files.\n"
+"Press <enter> to continue."
+msgstr ""
+
+#: examples/hcal/local_functions.c:937
+msgid "attempting to create a config file ..."
+msgstr ""
+
+#: examples/hcal/local_functions.c:946
+msgid "succeeded creating config file"
+msgstr ""
+
+#: examples/hcal/local_functions.c:1106
 msgid "your custom menu options (from your config file)"
 msgstr ""
 
-#: examples/hcal/local_functions.c:1191
+#: examples/hcal/local_functions.c:1112
 msgid "ALERT: -m (--menu) option specified, but no menu items in config file"
 msgstr ""
 
-#: examples/hcal/local_functions.c:1194
+#: examples/hcal/local_functions.c:1115
 msgid "enter your selection, or <return> to continue"
 msgstr ""
 
-#: examples/hcal/local_functions.c:1198
+#: examples/hcal/local_functions.c:1119
 msgid "menu selection received was out of bounds"
 msgstr ""
 
