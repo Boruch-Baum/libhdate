@@ -1,0 +1,1052 @@
+2018-08-17  Boruch Baum  <boruch_baum@gmx.com>
+
+	* ALL: First commit since 2015, and using git!
+	* ALL: Update copyrights and email-addresses
+	* autogen.sh: New shel script file for building from sources
+	* INSTALL: Replace generic ancient FSF file with useful, relevant one
+	* USE: Edit for context
+	* Makefile: Correct use of variables (CFLAGS->AM_CFLAGS, INCLUDE->AM_CPPFLAGS)
+	* ALL: Remove unnecessary extra subdirectory level
+	* Doxyfile, Doxyfile_cpp: Remove doxygen files
+	* COPYING': Rename to 'LICENSE'
+	* Changelog: Adopt a standard format
+
+custom_days.c
+- BUGFIX account for adjustments causing custom days to cross year boundaries
+
+hdate.c
+- BUGFIX custom_days respects -qqq option
+- BUGFIX holidays display in hebrew and bidi
+- BUGFIX custom days display in hebrew and bidi
+- BUGFIX tabular holidays display in hebrew and bidi
+- BUGFIX tabular custom days display in hebrew and bidi
+- BUGFIX parasha display in hebrew and bidi
+- BUGFIX parasha display data-first or label-first
+- BUGFIX apostrophe for Shabbat prefix "yom sh"
+- BUGFIX omer labels and english for -ooo
+- BUGFIX omer -o display in hebrew and bidi
+- BUGFIX all data labels convert spaces to underscores
+- BUGFIX daf yomi masechtaot convert spaces to underscores
+- BUGFIX omer convert spaces to underscores
+
+hcal.c
+- BUGFIX footnotes properly display in -gg mode
+
+hdate_strings.c
+- BUGFIX convert spaces to underscores (eg. אדר א, כי תשא)
+
+he.po
+- performed make update-po
+- added and corrected many translations
+----------------------------------------------------------------------------
+hcal.c
+- limits check for options -c -g --candles --havdalah
+
+hdate.c
+- limits check for options -q -t -o -v --candles --havdalah
+
+libhdate.3
+- continue transition from doxygen
+
+----------------------------------------------------------------------------
+hdate.c
+- BUGFIX parse for user entry dd mm
+
+hcal.c
+- BUGFIX custom days print for html output
+
+custom_days.c
+- BUGFIX month IDs for Shabbat Chazon, Nachamu
+- BUGFIX for custom day parsing and error reporting
+
+BEGIN migration away from using doxygen
+
+NOTE ON DOCUMENTATION STATE - libhdate seems unique in having
+a man page for its header file, ie. apropos -s3 .h | grep "\.h (3)".
+This will be removed, and replaced with a libhdate(3) man page
+
+hdate_struct.3
+- write this man page independent of doxygen, so that
+  that it is comprehensible and useful.
+
+libhdate.3
+- new documentation file evolving from hdate.h.3
+- added to version control
+- update makefile.am
+
+hdate.h.3
+- deleted, removed from version control
+- update makefile.am
+
+----------------------------------------------------------------------------
+hdate.c
+- BUGFIX tabular month DST awareness
+- Improve range checking for years, and julian days
+- Improve range checking for base_years
+
+hcal.c
+- BUGFIX timezone alpha recognition
+- BUGFIX html output
+- Improve range checking for base_years
+
+hdate.h
+- tweak ranges for julian days
+
+hcal.1
+hdate.1
+- updated
+
+hdate_strings.c
+- BUGFIX nlang_months indexing for short month names
+
+----------------------------------------------------------------------------
+hcal.c
+hdate.c
+- BUGFIX process_location_parms
+
+hdate.c
+- option epoch print in tabular mode
+- BUGFIX sane output when user enters insane UTC adjustment
+- BUGFIX sane output when user enters insane longitudes
+
+local_functions.c
+- BUGFIX process_location_parms
+- improve alerts to user
+- set default locations consistent with zone.tab file
+
+hdate_strings.c
+- more transliteration options for Hebrew months
+
+----------------------------------------------------------------------------
+hcal.c
+- spelling error detected by lintian
+
+hcal.1
+hdate.1
+- updated
+- change hyphens to minus signs (lintian-compliance)
+
+hdate.h.3
+- tweak so lintian doesn't reject SH macro
+- change hyphens to minus signs (lintian-compliance)
+
+----------------------------------------------------------------------------
+custom_days.c
+- improved file handling
+- israeli days integrated
+- diaspora comments for israeli days
+
+local_functions.c
+- improved file handling
+- logic for custom_days and config_rc split
+
+hcal.c
+- BUGFIX: three-month mode for ellul
+- improved file handling
+- config file parsing for base_year_g, base_year_h
+- config file parsing for prefer_hebrew
+
+hdate.c
+- improved file handling
+- create custom days file even without -hm
+- allow single month alpha as a date spec
+- interpret single parm small number as day of current month
+- interpret single parm tw0 digit larger number as a year
+- config file parsing for base_year_g, base_year_h
+- config file parsing for prefer_hebrew
+
+custom_days.h
+local_functions.h
+- updated
+
+hcal.1
+hdate.1
+- updated
+
+----------------------------------------------------------------------------
+hdate.c
+- option --epoch to output times in epoch format
+- option to accept a date in epoch format
+- option --usage -?
+- BUGFIXES - parameter parsing
+
+hcal.c
+- option --usage -?
+
+hdate.1
+- update documentation
+
+hdate_parse_date.c
+- new function: hdate_get_size_of_hebrew_month
+- new function: hdate_get_size_of_gregorian_month
+- BUGFIXES - parameter parsing
+
+custom_days.c
+- added special Shabbatot examples
+
+local_functions.c
+- BUGFIX: parameter parsing
+
+----------------------------------------------------------------------------
+hcal.c
+- migrate from hdate_get_holyday to hdate_get_halachic_day
+- support for custom day symbols
+- BUGFIX: calendar line 6 in three-month mode
+- option --bold print special days in boldface monotone
+- BUGFIX: holiday colorizing of Hebrew days and custom days
+
+custom_days.c
+- add field for custom day symbol
+
+hdate.h
+- add function hdate_get_halachic_day_type
+- add function hdate_get_israeli_day_type
+- add function hdate_parse_date
+
+hdate_holyday.c
+- add function hdate_get_halachic_day_type
+- add function hdate_get_israeli_day_type
+- function hdate_get_holyday_type becomes wrapper for
+  hdate_get_israeli_day_type and hdate_get_halachic_day_type
+
+hdate_strings.c
+- more flexible latin names for Hebrew months ( eg. bul,
+  ziv, mar cheshvan, menachem av, yerech ha-eitanim )
+- more flexible Hebrew names for Hebrew months ( eg. bul, etc )
+- latin names for months, holidays, parshiot use underscore
+  instead of spaces.
+
+local_functions.c
+- transfer 'parse_date' to library as 'hdate_parse_date'
+- allow reading of newly created config files
+
+hdate_parse_date.c
+- new file
+- brings to library hdate_parse_date from local_functions.c
+- BUGFIX: many fixes to date parsing algorithm
+
+Makefile.am
+- update
+
+hcal.1
+hdate.1
+- update for flexible date entry
+- update 'not a bug' section
+
+----------------------------------------------------------------------------
+hdate.c
+- option --emesh in tabular mode
+- bugfixes in tabular mode
+
+local_functions.c
+- bugfixes in date parsing
+
+----------------------------------------------------------------------------
+hdate.c
+hcal.c
+local_functions.c
+timezone_functions.c
+hcal.c
+local_functions.h
+timezone_functions.h
+- many bugfixes in timezone parsing
+
+hcal.1
+hdate.1
+- timezone update
+
+----------------------------------------------------------------------------
+hdate.c
+- BUGFIX print julian day (code had been deleted)
+- new options --prefer-hebrew --prefer-gregorian
+- new options --emesh --erev prints times from sunset
+
+hcal.c
+- new options --prefer-hebrew --prefer-gregorian
+
+custom_days.c
+- rules changes for yom ha'atzmaut and yom hazikaron in config file
+- improved range checking for final / start years (still incomplete)
+
+local_functions.c
+- improve date parsing heuristic
+- allow selection of hebrew/gregorian preference
+- allow selection of hebrew/gregorian base year
+
+hdate_strings.c
+- accept alternative latin spellings for Hebrew months
+
+hcal.1
+hdate.1
+- new options --prefer-hebrew --prefer-gregorian
+- accept alternative latin spellings for Hebrew months
+
+----------------------------------------------------------------------------
+custom_days.c
+- add field for final year
+- add gross range checking for final / start years
+
+local_functions.c
+- BUGFIX parse date recognizes form 01 JaNAry 2013
+
+zdump3.c
+zdump3.h
+- moved to library
+
+zdump.3
+- documentation
+
+Makefile.am
+- changes for zdump
+
+----------------------------------------------------------------------------
+hdate.c
+- daylight savings time awareness
+- erev pesach times in tabular mode
+- option erev-pesach to print all special times for that day
+
+hdate.1
+- update for erev-pesach option
+
+----------------------------------------------------------------------------
+hcal.c
+hdate.c
+local_functions.c
+local_functions.h
+timezone_functions.c
+timezone_functions.h
+zdump3.c
+zdump3.h
+- daylight savings time awareness (incomplete)
+
+custom_days.c
+- add templates for Israeli custom days
+
+----------------------------------------------------------------------------
+makefile.am
+- update compile and link flags for code hardening
+
+hdate.h
+- new function hdate_get_halachic_day
+- new function hdate_get_israeli_day
+
+hdate_holyday.c
+- hdate_getholyday turns into wrapper for
+  hdate_get_halachic_day and hdate_get_israeli_day
+- new function hdate_get_halachic_day
+- new function hdate_get_israeli_day
+
+local_functions.c
+- remove warnings indicated by code-hardening compile flags
+
+timezone_functions.h
+- new file
+
+zdump3.c
+- BUGFIX: pointer timezone abbreviation,
+
+----------------------------------------------------------------------------
+hcal.c
+hdate.c
+- GNU-compliance for --version and --help
+- rewrite all functions to pass and use
+  const option_list* instead of option_list
+
+hdate.c
+- print candle-lighting before dafyomi, omer, etc.
+- option data-first to apply also for dafyomi
+
+local_functions.h
+- change MIN_CANDLES_MINUTES to 15 for minhag London
+
+custom_days.c
+- handle Cheshvan 30 and Kislev 30 in non-leap year
+- handle Adar days in years that don't have them
+- reduce malloc/free requirements in sscanf() calls
+
+hcal.1
+hdate.1
+- update documentation
+- correct usage of "-" to "\-" for compliance with
+  debian policy (lintian)
+
+zdump3.c
+zdump3.h
+- new files
+
+----------------------------------------------------------------------------
+custom_days.c
+custom_days.h
+local_functions.h
+- new files
+
+support.h
+- minor changes
+
+hdate_julian.c
+- BUGFIX hdate_set_hdate was not returning
+  the current date when d or m was set to zero.
+- BUGFIX hdate_set_hdate was returning
+  bad input Hebrew d m y when performing
+  its secondary purpose of date arithmetic
+  (eg. when given 31-1-5772 it would
+  return correct info for 1-2-5772 except
+  h.hd_day would be 31 and h.hd_month would
+  be 1.
+- BUGFIX hdate_set_gdate was returning
+  bad input gregorian d m y when performing
+  its secondary purpose of date arithmetic
+  (eg. when given 32-3-2012 it would
+  return correct info for 1-4-2012 except
+  h.gd_day would be 32 and h.gd_month would
+  be 3).
+
+hdate.c
+- BUGFIX -ooo in Hebrew was occassionally
+  displaying (null)
+
+custom_days.c
+- handle february 29 in non-leap year
+
+----------------------------------------------------------------------------
+
+hdate.c
+- BUGFIX -ooo now displays arabic numerals when
+  not displaying Hebrew omer text
+- new default option --data-first
+- new option --labels-first
+
+hcal.c
+- BUGFIX - parse_date for alphabetic month only
+
+local_functions.c
+- rewrite function parse_date
+
+hdate.1
+- update documentation
+
+hdate.1
+- update documentation
+
+----------------------------------------------------------------------------
+
+hcal.c
+- custom days in footnotes
+
+local_functions.c
+- custom days adjustments increased to +/-9
+- custom days adjustments now for all days of week
+- custom days change data structure
+- BUGFIX custom days pointer arithmetic
+- update custom days config file text
+
+----------------------------------------------------------------------------
+
+hcal.c
+- NEW FEATURE - custom days
+- apply function parse_date to smarter date parameter
+  identification
+- BUGFIX missing final calendar line in -gg February
+
+hdate.c
+- NEW FEATURE - custom days
+- use common hdate_validate function for date validation
+- apply function parse_date to smarter date parameter
+  identification
+- BUGFIX - comma-delimiting on empty fields
+- BUGFIX - tabular Hebrew month
+
+local_functions.c
+- add support for quiet_alerts to new functions
+- BUGFIX leapyear for y%400 == 0
+
+timezone_functions.c
+- add support for quiet_alerts to new functions
+
+hdate_strings.c
+- optimize calls to nl_langinfo() by making
+  arrays from compiler constant lists
+- fix confusion I had with langinfo_days[]
+
+hdate.1
+- update documentation
+
+----------------------------------------------------------------------------
+
+local_functions.c
+- new function parse_date to allow flexible
+  user input of dates, including user choice
+  of sequence for y m or m y, text months in
+  system locale or Hebrew, and NOT YET !!!     maybe two-digit
+  years.
+
+hdate_strings.c
+- new function hdate_parse_month_text_string
+- had to globalize scope of arrays
+  *hebrew_months and *gregorian_months so
+  multiple functions could use them
+
+hdate.h
+- define hdate_parse_month_text_string
+
+hdate.c
+- use parse_date for user input of month/year
+- misc. code cleanups
+
+----------------------------------------------------------------------------
+
+hdate_strings.c
+- BUGFIX display of days of week
+- improved handling of nl_langinfo() calls
+
+timezone_functions.c
+- use $TZDIR when available
+- report use of zone.tab entry for coordinates
+
+local_functions.c
+- optimize code for setting default location
+  for option of using zone.tab entries
+- replace Honolulu with Sydney for timezone
+  10 default
+- improved precision of location coordinates
+- change timezone choice selection to minutes
+  from hours to enable Calcutta, Tehran, Caracas
+- add Calcutta, Tehran, Caracas as defaults
+  for their zones
+- BUGFIX change Moscow from default for TZ+3
+  to default for TZ+4
+
+hdate.1
+- update documentation
+- improved precision of location coordinates
+- add/change locations
+
+hcal.1
+- update documentation
+- improved precision of location coordinates
+- add/change locations
+
+----------------------------------------------------------------------------
+
+hdate_holyday.c
+- BUGFIX holiday types for erev yom tov
+
+hdate_sun_time.c
+- improve const correctness
+- new function hdate_get_utc_sun_time_deg_seconds
+  to improve precision from minutes to seconds
+- function hdate_get_utc_sun_time_deg converted
+  to be a wrapper for hdate_get_utc_sun_time_deg_seconds
+  and
+
+hdate.h
+- improve const correctness
+
+hdate_strings.c
+- Improve internationalization by using nl_langinfo()
+  for gregorian day_of_week and month strings
+- add erev sukkot
+- BUGFIX short and long versions of holiday strings
+  had been reversed
+- BUGFIX parsha matot-ma'asei string
+- add string for regular_day (ie. no holiday)
+- adjust holiday indexing to correspond with cases
+  in hdate_get_holydaay_type
+
+hdate
+- FUNCTIONALITY CHANGE to option --omer:
+  -o   prints just the numeric data
+  -oo  prints a short text message
+  -ooo prints a long message, including weeks and
+      remainder days
+  --laomer forces -ooo in Hebrew with lamed
+  --baomer forces -ooo in Hebrew with bet
+- improve accuracy of sun_hour and its derived
+  calculations
+- FUNCTIONALITY CHANGE sun_hour displays as hh:mm:ss
+- FUNCTIONALITY CHANGE short option -s changed from
+  --sun (rise and set) to --shabbat / --shabbat-times
+- FUNCTIONALITY CHANGE short option -c deprecate. It
+  had been "candles", a reference to Shabbat start
+  and end times, now provided by short option -s
+- add long options --times-of-day and --day-times
+  synonomous to the existing short option -t
+- new feature: location-awareness sets diaspora option
+  (for differences in holidays and weekly readings)
+  true or false, but only if not explicitly set by
+  user or config file.
+- new option --israel, to explicitly suppress a
+  --diaspora setting made in the config file or set
+  by location-awareness.
+- BUGFIX apply bidi to month header label when
+  printing batch data for an entire month
+
+hcal
+- BUGFIX bidi column alignment for parshiot, holidays
+  and footnotes
+- BUGFIX footnotes appear when using -g option and
+  gregorian date
+
+hdate.1
+- update documentation
+
+hcal.1
+- update documentation
+
+timezone_functions.c
+- parse tzfile in formats TZif1 and TZif2
+- get coordinates from zone.tab file
+- get system timezone from /etc/timezone
+
+local_functions.c
+- revstr() support to enable bidi column alignment
+  for parshiot, holidays and footnotes
+- improve location awareness by trying to get
+  system timezone name from /etc/timezone and
+  that timezones coordinate date from
+  /usr/share/zoneinfo/zone.tab
+
+----------------------------------------------------------------------------
+
+hcal
+- BUGFIX hebrew days_of_week header when forcing Hebrew
+
+hdate
+- add Erev Pesach times (end eat/own chometz) (GR"A, M"A)
+- BUGFIX Omer complies with option --quiet-alerts
+- BUGFIX parasha (opt -r) complies with option --quiet-alerts
+- BUGFIX parasha (opt -r) not to force Hebrew
+- BUGFIX holidays (opt -h) complies with option --quiet-alerts
+- BUGFIX holidays (opt -h) not to force Hebrew
+- Omer long form includes weeks and days
+- Omer short form is just number
+- BUGFIX omer number to print in same locale as text
+- BUGFIX --magen-avraham in tabular output
+- BUGFIX tabular headers for levels of quiet
+- option --tabular, synonym for option --table
+- undocumented afikomen option
+
+hdate.1
+- update documentation
+
+hdate_strings.c
+- omer short form should not include string "in the omer"
+- changed long forms of some holidays
+- add holiday erev pesach
+
+hdate_holyday.c
+- add holiday erev pesach
+
+----------------------------------------------------------------------------
+
+hdate
+- option (--daf-yomi)
+- BUGFIX - config file parsing memory allocation
+
+hcal
+- option (-0 --no-gregorian) Display only Hebrew calendar.
+  This is now the default condition.
+- option (-g --gregorian) Display a Hebrew month, with the
+  corresponding gregorian days
+- option (-gg) Display a gregorian month, with the
+  corresponding Hebrew days
+- option (--borders) displays a frame around calendars in
+  three-month mode
+- option -cc colorizes in in bolder, and mildy irritating,
+  colors
+- BUGFIX - config file parsing memory allocation
+
+local_functions
+- beginning of work on feature to support "custom" days (eg. birthdays,\
+  yahrtzeits)
+
+hcal.1
+- update documentation
+
+hdate.1
+- update documentation
+
+----------------------------------------------------------------------------
+
+hcal
+- don't print "try --help" in help message!
+- option --spacing for 3-month mode (custom space setting)
+  eg. --spacing="  |  " or --spacing=""
+
+hdate
+- don't print "try --help" in help message!
+- additional times: sof zman kriyat shema, sof zman tefilah, mincha gedola, mincha ketana, plag hamincha, magen-avraham
+- three levels of verbosity to option 't' ( -t -tt -ttt )
+- option to fine-tune which individual times to print
+- four levels of quiet ( -q alerts, -qq gregorian, -qqq labels, -qqqq Hebrew date )
+- change long option --quiet-alerts to --quiet
+
+
+local_functions
+- print "coordinates not entered or invalid" before guessing
+
+
+===========================================================================
+libhdate (1.6) - Boruch Baum <boruch_baum@gmx.com> 2012-01-09
+===========================================================================
+
+hcal
+- introduced config file $XDG_CONFIG_HOME/hcal/hcalrc or ~/.config/hcal/hcalrc
+- add support for long options (eg --help, --version)
+- option --menu -m to prompt user for user-defined menu selections from config file
+- option --candles takes an optional numeric argument to modify the default minhag.
+  valid values are 17 < n < 91 minutes (before sunset)
+- option --havdalah takes an optional numeric argument to modify the default minhag.
+  valid values are 19 < n < 91 minutes (after sunset)
+- options to over-ride config file settings
+- remove dependency of Hebrew on locale environment variables
+- new feature: sunset-aware to highlight correct hebrew date
+- new option: shabbat times
+- new feature: location-awareness (options -l -L -z)
+- basic location-guessing (based upon time zone
+- coordinates may now also be in form degrees, minutes, seconds and be delimited by :, ', or "
+- coordinates may now include compass directions N, S, E, W.
+- time zone may now include fractional hours, or minutes (delimited by :, ', or ")
+- fixed missing symbols for holiday types
+- highlight current day in reverse video
+- option --no-reverse to suppress reverse video of current day
+- compress width of display on screen
+- print Gregorian and Hebrew months on one line
+-- BUG FIX: Ellul - Tishrei yyyy now correctly
+     prints Ellul yyyy - Tishrei yyyy+1
+- option three-month to display previous and next months with current
+- option three-month with year displays four rows, three columns
+- option parasha to display parshat hashavua next to each week
+- option colorize to display data in, um, color
+- BUGFIX - padding adjusted to properly justify single digit hebrew dates
+- BUGFIX - calculation of end of month on change of year was wrong
+- BUGFIX - inserted bounds checking
+- option footnote to explain the month's holidays
+- option force-hebrew for non-hebrew locales
+- basic diaspora-awareness based on system time-zone
+- option force-israel to override diaspora-awareness
+- option visual, bidi to display Hebrew in reverse
+- modifications html/css
+
+hdate
+- coordinates may now also be in form degrees, minutes, seconds and be delimited by :, ', or "
+- time zone may now include fractional hours, or minutes (delimited by :, ', or ")
+- coordinates may now include compass directions N, S, E, W.
+- improved parsing of config file to include coordinates, timezone
+- add support for long options
+- option --help
+- option --version
+- option --force-hebrew to force Hebrew characters for Hebrew dates in
+	non-Hebrew locales
+- options --yom, --leshabbat, --leseder for Hebrew prefixing
+- remove annoying leading comma from options s,t,o,r,c
+- remove annoying parentheses from sunrise/sunset times, candlelighting times
+- remove blank line outputs
+- insert prefix for omer
+- insert descriptions for sunrise/sunset, candlelighting, motzash
+- remove printing ordinal numbers for short(!) form output option
+- insert 'yom' as prefix to gregorian day of week in Hebrew locale
+- special/appropriate text for Fri/Sat evenings
+- BUGFIX remove gettext directives from improper instances (option literals)
+- update copyright info
+- add version information to config file
+- BUGFIX tabular display bidi
+- BUGFIX tabular display omer
+- add candle and havdalah times to tabular display
+- add function pointer to validate_location
+- tweaks to iCal output
+-- uCal_uid_counter changed to be a local variable. The setting of
+	this value was made more consistent with the iCal standard
+	rfc5545, section 3.8.4.7.
+-- iCal entry:  CLASS - put on new line
+- option --sunset-aware, prints tomorrow's Hebrew date and info (for today only) if after sunset
+- option --table, prints data in csv format, suitable for spreadsheets, awk, etc.
+- timezone: set default to system local tz
+-- set default lat/lon coordinates by tz
+-- add lat/lon/tz info for some cities
+- timezone: display warning message if timezone not set
+- BUG FIX: check valid ranges for parameters lat, lon, tz
+- BUG FIX: sanity-check tz versus longitude
+-- arbitrarily set sanity limit at delta 30 degrees
+- BUG FIX: hebrew incorrectly forced in short format
+- short-format style tweak
+- BUG FIX: Julian day would always print when selecting -R option
+- BUG FIX: parasha would always print when selecting -j option
+- BUG FIX: -R option would never work. would never print a parasha.
+- BUG FIX: Don't print negative astronomical times
+-- print instead --:--
+- BUG FIX: added print of sun_hour for -t option (it was half there already)
+- BUG FIX: changed min value for julian_day to 348022
+- BUG FIXES: inserted bounds checking for mm dd (incomplete)
+- improved error messages
+- option -q quiets non-fatal warning messages
+- option sunset-aware made default condition
+- option not-sunset-aware added (for the stubborn?)
+- made text messages compatible with GETTEXT for internationalization
+- BUGFIX - improved bounds checking
+- improve option parsing error detection
+- add long options for latitude, longitude, timezone
+- standardize use of get_int_string_ instead of get_int_string
+- option visual, bidi to display Hebrew in reverse
+- introduced config file $XDG_CONFIG_HOME/hdate/hdaterc or ~/.config/hdate/hdaterc
+- option --menu -m to prompt user for user-defined menu selections from config file
+- option --candles takes an optional numeric argument to modify the default minhag.
+  valid values are 17 < n < 91 minutes (before sunset)
+- option --havdalah takes an optional numeric argument to modify the default minhag.
+  valid values are 19 < n < 91 minutes (after sunset)
+- remove dependency of Hebrew on locale environment variables
+
+libhdate
+- new function hdate_string
+- DEPRECATION: hdate_get_day_string is now only a wrapper for hdate_string
+- DEPRECATION: hdate_get_hebrew_month_string is now only a wrapper for hdate_string
+- DEPRECATION: hdate_get_holyday_string is now only a wrapper for hdate_string
+- DEPRECATION: hdate_get_month_string is now only a wrapper for hdate_string
+- DEPRECATION: hdate_get_parasha_string is now only a wrapper for hdate_string
+- DEPRECATION: hdate_get_omer_string is now only a wrapper for hdate_string
+- DEPRECATION: hdate_get_int_string_ is now only a wrapper for hdate_string
+- BUGFIX hdate_get_format_date no longer writes to static local buffers
+- callers to hdate_get_format_date must free() the space returned at ptr
+- BUGFIX made all functions const-correct and fixed resulting conflicts
+- BUGFIX corrected documentation for day of week string range 1-7 vs 0-6
+
+gettext
+- upgrade to gettext-0.18.1.
+
+================================================================
+end libhdate (1.6)
+================================================================
+
+
+
+=================
+libhdate (1.4.20)
+
+  * Update pascal class example (Patch: Ido Kanner)
+  * Update perl and php examples to use hdate objets
+  * Fix PHP install dirs, and add hdate.php to the include path
+  * Fix hdate man page
+
+  -- Yaacov Zamir <kzamir@wall.co.il>  Tue, 5 Nov 2010 10:00
+
+libhdate (1.4.18)
+
+  * Fix longitude positive and negative directions.
+  * in the hdate example make the times printout more verbose
+  * Add sfirat ha omer to the hdate example (Patch: Amiad Bareli)
+  * Add 'bet' in front of the month name in hebrew (Patch: Amiad Bareli)
+
+  -- Yaacov Zamir <kzamir@wall.co.il>  Tue, 26 Oct 2010 22:00
+
+libhdate (1.4.14)
+
+  * Fix --localedir configure option and add a gettext localedir indicator
+  	at the configure summary
+  * Add Sfirat ha omer function (Patch: Moshe Wagner <moshe.wagner@gmail.com>)
+  * Add Erev Yum Kipur to the holidays list
+  	(Bug report: Arnon Sharlin; Patch: Moshe Wagner <moshe.wagner@gmail.com>)
+  * Fix Tora readings in diaspora (Patch: Moshe Wagner <moshe.wagner@gmail.com>)
+  * Change the type of holiday function to me more descriptive
+  	(Patch: Moshe Wagner <moshe.wagner@gmail.com>)
+
+  -- Yaacov Zamir <kzamir@wall.co.il>  Saturday, 17 Oct 2008 22:00
+
+libhdate (1.4.12)
+
+  * Add GNU Pascal bindings (Ido Kanner)
+  * Add example for GNU pascal
+  * change configure flags for pascal from --disable-pascal
+      to --disable-fpc and --disable-gpc
+
+  -- Yaacov Zamir <kzamir@wall.co.il>  Saturday, 14 Jun 2008 22:00
+
+libhdate (1.4.11)
+
+  * Add Ruby bindings
+  * Add PHP bindings
+  * Add GPL notice to the example files (Bug report: Baruch Even)
+  * Add a patch to print todays date in hcal in bold (Patch: Patrik Nilsson)
+  * Fix documentation of files and structs (Bug report: Baruch Even)
+  * Update Swedish translation (Thanks: Patrik Nilsson)
+  * Fix hdate_get_utc_sun_time_deg
+      function only work in low altitudes (Bug report: Ido Kanner)
+  * Update pascal bindings and examples (Patch: Ido Kanner)
+
+  -- Yaacov Zamir <kzamir@wall.co.il>  Saturday, 5 Jan 2008 22:00
+
+libhdate (1.4.10)
+
+  * Move to GPL3 (COPYING, AUTHORS)
+      - Add Amos Shapir as author in Authors file
+      - Update Amos's email
+  * Change defult config options (configure.in)
+      - Gettext version used now is 0.17
+      - Python, Perl, Pascal bindings now built by default
+  * Update the man files (docs/man)
+      - add man files for c++ language
+      - move all man files to docs/man directory
+  * Bug fixes
+      - Fix Kislev Hebrew translation misspell (Bug report: Ariel Galola)
+      - Fix Julian day calculation (Bug report: Afonso Arantes)
+  * Add new events
+      - 30 shvat : Family day
+      - 12 heshvan : rabin memorial day
+      - 29 tamuz : zhabotinsky day
+  * Changes to hdate command line utility
+      - flag -j print the Julian day number
+      - if argument is greater than 100000 it is asumed as Julian day number
+      - "hdate -S YEAR" now print out same format as "hebcal -d -h -e YEAR"
+
+  -- Yaacov Zamir <kzamir@wall.co.il>  Thusday, 3 January 2008 22:00
+
+libhdate (1.4.9)
+
+  * Fix endianess bug in big endian machins (/examples/hcal/hcal.c and hdate.c)
+
+  -- Yaacov Zamir <kzamir@wall.co.il>  Saturday, 7 April 2007 22:00
+
+libhdate (1.4.8)
+
+  * Fix help printing bug: Add new line at the end of hdate help text.
+  * Add two new functios to the time of day section:
+      hdate_get_utc_sun_time_full - gets the time of first light,
+      talit, sunris, sunset, first stars and three stars.
+      hdate_get_utc_sun_time_deg - gets the time the sun is on
+      some known altitude.
+  * Add Times of day to hdate command line tool.
+     supported times: first-light, talit, sunrise, mid-day, sunset, first-stars
+     and three-stars
+  * Add Times of Shabat enter/leave to hdate command line tool.
+     Shabat starts 20 min before sunset, and leave at three stars.
+  * Add new oprions in hdate command line tool to it's man page
+
+  -- Yaacov Zamir <kzamir@wall.co.il>  Tue, 8 Jun 2006 12:13
+
+libhdate (1.4.7)
+
+  * Fix pesach II in hebrew po file.
+  * hcal utility export strict html 4.01.
+  * hcal utility can export diaspora holidays
+  * Update hcal utility man file.
+
+  -- Yaacov Zamir <kzamir@wall.co.il>  Tue, 18 Apr 2006 12:13
+
+libhdate (1.4.3)
+
+  * Fix header of spanish po file.
+  * Daniel Nylander: Swedish translation.
+
+  -- Yaacov Zamir <kzamir@wall.co.il>  Mon, 10 Apr 2006 12:13
+
+libhdate (1.4.2)
+
+  * Ido Kanner <idokan@gmail.com> - Update free pascal bindings.
+  * Update address of Free Software Foundation in COPYING file.
+  * make the spec.in file more configurable.
+
+  -- Yaacov Zamir <kzamir@wall.co.il>  Fri, 25 Nov 2005 12:13
+
+libhdate (1.4.0)
+
+  * Michael Kaminsky - libhdate now reports the 2nd day of yom
+    tov on Sukkot and Peseach as Yom Tov and not Chol Hamoed.
+  * Cange C++ API - insert the location and diaspora flag as
+    part of the hdate object.
+  * Docomentation - separate the c and the cpp docs, more readable.
+  * hdate example can now export iCal formated output.
+
+  -- Yaacov Zamir <kzamir@wall.co.il>  Mon, 8 Aug 2005 22:13
+
+libhdate (1.3.1)
+
+  * Add "const correctness" patch from Markus Elfring (elfring).
+  * Manual page seems to contain a hyphen where a minus sign was
+intended, patch by Lior Kaplan.
+  * Remove the debian directory from the ziped package.
+
+    -- Yaacov Zamir <kzamir@wall.co.il>  Sat, 30 Jul 2005 22:13
+
+libhdate (1.3.0)
+
+  * Add examples to the doc directory
+  * doc directory is now /usr/doc/libhdate0 and no /usr/doc/hdate
+  * make int_to_string aware of LANGUAGE system variable, make it more gettext compatible
+
+    -- Yaacov Zamir <kzamir@wall.co.il>  Wed, 27 Jul 2005 18:13
+
+libhdate (1.0.1)
+
+  * first major reales number.
+  * start to number the shared library.
+  * stable api.
+  * updated utility programs hdate/hcal.
+  * added man files for library and utility programs.
+  * python and perl bindings.
+  * free pascal binding by Ido Kanner <idokan@gmail.com>
+  * ru, fr, he, es translations, thanks to Peled Esti and Boris Peterberg.
+  * added debian dir and RH spec file for easy packing, thanks to Oron Peled.
+
+    -- Yaacov Zamir <kzamir@wall.co.il>  Tue, 08 March 2005 18:13
+
+libhdate (0.30.0)
+
+  * add es_MX translation by Peled Esti <esti@actcom.co.il>
+  * initial russian translation by Boris Peterberg
+
+   -- Yaacov Zamir <kzamir@wall.co.il>  Tue, 08 March 2005 18:13
+
+libhdate (0.30.0)
+
+  * cpp, python and perl bindings
+  * examples for the new libhdate bindings
+
+   -- Yaacov Zamir <kzamir@wall.co.il>  Fri, 04 March 2005 15:19:29
+
+libhdate (0.22.0)
+
+  * Michael Kaminsky's patch to Shavot II on diaspora reading.
+
+   -- Yaacov Zamir <kzamir@wall.co.il>  Mon, 28 Feb 2005 08:12:31
+
+libhdate (0.22.0)
+
+  * New hebcal examples
+
+   -- Yaacov Zamir <kzamir@wall.co.il>  Fri, 25 Feb 2005 11:15:18
+
+libhdate (0.21.0)
+
+  * New spec file by Oron Peled
+  * Diaspora holydays/readings
+  * New sunrise sunset functions
+  * New html examples
+  * New configure options to build / not build the examples
+
+   -- Yaacov Zamir <kzamir@wall.co.il>  Fri, 25 Feb 2005 11:15:18
+
+libhdate (0.17.0)
+
+  * API chages.
+  * base struct change.
+
+   -- Yaacov Zamir <kzamir@wall.co.il>  Mon, 22 Feb 2005 19:34:22
+
+libhdate (0.16.3)
+
+  * Try to fix date conversion bug, thanks Michael Kaminsky.
+
+   -- Yaacov Zamir <kzamir@wall.co.il>  Mon, 21 Feb 2005 09:03:12
+
+libhdate (0.16.2)
+
+  * Syntax error, and weeks calculation bug fixed by Michael Kaminsky.
+
+   -- Yaacov Zamir <kzamir@wall.co.il>  Sun, 20 Feb 2005 06:53:12
+
+libhdate (0.16.1)
+
+  * Fix locale bug in int_to_string.
+  * Add examples directory.
+  * Minor bug fixes.
+
+ -- Yaacov Zamir <kzamir@wall.co.il>  Sat, 19 Feb 2005 20:07:19

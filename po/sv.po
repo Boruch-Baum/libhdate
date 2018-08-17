@@ -1,0 +1,1847 @@
+# Swedish translation of libhdate.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the libhdate package.
+# Daniel Nylander <po@danielnylander.se>, 2006.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: libhdate\n"
+"Report-Msgid-Bugs-To: <boruch_baum@gmx.com>\n"
+"POT-Creation-Date: 2014-01-03 04:01-0500\n"
+"PO-Revision-Date: 2008-01-10 10:26+0100\n"
+"Last-Translator: Patrik Nilsson <blambi@chebab.com>, Daniel Nylander "
+"<po@danielnylander.se>\n"
+"Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
+"Language: sv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/hdate_strings.c:51 src/hdate_strings.c:56
+msgid "Tishrei"
+msgstr "Tishrei"
+
+#: src/hdate_strings.c:51 src/hdate_strings.c:56
+msgid "Cheshvan"
+msgstr "Cheshvan"
+
+#: src/hdate_strings.c:51 src/hdate_strings.c:56
+msgid "Kislev"
+msgstr "Kislev"
+
+#: src/hdate_strings.c:51 src/hdate_strings.c:56
+msgid "Tevet"
+msgstr "Tevet"
+
+#: src/hdate_strings.c:52 src/hdate_strings.c:57
+msgid "Shevat"
+msgstr ""
+
+#: src/hdate_strings.c:52 src/hdate_strings.c:57
+msgid "Adar"
+msgstr "Adar"
+
+#: src/hdate_strings.c:52 src/hdate_strings.c:57
+msgid "Nisan"
+msgstr "Nisan"
+
+#: src/hdate_strings.c:52 src/hdate_strings.c:57
+msgid "Iyyar"
+msgstr "Iyyar"
+
+#: src/hdate_strings.c:53 src/hdate_strings.c:58
+msgid "Sivan"
+msgstr "Sivan"
+
+#: src/hdate_strings.c:53 src/hdate_strings.c:58
+#, fuzzy
+msgid "Tammuz"
+msgstr "Tzom Tammuz"
+
+#: src/hdate_strings.c:53 src/hdate_strings.c:58
+msgid "Av"
+msgstr "Av"
+
+#: src/hdate_strings.c:53 src/hdate_strings.c:58
+msgid "Elul"
+msgstr "Elul"
+
+#: src/hdate_strings.c:53 src/hdate_strings.c:58
+#, fuzzy
+msgid "Adar_I"
+msgstr "Adar I"
+
+#: src/hdate_strings.c:54 src/hdate_strings.c:59
+#, fuzzy
+msgid "Adar_II"
+msgstr "Adar II"
+
+#: src/hdate_strings.c:74
+msgid "January"
+msgstr "Januari"
+
+#: src/hdate_strings.c:74
+msgid "February"
+msgstr "Februari"
+
+#: src/hdate_strings.c:74
+msgid "March"
+msgstr "Mars"
+
+#: src/hdate_strings.c:75
+msgid "April"
+msgstr "April"
+
+#: src/hdate_strings.c:75 src/hdate_strings.c:78
+msgid "May"
+msgstr "Maj"
+
+#: src/hdate_strings.c:75
+msgid "June"
+msgstr "Juni"
+
+#: src/hdate_strings.c:76
+msgid "July"
+msgstr "Juli"
+
+#: src/hdate_strings.c:76
+msgid "August"
+msgstr "Augusti"
+
+#: src/hdate_strings.c:76
+msgid "September"
+msgstr "September"
+
+#: src/hdate_strings.c:77
+msgid "October"
+msgstr "Oktober"
+
+#: src/hdate_strings.c:77
+msgid "November"
+msgstr "November"
+
+#: src/hdate_strings.c:77
+msgid "December"
+msgstr "December"
+
+#: src/hdate_strings.c:78
+msgid "Jan"
+msgstr "Jan"
+
+#: src/hdate_strings.c:78
+msgid "Feb"
+msgstr "Feb"
+
+#: src/hdate_strings.c:78
+msgid "Mar"
+msgstr "Mar"
+
+#: src/hdate_strings.c:78
+msgid "Apr"
+msgstr "Apr"
+
+#: src/hdate_strings.c:79
+msgid "Jun"
+msgstr "Jun"
+
+#: src/hdate_strings.c:79
+msgid "Jul"
+msgstr "Jul"
+
+#: src/hdate_strings.c:79
+msgid "Aug"
+msgstr "Aug"
+
+#: src/hdate_strings.c:79
+msgid "Sep"
+msgstr "Sep"
+
+#: src/hdate_strings.c:79
+msgid "Oct"
+msgstr "Okt"
+
+#: src/hdate_strings.c:80
+msgid "Nov"
+msgstr "Nov"
+
+#: src/hdate_strings.c:80
+msgid "Dec"
+msgstr "Dec"
+
+#: src/hdate_strings.c:239 src/hdate_strings.c:243
+msgid "translator"
+msgstr "Daniel Nylander, Patrik Nilsson"
+
+#: src/hdate_strings.c:306
+msgid "Sunday"
+msgstr "Söndag"
+
+#: src/hdate_strings.c:306
+msgid "Monday"
+msgstr "Måndag"
+
+#: src/hdate_strings.c:306
+msgid "Tuesday"
+msgstr "Tisdag"
+
+#: src/hdate_strings.c:306
+msgid "Wednesday"
+msgstr "Onsdag"
+
+#: src/hdate_strings.c:307
+msgid "Thursday"
+msgstr "Torsdag"
+
+#: src/hdate_strings.c:307
+msgid "Friday"
+msgstr "Fredag"
+
+#: src/hdate_strings.c:307
+msgid "Saturday"
+msgstr "Lördag"
+
+#: src/hdate_strings.c:309
+msgid "Sun"
+msgstr "Sön"
+
+#: src/hdate_strings.c:309
+msgid "Mon"
+msgstr "Mån"
+
+#: src/hdate_strings.c:309
+msgid "Tue"
+msgstr "Tis"
+
+#: src/hdate_strings.c:309
+msgid "Wed"
+msgstr "Ons"
+
+#: src/hdate_strings.c:309
+msgid "Thu"
+msgstr "Tor"
+
+#: src/hdate_strings.c:310
+msgid "Fri"
+msgstr "Fre"
+
+#: src/hdate_strings.c:310
+msgid "Sat"
+msgstr "Lör"
+
+#: src/hdate_strings.c:323 src/hdate_strings.c:346
+msgid "none"
+msgstr "ingen"
+
+#: src/hdate_strings.c:323 src/hdate_strings.c:346
+msgid "Bereshit"
+msgstr "Bereshit"
+
+#: src/hdate_strings.c:323 src/hdate_strings.c:346
+msgid "Noach"
+msgstr "Noach"
+
+#: src/hdate_strings.c:324 src/hdate_strings.c:347
+msgid "Lech-Lecha"
+msgstr "Lech-Lecha"
+
+#: src/hdate_strings.c:324 src/hdate_strings.c:347
+msgid "Vayera"
+msgstr "Vayera"
+
+#: src/hdate_strings.c:324 src/hdate_strings.c:347
+#, fuzzy
+msgid "Chayei_Sara"
+msgstr "Chayei Sara"
+
+#: src/hdate_strings.c:325 src/hdate_strings.c:348
+msgid "Toldot"
+msgstr "Toldot"
+
+#: src/hdate_strings.c:325 src/hdate_strings.c:348
+msgid "Vayetzei"
+msgstr "Vayetzei"
+
+#: src/hdate_strings.c:325 src/hdate_strings.c:348
+msgid "Vayishlach"
+msgstr "Vayishlach"
+
+#: src/hdate_strings.c:326 src/hdate_strings.c:349
+msgid "Vayeshev"
+msgstr "Vayeshev"
+
+#: src/hdate_strings.c:326 src/hdate_strings.c:349
+msgid "Miketz"
+msgstr "Miketz"
+
+#: src/hdate_strings.c:326 src/hdate_strings.c:349
+msgid "Vayigash"
+msgstr "Vayigash"
+
+#: src/hdate_strings.c:327 src/hdate_strings.c:350
+msgid "Vayechi"
+msgstr "Vayechi"
+
+#: src/hdate_strings.c:327 src/hdate_strings.c:350
+msgid "Shemot"
+msgstr "Shemot"
+
+#: src/hdate_strings.c:327 src/hdate_strings.c:350
+msgid "Vaera"
+msgstr "Vaera"
+
+#: src/hdate_strings.c:328 src/hdate_strings.c:351
+msgid "Bo"
+msgstr "Bo"
+
+#: src/hdate_strings.c:328 src/hdate_strings.c:351
+msgid "Beshalach"
+msgstr "Beshalach"
+
+#: src/hdate_strings.c:328 src/hdate_strings.c:351
+msgid "Yitro"
+msgstr "Yitro"
+
+#: src/hdate_strings.c:329 src/hdate_strings.c:352
+msgid "Mishpatim"
+msgstr "Mishpatim"
+
+#: src/hdate_strings.c:329 src/hdate_strings.c:352
+msgid "Terumah"
+msgstr "Terumah"
+
+#: src/hdate_strings.c:329 src/hdate_strings.c:352
+msgid "Tetzaveh"
+msgstr "Tetzaveh"
+
+#: src/hdate_strings.c:330 src/hdate_strings.c:353
+#, fuzzy
+msgid "Ki_Tisa"
+msgstr "Ki Tisa"
+
+#: src/hdate_strings.c:330 src/hdate_strings.c:353
+msgid "Vayakhel"
+msgstr "Vayakhel"
+
+#: src/hdate_strings.c:330 src/hdate_strings.c:353
+msgid "Pekudei"
+msgstr "Pekudei"
+
+#: src/hdate_strings.c:331 src/hdate_strings.c:354
+msgid "Vayikra"
+msgstr "Vayikra"
+
+#: src/hdate_strings.c:331 src/hdate_strings.c:354
+msgid "Tzav"
+msgstr "Tzav"
+
+#: src/hdate_strings.c:331 src/hdate_strings.c:354
+msgid "Shmini"
+msgstr "Shmini"
+
+#: src/hdate_strings.c:332 src/hdate_strings.c:355
+msgid "Tazria"
+msgstr "Tazria"
+
+#: src/hdate_strings.c:332 src/hdate_strings.c:355
+msgid "Metzora"
+msgstr "Metzora"
+
+#: src/hdate_strings.c:332 src/hdate_strings.c:355
+#, fuzzy
+msgid "Achrei_Mot"
+msgstr "Achrei Mot"
+
+#: src/hdate_strings.c:333 src/hdate_strings.c:356
+msgid "Kedoshim"
+msgstr "Kedoshim"
+
+#: src/hdate_strings.c:333 src/hdate_strings.c:356
+msgid "Emor"
+msgstr "Emor"
+
+#: src/hdate_strings.c:333 src/hdate_strings.c:356
+msgid "Behar"
+msgstr "Behar"
+
+#: src/hdate_strings.c:334 src/hdate_strings.c:357
+msgid "Bechukotai"
+msgstr "Bechukotai"
+
+#: src/hdate_strings.c:334 src/hdate_strings.c:357
+msgid "Bamidbar"
+msgstr "Bamidbar"
+
+#: src/hdate_strings.c:334 src/hdate_strings.c:357
+msgid "Nasso"
+msgstr "Nasso"
+
+#: src/hdate_strings.c:335 src/hdate_strings.c:358
+msgid "Beha'alotcha"
+msgstr "Beha'alotcha"
+
+#: src/hdate_strings.c:335 src/hdate_strings.c:358
+msgid "Sh'lach"
+msgstr "Sh'lach"
+
+#: src/hdate_strings.c:335 src/hdate_strings.c:358
+msgid "Korach"
+msgstr "Korach"
+
+#: src/hdate_strings.c:336 src/hdate_strings.c:359
+msgid "Chukat"
+msgstr "Chukat"
+
+#: src/hdate_strings.c:336 src/hdate_strings.c:359
+msgid "Balak"
+msgstr "Balak"
+
+#: src/hdate_strings.c:336 src/hdate_strings.c:359
+msgid "Pinchas"
+msgstr "Pinchas"
+
+#: src/hdate_strings.c:337 src/hdate_strings.c:360
+msgid "Matot"
+msgstr "Matot"
+
+#: src/hdate_strings.c:337 src/hdate_strings.c:360
+msgid "Masei"
+msgstr "Masei"
+
+#: src/hdate_strings.c:337 src/hdate_strings.c:360
+msgid "Devarim"
+msgstr "Devarim"
+
+#: src/hdate_strings.c:338 src/hdate_strings.c:361
+msgid "Vaetchanan"
+msgstr "Vaetchanan"
+
+#: src/hdate_strings.c:338 src/hdate_strings.c:361
+msgid "Eikev"
+msgstr "Eikev"
+
+#: src/hdate_strings.c:338 src/hdate_strings.c:361
+msgid "Re'eh"
+msgstr "Re'eh"
+
+#: src/hdate_strings.c:339 src/hdate_strings.c:362
+msgid "Shoftim"
+msgstr "Shoftim"
+
+#: src/hdate_strings.c:339 src/hdate_strings.c:362
+#, fuzzy
+msgid "Ki_Teitzei"
+msgstr "Ki Teitzei"
+
+#: src/hdate_strings.c:339 src/hdate_strings.c:362
+#, fuzzy
+msgid "Ki_Tavo"
+msgstr "Ki Tavo"
+
+#: src/hdate_strings.c:340 src/hdate_strings.c:363
+msgid "Nitzavim"
+msgstr "Nitzavim"
+
+#: src/hdate_strings.c:340 src/hdate_strings.c:363
+msgid "Vayeilech"
+msgstr "Vayeilech"
+
+#: src/hdate_strings.c:340 src/hdate_strings.c:363
+msgid "Ha'Azinu"
+msgstr "Ha'Azinu"
+
+#: src/hdate_strings.c:341 src/hdate_strings.c:364
+#, fuzzy
+msgid "Vezot_HaBracha"
+msgstr "Vezot Habracha"
+
+#: src/hdate_strings.c:342 src/hdate_strings.c:365
+msgid "Vayakhel-Pekudei"
+msgstr "Vayakhel-Pekudei"
+
+#: src/hdate_strings.c:342 src/hdate_strings.c:365
+msgid "Tazria-Metzora"
+msgstr "Tazria-Metzora"
+
+#: src/hdate_strings.c:342 src/hdate_strings.c:365
+#, fuzzy
+msgid "Achrei_Mot-Kedoshim"
+msgstr "Achrei Mot-Kedoshim"
+
+#: src/hdate_strings.c:343 src/hdate_strings.c:366
+msgid "Behar-Bechukotai"
+msgstr "Behar-Bechukotai"
+
+#: src/hdate_strings.c:343 src/hdate_strings.c:366
+msgid "Chukat-Balak"
+msgstr "Chukat-Balak"
+
+#: src/hdate_strings.c:343 src/hdate_strings.c:366
+msgid "Matot-Masei"
+msgstr "Matot-Masei"
+
+#: src/hdate_strings.c:344 src/hdate_strings.c:367
+msgid "Nitzavim-Vayeilech"
+msgstr "Nitzavim-Vayeilech"
+
+#: src/hdate_strings.c:423
+msgid "regular_weekday_(no_holiday)"
+msgstr ""
+
+#: src/hdate_strings.c:424
+#, fuzzy
+msgid "Rosh_HaShana_(first_day)"
+msgstr "Rosh Hashana I"
+
+#: src/hdate_strings.c:424
+#, fuzzy
+msgid "Rosh HaShana_(second_day)"
+msgstr "Rosh Hashana I"
+
+#: src/hdate_strings.c:425 src/hdate_strings.c:447
+#, fuzzy
+msgid "Tzom_Gedaliah"
+msgstr "Tzom Gedaliah"
+
+#: src/hdate_strings.c:425 src/hdate_strings.c:447
+#, fuzzy
+msgid "Yom_Kippur"
+msgstr "Yom Kippur"
+
+#: src/hdate_strings.c:426 src/hdate_strings.c:448
+msgid "Sukkot"
+msgstr "Sukkot"
+
+#: src/hdate_strings.c:426 src/hdate_strings.c:448
+#, fuzzy
+msgid "Hol_HaMoed_Sukkot"
+msgstr "Hol hamoed Sukkot"
+
+#: src/hdate_strings.c:427 src/hdate_strings.c:449
+#, fuzzy
+msgid "Hoshana_Rabbah"
+msgstr "Hoshana raba"
+
+#: src/hdate_strings.c:427 src/hdate_strings.c:449
+#, fuzzy
+msgid "Simchat_Torah"
+msgstr "Simchat Torah"
+
+#: src/hdate_strings.c:428 src/hdate_strings.c:450
+msgid "Chanukah"
+msgstr "Chanukah"
+
+#: src/hdate_strings.c:428 src/hdate_strings.c:450
+#, fuzzy
+msgid "Asara_B'Tevet"
+msgstr "Asara B'Tevet"
+
+#: src/hdate_strings.c:429 src/hdate_strings.c:451
+#, fuzzy
+msgid "Tu_B'Shvat"
+msgstr "Tu B'Shvat"
+
+#: src/hdate_strings.c:429 src/hdate_strings.c:451
+#, fuzzy
+msgid "Ta'anit_Esther"
+msgstr "Ta'anit Esther"
+
+#: src/hdate_strings.c:430 src/hdate_strings.c:452
+msgid "Purim"
+msgstr "Purim"
+
+#: src/hdate_strings.c:430 src/hdate_strings.c:452
+#, fuzzy
+msgid "Shushan_Purim"
+msgstr "Shushan Purim"
+
+#: src/hdate_strings.c:431 src/hdate_strings.c:453
+msgid "Pesach"
+msgstr "Pesach"
+
+#: src/hdate_strings.c:431 src/hdate_strings.c:453
+#, fuzzy
+msgid "Hol_HaMoed_Pesach"
+msgstr "Hol hamoed Pesach"
+
+#: src/hdate_strings.c:432 src/hdate_strings.c:454
+#, fuzzy
+msgid "Yom_HaAtzma'ut"
+msgstr "Yom HaAtzma'ut"
+
+#: src/hdate_strings.c:432 src/hdate_strings.c:454
+#, fuzzy
+msgid "Lag_B'Omer"
+msgstr "Lag B'Omer"
+
+#: src/hdate_strings.c:433 src/hdate_strings.c:455
+#, fuzzy
+msgid "Erev_Shavuot"
+msgstr "Erev Shavuot"
+
+#: src/hdate_strings.c:433 src/hdate_strings.c:455
+msgid "Shavuot"
+msgstr "Shavuot"
+
+#: src/hdate_strings.c:434 src/hdate_strings.c:456
+#, fuzzy
+msgid "Tzom_Tammuz"
+msgstr "Tzom Tammuz"
+
+#: src/hdate_strings.c:434 src/hdate_strings.c:456
+#, fuzzy
+msgid "Tish'a_B'Av"
+msgstr "Tish'a B'Av"
+
+#: src/hdate_strings.c:435 src/hdate_strings.c:457
+#, fuzzy
+msgid "Tu_B'Av"
+msgstr "Tu B'Av"
+
+#: src/hdate_strings.c:435 src/hdate_strings.c:457
+#, fuzzy
+msgid "Yom_HaShoah"
+msgstr "Yom HaShoah"
+
+#: src/hdate_strings.c:436 src/hdate_strings.c:458
+#, fuzzy
+msgid "Yom_HaZikaron"
+msgstr "Yom HaZikaron"
+
+#: src/hdate_strings.c:436 src/hdate_strings.c:458
+#, fuzzy
+msgid "Yom_Yerushalayim"
+msgstr "Yom Yerushalayim"
+
+#: src/hdate_strings.c:437 src/hdate_strings.c:459
+#, fuzzy
+msgid "Shmini_Atzeret"
+msgstr "Shmini Atzeret"
+
+#: src/hdate_strings.c:437
+msgid "Shevi'i_shel_Pesach"
+msgstr ""
+
+#: src/hdate_strings.c:438
+#, fuzzy
+msgid "Acharon_shel_Pesach"
+msgstr "Hol hamoed Pesach"
+
+#: src/hdate_strings.c:438
+#, fuzzy
+msgid "Shavuot_(second_day)"
+msgstr "Shavuot II"
+
+#: src/hdate_strings.c:439
+#, fuzzy
+msgid "Sukkot_(second_day)"
+msgstr "Sukkot II"
+
+#: src/hdate_strings.c:439
+#, fuzzy
+msgid "Pesach_(second_day)"
+msgstr "Pesach II"
+
+#: src/hdate_strings.c:440 src/hdate_strings.c:462
+#, fuzzy
+msgid "Family_Day"
+msgstr "Familjedagen"
+
+#: src/hdate_strings.c:440 src/hdate_strings.c:462
+#, fuzzy
+msgid "Memorial_day_for_fallen_whose_place_of_burial_is_unknown"
+msgstr "Minnesdag för de fallena vars gravplats är okänd"
+
+#: src/hdate_strings.c:441
+#, fuzzy
+msgid "Yitzhak_Rabin_memorial_day"
+msgstr "Minnesdag för Yitzhak Rabin"
+
+#: src/hdate_strings.c:441
+#, fuzzy
+msgid "Zeev_Zhabotinsky_day"
+msgstr "Zeev Zhabotinksys dag"
+
+#: src/hdate_strings.c:442 src/hdate_strings.c:464
+#, fuzzy
+msgid "Erev_Yom_Kippur"
+msgstr "Erev Yom Kippur"
+
+#: src/hdate_strings.c:442 src/hdate_strings.c:464
+#, fuzzy
+msgid "Erev_Pesach"
+msgstr "Pesach"
+
+#: src/hdate_strings.c:443 src/hdate_strings.c:465
+#, fuzzy
+msgid "Erev_Sukkot"
+msgstr "Sukkot"
+
+#: src/hdate_strings.c:445
+msgid "regular_day"
+msgstr ""
+
+#: src/hdate_strings.c:446
+#, fuzzy
+msgid "Rosh HaShana_(day_1)"
+msgstr "Rosh Hashana I"
+
+#: src/hdate_strings.c:446
+#, fuzzy
+msgid "Rosh HaShana_(day_2)"
+msgstr "Rosh Hashana I"
+
+#: src/hdate_strings.c:459
+#, fuzzy
+msgid "Pesach_(day_7)"
+msgstr "Pesach II"
+
+#: src/hdate_strings.c:460
+#, fuzzy
+msgid "Pesach_(day_8)"
+msgstr "Pesach II"
+
+#: src/hdate_strings.c:460
+#, fuzzy
+msgid "Shavuot_(day_2)"
+msgstr "Shavuot II"
+
+#: src/hdate_strings.c:461
+#, fuzzy
+msgid "Sukkot_(day_2)"
+msgstr "Sukkot II"
+
+#: src/hdate_strings.c:461
+#, fuzzy
+msgid "Pesach_(day_2)"
+msgstr "Pesach II"
+
+#: src/hdate_strings.c:463
+#, fuzzy
+msgid "Rabin_memorial_day"
+msgstr "Minnesdag för Y. Rabin"
+
+#: src/hdate_strings.c:463
+#, fuzzy
+msgid "Zhabotinsky_day"
+msgstr "Zhabotinksys dag"
+
+#: examples/hcal/hcal.c:103 examples/hcal/hdate.c:71
+msgid "month"
+msgstr ""
+
+#: examples/hcal/hcal.c:104 examples/hcal/hdate.c:72
+msgid "year"
+msgstr ""
+
+#: examples/hcal/hcal.c:184
+msgid ""
+"# configuration file for hcal - Hebrew calendar program\n"
+"# part of package libhdate\n"
+"#\n"
+"# Should you mangle this file and wish to restore its default content,\n"
+"# rename or delete this file and run hcal; hcal will automatically\n"
+"# regenerate the default content.\n"
+"#\n"
+"# Your system administrator can set system-wide defaults for hcal by\n"
+"# modifying file <not yet implemented>.\n"
+"# You may override all defaults by changing the contents of this file.\n"
+"#\n"
+"# Version information\n"
+"# This may be used by updates to hcal to determine how to parse the file\n"
+"# and whether additional information and options should be appended to\n"
+"# the end of this file.\n"
+"VERSION=2.00\n"
+"# Location awareness\n"
+"# hcal wants to accurately highlight the current Hebrew day, including\n"
+"# during the hours between sunset and secular midnight. If you don't\n"
+"# provide it with latitude, longitude, and time zone information, hcal\n"
+"# will try to guess the information, based upon your system timezone,\n"
+"# and its (limited, and maybe biased) of the dominant Jewish community\n"
+"# in that timezone. When hcal is forced to guess, it alerts the user\n"
+"# with a message that includes the guessed location.\n"
+"# hcal's guesses will also affect its default behaviour for output of\n"
+"# Shabbat times, parshiot, and choice of Israel/diaspora hoidays\n"
+"#SUNSET_AWARE=TRUE\n"
+"\n"
+"# Base Years\n"
+"# hcal, by default, interprets two-digit year parameters as Hebrew\n"
+"# years, and adds the value BASE_YEAR_HEBREW *100 to them. Set\n"
+"# variable PREFER_HEBREW=FALSE to have them interpreted as gregorian,\n"
+"# and have BASE_YEAR_GREGORIAN * 100 added to them.\n"
+"#PREFER_HEBREW=TRUE\n"
+"# valid values for BASE_YEAR_HEBREW are 30 - 69\n"
+"#BASE_YEAR_HEBREW=57\n"
+"# valid values for BASE_YEAR_GREGORIAN are 10 - 29\n"
+"#BASE_YEAR_GREGORIAN=20\n"
+"\n"
+"# LATITUDE and LONGITUDE may be in decimal format or in the form\n"
+"# degrees[:minutes[:seconds]] with the characters :'\" as possible\n"
+"# delimiters. Use negative values to indicate South and West, or\n"
+"# use the abbreviated compass directions N, S, E, W.\n"
+"#LATITUDE=\n"
+"#LONGITUDE=\n"
+"# TIMEZONE may may be in decimal format or in the form degrees[:minutes]\n"
+"# with the characters :'\" as possible delimiters.\n"
+"#TIMEZONE=\n"
+"\n"
+"# Israel and the diaspora\n"
+"# If hcal guesses that you're not in Israel, the DIASPORA option will be\n"
+"# set true. This will affect holiday and parasha output.  FORCE_ISRAEL\n"
+"# forces hcal to display calendar information for Israel, using hcal's\n"
+"# default coordinates foe Israel, or coordinates that you provide that\n"
+"# seem legitmately within Israel.\n"
+"# Thus, if you are living in Sao Paolo, and will be visiting Israel for\n"
+"# Sukkot, set BOTH flags true in order to see holiday information for\n"
+"# a non-resident vistor to Israel. The command line options for these\n"
+"# features are --israel, -I, --diaspora, -d.\n"
+"#FORCE_DIASPORA=FALSE;\n"
+"#FORCE_ISRAEL=FALSE;\n"
+"\n"
+"# Shabbat related\n"
+"# Setting SHABBAT_INFO true will output parshiot and Shabbat times.\n"
+"# The command line options for these features are -p (--parasha), and\n"
+"# -s (--shabbat). The CANDLE_LIGHTING field can accept a value of 18 - 90 "
+"(minutes\n"
+"# before sunset). The HAVDALAH field can accept a value of 20 - 90\n"
+"# (minutes after sunset).\n"
+"#PARASHA_NAMES=FALSE\n"
+"#SHABBAT_INFO=FALSE\n"
+"#CANDLE_LIGHTING=FALSE\n"
+"#HAVDALAH=FALSE\n"
+"\n"
+"# Holiday identification\n"
+"# hcal flags holidays by replacing the gregorian/Hebrew date separator\n"
+"# with assorted unhelpful cryptic symbols. Setting FOOTNOTES to true\n"
+"# will have hcal output after the month's calendar, a list of the month's\n"
+"# holidays along with the days on which they occur.\n"
+"#FOOTNOTE=FALSE\n"
+"\n"
+"# Output in hebrew characters\n"
+"# hcal defaults to output all information in your default language, so\n"
+"# if your default language is Hebrew, you're all set. Otherwise, you can\n"
+"# set FORCE_HEBREW to true to output Hebrew information in Hebrew, while\n"
+"# still outputting gregorian information in your default language. To\n"
+"# output ALL information in Hebrew, run something like this:\n"
+"#    LC_TEMP=LC_ALL; LC_ALL=\"he_IL.UTF-8\"; hcal; LC_ALL=$LC_TEMP\n"
+"# If setting FORCE_HEBREW to true results in 'garbage' or non-Hebrew\n"
+"# output, you need to install a terminal font that includes the Hebrew\n"
+"# character set (hint: unicode).\n"
+"# The command line option for FORCE_HEBREW is either --hebrew or -H\n"
+"#FORCE_HEBREW=FALSE\n"
+"\n"
+"# The FORCE_HEBREW option outputs data that is 'correct' and 'logical'.\n"
+"# Unfortunately, the world can not be depended upon to be either. Most\n"
+"# Xwindow applications will display the data fine with FORCE_HEBREW; most\n"
+"# xterm implementations will not. (in fact, the only xterm clone I know\n"
+"# of that comes close is mlterm). If using FORCE_HEBREW results in\n"
+"# Hebrew characters being displayed in reverse, set OUTPUT_BIDI to true.\n"
+"# This will reverse the order of the Hebrew characters, so they will\n"
+"# display 'visual'ly correct; however, such output will not be suitable\n"
+"# for piping or pasting to many other applications. Setting OUTPUT_BIDI\n"
+"# automatically forces hebrew.\n"
+"# The command line option for OUTPUT_BIDI is either --bidi, --visual, or -b\n"
+"#OUTPUT_BIDI=FALSE\n"
+"\n"
+"# Display enhancements\n"
+"# hcal defaults to display the current day in reverse video\n"
+"# The command line option for this feature is --no-reverse\n"
+"#SUPPRESS_REVERSE_VIDEO=FALSE;\n"
+"# hcal can display its output \"calming, muted tones\". Note that piping\n"
+"# colorized output may yield unexpected results.\n"
+"#COLORIZE=FALSE\n"
+"\n"
+"# HTML OUTPUT\n"
+"#OUTPUT_HTML=FALSE\n"
+"#USE_EXTERNAL_CSS_FILE=\"pathto/foo/bar\"\n"
+"\n"
+"# Suppress alerts and warnings\n"
+"# hcal alerts the user via STDERR when it guesses the user's location.\n"
+"#QUIET_ALERTS=FALSE\n"
+"\n"
+"# Three month display\n"
+"# hcal can display a previous, current and next month side-by-side. hcal\n"
+"# can also display a calendar for an entire year in four rows of three\n"
+"# months each. Note that this will display properly only if your console\n"
+"# is set for at least 127 columns. Note also that setting this option to\n"
+"# will cause options FOOTNOTES, SHABBAT, and PARASHA_NAMES to false.\n"
+"#THREE_MONTH=FALSE\n"
+"\n"
+"# User-defined menus\n"
+"# You may specify here command-line strings to optionally be parsed\n"
+"# by hcal at execution time. To do so, use the command line option -m\n"
+"# (--menu). hcal will process first the settings of this config file,\n"
+"# then the other settings of your command line, and then will prompt\n"
+"# you for which menu item you would like to select. hcal will process\n"
+"# your menu selection as if it were a new command line, further modifying\n"
+"# all the prior settings.\n"
+"# Only the first ten \"MENU=\" entries will be read. Each line will be\n"
+"# truncated at one hundred characters\n"
+"#MENU= -l -23.55 -L -46.61 -z -3      # parents in Sao Paolo\n"
+"#MENU= -l 32 -L 34 -z 2               # son in bnei brak\n"
+"#MENU= -fbc -l 43.71 -L -79.43 -z -5  # me in Toronto\n"
+"#MENU= -l 22.26 -L 114.15 -z 8        # supplier in Hong Kong\n"
+msgstr ""
+
+#: examples/hcal/hcal.c:336
+msgid ""
+"Usage: hcal [options] [coordinates] [timezone] [date_spec]\n"
+"       hdate [options] [coordinates] [timezone] [julian_day|time_t]\n"
+"\n"
+"       coordinates: -l [NS]yy[.xxx]     -L [EW]xx[.xxx]\n"
+"                    -l [NS]yy[:mm[:ss]] -L [EW]xx[:mm[:ss]]\n"
+"\n"
+"       timezone:    -z [ [nn[.nn|:mm]] | tz_name ]\n"
+"\n"
+"       date_spec:   [ [[month] year] | flexible_entry ]"
+msgstr ""
+
+#: examples/hcal/hcal.c:350
+msgid "Try 'hcal --help' for more information"
+msgstr ""
+
+#: examples/hcal/hcal.c:360
+msgid ""
+"Hebrew calendar\n"
+"OPTIONS:\n"
+"   -0 --no-gregorian  default, print only Hebrew month information.\n"
+"                      exists to override config file setting\n"
+"   -1 --one-month     over-ride config file setting if you had set\n"
+"                      option --three-month as a default there\n"
+"   -3 --three-month   displays previous/next months\n"
+"                      side by side. requires 127 columns\n"
+"      --borders       displays a frame around calendars in 3-month mode\n"
+"      --spacing       quoted string to separate months in 3-month mode\n"
+"   -b --bidi          prints hebrew in reverse (visual)\n"
+"      --visual\n"
+"      --no-bidi       over-ride config file setting if you had set\n"
+"      --no-visual     option -bidi as a default there\n"
+"   -B --bold          display special days in boldface, no color\n"
+"   -c --colorize      display in calming, muted tones. -cc will display\n"
+"                      in bolder, and mildy irritating, colors\n"
+"      --no-color      over-ride a --colorize or --bold setting\n"
+"   -d --diaspora      use diaspora reading and holidays.\n"
+"   -f --footnote      print descriptive notes of holidays\n"
+"      --no-footnote   over-ride a footnote setting in your config file\n"
+"   -g --gregorian     include gregorian corresponding days. -gg displays\n"
+"                      a gregorian month with corresponding Hebrew days.\n"
+"   -h --html          output in html format to stdout\n"
+"   -H --hebrew        print hebrew information in Hebrew\n"
+"   -i                 use external css file \"./hcal.css\".\n"
+"   -I --israel        override a diaspora default\n"
+"      --no-reverse    do not highlight today's date\n"
+"   -m --menu          prompt user-defined menu from config file\n"
+"   -p --parasha       print week's parasha on each calendar row\n"
+"   -q --quiet-alerts  suppress warning messages\n"
+"   -s --shabbat       print Shabbat times and parshiot\n"
+"      --candles       modify default minhag of 20 minutes. (17<n<91)\n"
+"      --havdalah      modify default minhag of 3 stars. (19<n<91 minutes)\n"
+"   -z --timezone nn   timezone, +/-UTC\n"
+"   -l --latitude yy   latitude yy degrees. Negative values are South\n"
+"   -L --longitude xx  longitude xx degrees. Negative values are West\n"
+"\n"
+"   --prefer-hebrew    interpret ambiguous mm yy as Hebrew date\n"
+"   --prefer-gregorian interpret ambiguous mm yy as gregorian date\n"
+"\n"
+"All options can be made default in the config file, or menu-ized for\n"
+"easy selection.\n"
+"Report bugs to: <http://sourceforge.net/tracker/?"
+"group_id=63109&atid=502872>\n"
+"libhdate home page: <http://libhdate.sourceforge.net>\n"
+"General help using GNU software: <http://www.gnu.org/gethelp/>\n"
+msgstr ""
+
+#: examples/hcal/hcal.c:2200
+msgid "z (timezone)"
+msgstr ""
+
+#: examples/hcal/hcal.c:2611
+msgid ""
+"ALERT: options --parasha, --shabbat, --footnote are not supported in 'three-"
+"month' mode"
+msgstr ""
+
+#: examples/hcal/hcal.c:2626
+msgid ""
+"ALERT: options --parasha, --shabbat, --footnote are not supported in 'html' "
+"mode"
+msgstr ""
+
+#: examples/hcal/hcal.c:2724 examples/hcal/local_functions.c:69
+msgid "error"
+msgstr ""
+
+#: examples/hcal/hcal.c:2724
+msgid ""
+"too many parameters received (expected at most month and year after options "
+"list)"
+msgstr ""
+
+#: examples/hcal/hdate.c:70
+#, fuzzy
+msgid "day"
+msgstr "Maj"
+
+#: examples/hcal/hdate.c:73
+msgid "sunrise"
+msgstr ""
+
+#: examples/hcal/hdate.c:74
+msgid "sunset"
+msgstr ""
+
+#: examples/hcal/hdate.c:75
+msgid "first_light"
+msgstr ""
+
+#: examples/hcal/hdate.c:76
+msgid "talit"
+msgstr ""
+
+#: examples/hcal/hdate.c:77
+msgid "end_Shema_(GR\"A)"
+msgstr ""
+
+#: examples/hcal/hdate.c:78
+msgid "end_Shema_(M\"A)"
+msgstr ""
+
+#: examples/hcal/hdate.c:79
+msgid "end_amidah"
+msgstr ""
+
+#: examples/hcal/hdate.c:80
+msgid "mid-day"
+msgstr ""
+
+#: examples/hcal/hdate.c:81
+msgid "mincha_gedola"
+msgstr ""
+
+#: examples/hcal/hdate.c:82
+msgid "mincha_ketana"
+msgstr ""
+
+#: examples/hcal/hdate.c:83
+msgid "plag_hamincha"
+msgstr ""
+
+#: examples/hcal/hdate.c:84
+msgid "first_stars"
+msgstr ""
+
+#: examples/hcal/hdate.c:85
+msgid "three_stars"
+msgstr ""
+
+#: examples/hcal/hdate.c:86
+msgid "sun_hour"
+msgstr ""
+
+#: examples/hcal/hdate.c:87
+msgid "candle-lighting"
+msgstr ""
+
+#: examples/hcal/hdate.c:88
+msgid "havdalah"
+msgstr ""
+
+#: examples/hcal/hdate.c:89
+msgid "daf_yomi"
+msgstr ""
+
+#: examples/hcal/hdate.c:90
+msgid "omer"
+msgstr ""
+
+#: examples/hcal/hdate.c:91
+msgid "parasha"
+msgstr ""
+
+#: examples/hcal/hdate.c:92
+#, fuzzy
+msgid "holiday_today"
+msgstr "Fredag"
+
+#: examples/hcal/hdate.c:93
+#, fuzzy
+msgid "holiday"
+msgstr "Fredag"
+
+#: examples/hcal/hdate.c:94
+msgid "today_is_also"
+msgstr ""
+
+#: examples/hcal/hdate.c:95
+msgid "custom_day"
+msgstr ""
+
+#: examples/hcal/hdate.c:98
+msgid "end_eating_chometz_(M\"A)"
+msgstr ""
+
+#: examples/hcal/hdate.c:99
+msgid "end_eating_chometz_(GR\"A)"
+msgstr ""
+
+#: examples/hcal/hdate.c:100
+msgid "end_owning_chometz_(M\"A)"
+msgstr ""
+
+#: examples/hcal/hdate.c:101
+msgid "end_owning_chometz_(GR\"A)"
+msgstr ""
+
+#: examples/hcal/hdate.c:178
+msgid ""
+"# configuration file for hdate - Hebrew date information program\n"
+"# part of package libhdate\n"
+"#\n"
+"# Should you mangle this file and wish to restore its default content,\n"
+"# rename or delete this file and run hdate; hdate will automatically\n"
+"# regenerate the default content.\n"
+"#\n"
+"# Your system administrator can set system-wide defaults for hcal by\n"
+"# modifying file <not yet implemented>.\n"
+"# You may override all defaults by changing the contents of this file.\n"
+"#\n"
+"# Version information\n"
+"# This may be used by updates to hcal to determine how to parse the file\n"
+"# and whether additional information and options should be appended to\n"
+"# the end of this file.\n"
+"VERSION=2.00\n"
+"#\n"
+"# Location awareness\n"
+"# hdate wants to accurately highlight the current Hebrew day, including\n"
+"# during the hours between sunset and secular midnight. If you don't\n"
+"# provide it with latitude, longitude, and time zone information, hdate\n"
+"# will try to guess the information, based upon your system timezone,\n"
+"# and its (limited, and maybe biased) of the dominant Jewish community\n"
+"# in that timezone. When hdate is forced to guess, it alerts the user\n"
+"# with a message that includes the guessed location.\n"
+"# hdate's guesses will also affect its default behaviour for ouput of\n"
+"# Shabbat times, parshiot, and choice of Israel/diaspora hoidays.\n"
+"#SUNSET_AWARE=TRUE\n"
+"\n"
+"# Base Years\n"
+"# hdate, by default, interprets two-digit year parameters as Hebrew\n"
+"# years, and adds the value BASE_YEAR_HEBREW * 100 to them. Set\n"
+"# variable PREFER_HEBREW=FALSE to have them interpreted as gregorian,\n"
+"# and have BASE_YEAR_GREGORIAN * 100 added to them.\n"
+"#PREFER_HEBREW=TRUE\n"
+"# valid values for BASE_YEAR_HEBREW are 30 - 69\n"
+"#BASE_YEAR_HEBREW=57\n"
+"# valid values for BASE_YEAR_GREGORIAN are 10 - 29\n"
+"#BASE_YEAR_GREGORIAN=20\n"
+"\n"
+"# LATITUDE and LONGITUDE may be in decimal format or in the form\n"
+"# degrees[:minutes[:seconds]] with the characters :'\" as possible\n"
+"# delimiters. Use negative values to indicate South and West, or\n"
+"# use the abbreviated compass directions N, S, E, W.\n"
+"#LATITUDE=\n"
+"#LONGITUDE=\n"
+"# TIMEZONE may may be in decimal format or in the form degrees[:minutes]\n"
+"# with the characters :'\" as possible delimiters.\n"
+"#TIMEZONE=\n"
+"\n"
+"# Output in hebrew characters\n"
+"# hdate defaults to output all information in your default language, so\n"
+"# if your default language is Hebrew, you're all set. Otherwise, you can\n"
+"# set FORCE_HEBREW to true to output Hebrew information in Hebrew, while\n"
+"# still outputting gregorian information in your default language. To\n"
+"# output ALL information in Hebrew, run something like this:\n"
+"#    LC_TEMP=LC_ALL; LC_ALL=\"he_IL.UTF-8\"; hdate; LC_ALL=$LC_TEMP\n"
+"# If setting FORCE_HEBREW to true results in 'garbage' or non-Hebrew\n"
+"# output, you need to install a terminal font that includes the Hebrew\n"
+"# character set (hint: unicode).\n"
+"#FORCE_HEBREW=FALSE\n"
+"\n"
+"# The FORCE_HEBREW option outputs data that is 'correct' and 'logical'.\n"
+"# Unfortunately, the world can not be depended upon to be either. Most\n"
+"# Xwindow applications will display the data fine with FORCE_HEBREW; most\n"
+"# xterm implementations will not. (in fact, the only xterm clone I know\n"
+"# of that comes close is mlterm). If using FORCE_HEBREW results in\n"
+"# Hebrew characters being displayed in reverse, set OUTPUT_BIDI to true.\n"
+"# This will reverse the order of the Hebrew characters, so they will\n"
+"# display 'visual'ly correct; however, such output will not be suitable\n"
+"# for piping or pasting to many other applications. Setting OUTPUT_BIDI\n"
+"# automatically forces hebrew.\n"
+"#OUTPUT_BIDI=FALSE\n"
+"\n"
+"# The Hebrew language output of Hebrew information can also be 'styled'\n"
+"# in the following ways:\n"
+"# option YOM ~> yom shishi, aleph tishrei ...\n"
+"# option LESHABBAT ~> yom sheni leshabbat miketz, kof kislev ...\n"
+"# option LESEDER ~> yom sheni leseder miketz, kof kislev ...\n"
+"#YOM=FALSE\n"
+"#LESHABBAT=FALSE\n"
+"#LESEDER=FALSE\n"
+"\n"
+"# This value directs times-of-day to be printed beginning with sunset\n"
+"# or candle-lighting of the Hebrew date, instead of beginning with\n"
+"# the first time-of-day in the morning.\n"
+"#EMESH=TRUE\n"
+"#SUN_RISE_SET=FALSE\n"
+"#TIMES_OF_DAY=FALSE\n"
+"#SHORT_FORMAT=FALSE\n"
+"#SEFIRAT_HAOMER=FALSE\n"
+"#DIASPORA=FALSE\n"
+"\n"
+"\n"
+"# Shabbat related\n"
+"# Setting SHABBAT_INFO true will output parshiot and Shabbat times.\n"
+"# The command line options for these features are -r (--parasha), and\n"
+"# -c. The CANDLE_LIGHTING field can accept a value of 18 - 90 (minutes\n"
+"# before sunset). The HAVDALAH field can accept a value of 20 - 90\n"
+"# (minutes after sunset).\n"
+"#PARASHA_NAMES=FALSE\n"
+"#ONLY_IF_PARASHA_IS_READ=FALSE\n"
+"#SHABBAT_INFO=FALSE\n"
+"\n"
+"#CANDLE_LIGHTING=FALSE\n"
+"#HAVDALAH=FALSE\n"
+"\n"
+"# Holiday related\n"
+"#HOLIDAYS=FALSE\n"
+"#ONLY_IF_HOLIDAY=FALSE\n"
+"\n"
+"# Tabular output\n"
+"# This option has hdate output the information you request in a single\n"
+"# comma-delimited line per day, suitable for piping or import to\n"
+"# spreadsheet formatting applications, etc. To belabor the obvious,\n"
+"# try running -   ./hdate 12 2011 -Rt --table |column -s, -t \n"
+"# The command line option for this feature is, um, --table\n"
+"#TABULAR=FALSE\n"
+"\n"
+"# iCal format\n"
+"# hdate can output its information in iCal-compatible format\n"
+"# ICAL=FALSE\n"
+"# Suppress alerts and warnings\n"
+"# hdate alerts the user via STDERR when it guesses the user's location.\n"
+"#QUIET_ALERTS=FALSE\n"
+"\n"
+"# Julian day number\n"
+"# The Julian day number is a .... See ... for more details.\n"
+"# setting the option JULIAN_DAY will have hdate output that number in\n"
+"# the format JDN-nnnnnnn at the beginning of its first line of output.\n"
+"#JULIAN_DAY=FALSE\n"
+"\n"
+"# User-defined menus\n"
+"# You may specify here command-line strings to optionally be parsed\n"
+"# by hcal at execution time. To do so, use the command line option -m\n"
+"# (--menu). hcal will process first the settings of this config file,\n"
+"# then the other settings of your command line, and then will prompt\n"
+"# you for which menu item you would like to select. hcal will process\n"
+"# your menu selection as if it were a new command line, further modifying\n"
+"# all the prior settings.\n"
+"# Only the first ten \"MENU=\" entries will be read. Each line will be\n"
+"# truncated at one hundred characters\n"
+"#MENU= -bd -l -23.55 -L -46.61 -z -3 # parents in Sao Paolo\n"
+"#MENU= -b -l 32 -L 34 -z 2           # son in bnei brak\n"
+"#MENU= -bd -l 43.71 -L -79.43 -z -5  # me in Toronto\n"
+"#MENU= -bd -l 22.26 -L 114.15 -z 8   # supplier in Hong Kong\n"
+msgstr ""
+
+#: examples/hcal/hdate.c:327
+msgid "Berachot"
+msgstr ""
+
+#: examples/hcal/hdate.c:328
+msgid "Shabbat"
+msgstr ""
+
+#: examples/hcal/hdate.c:329
+msgid "Eiruvin"
+msgstr ""
+
+#: examples/hcal/hdate.c:330
+#, fuzzy
+msgid "Pesachim"
+msgstr "Pesach"
+
+#: examples/hcal/hdate.c:331
+msgid "Shekalim"
+msgstr ""
+
+#: examples/hcal/hdate.c:332
+msgid "Yoma"
+msgstr ""
+
+#: examples/hcal/hdate.c:333
+#, fuzzy
+msgid "Sukkah"
+msgstr "Sukkot"
+
+#: examples/hcal/hdate.c:334
+msgid "Beitzah"
+msgstr ""
+
+#: examples/hcal/hdate.c:335
+#, fuzzy
+msgid "Rosh_HaShannah"
+msgstr "Rosh Hashana I"
+
+#: examples/hcal/hdate.c:336
+#, fuzzy
+msgid "Taanit"
+msgstr "Ta'anit Esther"
+
+#: examples/hcal/hdate.c:337
+msgid "Megillah"
+msgstr ""
+
+#: examples/hcal/hdate.c:338
+msgid "Moed_Katan"
+msgstr ""
+
+#: examples/hcal/hdate.c:339
+msgid "Chagigah"
+msgstr ""
+
+#: examples/hcal/hdate.c:340
+msgid "Yevamot"
+msgstr ""
+
+#: examples/hcal/hdate.c:341
+msgid "Ketubot"
+msgstr ""
+
+#: examples/hcal/hdate.c:342
+#, fuzzy
+msgid "Nedarim"
+msgstr "Devarim"
+
+#: examples/hcal/hdate.c:343
+msgid "Nazir"
+msgstr ""
+
+#: examples/hcal/hdate.c:344
+msgid "Sotah"
+msgstr ""
+
+#: examples/hcal/hdate.c:345
+msgid "Gittin"
+msgstr ""
+
+#: examples/hcal/hdate.c:346
+msgid "Kiddushin"
+msgstr ""
+
+#: examples/hcal/hdate.c:347
+msgid "Bava_Kamma"
+msgstr ""
+
+#: examples/hcal/hdate.c:348
+msgid "Bava_Metzia"
+msgstr ""
+
+#: examples/hcal/hdate.c:349
+msgid "Bava_Batra"
+msgstr ""
+
+#: examples/hcal/hdate.c:350
+msgid "Sanhedrin"
+msgstr ""
+
+#: examples/hcal/hdate.c:351
+#, fuzzy
+msgid "Makkot"
+msgstr "Sukkot"
+
+#: examples/hcal/hdate.c:352
+#, fuzzy
+msgid "Shevuot"
+msgstr "Shavuot"
+
+#: examples/hcal/hdate.c:353
+msgid "Avodah_Zara"
+msgstr ""
+
+#: examples/hcal/hdate.c:354
+msgid "Horayot"
+msgstr ""
+
+#: examples/hcal/hdate.c:355
+msgid "Zevachim"
+msgstr ""
+
+#: examples/hcal/hdate.c:356
+msgid "Menachot"
+msgstr ""
+
+#: examples/hcal/hdate.c:357
+msgid "Chullin"
+msgstr ""
+
+#: examples/hcal/hdate.c:358
+#, fuzzy
+msgid "Bechorot"
+msgstr "Bechukotai"
+
+#: examples/hcal/hdate.c:359
+msgid "Erchin"
+msgstr ""
+
+#: examples/hcal/hdate.c:360
+msgid "Temurah"
+msgstr ""
+
+#: examples/hcal/hdate.c:361
+msgid "Keritut"
+msgstr ""
+
+#: examples/hcal/hdate.c:362
+msgid "Meilah"
+msgstr ""
+
+#: examples/hcal/hdate.c:363
+msgid "Meilah-Kinnim"
+msgstr ""
+
+#: examples/hcal/hdate.c:364
+msgid "Kinnim"
+msgstr ""
+
+#: examples/hcal/hdate.c:365
+msgid "Kinnim-Tamid"
+msgstr ""
+
+#: examples/hcal/hdate.c:366
+#, fuzzy
+msgid "Tamid"
+msgstr "Bamidbar"
+
+#: examples/hcal/hdate.c:367
+msgid "Middot"
+msgstr ""
+
+#: examples/hcal/hdate.c:368
+msgid "Niddah"
+msgstr ""
+
+#: examples/hcal/hdate.c:373
+msgid "There are no easter eggs in this program. Go away."
+msgstr ""
+
+#: examples/hcal/hdate.c:374
+msgid "There is no Chanukah gelt in this program. Leave me alone."
+msgstr ""
+
+#: examples/hcal/hdate.c:375
+msgid "Nope, no Hamentashen either. Scram kid, your parents are calling you"
+msgstr ""
+
+#: examples/hcal/hdate.c:376
+msgid "Nada. No cheesecake, no apples with honey, no pomegranate seeds. Happy?"
+msgstr ""
+
+#: examples/hcal/hdate.c:377
+msgid "Afikomen? Afikomen! Ehrr... Huh?"
+msgstr ""
+
+#: examples/hcal/hdate.c:378
+msgid "(grumble...) You win... (moo)"
+msgstr ""
+
+#: examples/hcal/hdate.c:379
+msgid ""
+"Okay! enough already! MOO! MOO! MoooooH!\n"
+"\n"
+"Satisfied now?"
+msgstr ""
+
+#: examples/hcal/hdate.c:380
+msgid ""
+"Etymology: Pesach\n"
+"   Derived from the ancient Egyptian word \"Feh Tzach\" meaning \"purchase a "
+"new toothbrush\" --based upon a hieroglyphic steele dating from the 23rd "
+"dynasty, depicting a procession of slaves engaging in various forms of oral "
+"hygiene."
+msgstr ""
+
+#: examples/hcal/hdate.c:381
+msgid "You have reached Wit's End."
+msgstr ""
+
+#: examples/hcal/hdate.c:404
+msgid ""
+"Usage: hdate [options] [coordinates] [timezone] [date_spec]\n"
+"       hdate [options] [coordinates] [timezone] [julian_day|time_t]\n"
+"\n"
+"       coordinates: -l [NS]yy[.yyy]     -L [EW]xx[.xxx]\n"
+"                    -l [NS]yy[:mm[:ss]] -L [EW]xx[:mm[:ss]]\n"
+"\n"
+"       timezone:    -z [ [nn[.nn|:mm]] | tz_name ]\n"
+"\n"
+"       date_spec:   [ [[[day] month] year] | flexible_entry ]\n"
+msgstr ""
+
+#: examples/hcal/hdate.c:418
+msgid "Try 'hdate --help' for more information"
+msgstr ""
+
+#: examples/hcal/hdate.c:429
+msgid ""
+"hdate - display Hebrew date information\n"
+"OPTIONS:\n"
+"   -b --bidi          prints hebrew in reverse (visual)\n"
+"      --visual\n"
+"   -d --diaspora      force diaspora readings and holidays.\n"
+"      --israel        force Eretz Yisroel readings an holidays\n"
+"      --daf-yomi\n"
+"   -e --emesh         begin printing times-of-day at sunset or candles.\n"
+"      --erev          this is the default and can be over-ridden with\n"
+"                      --no-emesh or --no-erev\n"
+"   -E --epoch         print times of day in epoch format\n"
+"   -E --epoch time_t  get information for this epoch date\n"
+"   -h --holidays      print holiday information.\n"
+"   -H                 print only if day is a holiday.\n"
+"   -i --ical          use iCal formated output.\n"
+"   -j --julian        print Julian day number.\n"
+"   -m --menu          prompt user-defined menu from config file\n"
+"   -o --omer          print Sefirat Ha-Omer, number of days only.\n"
+"                      -oo  \"today is n days in the omer\"\n"
+"                      -ooo the full text, with weeks and remainder days\n"
+"      --ba-omer       full omer text in Hebrew\n"
+"      --la-omer       full omer text in Hebrew\n"
+"   -q --quiet         suppresses optional output (four levels):\n"
+"      --quiet-alerts       -q    suppresses only warning messages\n"
+"      --quiet-gregorian    -qq   also suppresses gregorian date\n"
+"      --quiet-descritpions -qqq  also suppresses labels and descripions\n"
+"      --quiet_hebrew       -qqqq also suppresses Hebrew date\n"
+"   -r --parasha       print weekly reading if day is Shabbat.\n"
+"   -R                 print only if day is a Shabbat on which there\n"
+"                      is a weekly reading (ie. not a special holiday\n"
+"                      reading), and print that regular weekly reading.\n"
+"   -s --shabbat       print Shabbat start/end times.\n"
+"      --shabbat-times\n"
+"      --candles       modify default minhag of 20 minutes. (17<n<91)\n"
+"      --havdalah      modify default minhag of 3 stars. (19<n<91 minutes)\n"
+"      --sun           print sunrise/sunset times.\n"
+"\n"
+"   -S --short-format  print using short format.\n"
+"   -t --times         print day times (three preset verbosity levels):\n"
+"      --times-of-day  -t    first light, talit, sunrise, midday,\n"
+"      --day-times           sunset, first stars, three stars, sun hour.\n"
+"                      -tt   adds sof zman kriyat Shema, sof zman amidah,\n"
+"                            mincha gedolah, mincha ketana, plag hamincha\n"
+"                      -ttt  adds sof zman kriyat Shema per Magen Avraham\n"
+"                      instead of using the presets, customize, with:\n"
+"                      --first-light  --midday         --shekia\n"
+"                      --alot         --noon           --tzeit-hakochavim\n"
+"                      --talit        --chatzot        --first-stars\n"
+"                      --netz         --mincha-gedola  --three-stars\n"
+"                      --shema        --mincha-ketana  --magen-avraham\n"
+"                      --amidah       --plag-hamincha  --sun-hour\n"
+"                      \n"
+"                      --sunrise      --sunset         --candle-lighting\n"
+"                      --end-eating-chometz-ma   --end-eating-chometz-gra\n"
+"                      --end-owning-chometz-ma   --end-owning-chometz-gra\n"
+"\t                  \n"
+"   -T --table         tabular output, comman delimited, and most suitable\n"
+"      --tabular       for piping or spreadsheets\n"
+"\n"
+"   -z --timezone nn   timezone, +/-UTC\n"
+"   -l --latitude yy   latitude yy degrees. Negative values are South\n"
+"   -L --longitude xx  longitude xx degrees. Negative values are West\n"
+"\n"
+"   --hebrew           forces Hebrew to print in Hebrew characters\n"
+"   --yom              force Hebrew prefix to Hebrew day of week\n"
+"   --leshabbat        insert parasha between day of week and day\n"
+"   --leseder          insert parasha between day of week and day\n"
+"   --not-sunset-aware don't display next day if after sunset\n"
+"   --data-first       display data, followed by it's description\n"
+"   --labels-first     display data descriptions before the data itself\n"
+"   --prefer-hebrew    interpret ambiguous mm yy as Hebrew date\n"
+"   --prefer-gregorian interpret ambiguous mm yy as gregorian date\n"
+"\n"
+"All options can be made default in the config file, or menu-ized for\n"
+"easy selection.\n"
+"Report bugs to: <http://sourceforge.net/tracker/?"
+"group_id=63109&atid=502872>\n"
+"libhdate home page: <http://libhdate.sourceforge.net>\n"
+"General help using GNU software: <http://www.gnu.org/gethelp/>\n"
+msgstr ""
+
+#: examples/hcal/hdate.c:510
+msgid ""
+"ALERT: The information displayed is for today's Hebrew date.\n"
+"              Because it is now after sunset, that means the data is\n"
+"              for the Gregorian day beginning at midnight."
+msgstr ""
+
+#: examples/hcal/hdate.c:762
+msgid "eve of "
+msgstr ""
+
+#: examples/hcal/hdate.c:1169
+msgid "days"
+msgstr ""
+
+#: examples/hcal/hdate.c:1170
+msgid "in_the_omer"
+msgstr ""
+
+#: examples/hcal/hdate.c:1171
+#, fuzzy
+msgid "today_is_day"
+msgstr "Fredag"
+
+#: examples/hcal/hdate.c:1298
+msgid "today_is"
+msgstr ""
+
+#: examples/hcal/hdate.c:1306
+msgid ",_which_is"
+msgstr ""
+
+#: examples/hcal/hdate.c:1308
+msgid "week"
+msgstr ""
+
+#: examples/hcal/hdate.c:1309
+msgid "weeks"
+msgstr ""
+
+#: examples/hcal/hdate.c:1313
+#, fuzzy
+msgid "and"
+msgstr "Jan"
+
+#: examples/hcal/hdate.c:1317
+msgid ","
+msgstr ""
+
+#: examples/hcal/hdate.c:1359
+msgid "Gregorian date"
+msgstr ""
+
+#: examples/hcal/hdate.c:1360
+msgid "Hebrew Date"
+msgstr ""
+
+#: examples/hcal/hdate.c:2516
+msgid "-z (timezone)"
+msgstr ""
+
+#: examples/hcal/hdate.c:3053
+msgid ""
+"parameter conflict: you entered both a date_spec and an option --epoch "
+"date_spec"
+msgstr ""
+
+#: examples/hcal/hdate.c:3189
+msgid ""
+"too many arguments (expected at most day, month and year after options list)"
+msgstr ""
+
+#: examples/hcal/local_functions.c:70
+msgid "l (latitude)"
+msgstr ""
+
+#: examples/hcal/local_functions.c:71
+msgid "L (Longitude)"
+msgstr ""
+
+#: examples/hcal/local_functions.c:72
+msgid "equator"
+msgstr ""
+
+#: examples/hcal/local_functions.c:73
+msgid "midpoint of theoretical timezone"
+msgstr ""
+
+#: examples/hcal/local_functions.c:74
+msgid "absolute UTC offset entered"
+msgstr ""
+
+#: examples/hcal/local_functions.c:75
+msgid "no timezone entered"
+msgstr ""
+
+#: examples/hcal/local_functions.c:83
+msgid "parameter"
+msgstr ""
+
+#: examples/hcal/local_functions.c:84
+msgid "is non-numeric or out of bounds"
+msgstr ""
+
+#: examples/hcal/local_functions.c:90 examples/hcal/local_functions.c:144
+msgid "option"
+msgstr ""
+
+#: examples/hcal/local_functions.c:90
+msgid "missing parameter"
+msgstr ""
+
+#: examples/hcal/local_functions.c:96
+msgid "unsupported option -"
+msgstr ""
+
+#: examples/hcal/local_functions.c:103
+msgid "ALERT: time zone not entered, using current system UTC offset"
+msgstr ""
+
+#: examples/hcal/local_functions.c:110
+msgid "ALERT: time zone not entered, using system local time zone"
+msgstr ""
+
+#: examples/hcal/local_functions.c:116
+msgid "ALERT: time zone not entered, guessing UTC offset"
+msgstr ""
+
+#: examples/hcal/local_functions.c:116
+msgid "hours, based upon longitude"
+msgstr ""
+
+#: examples/hcal/local_functions.c:122
+msgid "ALERT: coordinate not entered or invalid..."
+msgstr ""
+
+#: examples/hcal/local_functions.c:124
+msgid "ALERT: guessing"
+msgstr ""
+
+#: examples/hcal/local_functions.c:124
+msgid "of"
+msgstr ""
+
+#: examples/hcal/local_functions.c:130
+msgid "ALERT: the input"
+msgstr ""
+
+#: examples/hcal/local_functions.c:131
+msgid "is at great variance from the chosen time zone default value"
+msgstr ""
+
+#: examples/hcal/local_functions.c:137
+msgid "ALERT: daylight savings time can not be determined"
+msgstr ""
+
+#: examples/hcal/local_functions.c:144
+msgid "is not a valid option"
+msgstr ""
+
+#: examples/hcal/local_functions.c:150
+msgid "month and year parameters mismatched (Hebrew/gregorian mix)"
+msgstr ""
+
+#: examples/hcal/local_functions.c:156
+msgid "failure attempting to create config file"
+msgstr ""
+
+#: examples/hcal/local_functions.c:198
+msgid "America/Los_Angeles"
+msgstr ""
+
+#: examples/hcal/local_functions.c:199
+msgid "America/Mexico_City"
+msgstr ""
+
+#: examples/hcal/local_functions.c:200
+msgid "America/New_York"
+msgstr ""
+
+#: examples/hcal/local_functions.c:203
+msgid "America/Caracas"
+msgstr ""
+
+#: examples/hcal/local_functions.c:204
+msgid "America/Argentina/Buenos_Aires"
+msgstr ""
+
+#: examples/hcal/local_functions.c:205
+msgid "Europe/London"
+msgstr ""
+
+#: examples/hcal/local_functions.c:206
+msgid "Europe/Paris"
+msgstr ""
+
+#: examples/hcal/local_functions.c:207
+msgid "Asia/Jerusalem"
+msgstr ""
+
+#: examples/hcal/local_functions.c:208
+msgid "Asia/Tehran"
+msgstr ""
+
+#: examples/hcal/local_functions.c:209
+msgid "Europe/Moscow"
+msgstr ""
+
+#: examples/hcal/local_functions.c:210
+msgid "Asia/Tashkent"
+msgstr ""
+
+#: examples/hcal/local_functions.c:211
+msgid "Asia/Kolkata"
+msgstr ""
+
+#: examples/hcal/local_functions.c:212
+msgid "Asia/Shanghai"
+msgstr ""
+
+#: examples/hcal/local_functions.c:216
+msgid "Australia/Sydney"
+msgstr ""
+
+#: examples/hcal/local_functions.c:335
+msgid "L (Longitue)"
+msgstr ""
+
+#: examples/hcal/local_functions.c:499
+msgid "internal size mismatch, parameter '--epoch' being ignored"
+msgstr ""
+
+#: examples/hcal/local_functions.c:721
+msgid ""
+"unable to parse timezone or dalight savings time data;\n"
+"      using Jerusalem Standard Time"
+msgstr ""
+
+#: examples/hcal/local_functions.c:855
+msgid ""
+"This seems to be to be your first time using this version (1.8).\n"
+"Please read the new documentation in the man page and config files.\n"
+"Press <enter> to continue."
+msgstr ""
+
+#: examples/hcal/local_functions.c:937
+msgid "attempting to create a config file ..."
+msgstr ""
+
+#: examples/hcal/local_functions.c:946
+msgid "succeeded creating config file"
+msgstr ""
+
+#: examples/hcal/local_functions.c:1106
+msgid "your custom menu options (from your config file)"
+msgstr ""
+
+#: examples/hcal/local_functions.c:1112
+msgid "ALERT: -m (--menu) option specified, but no menu items in config file"
+msgstr ""
+
+#: examples/hcal/local_functions.c:1115
+msgid "enter your selection, or <return> to continue"
+msgstr ""
+
+#: examples/hcal/local_functions.c:1119
+msgid "menu selection received was out of bounds"
+msgstr ""
+
+#~ msgid "Sh'vat"
+#~ msgstr "Sh'vat"
+
+#~ msgid "Rosh Hashana II"
+#~ msgstr "Rosh Hashana II"
+
+#~ msgid "Pesach VII"
+#~ msgstr "Pesach VII"
+
+#~ msgid "Pesach VIII"
+#~ msgstr "Pesach VIII"
+
+#~ msgid "Tamuz"
+#~ msgstr "Tamuz"

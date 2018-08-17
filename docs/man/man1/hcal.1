@@ -1,0 +1,294 @@
+.\" emacs:  -*- nroff -*-     vim: ft=nroff
+.\" .UC 4
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH "hcal" "1" "2013-01-01" "libhdate version 1.8" "libhdate documentation" "libhdate"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7). Also refer to groff(7).
+.SH "NAME"
+hcal \- displays a Hebrew / Gregorian calendar
+.PP
+.SH "SYNOPSIS"
+.B hcal
+.RI [ options "] [" coordinates "] [" timezone "] [" datespec ]
+.TP
+.IR coordinates\: " \fB\-l\fP [N|S]" yy [. yyy "] " "    \fB\-L\fP" " [E|W]" xx [. xxx ]
+.RE
+.RS 19
+.RI "\fB\-l\fP [N|S]" yy [: mm [: ss "]] \fB\-L\fP [E|W]" xx [: mm [: ss ]]
+.RE
+.RS 7
+.IR "timezone:   \fB\-z\fP nn" "[(."nn |: mm ")]"
+.RE
+.RS 19
+.RI "\fB\-z\fP [" timezone_name "] (see below)"
+.RE
+.RS 7
+.IR datespec ":   see section \fBACCEPTABLE DATE FORMATS\fP"
+.PP
+.SH "DESCRIPTION"
+\fBhcal\fP prints a calendar with both Gregorian and Hebrew dates for the specified Gregorian month or, if no month is specified, for the whole Gregorian year. If no arguments are given, it prints the current month's calendar. Jewish holidays are annotated, and can
+optionally be footnoted. \fBhcal\fP tries to be sunset-aware in order to correctly highlight the current Hebrew date, and can also display Shabbat times and parshiot (see section \fBLOCATIONS\fP).
+.PP
+.B INPUTTING A HEBREW DATE:
+If the year provided is greater than 3000, \fBhcal\fP will interpret the given date as a Hebrew date, and will display the calendar of the corresponding Gregorian month(s). Hebrew months are expected to be passed as numbers 1-12 for Tishrei - Elul; Adar I and Adar II are expected to be passed as months 13 and 14. Currently, the maximum value \fBhcal\fP accepts for a Hebrew year is 6999.
+.PP
+.B INPUTTING A GREGORIAN DATE:
+\fBhcal\fP interprets year values in the range 1000 - 2999 as gregorian. Numeric months are interpreted as 1-12 for January - December.
+.PP
+.B ACCEPTABLE DATE FORMATS:
+Prior versions of \fBhcal\fP insisted on the numeric date format
+.RI [[ yyyy " [" mm "]]."
+\fBhcal\fP now accepts numeric date elements in any easily discernable order. \fBhcal\fP now accepts Hebrew month names and gregorian month names in both full and abbreviated formats, and not case-sensitive. Gregorian month names may be entered in either your locale's language or in English. Hebrew month names may be entered in either Hebrew characters or in many transliteration forms to latin characters (see \fBEXAMPLES\fP). \fBhcal\fP will intelligently interpret ambiguous numeric \fIdatespec\fP parameters. For example, a parameter "32" could only legitimately be a two-digit year, so \fBhcal\fP will, by default, interpret it as a two-digit Hebrew year in the current (58th) century (see option \fB\-\-prefer-gregorian\fP, section \fBCONFIG FILES\fP, and the config file options to change the default base years).
+.PP
+.SH "OPTIONS"
+.TP 18
+.B \-0 \-\-no-gregorian
+This is the default. It prints only Hebrew month information. The option exists only to override a posible contrary config file setting.
+.TP
+.B \-1 \-\-one-month
+over-ride config file setting if you had set option \fB\-\-three-month\fP as a default there
+.TP
+.B \-3 \-\-three-month
+print previous/next months, side by side. requires 127 columns
+.TP 3
+.BR "   \-\-borders" "      displays a frame around calendars in three-month mode"
+.br
+.BR \-\-spacing "      quoted string to separate months in three-month mode"
+.TP
+.BR "\-b \-\-bidi" "         print Hebrew information in Hebrew , in reverse"
+.BR \-\-visual "       sequence"
+
+.BR \-\-no-bidi "      over-ride config file setting if you had set"
+.br
+.BR \-\-no-visual "    option " \-\-bidi " as a default there"
+.TP 18
+.B \-B \-\-bold
+display special days in boldface, no color
+.TP 18
+.B \-c \-\-colorize
+display in calming, muted tones. \fB\-cc\fP will display in bolder, and mildy irritating, colors.
+.RE
+.RS 7
+.BR "   \-\-no-color" "     over-ride config file setting for color and bold"
+.TP 18
+.B \-d \-\-diaspora
+use diaspora reading and holidays. Only relevant if hcal is using location information indicating an Israeli timezone
+.TP
+.B \-f \-\-footnote
+print descriptive notes of holidays
+.RE
+.RS 7
+.BR "   \-\-no-footnote" "  over-ride config file setting"
+.TP 18
+.B \-g \-\-gregorian
+include gregorian corresponding days. \fB-gg\fP displays a gregorian month with corresponding Hebrew days. Specifying option \fB-g\fP
+with a gregorian date is equivalent to requesting the Hebrew month in which the first day of that specified gregorian month appears.
+.TP
+.B \-h \-\-html
+print in html format to stdout
+.RE
+.RS 7
+.BR "   \-\-no-html" "      over-ride config file setting"
+.TP 18
+.B \-H \-\-hebrew
+print Hebrew information in Hebrew, in 'logical' sequence. If this displays in reverse for you, use option \fB\-b\fP
+.TP
+.B \-I \-\-israel
+override a diaspora default. Only relevant if hcal is using location information indicating other than an Israeli timezone
+.TP
+.B \-i
+use external css file "\fI./hcal.css\fP" for html output
+.TP
+.BR "   \-\-no-reverse" "   do not highlight today's date"
+.TP
+.B \-m \-\-menu
+prompt user-defined menu from config file. See there for details and examples.
+.TP
+.B \-p \-\-parasha
+print week's parasha on each calendar row
+.TP
+.B \-s \-\-shabbat
+print Shabbat times and parshiot
+.TP
+.B \-l \-\-latitude
+.RI [ NS ] yy [. yyy "] decimal degrees, or [" NS ] yy [: mm [: ss "]] degrees, minutes, seconds. Negative values are South"
+.TP
+.B \-L \-\-longitude
+.RI [ EW ] xx [. xxx "] decimal degrees, or [" EW ] xx [: mm [: ss "]] degrees, minutes, seconds. Negative values are West"
+.TP
+.B \-z \-\-timezone
+either a timezone name (see section \fBTIMEZONES\fP) or numeric offset +/-UTC. Notation may  be in decimal hours
+.RI ( hh [. hh "]) or hours, minutes (" hh [: mm ])
+.TP 23
+.B \ \   \-\-prefer-hebrew
+how to interpret ambiguous month and year
+.RS 0
+.B \ \ \ \-\-prefer-gregorian
+\ parameters. (eg. interpret "6 10"  as "Adar 5710"
+.RS 23
+or as "June 2010"). Hebrew is the default.
+.SH NOTES
+.SS "HOLIDAYS"
+.PP
+Holidays are depicted by a change in the symbol separating a day's
+Gregorian and Hebrew dates, as follows:
+.P
+.RS
+.BR / "  Regular day"
+.RE
+.RS
+.BR + "  Yom Tov (plus Yom Kippur)"
+.RE
+.RS
+.BR * "  Erev Yom Kippur"
+.RE
+.RS
+.BR ~ "  Hol HaMoed"
+.RE
+.RS
+.BR ! "  Hanuka and Purim"
+.RE
+.RS
+.BR @ "  fasting day"
+.RE
+.RS
+.BR $ "  Lag BaOmer ,Tu BeAv, Tu BeShvat"
+.RE
+.RS
+.BR # "  Independance day and Yom Yerushalaim"
+.RE
+.RS
+.BR % "  Tzahal and Holocaust memorial days"
+.RE
+.RS
+.BR ^ "  Other Israeli National days"
+.RE
+.P
+Use the
+.BR \-f " (" \-\-footnote ") option to have hcal describe what any particular day is marking."
+.SS TIMEZONES
+\fBhcal\fP accepts as timezone parameters either an absolute numeric offset from UTC, or an official timezone name, as found on many *nix operating systems at \fI/usr/share/zoneinfo/zone.tab\fP. These names are typically in the form 'continent/city' (eg. Asia/Jerusalem); however, \fBhcal\fP is flexible and will accept any unique substring of a timezone name, and will report how it interpreted your input. For example, 'jer' will be interpreted as Israel time. Names use underscores in place of spaces, but \fBhcal\fP will accept spaces as long as the parameter is quoted ("w y" is acceptable for America/New_York, but so would be 'new'). When given a timezone name, \fBhcal\fP will be aware of daylight savings time transitions and will report times-of-day accordingly. When given no timezone information, \fBhcal\fP will try to find out your computer's local timezone. If that fails, it will attempt to find your computer's UTC offset. If all else fails, Jerusalem Standard time is used.
+.SS LOCATIONS
+If you want \fBhcal\fP to display accurate time-of-day information,\fBhcal\fP requires location and time zone information in order to make astronomical calculations for a given date. If you don't provide ANY such information, \fBhcal\fP tries to find out your computer's local time zone information as an indicator, and picks the 'primary' city in that time zone. If \fBhcal\fP can't find local time zone information, \fBhcal\fP tries to find out your computer's GMT offset, and either picks from the list below the city in that time zone offset, or defaults to the equator at the center of that time zone offset. If \fBhcal\fP can't even retrieve GMT offset information from your computer, it defaults to Tel-Aviv. For other locations, use the \fB\-l \-L\fP option pair. For other timezones, use the \fB\-z\fP option. Co-ordinates and standard time zones for some common locations are listed below.
+.PP
+The current defaults are:
+.RS 5
+.I "tz                 Lat    Lon      tz              Lat     Lon"
+.RE
+.RS 5
+\-8   Los Angeles   34.05 \-118.25    2    Tel-Aviv  32      34.75
+.RE
+.RS 5
+\-6   Mexico City   19.43  \-99.13    3.5  Tehran    35.67   51.43
+.RE
+.RS 5
+\-5   New York City 40.75  \-74       4    Moscow    55.75   37.62
+.RE
+.RS 5
+\-4.5 Caracas       10.54  \-66.93    5    Tashkent  41.27   69.22
+.RE
+.RS 5
+\-3   Buenos Aires -34.61  \-58.37    5.5  Calcutta  22.57   88.36
+.RE
+.RS 5
+ 0   London        51.5     0       8    Beijing   39.90  116.38
+.RE
+.RS 5
+ 1   Paris         48.86    2.34   10    Sydney   \-33.87  151.21
+.RE
+.PP
+Useful locations and time zones
+.RS 6
+.I "tz                 Lat    Lon      tz              Lat     Lon"
+.RE
+.RS 6
+2   Jerusalem     31.78   35.22    8   Hong Kong  22.26  114.15
+.RE
+.RS 6
+2   Haifa         32.82   34.99   \-6   Chicago    41.84  \-87.67
+.RE
+.RS 6
+2   Beer Sheva    31.25   34.80   \-3   Sao Paolo \-23.52  \-46.63
+.RE
+.RS 6
+2   Ashdod        31.80   34.64   \-5   Toronto    43.75  \-79.38
+.RS 6
+.RE
+2   Tiberias      40.89   35.84    1   Antwerpen  51.22    4.42
+.RS 6
+.RE
+2   Eilat         29.56   34.95    3.5 Tehran     35.67   51.42
+.SH FILES
+The config files and their parent folder will be automatically created. Each file includes its own documentation, in-line. Should you ever wish to restore a config file to its original text, rename or delete your current one; \fBhcal\fP will create a replacement automatically on its next invocation. Both \fBhcal\fP and \fBhcal\fP make use of identically formatted \fIcustom_days\fP files, so you may freely copy that file from one config folder to the other, or use a symbolic link so both programs will always use the same \fIcustom_days\fP information.
+
+.RS 5
+.RI ${ XDG_CONFIG_HOME } /hcal/hcalrc_v1.8
+
+.RI ${ XDG_CONFIG_HOME } /hcal/custom_days_v1.8
+.P
+.RE
+If ${\fIXDG_CONFIG_HOME\fP} is undefined:
+
+.RS 5
+.I ~/.config/hcal/hcalrc
+
+.I ~/.config/hcal/custom_days
+.SH "BUGS"
+.TP 10
+.B Accuracy
+The accuracy of the astronomically-derived data will suffer from not accounting for environmental conditions such as elevation, horizon, temperature and air pressure.
+.RE
+.TP 10
+.B Timezones
+The timezone support is currenlty primitive and lacks support for daylight savings time transitions.
+.RE
+.TP 10
+.B Historical
+The software does not yet account for the phenomenon and complications of the "Gregorian transition" from the prior, Julian calendar, which effectively caused an instantaneous 'loss' of two weeks for all gentiles affected. Countries (eg. Poland, Spain and Italy) began adopting the Gregorian calendar on 8 Tishrei 5343 (4 October 1582 CE), although many did not transition until the 56th century (1752 CE, eg. UK colonies, Sweden). Russia did not adopt the Gregorian calendar until 5678 (1918 CE) and Turkey did not until 5687 (December, 1926 CE). Many other countries made the transition on other dates. Keep in mind that Russia invaded part of Poland, undoing, for the interim, the Gregorian transition for (only) that part of Poland; Also important to remember in this regard is that Eretz Ysroel was part of the Turkish Ottoman empire until the British mandate (5677 (1917 CE)). Until all this is accounted for adequately by this application, refer to '\fBncal \-p\fP' for a basic table of country transitions. However, keep in mind that European borders underwent many changes during the 426 years in question, so the accuracy of your data will depend on accurate knowledge of whether any particular date at any specific location was Julian or Gregorian.
+.SS Not bugs
+.TP 3
+1. Invoke \fBhcal\fP with a gregorian month name, and \fBhcal\fP will by default return a single month calendar for the Hebrew month in which that gregorian month begins. For example, '\fBhcal feb\fP' could return a calendar for Shevat of the current year. In order to see a Hebrew calendar for February, add option \fB-gg\fP on the command line or in your config file.
+.PP
+2. When displaying hebrew or using the bidi options, your results may read backwards. This is a failure of your terminal to properly support LTR languages, and is why, starting in version 1.6, option
+.BR -b ( \-\-bidi )
+was offered. However, while in most cases
+.BR -b ( \-\-bidi )
+will render the display readable, your terminal may still display the output left-to-right (LTR), ie. Shabbat in the rightmost column. If this bothers you, and it should, complain to the developer of your terminal emulator, and refer them to package \fBmlterm\fP ('multi-lingual terminal'), a terminal emulator that does support bidi, and on which \fBhcal\fP renders correctly. Or, you just might want to consider using \fBmlterm\fP yourself.
+.SH "EXAMPLES"
+.TP 3
+1. Display a 2012ce year's calendar, three-months wide, in color.
+.RS 6
+.B       hcal \-gg3c 2012
+.RE
+.HP 3
+2. Display the current month's calendar, with Shabbat times, parshiot, footnoted holiday identification, with Hebrew information in Hebrew, and all in "calming", "muted" color-tones.
+.RS 6
+.B       hcal \-csfH
+.SS Flexible date entry
+tiSHREi ; yerech_haeitanim ; 1 Elul 44; 1 sep 1944; 44 oct 21 ; April ; aPril ; ziv ; bool ; Mar-Cheshvan ; menachemav
+.SS Flexible Hebrew month transliterations
+tIchriy, jechvan, xeshvan, khechvan, kisayv, teivayt, sh\\'vat, addar, adarI, "adar A", adar_2, adar-alef, adaraleph, adARBeth, nissan, eeyar, ceevvan, taMUz, aV, elloul (and many more).
+.RE
+.SH "SEE ALSO"
+.BR mlterm "(1), " hdate "(1) ," hebcal "(1), " date "(1), " ncal "(1), " cal "(1), " remind (1)
+.SH "AUTHORS"
+.RS 0
+Boruch Baum 2011-2018, Yaacov Zamir 2005-2010.
+.PP
+project home page: http://libhdate.sourceforge.net
+.PP
+\fBhcal\fP and \fBhdate\fP are part of the package \fBlibhdate\fP, a small C/C++ library for Hebrew dates, holidays, and reading
+sequences (parashiot). It uses the source code from Amos Shapir's "hdate" package, as fixed and patched by Nadav Har'El. The Torah
+reading sequence tables were contributed by Zvi Har'El.

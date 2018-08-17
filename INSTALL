@@ -1,0 +1,29 @@
+* Installation from source
+
+  This package is available for most major operating systems, so in
+  most cases if you just want to use the command line programs, the
+  following instructions are unnecessary; just install your
+  distribution's pre-built package, or a packaged binary from a
+  reliable repository compatable with your distribution.
+
+* Pre-Requisites
+
++ GNU toolchain, ie. gcc, libtoolize, autoreconf, and make. Your
+  distribution may package these as `build-essential`, `libtool`,
+  `autoconf`, and `automake`.
+
+* Procedure
+
++ Run the provided shell script `autogen.sh`.
+
+  The script will invoke `libtoolize`, `autoreconf`, `configure`, and
+  `make`. Upon success, you can either use the built files at their
+  current paths, or you can perform `sudo make install` to install
+  them system-wide on your machine.
+
+* Extra credit
+
++ The extensive manuals and documentation for the elements of the GNU
+  toolchain are a reliable source of interminable travail,
+  frustration, torture, and enlightenment for all those who would dare
+  turn to them. The search engine of your choice also works.
