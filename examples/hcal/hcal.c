@@ -822,7 +822,7 @@ void print_month_line( const header_info header, const option_list* opt )
 /**************************************************
 *  print column headings for days of weeks
 **************************************************/
-void print_dow_line( const int colorize, const int gregorian, const int force_hebrew )
+void print_dow_line( option_list* opt )
 {
   int column;
 
@@ -833,16 +833,16 @@ void print_dow_line( const int colorize, const int gregorian, const int force_he
   {
     int padding = 2;
 
-    if (hdate_is_hebrew_locale() || force_hebrew)
+    if (hdate_is_hebrew_locale() || opt->force_hebrew)
     {  // Hebrew heading is a single character per day
-      if (!gregorian) printf("%s%s"," ", hdate_string( HDATE_STRING_DOW, column, HDATE_STRING_SHORT, HDATE_STRING_HEBREW));
+      if (!opt->gregorian) printf("%s%s"," ", hdate_string( HDATE_STRING_DOW, column, HDATE_STRING_SHORT, HDATE_STRING_HEBREW));
       else printf ("%s%s%s", "  ",
         hdate_string( HDATE_STRING_DOW, column, HDATE_STRING_SHORT, HDATE_STRING_HEBREW),
         " ");
     }
     else
     {
-      if (gregorian == 0)
+      if (opt->gregorian == 0)
       {
         putchar(' ');
         putchar( *(hdate_string( HDATE_STRING_DOW, column, HDATE_STRING_SHORT, HDATE_STRING_LOCAL)));
@@ -852,18 +852,29 @@ void print_dow_line( const int colorize, const int gregorian, const int force_he
             hdate_string( HDATE_STRING_DOW, column, HDATE_STRING_SHORT, HDATE_STRING_LOCAL));
     }
 
-    if ( (column == 7) || (!gregorian) ) padding = 1;
-    if ( (column != 7) || ( ( column == 7) && (gregorian) ) ) printf("%*s",padding," ");
+    if ( (column == 7) || (!opt->gregorian) ) padding = 1;
+    if ( (column != 7) || ( ( column == 7) && (opt->gregorian) ) ) printf("%*s",padding," ");
   }
 
   /**************************************************
   *  begin function - print_dow_line
   **************************************************/
-  if (colorize) colorize_element(colorize, ELEMENT_WEEKDAY_NAMES);
-  for (column = 1; column < 7; column++) print_dow_column(column);
-  if (colorize) colorize_element(colorize, ELEMENT_SHABBAT_NAME);
-  print_dow_column(7);
-  if (colorize) printf(CODE_RESTORE_VIDEO);
+  if (opt->bidi)
+  {
+    if (opt->colorize) colorize_element(opt->colorize, ELEMENT_SHABBAT_NAME);
+    print_dow_column(7);
+    printf(" ");
+    if (opt->colorize) colorize_element(opt->colorize, ELEMENT_WEEKDAY_NAMES);
+    for (column = 6; column > 0; column--) print_dow_column(column);
+  }
+  else
+  {
+    if (opt->colorize) colorize_element(opt->colorize, ELEMENT_WEEKDAY_NAMES);
+    for (column = 1; column < 7; column++) print_dow_column(column);
+    if (opt->colorize) colorize_element(opt->colorize, ELEMENT_SHABBAT_NAME);
+    print_dow_column(7);
+  }
+  if (opt->colorize) printf(CODE_RESTORE_VIDEO);
 }
 
 
@@ -929,7 +940,7 @@ void print_border( const option_list opt )
 /**************************************************
  *  print header - year and month
  *************************************************/
-int print_header ( const int month, const int year, const option_list* opt)
+int print_header ( const int month, const int year, option_list* opt)
 {
   header_info previous_month, current_month, next_month;
   hdate_struct h;
@@ -1096,15 +1107,15 @@ int print_header ( const int month, const int year, const option_list* opt)
       if  ( (opt->three_month == 12) &&
         ( (fourteenth_month == FALSE) || (opt->gregorian <2) ) )
         printf("%*s",calendar_width," ");
-      else print_dow_line(opt->colorize ,opt->gregorian, opt->force_hebrew);
+      else print_dow_line(opt);
       printf("%s", opt->spacing);
     }
-    print_dow_line(opt->colorize ,opt->gregorian, opt->force_hebrew);
+    print_dow_line(opt);
     if (opt->three_month)
     {
       printf("%s", opt->spacing);
       if (opt->three_month != 12)
-        print_dow_line(opt->colorize ,opt->gregorian, opt->force_hebrew);
+        print_dow_line(opt);
     }
     printf ("\n");
   }
@@ -1395,11 +1406,12 @@ void print_week( int jd, const int month, option_list* opt)
   #define long_parasha_name 0
   hdate_struct h;
   int calendar_column;
-  // for opt.shabbat
+  // for opt->shabbat and opt->parasha
+  hdate_struct yom_shishi;
+  // for opt->shabbat
   int sun_hour, first_light, talit, sunrise;
   int midday, sunset, first_stars, three_stars;
   int this_week;
-  hdate_struct yom_shishi;
   // for opt->parasha
   int shabbat_name;
   char *shabbat_name_str, *shabbat_name_buffer;
@@ -1407,7 +1419,10 @@ void print_week( int jd, const int month, option_list* opt)
   // for bidi column alignment
   int print_len;
 
-  for (calendar_column = 0; calendar_column < 7; calendar_column++)
+  /*****************************************************
+  *  embedded sub-function: do_calendar_column()
+  *****************************************************/
+  void do_calendar_column()
   {
     hdate_set_jd (&h, jd);
     if ( ((opt->shabbat) || (opt->parasha)) && (calendar_column == 5) )
@@ -1415,8 +1430,31 @@ void print_week( int jd, const int month, option_list* opt)
     if (opt->html) html_print_day ( h, month, opt );
     else print_day ( h, month, opt, FALSE, NULL);
     if (calendar_column != 6)  printf (" ");
-    jd++;
   }
+  /*****************************************************
+  *  END: embedded sub-function: do_calendar_column()
+  *****************************************************/
+
+  if (opt->bidi)
+  {
+    jd=jd+6;
+    for (calendar_column = 6; calendar_column >= 0; calendar_column--)
+    {
+      do_calendar_column();
+      jd--;
+      if (calendar_column == 6) printf(" ");
+    }
+    jd=jd+7;
+  }
+  else
+  {
+    for (calendar_column = 0; calendar_column < 7; calendar_column++)
+    {
+      do_calendar_column();
+      jd++;
+    }
+  }
+
   if (!opt->html)
   {
     /********************************************************

@@ -3,6 +3,7 @@
 	* examples/hcal/hcal.c, examples/hcal/hdate.c: Convert tabs to
 	two-space, remove doxygen? style three-slash comment forms, add
 	comments, change whitespace
+	(print_week, print_dow_line): bugfix bidi print correct sequence
 
 2018-08-17  Boruch Baum  <boruch_baum@gmx.com>
 
