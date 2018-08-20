@@ -1445,6 +1445,7 @@ void print_week( int jd, const int month, option_list* opt)
       if (calendar_column == 6) printf(" ");
     }
     jd=jd+7;
+    hdate_set_jd (&h, jd);
   }
   else
   {
@@ -1566,14 +1567,14 @@ void print_week( int jd, const int month, option_list* opt)
       shabbat_name = hdate_get_parasha (&h, opt->diaspora);
       if (shabbat_name) shabbat_name_str =
           hdate_string( HDATE_STRING_PARASHA, shabbat_name,
-                  HDATE_STRING_SHORT, opt->force_hebrew);
+                  HDATE_STRING_SHORT, opt->force_hebrew | opt->bidi);
       else
       {
         shabbat_name = hdate_get_halachic_day(&h, opt->diaspora);
         if (shabbat_name) shabbat_name_str =
           hdate_string( HDATE_STRING_HOLIDAY,
               shabbat_name,
-              HDATE_STRING_SHORT, opt->force_hebrew);
+              HDATE_STRING_SHORT, opt->force_hebrew | opt->bidi);
       }
       if (shabbat_name)
       {
@@ -1591,10 +1592,8 @@ void print_week( int jd, const int month, option_list* opt)
           memcpy(shabbat_name_buffer, shabbat_name_str, shabbat_name_str_len);
           shabbat_name_buffer[shabbat_name_str_len] = '\0';
           print_len = revstr(shabbat_name_buffer, shabbat_name_str_len);
-
           #define SHABBAT_MARGIN_MAX 16
           printf("%*s%s", (SHABBAT_MARGIN_MAX - print_len)," ", shabbat_name_buffer);
-
           free(shabbat_name_buffer);
         }
         else printf("  %s", shabbat_name_str);

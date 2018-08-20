@@ -14,6 +14,7 @@
 	(print_week, print_dow_line): bugfix bidi print correct sequence
 	(print_week): Fix segfault, due to improper handling of
 	null time zone string value.
+	(print_week): bugfix print shabbat name when using bidi
 
 2018-08-17  Boruch Baum  <boruch_baum@gmx.com>
 
