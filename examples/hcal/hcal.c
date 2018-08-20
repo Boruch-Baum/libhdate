@@ -1517,9 +1517,11 @@ void print_week( int jd, const int month, option_list* opt)
       tmx.tm_mon =  h.gd_mon - 1;
       tmx.tm_year = h.gd_year - 1900;
       three_stars_epoch_time  = mktime(&tmx);
-      setenv("TZ", original_system_timezone_string, 1);
-      tzset();
-
+      if (original_system_timezone_string)
+      {
+        setenv("TZ", original_system_timezone_string, 1);
+        tzset();
+      }
       sunset = sunset + get_tz_adjustment( sunset_epoch_time,
                       opt->tz, &opt->tzif_index,
                       opt->tzif_entries, opt->tzif_data );

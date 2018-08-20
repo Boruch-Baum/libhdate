@@ -1,9 +1,19 @@
 2018-08-19  Boruch Baum  <boruch_baum@gmx.com>
 
+	* examples/hcal/local_functions.c (all): Convert tabs to
+	two-space, remove doxygen? style three-slash comment forms, add
+	comments, change whitespace
+	(set_default_location): Correct timezone information for Honolulu,
+	Sydney, Sao Paolo
+	(get_epoch_time_range): Fix segfault, due to improper handling of
+	null time zone string value.
+
 	* examples/hcal/hcal.c, examples/hcal/hdate.c: Convert tabs to
 	two-space, remove doxygen? style three-slash comment forms, add
 	comments, change whitespace
 	(print_week, print_dow_line): bugfix bidi print correct sequence
+	(print_week): Fix segfault, due to improper handling of
+	null time zone string value.
 
 2018-08-17  Boruch Baum  <boruch_baum@gmx.com>
 
