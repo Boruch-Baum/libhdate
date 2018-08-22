@@ -1,3 +1,8 @@
+2018-08-22  Boruch Baum  <boruch_baum@gmx.com>
+
+	* examples/hcal/hcal.c (print_footnote): bugfix print bidi
+	footnote elements in correct sequence
+
 2018-08-19  Boruch Baum  <boruch_baum@gmx.com>
 
 	* examples/hcal/local_functions.c (all): Convert tabs to

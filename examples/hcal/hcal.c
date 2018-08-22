@@ -1794,14 +1794,20 @@ void print_footnote( const hdate_struct h, const int footnote_month,
   size_t text_ptr_len;
   int print_len;
 
-  print_day ( h, footnote_month, opt, TRUE, custom_day_flag);
-  if (opt->colorize)
+  // BEGIN: embedded function
+  void colorize_footnote_text()
   {
-    if (opt->jd_today_h == h.hd_jd) colorize_element(opt->colorize, ELEMENT_TODAY_HOLIDAY_NAME);
-    else colorize_element(opt->colorize, ELEMENT_HOLIDAY_NAME);
+    if (opt->colorize)
+    {
+      if (opt->jd_today_h == h.hd_jd)
+        colorize_element(opt->colorize, ELEMENT_TODAY_HOLIDAY_NAME);
+      else
+        colorize_element(opt->colorize, ELEMENT_HOLIDAY_NAME);
+    }
+    else if ( (opt->bold) && (opt->jd_today_h == h.hd_jd) )
+      printf(CODE_BOLD_VIDEO);
   }
-  else if ( (opt->bold) && (opt->jd_today_h == h.hd_jd) )
-    printf(CODE_BOLD_VIDEO);
+  // END: embedded function
 
   if (opt->bidi)
   {
@@ -1810,17 +1816,27 @@ void print_footnote( const hdate_struct h, const int footnote_month,
     memcpy(bidi_buffer, text_ptr, text_ptr_len);
     bidi_buffer[text_ptr_len] = '\0';
     print_len = revstr(bidi_buffer, text_ptr_len);
-
     #define FOOTNOTE_MARGIN_MAX 20
-    printf("%*s%s\n", (FOOTNOTE_MARGIN_MAX - print_len)," ", bidi_buffer);
-
+    colorize_footnote_text();
+    printf("%*s%s  ", (FOOTNOTE_MARGIN_MAX - print_len)," ", bidi_buffer);
+    if ( (opt->colorize) ||
+       ( (opt->bold) && (opt->jd_today_h == h.hd_jd) ) )
+      printf (CODE_RESTORE_VIDEO);
     free(bidi_buffer);
   }
-  else printf ("  %s\n", text_ptr);
 
-  if ( (opt->colorize) ||
-     ( (opt->bold) && (opt->jd_today_h == h.hd_jd) ) )
-    printf (CODE_RESTORE_VIDEO);
+  // print_day handles its own colorization
+  print_day ( h, footnote_month, opt, TRUE, custom_day_flag);
+
+  if (opt->bidi) printf ("\n");
+  else
+  {
+    colorize_footnote_text();
+    printf ("  %s\n", text_ptr);
+    if ( (opt->colorize) ||
+       ( (opt->bold) && (opt->jd_today_h == h.hd_jd) ) )
+      printf (CODE_RESTORE_VIDEO);
+  }
 }
 
 
