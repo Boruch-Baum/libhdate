@@ -206,7 +206,7 @@ int set_default_location( const int tz, char** tz_name_ptr,
 /**  0 **/  case    0:  *lat =  51.508333;  *lon =   0.125278;  *tz_name_ptr = N_("Europe/London"); break;
 /**  1 **/  case   60:  *lat =  48.866667;  *lon =   2.333333;  *tz_name_ptr = N_("Europe/Paris"); break;
 /**  2 **/  case  120:  *lat =  31.766667;  *lon =  35.233333;  *tz_name_ptr = N_("Asia/Jerusalem"); break;
-/**  3.5 **/case  210:  *lat =  35,666667;  *lon =  51.433333;  *tz_name_ptr = N_("Asia/Tehran"); break;
+/**  3.5 **/case  210:  *lat =  35.666667;  *lon =  51.433333;  *tz_name_ptr = N_("Asia/Tehran"); break;
 /**  4 **/  case  240:  *lat =  55.750000;  *lon =  37.583333;  *tz_name_ptr = N_("Europe/Moscow"); break;
 /**  5 **/  case  300:  *lat =  41.333333;  *lon =  69.300000;  *tz_name_ptr = N_("Asia/Tashkent"); break;
 /**  5.5 **/case  330:  *lat =  22.533333;  *lon =  88.366667;  *tz_name_ptr = N_("Asia/Kolkata"); break;

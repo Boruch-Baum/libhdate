@@ -1132,7 +1132,7 @@ void html_print_day ( const hdate_struct h, const int month, option_list* opt)
 
   int halachic_day;
   int* jdn_list_ptr;
-  int custom_day_index_to_print;
+  int custom_day_index_to_print = 0;
   char *day_text_ptr = NULL;
   char *hd_day_str = NULL;
   char *holiday_name_class_str = "holiday_name";
@@ -1349,6 +1349,9 @@ void print_day ( const hdate_struct h, const int month, option_list* opt, const 
     /*************************************************
     *  Hebrew date entry - day of the month
     *************************************************/
+    // BUGFIX: sunset awareness errs, starts two or three hours early!
+    // BUGFIX: in program hdate, sunset awareness not working at all!
+    // function check_for_sunset defined in local_functions.c
     hd_day_str = hdate_string(HDATE_STRING_INT, h.hd_day,HDATE_STRING_SHORT,opt->force_hebrew);
     if (opt->bidi)
     {
@@ -1632,12 +1635,18 @@ int how_many_calendar_lines( const int opt_gregorian, const hdate_struct* h)
     number_of_calendar_lines = 5;
     switch (h->hd_mon)
     {
-    case  1: switch (h->hd_year_type) { case 2: case 7: case 10: case 14: number_of_calendar_lines = 6; }; break;
-    case  2: switch (h->hd_year_type) { case 6: case 13:                  number_of_calendar_lines = 6; }; break;
-    case  5: switch (h->hd_year_type) { case 1: case 7: case 8: case 14:  number_of_calendar_lines = 6; }; break;
-    case  7: switch (h->hd_year_type) { case 4: case 11: case 12:         number_of_calendar_lines = 6; }; break;
-    case 11: switch (h->hd_year_type) { case 2: case 6: case 9:           number_of_calendar_lines = 6; }; break;
-    case 13: switch (h->hd_year_type) { case 10: case 13:                 number_of_calendar_lines = 6; }; break;
+    case  1: switch (h->hd_year_type)
+             { case 2: case 7: case 10: case 14: number_of_calendar_lines = 6; }; break;
+    case  2: switch (h->hd_year_type)
+             { case 6: case 13:                  number_of_calendar_lines = 6; }; break;
+    case  5: switch (h->hd_year_type)
+             { case 1: case 7: case 8: case 14:  number_of_calendar_lines = 6; }; break;
+    case  7: switch (h->hd_year_type)
+             { case 4: case 11: case 12:         number_of_calendar_lines = 6; }; break;
+    case 11: switch (h->hd_year_type)
+             { case 2: case 6: case 9:           number_of_calendar_lines = 6; }; break;
+    case 13: switch (h->hd_year_type)
+             { case 10: case 13:                 number_of_calendar_lines = 6; }; break;
     }
   }
   return number_of_calendar_lines;
@@ -1655,9 +1664,13 @@ int print_calendar ( int current_month, int current_year, option_list* opt)
   int max_calendar_lines = 4;
   int prev_month_num_of_lines = 4;
   int next_month_num_of_lines = 4;
-  int previous_month, next_month;
+  #define BAD_MONTH 999 // for initialization purposes
+  int previous_month = BAD_MONTH;
+  int next_month = BAD_MONTH;
   int previous_year, next_year;
-  int jd_current_month, jd_previous_month, jd_next_month;
+  int jd_current_month = BAD_MONTH;
+  int jd_previous_month = BAD_MONTH;
+  int jd_next_month = BAD_MONTH;
 
   /*********************************************************
   *  Preliminaries:

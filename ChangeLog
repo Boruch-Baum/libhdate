@@ -2,6 +2,11 @@
 
 	* examples/hcal/hcal.c (print_footnote): bugfix print bidi
 	footnote elements in correct sequence
+	(html_print_day, print_calendar): initialize variables
+
+	* examples/hcal/local_functions.c (set_default_location): Correct
+	typo in longitude assignment
+
 
 2018-08-19  Boruch Baum  <boruch_baum@gmx.com>
 
