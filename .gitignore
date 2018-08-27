@@ -24,6 +24,7 @@ COPYING
 GPATH
 GRTAGS
 GTAGS
+INSTALL
 Makefile
 autom4te.cache
 cg-*
