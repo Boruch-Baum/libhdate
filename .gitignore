@@ -13,6 +13,11 @@
 *.template
 .libs
 /bindings/perl/hdate.pm
+/bindings/php/hdate.php
+/bindings/php/hdate_wrap.cpp
+/bindings/php/php_hdate.h
+/bindings/python/hdate.py
+/py-compile
 /examples/hcal/hcal
 /examples/hcal/hdate
 /package-1.8

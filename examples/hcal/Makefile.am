@@ -1,13 +1,18 @@
 if WITH_HCAL
 
+# For debugging: CFLAGS=" -g -ggdb3 -gstabs+ -Wextra " make
+
+# Consider moving to the root makefile the defintions
+# for AM_CPPFLAGS, AM_CFLAGS, AM_LDFLAGS
+
 AM_CPPFLAGS = -I$(top_srcdir)/src
 AM_CFLAGS   = -O1 -fPIC -fPIE -pie \
               -D_FORTIFY_SOURCE=2 -fstack-protector --param ssp-buffer-size=4 \
               -Wall -Wformat-security -Werror=format-security
-# CFLAGS      -g -ggdb3 -gstabs+ -Wextra
+AM_LDFLAGS  = -z relro -z now
+
 DEPS  = $(top_builddir)/src/libhdate.la
 LDADD = $(top_builddir)/src/libhdate.la -lm
-AM_LDFLAGS  = -z relro -z now
 
 bin_PROGRAMS = hdate hcal
 

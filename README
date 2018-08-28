@@ -75,7 +75,6 @@ hdate
 - option --sunset-aware, prints tomorrow's Hebrew date and info (for today only) if after sunset
 - option --table, prints data in csv format, suitable for spreadsheets, awk, etc.
 
-
 libhdate
 - new function hdate_string
 - DEPRECATION: hdate_get_day_string is now only a wrapper for hdate_string
@@ -88,6 +87,9 @@ libhdate
 - BUGFIX hdate_get_format_date, hdate-get_day_string, hdate_get_int_string no longer
   write to static local buffers. Callers to those functions must free().
 - BUGFIX made all functions const-correct and fixed resulting conflicts
+
+bindings - ruby
+- BROKEN: We depend on 'swig', which is no longer supporting ruby 1.x.
 
 
 3] Installation from source (Instructions)
@@ -107,6 +109,21 @@ libhdate
   distribution may package these as `build-essential`, `libtool`,
   `autoconf`, and `automake`.
 
+  This package was tested using the following toolchain versions:
+
+    libtool (GNU libtool) 2.4.6
+    autoconf (GNU Autoconf) 2.69
+    automake (GNU automake) 1.16.1
+    gcc (Debian 8.2.0-4) 8.2.0
+    ldd (Debian GLIBC 2.27-5) 2.27
+
+  Additonally, in order to build the bindings to other languages:
+    swig 3.0.10
+    g++ (Debian 8.2.0-4) 8.2.0
+    g++-multilib 8.2.0  (for php)
+    php 5.6.36
+    python 2.7
+    perl 5.26.2
 
 3.2 Procedure
 =============

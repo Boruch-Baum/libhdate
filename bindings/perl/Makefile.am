@@ -8,11 +8,10 @@ DEPS= $(top_builddir)/src/libhdate.la
 CLEANFILES = *.o *.cxx *.so *wrap* *.pm
 
 all-am: hdate.so
-	
 
 hdate.so: hdate_wrap.cxx
 	g++ -fpic -c hdate_wrap.cxx $(PE_CFLAGS) -I$(top_srcdir)/src
-	g++ -shared ../../src/.libs/libhdate.so hdate_wrap.o -o hdate.so
+	g++ -shared hdate_wrap.o ../../src/.libs/libhdate.so -o hdate.so
 
 hdate_wrap.cxx: hdate.i
 	swig -perl -c++ hdate.i

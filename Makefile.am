@@ -2,7 +2,7 @@
 
 PACKAGE_NAME = libhdate
 PACKAGE_STRING = library for Hebrew date information
-PACKAGE_TARNAME = 
+PACKAGE_TARNAME =
 PACKAGE_URL = libhdate.sourceforge.net
 PACKAGE_VERSION = 1.8
 VERSION = 1.8
@@ -21,11 +21,13 @@ libhdatedoc_DATA = \
 	INSTALL\
 	NEWS\
 	USE \
-	ABOUT-NLS 
+	ABOUT-NLS
 
 EXTRA_DIST = $(libhdatedoc_DATA) libhdate.pc.in
 
 ACLOCAL_AMFLAGS = -I m4
 
-CFLAGS = -Wall -Wformat -Wformat-security -Werror=format-security -D_FORTIFY_SOURCE=2 -fstack-protector --param ssp-buffer-size=4 -fPIC -fPIE -pie
-LDFLAGS = -z relro -z now
+# Package-wide defaults
+# AM_CPPFLAGS =
+# AM_CFLAGS =
+# AM_LDFLAGS =
