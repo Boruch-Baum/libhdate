@@ -993,7 +993,7 @@ int print_havdalah (option_list* opt, int sunset)
 /************************************************************
 * option 't' - day times
 ************************************************************/
-int print_times ( hdate_struct * h, option_list* opt, const int holiday)
+int print_times ( hdate_struct * h, option_list* opt)
 {
   hdate_struct h_emesh;
   int sun_hour, first_light, talit, sunrise;
@@ -1163,7 +1163,7 @@ int print_omer (hdate_struct * h, const option_list* opt)
   int omer_day;
   char* omer_int_str;
   char* bidi_buffer;
-  size_t bidi_buffer_len;
+  int   bidi_buffer_len;
   char* empty_text = "";
   char* days_text = N_("days");
   char* in_the_omer_text = N_("in_the_omer");
@@ -1831,7 +1831,7 @@ int print_day (hdate_struct * h, option_list* opt)
   ************************************************************/
   if (opt->print_tomorrow) *h = tomorrow;
   // FIXME - now that we have opt.time_option_requested, use it
-  data_printed = data_printed | print_times (h, opt, holiday);
+  data_printed = data_printed | print_times (h, opt);
 
   // necessary only for printing month or year
   opt->epoch_today = opt->epoch_today + SECONDS_PER_DAY;
@@ -2009,7 +2009,7 @@ int print_hmonth_tabular
 * print one Hebrew month - regular output
 ************************************************************/
 int print_hmonth (hdate_struct * h, option_list* opt,
-          const int month, const int year)
+          const int month)
 {
   int jd;
   int bidi_buffer_len;
@@ -2148,13 +2148,13 @@ int print_hyear ( option_list* opt, const int year)
     if (h.hd_size_of_year > 365 && month == 6)
     {
       hdate_set_hdate (&h, 1, 13, year);
-      print_hmonth (&h, opt, 13, year);
+      print_hmonth (&h, opt, 13);
       hdate_set_hdate (&h, 1, 14, year);
-      print_hmonth (&h, opt, 14, year);
+      print_hmonth (&h, opt, 14);
     }
     else
     {
-      print_hmonth (&h, opt, month, year);
+      print_hmonth (&h, opt, month);
     }
     month++;
   }
@@ -3453,13 +3453,13 @@ case PROCESS_MONTH:
         if (h_start_day.hd_size_of_year > 365 && month == 6)
         {
           hdate_set_hdate (&h_month_to_print, 1, 13, year);
-          print_hmonth (&h_month_to_print, &opt, 13, year);
+          print_hmonth (&h_month_to_print, &opt, 13);
           hdate_set_hdate (&h_month_to_print, 1, 14, year);
-          print_hmonth (&h_month_to_print, &opt, 14, year);
+          print_hmonth (&h_month_to_print, &opt, 14);
         }
         else
         {
-          print_hmonth (&h_start_day, &opt, month, year);
+          print_hmonth (&h_start_day, &opt, month);
         }
         if (opt.iCal)
           print_ical_footer ();
