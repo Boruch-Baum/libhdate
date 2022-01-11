@@ -2652,9 +2652,10 @@ int parameter_parser( int switch_arg, option_list *opt,
 /** --israel        */  case 56: opt->diaspora = 0;   break;
 /** --la-omer        */  case 57: opt->la_omer = 1;  // fall through to option ba-omer
 /** --ba-omer        */  case 58: opt->omer = 3;
-/** --quiet-alerts      */  case 59: if (opt->quiet < QUIET_ALERTS) opt->quiet = QUIET_ALERTS;
-/** --quiet-gregorian    */  case 60: if (opt->quiet < QUIET_GREGORIAN) opt->quiet = QUIET_GREGORIAN;
-/** --quiet-descriptions  */  case 61: if (opt->quiet < QUIET_DESCRIPTIONS) opt->quiet = QUIET_DESCRIPTIONS;
+/** --quiet-alerts      */  case 59: if (opt->quiet < QUIET_ALERTS) opt->quiet = QUIET_ALERTS; break;
+
+/** --quiet-gregorian    */  case 60: if (opt->quiet < QUIET_GREGORIAN) opt->quiet = QUIET_GREGORIAN; break;
+/** --quiet-descriptions  */  case 61: if (opt->quiet < QUIET_DESCRIPTIONS) opt->quiet = QUIET_DESCRIPTIONS; break;
 /** --quiet-hebrew      */  case 62: if (opt->quiet < QUIET_HEBREW) opt->quiet = QUIET_HEBREW;
                      opt->hebrew = 1; break;
 /** --data-first      */  case 63: opt->data_first = TRUE; break;
