@@ -2180,7 +2180,7 @@ void read_config_file(  FILE *config_file,
             option_list *opt )
 {
   double tz_lat = BAD_COORDINATE;
-//  double tz_lon = BAD_COORDINATE;
+  double tz_lon = BAD_COORDINATE;
   char  *input_string = NULL;
   size_t  input_str_len;  // unnecessary to initialize, per man(3) getline
 //  size_t  input_str_len = 200;  // WARNING: if you change this value
@@ -2284,11 +2284,11 @@ void read_config_file(  FILE *config_file,
     case  3:
         if  (!parse_timezone_numeric(input_value, &opt->tz_offset))
         {
-          if (parse_timezone_alpha(input_value, &opt->tz_name_str, &opt->tz_offset, &tz_lat, &opt->tz_lon))
+          if (parse_timezone_alpha(input_value, &opt->tz_name_str, &opt->tz_offset, &tz_lat, &tz_lon))
           {
             // TODO - really, at this point, shouldn't either both be bad or botha be good?
             if (opt->lat  == BAD_COORDINATE) opt->lat = tz_lat;
-            if (opt->lon == BAD_COORDINATE) opt->lon = opt->tz_lon;
+            if (opt->lon == BAD_COORDINATE) opt->lon = tz_lon;
           }
         }
         break;

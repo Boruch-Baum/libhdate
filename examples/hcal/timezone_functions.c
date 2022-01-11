@@ -748,16 +748,18 @@ int get_lat_lon_from_zonetab_file( const char* input_string, char** tz_name, dou
 	double convert_from_dms( long in_val, int num_of_digits )
 	{
 		/// sanity check performed by caller, so we know
-		/// that the number is four, six or seven digits
-
-		/// Let the compiler do the arithmetic an make it clear for us
-
-		if (num_of_digits == 4)
-			return ( (double) in_val/100 )   + ((double)(in_val%100))/60;
-		else
-			return ( (double) (in_val/10000) ) + (double) ((in_val%10000)/100) /60 + (double) (in_val%100)/3600;
+		/// that the number is four or six digits for latitude
+    /// and four, five, six or seven digits for longitude
+    long val = labs(in_val);
+    int sign = (in_val > 0) ? 1 : -1;
+		switch (num_of_digits)
+		{
+			case 4:
+			case 5: return (sign * (val/100 + (double)(val%100)/60) );
+			case 6:
+			case 7: return (sign * (val/10000 + (double)((val/100)%100)/60 + (double)(val%100)/3600));
+		}
 	}
-
 
 	char*	tzdir_path;
 	char*	zonetab_path;
@@ -819,10 +821,8 @@ int get_lat_lon_from_zonetab_file( const char* input_string, char** tz_name, dou
 				search_result_ptr = strcasestr(*tz_name, search_string);
 				if (search_result_ptr != NULL)
 				{
-					/// maybe replace all this next part with
-					/// two calls to strtol
 					lat_end = strcspn( &lat_and_lon[1], "+-");
-					if ((lat_end < 4) || (lat_end > 6) )
+					if (! ((lat_end == 4) || (lat_end == 6) ))
 					{
 						if (!quiet_alerts) printf("error parsing latitude from zone.tab file\n");
 						*lat = BAD_COORDINATE;
@@ -833,8 +833,8 @@ int get_lat_lon_from_zonetab_file( const char* input_string, char** tz_name, dou
 						memcpy(&number_string, lat_and_lon, lat_end+1);
 						number_string[lat_end+1] = '\0';
 						*lat = convert_from_dms ( atol(number_string), lat_end);
-						lon_end = strlen( &lat_and_lon[lat_end+1]);
-						if ((lon_end < 5) || (lon_end > 8) )
+						lon_end = strlen( &lat_and_lon[lat_end+2]);
+						if (! ((lon_end == 5) || (lon_end == 7) ))
 						{
 							if (!quiet_alerts) printf("error parsing longitude from zone.tab file. lon_end = %ld\n", lon_end);
 							*lat = BAD_COORDINATE;
@@ -844,7 +844,6 @@ int get_lat_lon_from_zonetab_file( const char* input_string, char** tz_name, dou
 						{
 							memcpy(&number_string, &lat_and_lon[lat_end+1], lon_end+1);
 							number_string[lon_end+1] = '\0';
-
 							*lon = convert_from_dms ( atol(number_string), lon_end);
 //							if (!quiet_alerts) print_alert_coordinate_pair(search_string);
 							if ( (!quiet_alerts) && (strlen(*tz_name) != strlen(search_string)) )

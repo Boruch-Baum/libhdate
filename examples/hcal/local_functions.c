@@ -1167,7 +1167,7 @@ void get_epoch_time_range( time_t *retval_start, time_t *retval_end,
     // TODO - verify that tz is in seconds, not minutes!
     *retval_start = *retval_start + tz;
     *retval_end = *retval_end + tz - 1;
-    setenv("TZ", original_system_timezone_string, 1);
+    if (original_system_timezone_string) setenv("TZ", original_system_timezone_string, 1);
     tzset();
     return;
   }
@@ -1188,7 +1188,7 @@ void get_epoch_time_range( time_t *retval_start, time_t *retval_end,
   *retval_end = mktime(&tmx);
 
   free(tz_rule_string);
-  setenv("TZ", original_system_timezone_string, 1);
+  if (original_system_timezone_string) setenv("TZ", original_system_timezone_string, 1);
   tzset();
   return;
 }
