@@ -738,11 +738,11 @@ int print_date (hdate_struct* h, hdate_struct* tomorrow, const option_list* opt)
   char *for_week_of   = "";  // --force-leshabbat --force-leseder
   int  is_parasha_read;
   int h_dow_form    = HDATE_STRING_SHORT;
+  char *h_dow;
 
   char *hday_int_str, *hyear_int_str;
   hday_int_str = hdate_string(HDATE_STRING_INT, h->hd_day, HDATE_STRING_LONG, opt->hebrew);
   hyear_int_str = hdate_string(HDATE_STRING_INT, h->hd_year, HDATE_STRING_LONG, opt->hebrew);
-
 
   /************************************************************
   * preliminary - if it's after sunset, it's tomorrow already
@@ -886,8 +886,12 @@ int print_date (hdate_struct* h, hdate_struct* tomorrow, const option_list* opt)
     {
       if (opt->yom)
         {
-        hebrew_buffer1_len = asprintf(&hebrew_buffer1, "%s%s%s %s%s", motzash, eve_before, for_day_of_h,
-          hdate_string( HDATE_STRING_DOW, h->hd_dw, h_dow_form, opt->hebrew), apostrophe);
+				if ((h->hd_dw == 7) && (h_dow_form == HDATE_STRING_SHORT))
+					h_dow = "ז";
+				else
+					h_dow = hdate_string( HDATE_STRING_DOW, h->hd_dw, h_dow_form, opt->hebrew);
+        hebrew_buffer1_len = asprintf(&hebrew_buffer1, "%s%s%s %s%s", motzash, eve_before, for_day_of_h, h_dow, apostrophe);
+
         if ((opt->leShabbat) || (opt->leSeder))
         {
           is_parasha_read = find_shabbat(h, opt->diaspora);
