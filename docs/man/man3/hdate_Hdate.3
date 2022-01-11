@@ -1,8 +1,8 @@
-.TH "hdate::Hdate" 3 "6 Jan 2008" "Version 1.4" "libhdate C++ language" \" -*- nroff -*-
+.TH "hdate::Hdate" 3 "2022-01-01" "Version 1.8" "libhdate C++ language" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-hdate::Hdate \- \fBHdate\fP class.  
+hdate::Hdate \- \fBHdate\fP class.
 
 .PP
 .SH SYNOPSIS
@@ -175,436 +175,436 @@ hdate::Hdate \- \fBHdate\fP class.
 .RI "\fIset this \fBhdate\fP object to use israel holidays and dates \fP"
 .in -1c
 .SH "Detailed Description"
-.PP 
-\fBHdate\fP class. 
+.PP
+\fBHdate\fP class.
 
-class for Hebrew/Gregorian date conversions 
+class for Hebrew/Gregorian date conversions
 .SH "Constructor & Destructor Documentation"
-.PP 
+.PP
 .SS "hdate::Hdate::Hdate ()\fC [inline]\fP"
 .PP
-\fBHdate\fP constructor. 
+\fBHdate\fP constructor.
 .PP
 .SS "hdate::Hdate::~Hdate ()\fC [inline]\fP"
 .PP
-\fBHdate\fP destructor. 
+\fBHdate\fP destructor.
 .PP
 .SH "Member Function Documentation"
-.PP 
+.PP
 .SS "void hdate::Hdate::set_gdate (int d, int m, int y)\fC [inline]\fP"
 .PP
-compute date structure from the Gregorian date 
+compute date structure from the Gregorian date
 .PP
 \fBParameters:\fP
 .RS 4
-\fId\fP Day of month 1..31 
+\fId\fP Day of month 1..31
 .br
-\fIm\fP Month 1..12 , if m or d is 0 return current date. 
+\fIm\fP Month 1..12 , if m or d is 0 return current date.
 .br
-\fIy\fP Year in 4 digits e.g. 2001 
+\fIy\fP Year in 4 digits e.g. 2001
 .RE
 .PP
 
 .SS "void hdate::Hdate::set_hdate (int d, int m, int y)\fC [inline]\fP"
 .PP
-compute date structure from the Hebrew date 
+compute date structure from the Hebrew date
 .PP
 \fBParameters:\fP
 .RS 4
-\fId\fP Day of month 1..31 
+\fId\fP Day of month 1..31
 .br
-\fIm\fP Month 1..14 , if m or d is 0 return current date. 
+\fIm\fP Month 1..14 , if m or d is 0 return current date.
 .br
-\fIy\fP Year in 4 digits e.g. 5731 
+\fIy\fP Year in 4 digits e.g. 5731
 .RE
 .PP
 
 .SS "void hdate::Hdate::set_jd (int jd)\fC [inline]\fP"
 .PP
-compute date structure from the Julian day 
+compute date structure from the Julian day
 .PP
 \fBParameters:\fP
 .RS 4
-\fIjd\fP the julian day number. 
+\fIjd\fP the julian day number.
 .RE
 .PP
 
 .SS "char* hdate::Hdate::get_format_date (int s)\fC [inline]\fP"
 .PP
-get formated hebrew date. 
+get formated hebrew date.
 .PP
 return the short ( e.g. '1 Tishrey' ) or long (e.g. 'Tuesday 18 Tishrey 5763 Hol hamoed Sukot' ) formated date.
 .PP
 \fBParameters:\fP
 .RS 4
-\fIs\fP short flag. 
+\fIs\fP short flag.
 .RE
 .PP
 \fBReturns:\fP
 .RS 4
-a static string of foramted date 
+a static string of foramted date
 .RE
 .PP
 
 .SS "char* hdate::Hdate::get_day_of_week_string (int s)\fC [inline]\fP"
 .PP
-get name of week day. 
+get name of week day.
 .PP
 \fBParameters:\fP
 .RS 4
-\fIs\fP short flag true - returns a short string: sun, false returns: sunday. 
+\fIs\fP short flag true - returns a short string: sun, false returns: sunday.
 .RE
 .PP
 \fBReturns:\fP
 .RS 4
-a static string of the day of the week 
+a static string of the day of the week
 .RE
 .PP
 
 .SS "char* hdate::Hdate::get_month_string (int s)\fC [inline]\fP"
 .PP
-get name month. 
+get name month.
 .PP
 \fBParameters:\fP
 .RS 4
-\fIs\fP short flag true - returns a short string: Mar, false returns: March. 
+\fIs\fP short flag true - returns a short string: Mar, false returns: March.
 .RE
 .PP
 \fBReturns:\fP
 .RS 4
-a static string of month name 
+a static string of month name
 .RE
 .PP
 
 .SS "char* hdate::Hdate::get_hebrew_month_string (int s)\fC [inline]\fP"
 .PP
-get name hebrew month. 
+get name hebrew month.
 .PP
 \fBParameters:\fP
 .RS 4
-\fIs\fP short flag true - returns a short string. 
+\fIs\fP short flag true - returns a short string.
 .RE
 .PP
 \fBReturns:\fP
 .RS 4
-a static string of hebrew month name 
+a static string of hebrew month name
 .RE
 .PP
 
 .SS "char* hdate::Hdate::get_holyday_string (int s)\fC [inline]\fP"
 .PP
-get name hebrew holiday. 
+get name hebrew holiday.
 .PP
 \fBParameters:\fP
 .RS 4
-\fIs\fP short flag true - returns a short string. 
+\fIs\fP short flag true - returns a short string.
 .RE
 .PP
 \fBReturns:\fP
 .RS 4
-a static string of hebrew holiday name 
+a static string of hebrew holiday name
 .RE
 .PP
 
 .SS "int hdate::Hdate::get_holyday_type ()\fC [inline]\fP"
 .PP
-get the hebrew holiday type. 
+get the hebrew holiday type.
 .PP
 \fBReturns:\fP
 .RS 4
-the holiday type (1- regular holyday, 2- three regels, 3- tzom, 0- no holiday) 
+the holiday type (1- regular holyday, 2- three regels, 3- tzom, 0- no holiday)
 .RE
 .PP
 
 .SS "char* hdate::Hdate::get_parasha_string (int s)\fC [inline]\fP"
 .PP
-get name hebrew parasha. 
+get name hebrew parasha.
 .PP
 \fBParameters:\fP
 .RS 4
-\fIs\fP short flag true - returns a short string. 
+\fIs\fP short flag true - returns a short string.
 .RE
 .PP
 \fBReturns:\fP
 .RS 4
-a static string of hebrew parash name 
+a static string of hebrew parash name
 .RE
 .PP
 
 .SS "char* hdate::Hdate::get_hebrew_year_string ()\fC [inline]\fP"
 .PP
-get name hebrew year. 
+get name hebrew year.
 .PP
 \fBReturns:\fP
 .RS 4
-a static string of hebrew year 
+a static string of hebrew year
 .RE
 .PP
 
 .SS "char* hdate::Hdate::get_hebrew_day_string ()\fC [inline]\fP"
 .PP
-get name hebrew hebrew day of the month 
+get name hebrew hebrew day of the month
 .PP
 \fBReturns:\fP
 .RS 4
-a static string of hebrew day of the month 
+a static string of hebrew day of the month
 .RE
 .PP
 
 .SS "int hdate::Hdate::get_parasha ()\fC [inline]\fP"
 .PP
-get parash number 
+get parash number
 .PP
 \fBReturns:\fP
 .RS 4
-the hebrew parasha number 
+the hebrew parasha number
 .RE
 .PP
 
 .SS "int hdate::Hdate::get_holyday ()\fC [inline]\fP"
 .PP
-get holiday number 
+get holiday number
 .PP
 \fBReturns:\fP
 .RS 4
-the hebrew holiday number 
+the hebrew holiday number
 .RE
 .PP
 
 .SS "int hdate::Hdate::get_gday ()\fC [inline]\fP"
 .PP
-get Gregorian day of the month 
+get Gregorian day of the month
 .PP
 \fBReturns:\fP
 .RS 4
-the Gregorian day of the month 
+the Gregorian day of the month
 .RE
 .PP
 
 .SS "int hdate::Hdate::get_gmonth ()\fC [inline]\fP"
 .PP
-get Gregorian month 
+get Gregorian month
 .PP
 \fBReturns:\fP
 .RS 4
-the Gregorian month 
+the Gregorian month
 .RE
 .PP
 
 .SS "int hdate::Hdate::get_gyear ()\fC [inline]\fP"
 .PP
-get Gregorian year 
+get Gregorian year
 .PP
 \fBReturns:\fP
 .RS 4
-the Gregorian year 
+the Gregorian year
 .RE
 .PP
 
 .SS "int hdate::Hdate::get_hday ()\fC [inline]\fP"
 .PP
-get Hebrew day of the month 
+get Hebrew day of the month
 .PP
 \fBReturns:\fP
 .RS 4
-the Hebrew day of the month 
+the Hebrew day of the month
 .RE
 .PP
 
 .SS "int hdate::Hdate::get_hmonth ()\fC [inline]\fP"
 .PP
-get Hebrew month 
+get Hebrew month
 .PP
 \fBReturns:\fP
 .RS 4
-the Hebrew month 
+the Hebrew month
 .RE
 .PP
 
 .SS "int hdate::Hdate::get_hyear ()\fC [inline]\fP"
 .PP
-get Hebrew year 
+get Hebrew year
 .PP
 \fBReturns:\fP
 .RS 4
-the Hebrew year 
+the Hebrew year
 .RE
 .PP
 
 .SS "int hdate::Hdate::get_day_of_the_week ()\fC [inline]\fP"
 .PP
-get the day of the week 
+get the day of the week
 .PP
 \fBReturns:\fP
 .RS 4
-the day of the week 
+the day of the week
 .RE
 .PP
 
 .SS "int hdate::Hdate::get_size_of_year ()\fC [inline]\fP"
 .PP
-get the size of the Hebrew year in days 
+get the size of the Hebrew year in days
 .PP
 \fBReturns:\fP
 .RS 4
-the size of the Hebrew year in days 
+the size of the Hebrew year in days
 .RE
 .PP
 
 .SS "int hdate::Hdate::get_new_year_day_of_the_week ()\fC [inline]\fP"
 .PP
-get the day of the week of hebrew new years 
+get the day of the week of hebrew new years
 .PP
 \fBReturns:\fP
 .RS 4
-the day of the week of hebrew new years 
+the day of the week of hebrew new years
 .RE
 .PP
 
 .SS "int hdate::Hdate::get_julian ()\fC [inline]\fP"
 .PP
-get the Julian day number 
+get the Julian day number
 .PP
 \fBReturns:\fP
 .RS 4
-the Julian day number 
+the Julian day number
 .RE
 .PP
 
 .SS "int hdate::Hdate::get_days ()\fC [inline]\fP"
 .PP
-get the number of days sice Tishrey I 
+get the number of days sice Tishrey I
 .PP
 \fBReturns:\fP
 .RS 4
-the the number of days sice Tishrey I 
+the the number of days sice Tishrey I
 .RE
 .PP
 
 .SS "int hdate::Hdate::get_weeks ()\fC [inline]\fP"
 .PP
-get the number of weeks sice Tishrey I 
+get the number of weeks sice Tishrey I
 .PP
 \fBReturns:\fP
 .RS 4
-the the number of weeks sice Tishrey I 
+the the number of weeks sice Tishrey I
 .RE
 .PP
 
 .SS "void hdate::Hdate::set_location (double in_latitude, double in_longitude, int in_tz)\fC [inline]\fP"
 .PP
-set location 
+set location
 .PP
 \fBParameters:\fP
 .RS 4
-\fIin_longitude\fP longitude to use in calculations degrees, negative values are east 
+\fIin_longitude\fP longitude to use in calculations degrees, negative values are east
 .br
-\fIin_latitude\fP latitude to use in calculations degrees, negative values are south 
+\fIin_latitude\fP latitude to use in calculations degrees, negative values are south
 .br
-\fIin_tz\fP time zone 
+\fIin_tz\fP time zone
 .RE
 .PP
 
 .SS "int hdate::Hdate::get_sunrise ()\fC [inline]\fP"
 .PP
-sunrise time 
+sunrise time
 .PP
 \fBReturns:\fP
 .RS 4
-sunrise in minutes after midnight (00:00) 
+sunrise in minutes after midnight (00:00)
 .RE
 .PP
 
 .SS "int hdate::Hdate::get_sunset ()\fC [inline]\fP"
 .PP
-sunset time 
+sunset time
 .PP
 \fBReturns:\fP
 .RS 4
-sunset in minutes after midnight (00:00) 
+sunset in minutes after midnight (00:00)
 .RE
 .PP
 
 .SS "int hdate::Hdate::get_first_light ()\fC [inline]\fP"
 .PP
-first light time 
+first light time
 .PP
 \fBReturns:\fP
 .RS 4
-first light in minutes after midnight (00:00) 
+first light in minutes after midnight (00:00)
 .RE
 .PP
 
 .SS "int hdate::Hdate::get_talit ()\fC [inline]\fP"
 .PP
-talit time 
+talit time
 .PP
 \fBReturns:\fP
 .RS 4
-talit time in minutes after midnight (00:00) 
+talit time in minutes after midnight (00:00)
 .RE
 .PP
 
 .SS "int hdate::Hdate::get_first_stars ()\fC [inline]\fP"
 .PP
-first stars time 
+first stars time
 .PP
 \fBReturns:\fP
 .RS 4
-first stars in minutes after midnight (00:00) 
+first stars in minutes after midnight (00:00)
 .RE
 .PP
 
 .SS "int hdate::Hdate::get_three_stars ()\fC [inline]\fP"
 .PP
-three stars time 
+three stars time
 .PP
 \fBReturns:\fP
 .RS 4
-three stars in minutes after midnight (00:00) 
+three stars in minutes after midnight (00:00)
 .RE
 .PP
 
 .SS "int hdate::Hdate::get_sun_hour ()\fC [inline]\fP"
 .PP
-sun light hour time 
+sun light hour time
 .PP
 \fBReturns:\fP
 .RS 4
-sun light hour in minutes 
+sun light hour in minutes
 .RE
 .PP
 
 .SS "int hdate::Hdate::get_midday ()\fC [inline]\fP"
 .PP
-midday hour time 
+midday hour time
 .PP
 \fBReturns:\fP
 .RS 4
-midday hour in minutes 
+midday hour in minutes
 .RE
 .PP
 
 .SS "char* hdate::Hdate::get_translator_string ()\fC [inline]\fP"
 .PP
-name of translator 
+name of translator
 .PP
 \fBReturns:\fP
 .RS 4
-a static string with name of translator, or NULL if none 
+a static string with name of translator, or NULL if none
 .RE
 .PP
 
 .SS "void hdate::Hdate::set_diaspora ()\fC [inline]\fP"
 .PP
-set this \fBhdate\fP object to use diaspora holidays and dates 
+set this \fBhdate\fP object to use diaspora holidays and dates
 .PP
 .SS "void hdate::Hdate::set_israel ()\fC [inline]\fP"
 .PP
-set this \fBhdate\fP object to use israel holidays and dates 
+set this \fBhdate\fP object to use israel holidays and dates
 .PP
 
 
 .SH "Author"
-.PP 
+.PP
 Generated automatically by Doxygen for libhdate C++ language from the source code.

@@ -1,12 +1,12 @@
- /** zdump3.c                           http://libhdate.sourceforge.net
+ /** zdump3.c                           https://libhdate.sourceforge.net
  *   zdump3() - return timezone data for a requested interval
  *
  * compile:
  *  gcc -c -Wall -Werror -fPIC zdump3.c
  * build:
  *  gcc -shared -o libzdump3.so zdump3.o
- * 
- * Copyright:  2012-2013 (c) Boruch Baum <zdump@gmx.com>
+ *
+ * Copyright:  2012-2013, 2022 (c) Boruch Baum <zdump@gmx.com>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by

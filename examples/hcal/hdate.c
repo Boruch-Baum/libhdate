@@ -1,7 +1,7 @@
-/** hdate.c            http://libhdate.sourceforge.net
+/** hdate.c            https://libhdate.sourceforge.net
  * Hebrew date/times information (part of package libhdate)
  *
- *  Copyright (C) 2011-2018 Boruch Baum  <boruch_baum@gmx.com>
+ *  Copyright (C) 2011-2018, 2022 Boruch Baum  <boruch_baum@gmx.com>
  *                2004-2010 Yaacov Zamir <kzamir@walla.co.il>
  *
  * compile:
@@ -23,11 +23,6 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-//gcc -Wall -c -g -I "../../src" "%f"
-//gcc -Wall -g -I "../../src" -L"../../src/.libs" -lhdate -efence -o "%e" "%f"
-
-// in geany, build: gcc -Wall -g -I "../../src" -L"../../src/.libs" -lhdate -o "%e" "%f" local_functions.c custom_days.c zdump3.c
-
 
 #include <hdate.h>    // For hebrew date  (gcc -I ../../src)
 #include <support.h>  // libhdate general macros, including for gettext

@@ -1,4 +1,4 @@
-/** local_functions.c            http://libhdate.sourceforge.net
+/** local_functions.c            https://libhdate.sourceforge.net
  * a collection of functions in support of both hcal.c and hdate.c
  * hcal.c  Hebrew calendar              (part of package libhdate)
  * hdate.c Hebrew date/times information(part of package libhdate)
@@ -6,7 +6,7 @@
  * compile:
  * gcc `pkg-config --libs --cflags libhdate` local_functions.c -o local_functions
  *
- *  Copyright (C) 2012-2018 Boruch Baum  <boruch_baum@gmx.com>
+ *  Copyright (C) 2012-2018, 2022 Boruch Baum  <boruch_baum@gmx.com>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,8 +21,6 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-//gcc -Wall -c -g -I "../../src" "%f"
-//gcc -Wall -g -I "../../src" -L"../../src/.libs" -lhdate -efence -o "%e" "%f"
 
 /**************************************************
 *   functions to support hcal and hdate
