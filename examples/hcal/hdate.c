@@ -1172,6 +1172,8 @@ int print_omer (hdate_struct * h, const option_list* opt)
   char* days_text = N_("days");
   char* in_the_omer_text = N_("in_the_omer");
   char* today_is_day_text = N_("today_is_day");
+  char* h_in_the_omer_text = "";
+  char* h_today_is_day_text = "";
 
   omer_day = hdate_get_omer_day(h);
   if (omer_day == 0)   return DATA_WAS_NOT_PRINTED;
@@ -1201,8 +1203,17 @@ int print_omer (hdate_struct * h, const option_list* opt)
   // short text format
   else if (opt->omer == 2)
   {
-    if (omer_day == 1) days_text = day_text;
-    printf ("%2d_%s_%s", omer_day, days_text, in_the_omer_text);
+		if (opt->hebrew)
+		{
+      char* b_l_omer = "בעומר";
+      if (opt->la_omer) b_l_omer = "לעומר";
+			printf ("  %2d_%s_%s", omer_day, "ימים", b_l_omer);
+		}
+		else
+		{
+			if (omer_day == 1) days_text = day_text;
+			printf ("%2d_%s_%s", omer_day, days_text, in_the_omer_text);
+		}
   }
   else // long text format
   {
@@ -2654,8 +2665,8 @@ int parameter_parser( int switch_arg, option_list *opt,
 /** --times-of-day      */  case 54: /** short opt 't' */ break;
 /** --day-times        */  case 55: /** short opt 't' */ break;
 /** --israel        */  case 56: opt->diaspora = 0;   break;
-/** --la-omer        */  case 57: opt->la_omer = 1;  // fall through to option ba-omer
-/** --ba-omer        */  case 58: opt->omer = 3;
+/** --la-omer        */  case 57: opt->la_omer = 1; break;
+/** --ba-omer        */  case 58: break;
 /** --quiet-alerts      */  case 59: if (opt->quiet < QUIET_ALERTS) opt->quiet = QUIET_ALERTS; break;
 
 /** --quiet-gregorian    */  case 60: if (opt->quiet < QUIET_GREGORIAN) opt->quiet = QUIET_GREGORIAN; break;
