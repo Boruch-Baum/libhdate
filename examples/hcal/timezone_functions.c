@@ -813,7 +813,7 @@ int get_lat_lon_from_zonetab_file( const char* input_string, char** tz_name, dou
 		if ( end_of_zonetab_file!=TRUE )
 		{
 			// TODO - need to free tz_name when not the zone we're looking for!
-			match_count = sscanf(zonetab_string,"%*2c %a[+0-9-] %as %*[^\n]", &lat_and_lon, tz_name);
+			match_count = sscanf(zonetab_string,"%*2c %m[+0-9-] %ms %*[^\n]", &lat_and_lon, tz_name);
 			if (match_count == 2)
 			{
 				search_result_ptr = strcasestr(*tz_name, search_string);

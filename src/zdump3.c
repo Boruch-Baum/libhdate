@@ -47,7 +47,7 @@
 #define TIMERIC "-123456789:"
 #define NOTABBR "-123456789:,"
 
- 
+
 /// zdumpinfo - an element of the array to return
 #define MAX_TZ_ABBR_SIZE   10  /// safe
 typedef struct {
@@ -222,7 +222,7 @@ char* rule_julian( int i, char* next, rule_detail* p_rule )
 {
 	char julian[4];
 	int  len = 0;
-	
+
 
 	next++;
 	p_rule->type[i] = 'J';
@@ -233,7 +233,7 @@ char* rule_julian( int i, char* next, rule_detail* p_rule )
 	p_rule->j[i] = atoi( (char*) &julian);
 	j_to_md(p_rule->j[i], &p_rule->m[i], &p_rule->d[i]);
 	next += len;
-	if (*next == '/') p_rule->start_time[i] = get_time(next+1, 
+	if (*next == '/') p_rule->start_time[i] = get_time(next+1,
 									&p_rule->hour[i], &p_rule->min[i], &p_rule->sec[i]);
 	else
 	{
@@ -308,7 +308,7 @@ int rule_decode( const char* tzif, const size_t tzif_size, rule_detail* p_rule )
 		next++;
 		if (*next == 'J') next = rule_julian(STD, next, p_rule);
 		else next = rule_mwd(STD, next, p_rule);
-		if (*next == ',')
+		if (next && *next == ',')
 		{
 			next++;
 			if (*next == 'J') next = rule_julian(DST, next, p_rule);
