@@ -25,6 +25,7 @@
 // next possibly not necessary
 #define _GNU_SOURCE     /// feature_test_macro - for memmem
 #define _POSIX_C_SOURCE 1
+#define _BSD_SOURCE 1   /// for tm.tm_zone, tm.tm_gmtoff (man(3) ctime)
 #include <time.h>		/// for time, ctime
 #include <stdlib.h>		/// for getenv
 #include <unistd.h>		/// for getcwd, fstat
@@ -359,8 +360,9 @@ int rule_dump( const char* tzif, const size_t tzif_size,
 	zdumpinfo* zd;
 	int i;
 
-// Should I make this a little simpler by using the glibc version
-// of struct tm which has additional fields:
+// PARTIALLY DONE: Make this a little simpler by using the glibc
+// version of struct tm which has additional fields:
+//
 //  long tm_gmtoff;           /* Seconds east of UTC */
 //  const char *tm_zone;      /* Timezone abbreviation */
 // returned by gmtime_r localtime_r
@@ -389,12 +391,7 @@ int rule_dump( const char* tzif, const size_t tzif_size,
 			*return_data = perform_a_realloc(*return_data, ret_buff_size);
 			if (*return_data == NULL) return ZD_FAILURE;
 		}
-///		The following only works when _BSD_SOURCE is set, because
-///		tm_gmtoff and *tm_zone are part of the glibc version of struct tm,
-///		currently only implemented as a BSD extension.
-///		add_a_rule_entry( start, *return_data, num_entries, utc_offset, save_secs, tm_local.tm_zone );
-// FIXME - replace "---" with a real time zone abbreviation value!
-		add_a_rule_entry( start, *return_data, num_entries, utc_offset, save_secs, "---" );
+		add_a_rule_entry( start, *return_data, num_entries, tm_local.tm_gmtoff, save_secs, tm_local.tm_zone );
 		if (!p_rule.has_dst) return ZD_SUCCESS;
 		memcpy( (char*) &tm_prior, (char*) &tm_local, sizeof(struct tm));
 	}
@@ -436,14 +433,8 @@ int rule_dump( const char* tzif, const size_t tzif_size,
 			*return_data = perform_a_realloc(*return_data, ret_buff_size);
 			if (*return_data == NULL) return ZD_FAILURE;
 		}
-///		The following only works when _BSD_SOURCE is set, because
-///		tm_gmtoff and *tm_zone are part of the glibc version of struct tm,
-///		currently only implemented as a BSD extension.
-///		add_a_rule_entry( current, *return_data, num_entries, tm_local.tm_gmtoff,
-///							p_rule.save_secs[i], tm_local.tm_zone );
-// FIXME - replace 0 and NULL with real values!
-		add_a_rule_entry( current, *return_data, num_entries, 0,
-							p_rule.save_secs[i], NULL );
+		add_a_rule_entry( current, *return_data, num_entries, tm_local.tm_gmtoff,
+							p_rule.save_secs[i], tm_local.tm_zone );
 		// this next is only for the first pass
 		if (!p_rule.has_dst) return ZD_SUCCESS;
 		memcpy( (char*) &tm_prior, (char*) &tm_local, sizeof(struct tm));
