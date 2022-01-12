@@ -1360,10 +1360,14 @@ void print_day ( const hdate_struct h, const int month, option_list* opt, const 
         hd_day_buffer_str_len = HEBREW_NUMBER_BUFFER_SIZE - 1;
       revstr(hd_day_str, hd_day_buffer_str_len);
     }
-    if  ( ( (opt->force_hebrew) || (hdate_is_hebrew_locale()) )  &&
-      ( (h.hd_day < 11) || (h.hd_day == 20) || (h.hd_day == 30) ) )
-    {
-      printf ("%s%s"," ",hd_day_str); // needed to pad Hebrew dates 1-10, 20, 30
+    if  ( (opt->force_hebrew) || (hdate_is_hebrew_locale()) )
+		{
+      // need to pad Hebrew dates 1-10, 20, 30 with spaces
+			if (h.hd_day < 11)
+				printf ("%s%s"," ",hd_day_str);
+			else if ( (h.hd_day == 20) || (h.hd_day == 30) )
+				printf ("%s%s",hd_day_str," ");
+			else printf ("%2s", hd_day_str);
     }
     else printf ("%2s", hd_day_str);
 
@@ -1386,8 +1390,7 @@ void print_day ( const hdate_struct h, const int month, option_list* opt, const 
        ( (opt->gregorian == 1)  && (h.hd_mon != month) ) )
     printf("     ");
   else if ( (opt->gregorian == 0) && (h.hd_mon != month) )
-    printf("  ");
-
+		printf("  ");
   //  in month - print the data
   else
   {
@@ -1404,7 +1407,7 @@ void print_day ( const hdate_struct h, const int month, option_list* opt, const 
 /*************************************************
 *  print a calendar week's entry (ie. seven columns)
 *************************************************/
-void print_week( int jd, const int month, option_list* opt)
+void print_week( int jd, const int month, option_list* opt, int final_line)
 {
   #define long_parasha_name 0
   hdate_struct h;
@@ -1438,6 +1441,20 @@ void print_week( int jd, const int month, option_list* opt)
   *  END: embedded sub-function: do_calendar_column()
   *****************************************************/
 
+	if ( (final_line == 1) &&
+//			 (! opt->three_month) &&  // FIXME !!
+			 ( (opt->force_hebrew) || (hdate_is_hebrew_locale()) ) )
+	{
+		// Calculate padding for trailing days out-of-month: Since this is
+		// the first Hebrew column of the last line, it is by definition
+		// the final Sunday of the month
+    hdate_set_jd (&h, jd);
+//printf("debug: %d; %d\n", hdate_get_size_of_hebrew_month( h.hd_mon, h.hd_year_type),h.hd_day);
+		int padding = 7 - (hdate_get_size_of_hebrew_month( h.hd_mon, h.hd_year_type) - h.hd_day + 1);
+		for ( ; padding > 0; padding--)
+			printf("   ");
+	}
+
   if (opt->bidi)
   {
     jd=jd+6;
@@ -1458,7 +1475,6 @@ void print_week( int jd, const int month, option_list* opt)
       jd++;
     }
   }
-
   if (!opt->html)
   {
     /********************************************************
@@ -1757,18 +1773,18 @@ int print_calendar ( int current_month, int current_year, option_list* opt)
   *  maximum six lines of calendar
   **************************************************/
 
-  for (calendar_line = 0; calendar_line < max_calendar_lines; calendar_line++)
+  for (calendar_line = max_calendar_lines; calendar_line > 0; calendar_line--)
   {
     if (opt->html) printf ("<tr>\n");
 
     if (opt->three_month)
     {
-      print_week(jd_previous_month, previous_month, opt);
+      print_week(jd_previous_month, previous_month, opt, calendar_line);
       jd_previous_month = jd_previous_month + 7;
       printf("%s", opt->spacing);
     }
 
-    print_week(jd_current_month, current_month, opt);
+    print_week(jd_current_month, current_month, opt, calendar_line);
     jd_current_month = jd_current_month + 7;
 
 
@@ -1777,7 +1793,7 @@ int print_calendar ( int current_month, int current_year, option_list* opt)
       printf("%s", opt->spacing);
       if (opt->three_month != 12)
       {
-        print_week(jd_next_month, next_month, opt);
+        print_week(jd_next_month, next_month, opt, calendar_line);
         jd_next_month = jd_next_month + 7;
       }
     }
@@ -1791,7 +1807,6 @@ int print_calendar ( int current_month, int current_year, option_list* opt)
   *  print end of calendar
   *************************************************/
   if (opt->html) printf ("</table>\n</span>");
-
   return 0;
 }
 
