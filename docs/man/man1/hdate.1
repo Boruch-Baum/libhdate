@@ -66,11 +66,9 @@ Prior versions of \fBhdate\fP insisted on the numeric date format
 .SH "OPTIONS"
 .TP 18
 .B \-b \-\-bidi
-output Hebrew information in Hebrew, but in reverse
-.RE
-.RS 7
+output Hebrew information in Hebrew, but in reverse sequence.
+.TP 18
 .B \ \ \ \-\-visual
-\      sequence.
 .TP 18
 .B \-d \-\-diaspora
 force diaspora readings and holidays.
@@ -118,35 +116,27 @@ prompt user-defined menu from config file. See there for details and examples.
 .B \-o \-\-omer
 print Sefirat Ha Omer, number of days only.
 .RE
-.RS 25
+.RS 18
 .BR \-oo " 'n days in the omer'"
 .RE
-.RS 25
+.RS 18
 .BR \-ooo " the full text, with weeks and remainder days"
 .RE
-.RS 10
-.BR \-\-ba-omer
+.B \ \  \-\-ba-omer
 .RE
-.RS 10
-.BR \-\-la-omer
+.B \ \  \-\-la-omer
 .RE
-.RS 7
-.TP
+.TP 18
 .BR "\-q \-\-quiet" "        suppress output, available in four levels:"
 .RE
-.RS 10
-.BR "\-\-quiet-alerts       \-q" "    suppresses warning messages"
+.BR "   \-\-quiet-alerts       \-q" "    suppresses warning messages"
 .RE
-.RS 10
-.BR "\-\-quiet-gregorian    \-qq" "   also suppresses the gregorian date"
+.BR "   \-\-quiet-gregorian    \-qq" "   also suppresses the gregorian date"
 .RE
-.RS 10
-.BR "\-\-quiet-descriptions \-qqq" "  also suppresses data labels"
+.BR "   \-\-quiet-descriptions \-qqq" "  also suppresses data labels"
 .RE
-.RS 10
-.BR "\-\-quiet-hebrew       \-qqqq" " also suppresses the Hebrew date"
+.BR "   \-\-quiet-hebrew       \-qqqq" " also suppresses the Hebrew date"
 .RE
-.RS 7
 .TP 18
 .B \-r \-\-parasha
 print weekly reading if day is Shabbat.
@@ -157,10 +147,8 @@ print only if day is a Shabbat on which the regular weekly reading is read (ie. 
 .B \ \ \ \-\-sun
 print sunrise and sunset times.
 .RE
-.RS 7
 .B \ \ \ \-\-sunrise
 .RE
-.RS 7
 .B \ \ \ \-\-sunset
 .TP 18
 .B \-s \-\-shabbat-times
@@ -283,10 +271,9 @@ display data descriptions before the data itself
 .TP 23
 .B \ \   \-\-prefer-hebrew
 how to interpret ambiguous month and year
-.RS 0
+.TP 23
 .B \ \ \ \-\-prefer-gregorian
 \ parameters. (eg. interpret "6 10" as "Adar 5710"
-.RS 23
 or as "June 2010"). Hebrew is the default.
 .SH NOTES
 .SS TIMEZONES
@@ -371,7 +358,7 @@ If ${\fIXDG_CONFIG_HOME\fP} is undefined:
 The accuracy of the astronomically-derived data will suffer from not accounting for environmental conditions such as elevation, horizon, temperature and air pressure.
 .RE
 .TP 10
-.B Timezonesmu
+.B Timezones
 The timezone support is currenlty primitive and lacks support for daylight savings time transitions.
 .RE
 .TP 10

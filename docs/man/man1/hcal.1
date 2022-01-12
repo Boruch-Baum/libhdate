@@ -79,8 +79,7 @@ display special days in boldface, no color
 .TP 18
 .B \-c \-\-colorize
 display in calming, muted tones. \fB\-cc\fP will display in bolder, and mildy irritating, colors.
-.RE
-.RS 7
+.TP 18
 .BR "   \-\-no-color" "     over-ride config file setting for color and bold"
 .TP 18
 .B \-d \-\-diaspora
@@ -88,8 +87,7 @@ use diaspora reading and holidays. Only relevant if hcal is using location infor
 .TP
 .B \-f \-\-footnote
 print descriptive notes of holidays
-.RE
-.RS 7
+.TP 18
 .BR "   \-\-no-footnote" "  over-ride config file setting"
 .TP 18
 .B \-g \-\-gregorian
@@ -98,8 +96,7 @@ with a gregorian date is equivalent to requesting the Hebrew month in which the 
 .TP
 .B \-h \-\-html
 print in html format to stdout
-.RE
-.RS 7
+.TP 18
 .BR "   \-\-no-html" "      over-ride config file setting"
 .TP 18
 .B \-H \-\-hebrew
@@ -134,14 +131,25 @@ either a timezone name (see section \fBTIMEZONES\fP) or numeric offset +/-UTC. N
 .TP 23
 .B \ \   \-\-prefer-hebrew
 how to interpret ambiguous month and year
-.RS 0
-.B \ \ \ \-\-prefer-gregorian
+.TP 23
+.B \ \   \-\-prefer-gregorian
 \ parameters. (eg. interpret "6 10"  as "Adar 5710"
-.RS 23
 or as "June 2010"). Hebrew is the default.
 .SH NOTES
-.SS "HOLIDAYS"
+.SS "HOLIDAYS AND CUSTOM DAYS"
 .PP
+By default, if you ask \fBhcal\fP to display or higlight holiday names
+(options \fB\-c\fP or \fB\-f\fP), \fBhcal\fP uses \fBlibhdate\fP's
+data set of the traditional 'shulchan aruch' Hebrew holidays.
+\fBhcal\fP also creates a user-modifiable config file,
+\fIcustom_days\fP, for any other personal or national days a user
+might want to mark. The config file contains detailed in-line
+documentation, and allows for simple definitions of \fIcustom days\fP
+by either the Hebrew or gregorian calendar; by either calendar day of
+a month or \fIn\fPth \fIday of week\fP of a month; and provides a
+simple method of specifying how/whether to advance/postpone a
+\fIcustom day\fP should it occur on any undesired day of week.
+
 Holidays are depicted by a change in the symbol separating a day's
 Gregorian and Hebrew dates, as follows:
 .P
@@ -165,15 +173,6 @@ Gregorian and Hebrew dates, as follows:
 .RE
 .RS
 .BR $ "  Lag BaOmer ,Tu BeAv, Tu BeShvat"
-.RE
-.RS
-.BR # "  Independance day and Yom Yerushalaim"
-.RE
-.RS
-.BR % "  Tzahal and Holocaust memorial days"
-.RE
-.RS
-.BR ^ "  Other Israeli National days"
 .RE
 .P
 Use the
