@@ -204,13 +204,13 @@ static const char* custom_israeli_days_text_for_israel = N_("\
 # =======================================\n\
 H, ^, 5758, 0000,  2, 12, 0, 0, יום הזכרון ליצחק רבין, יום רבין, Yitzhak Rabin memorial day, Rabin memorial day, -1, -2, 0, 0, 0, 0, 0\n\
 H, ^, 5708, 0000,  5, 30, 0, 0, יום המשפחה, יום המשפחה, Family day, Family day, 0, 0, 0, 0, 0, 0, 0\n\
-H, %, 5718, 0000,  7, 27, 0, 0, יום השואה, יום השואה, Yom HaShoah, Yom HaShoah, -1, 0, 1, 0, 0, 0, 0\n\
-H, #, 5728, 0000,  8, 28, 0, 0, יום ירושלים, יום י-ם, Yom Yerushalayim, Yom Yerushalayim, 0, 0, 0, 0, 0, 0, 0\n\
+H, ^, 5718, 0000,  7, 27, 0, 0, יום השואה, יום השואה, Yom HaShoah, Yom HaShoah, -1, 0, 1, 0, 0, 0, 0\n\
+H, ^, 5728, 0000,  8, 28, 0, 0, יום ירושלים, יום י-ם, Yom Yerushalayim, Yom Yerushalayim, 0, 0, 0, 0, 0, 0, 0\n\
 H, ^, 5765, 0000, 10, 29, 0, 0, יום הזכרון לזאב זבוטינסק, יום זבוטינסק, Zeev Zhabotinsky day, Zhabotinsky day, 0, 1, 0, 0, 0, 0, 0\n\
-H, %, 5708, 5764,  8,  4, 0, 0, יום הזכרון, יום הזכרון, Yom HaZikaron, Yom HaZikaron, -2,  0, 0, 0, 0, 0, -1\n\
-H, #, 5708, 5764,  8,  5, 0, 0, יום העצמאות, יום העצמאות, Yom HaAtzma\'ut, Yom HaAtzma\'ut, -1, -2, 0, 0, 0, 0, 0\n\
-H, %, 5765, 0000,  8,  4, 0, 0, יום הזכרון, יום הזכרון, Yom HaZikaron, Yom HaZikaron, -2, 0, 1, 0, 0, 0, -1\n\
-H, #, 5765, 0000,  8,  5, 0, 0, יום העצמאות, יום העצמאות, Yom HaAtzma\'ut, Yom HaAtzma\'ut, -1, -2, 0, 1, 0, 0, 0\n\
+H, ^, 5708, 5764,  8,  4, 0, 0, יום הזכרון, יום הזכרון, Yom HaZikaron, Yom HaZikaron, -2,  0, 0, 0, 0, 0, -1\n\
+H, ^, 5708, 5764,  8,  5, 0, 0, יום העצמאות, יום העצמאות, Yom HaAtzma\'ut, Yom HaAtzma\'ut, -1, -2, 0, 0, 0, 0, 0\n\
+H, ^, 5765, 0000,  8,  4, 0, 0, יום הזכרון, יום הזכרון, Yom HaZikaron, Yom HaZikaron, -2, 0, 1, 0, 0, 0, -1\n\
+H, ^, 5765, 0000,  8,  5, 0, 0, יום העצמאות, יום העצמאות, Yom HaAtzma\'ut, Yom HaAtzma\'ut, -1, -2, 0, 1, 0, 0, 0\n\
 ");
 
 static const char* custom_israeli_days_text_for_diaspora = N_("\
@@ -219,13 +219,13 @@ static const char* custom_israeli_days_text_for_diaspora = N_("\
 # =======================================\n\
 # H, ^, 5758, 0000,  2, 12, 0, 0, יום הזכרון ליצחק רבין, יום רבין, Yitzhak Rabin memorial day, Rabin memorial day, -1, -2, 0, 0, 0, 0, 0\n\
 # H, ^, 5708, 0000,  5, 30, 0, 0, יום המשפחה, יום המשפחה, Family day, Family day, 0, 0, 0, 0, 0, 0, 0\n\
-# H, %, 5718, 0000,  7, 27, 0, 0, יום השואה, יום השואה, Yom HaShoah, Yom HaShoah, -1, 0, 1, 0, 0, 0, 0\n\
-# H, #, 5728, 0000,  8, 28, 0, 0, יום ירושלים, יום י-ם, Yom Yerushalayim, Yom Yerushalayim, 0, 0, 0, 0, 0, 0, 0\n\
+# H, ^, 5718, 0000,  7, 27, 0, 0, יום השואה, יום השואה, Yom HaShoah, Yom HaShoah, -1, 0, 1, 0, 0, 0, 0\n\
+# H, ^, 5728, 0000,  8, 28, 0, 0, יום ירושלים, יום י-ם, Yom Yerushalayim, Yom Yerushalayim, 0, 0, 0, 0, 0, 0, 0\n\
 # H, ^, 5765, 0000, 10, 29, 0, 0, יום הזכרון לזאב זבוטינסק, יום זבוטינסק, Zeev Zhabotinsky day, Zhabotinsky day, 0, 1, 0, 0, 0, 0, 0\n\
-# H, %, 5708, 5764,  8,  4, 0, 0, יום הזכרון, יום הזכרון, Yom HaZikaron, Yom HaZikaron, -2,  0, 0, 0, 0, 0, -1\n\
-# H, #, 5708, 5764,  8,  5, 0, 0, יום העצמאות, יום העצמאות, Yom HaAtzma\'ut, Yom HaAtzma\'ut, -1, -2, 0, 0, 0, 0, 0\n\
-# H, %, 5765, 0000,  8,  4, 0, 0, יום הזכרון, יום הזכרון, Yom HaZikaron, Yom HaZikaron, -2, 0, 1, 0, 0, 0, -1\n\
-# H, #, 5765, 0000,  8,  5, 0, 0, יום העצמאות, יום העצמאות, Yom HaAtzma\'ut, Yom HaAtzma\'ut, -1, -2, 0, 1, 0, 0, 0\n\
+# H, ^, 5708, 5764,  8,  4, 0, 0, יום הזכרון, יום הזכרון, Yom HaZikaron, Yom HaZikaron, -2,  0, 0, 0, 0, 0, -1\n\
+# H, ^, 5708, 5764,  8,  5, 0, 0, יום העצמאות, יום העצמאות, Yom HaAtzma\'ut, Yom HaAtzma\'ut, -1, -2, 0, 0, 0, 0, 0\n\
+# H, ^, 5765, 0000,  8,  4, 0, 0, יום הזכרון, יום הזכרון, Yom HaZikaron, Yom HaZikaron, -2, 0, 1, 0, 0, 0, -1\n\
+# H, ^, 5765, 0000,  8,  5, 0, 0, יום העצמאות, יום העצמאות, Yom HaAtzma\'ut, Yom HaAtzma\'ut, -1, -2, 0, 1, 0, 0, 0\n\
 #\n");
 
 /*****************************************************************
