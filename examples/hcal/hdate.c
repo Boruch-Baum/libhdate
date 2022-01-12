@@ -383,7 +383,7 @@ static const char* afikomen[9] = {
 int print_version ()
 {
   printf ("hdate (libhdate) 1.8\n\
-Copyright (C) 2011-2013 Boruch Baum, 2004-2010 Yaacov Zamir\n\
+Copyright (C) 2011-2013, 2022 Boruch Baum; 2004-2010 Yaacov Zamir\n\
 License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\
 This is free software: you are free to change and redistribute it.\n\
 There is NO WARRANTY, to the extent permitted by law.\n");
