@@ -30,7 +30,7 @@ hcal_SOURCES = hcal.c local_functions.c custom_days.c timezone_functions.c
 
 endif
 
-libhdatedocdir = ${prefix}/share/doc/libhdate/examples/hcal
+libhdatedocdir = ${docdir}/examples/hcal
 libhdatedoc_DATA = hcal.c hdate.c local_functions.c custom_days.c timezone_functions.c
 
 #EXTRA_DIST = $(libhdatedoc_DATA)

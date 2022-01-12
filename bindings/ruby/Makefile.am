@@ -13,7 +13,7 @@ CLEANFILES = *.o *.cxx *.so *wrap*
 all-am: hdate.so
 
 hdate.so: hdate_wrap.cxx
-	g++ -fpic -fno-strict-aliasing -g -O2 -c hdate_wrap.cxx $(RU_CFLAGS)
+	g++ -fpic -fno-strict-aliasing -c hdate_wrap.cxx $(RU_CFLAGS)
 	gcc -shared hdate_wrap.o ../../src/.libs/libhdate.so -rdynamic -Wl,-export-dynamic -lruby$(RU_VERSION) -lpthread -ldl -lcrypt -lm -lc -lstdc++ -o hdate.so
 
 

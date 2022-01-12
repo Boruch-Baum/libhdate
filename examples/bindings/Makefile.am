@@ -9,5 +9,5 @@ EXTRA_DIST = \
   hdate_ruby.rb \
   hdate_php.php
 
-libhdatedocdir = ${prefix}/share/doc/libhdate/examples/bindings
+libhdatedocdir = ${docdir}/examples/bindings
 libhdatedoc_DATA = $(EXTRA_DIST)

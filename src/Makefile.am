@@ -1,6 +1,4 @@
-libhdate_la_CFLAGS =\
-	 -Wall\
-	 -g
+# libhdate_la_CFLAGS = -Wall -g
 
 lib_LTLIBRARIES = libhdate.la
 
@@ -37,7 +35,6 @@ libhdate_la_LDFLAGS = -version-info 0:0:0
 # AC_DEFINE([INTERFACE_VERSION],[${INTERFACE_CURRENT}:${INTERFACE_REVISION}:${INTERFACE_AGE}])
 
 
-libhdate_la_LIBADD = 
+libhdate_la_LIBADD =
 
-include_HEADERS = hdate.h hdatepp.h
-
+include_HEADERS = hdate.h hdatepp.h zdump3.h

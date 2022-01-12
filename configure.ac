@@ -22,7 +22,7 @@ AC_CONFIG_SRCDIR(src/hdate.h)
 AC_CONFIG_MACRO_DIR([m4])
 AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
 
-CFLAGS=
+dnl CFLAGS=
 LIBS=-lm
 
 dnl =======================================================================================
@@ -51,6 +51,7 @@ AC_CHECK_PROG(have_gpc, "gpc", do, dont)
 
 build_gpc=$have_gpc
 
+dnl fixme wrong [ACTION-IF-GIVEN] for AC_ARG_ENABLE
 AC_ARG_ENABLE([gpc],
   [AS_HELP_STRING([--disable-gpc],
   [do not build gnu pascal binding])],
@@ -87,7 +88,8 @@ build_python=$have_python
 AC_ARG_ENABLE([python],
   [AS_HELP_STRING([--disable-python],
   [do not build python binding])],
-  [build_python=dont], [build_python=$have_python])
+  [if test "${enableval}" = "no" -o "${enableval}" != "yes"; then build_python=dont; fi],
+   [build_python=$have_python])
 
 AC_ARG_WITH(python-sitelib-dir,
   [AS_HELP_STRING([--with-python-sitelib-dir=PATH],
@@ -95,8 +97,8 @@ AC_ARG_WITH(python-sitelib-dir,
 
 if test "$have_python" = "do"; then
     AM_PATH_PYTHON([2.7],, [:])
-    PY_PREFIX=`python -c 'import sys ; print sys.prefix'`
-    PY_VERSION=`python -c 'import sys ; print sys.version[[0:3]]'`
+    PY_PREFIX=`python -c 'import sys ; print (sys.prefix)'`
+    PY_VERSION=`python -c 'import sys ; print (sys.version[[0:3]])'`
     AC_MSG_CHECKING(for $PY_PREFIX/include/python$PY_VERSION/Python.h)
     if test -f $PY_PREFIX/include/python$PY_VERSION/Python.h; then
       AC_MSG_RESULT(yes)
@@ -176,7 +178,8 @@ build_php=$have_php
 AC_ARG_ENABLE([php],
   [AS_HELP_STRING([--disable-php],
   [do not build php binding])],
-  [build_php=dont], [build_php=$have_php])
+  [if test "${enableval}" = "no" -o "${enableval}" != "yes"; then build_php=dont; fi],
+   [build_php=$have_php])
 
 AC_ARG_WITH(php-sitelib-dir,
   [AS_HELP_STRING([--with-php-sitelib-dir=PATH],
@@ -217,7 +220,8 @@ build_perl=$have_perl
 AC_ARG_ENABLE([perl],
   [AS_HELP_STRING([--disable-perl],
   [do not build perl binding])],
-  [build_perl=dont], [build_perl=$have_perl])
+  [if test "${enableval}" = "no" -o "${enableval}" != "yes"; then build_perl=dont; fi],
+   [build_perl=$have_perl])
 
 AC_ARG_WITH(perl-sitelib-dir,
   [AS_HELP_STRING([--with-perl-sitelib-dir=PATH],
@@ -275,7 +279,7 @@ build_hcal=do
 AC_ARG_ENABLE([hcal],
   [AS_HELP_STRING([--disable-hcal],
   [do not build hcal/hdate utility programs])],
-  [build_hcal=dont], [build_hcal=do])
+  [if test "${enableval}" = "no" -o "${enableval}" != "yes"; then build_hcal=dont; fi], [build_hcal=do])
 
 AM_CONDITIONAL(WITH_HCAL, test "$build_hcal" = "do")
 AM_PROG_CC_C_O
