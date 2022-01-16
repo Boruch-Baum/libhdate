@@ -4,7 +4,7 @@
  * compile:
  * gcc `pkg-config --libs --cflags libhdate` hcal.c -o hcal
  *
- *  Copyright (C) 2011-2018 Boruch Baum  <boruch_baum@gmx.com>
+ *  Copyright (C) 2011-2018,2022 Boruch Baum  <boruch_baum@gmx.com>
  *                2004-2010 Yaacov Zamir <kzamir@walla.co.il>
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -365,7 +365,7 @@ void print_help ()
                       option --three-month as a default there\n\
    -3 --three-month   displays previous/next months\n\
                       side by side. requires 127 columns\n\
-      --borders       displays a frame around calendars in 3-month mode\n\
+      --borders       display a separator  between  months\n\
    -b --bidi          prints hebrew in reverse (visual)\n\
       --visual\n\
       --no-bidi       over-ride config file setting if you had set\n\
