@@ -284,6 +284,12 @@ VERSION=2.00\n\
 # automatically forces hebrew.\n\
 # The command line option for OUTPUT_BIDI is either --bidi, --visual, or -b\n\
 #OUTPUT_BIDI=FALSE\n\n\
+# Bidi and RTL compliant terminal emulators\n\
+# If you're actually using mlterm, hcal should be able to auto-detect it. If\n\
+# you're using a terminal emulator that you think has similar compliance,\n\
+# setting MLTERM_ISH to true will avoid using presentation kludges and improve\n\
+# column alignment, especially for three-month wide output.  \n\
+#MLTERM_ISH=FALSE\n\n\
 # Display enhancements\n\
 # hcal defaults to display the current day in reverse video\n\
 # The command line option for this feature is --no-reverse\n\
@@ -2122,7 +2128,7 @@ void read_config_file(  FILE *config_file,
   int    end_of_input_file = FALSE;
   int    key_index = 0;
   int    temp_base_year = 0;
-  const int  num_of_keys = 20;
+  const int  num_of_keys = 24;
   const char*  key_list[] = {  "SUNSET_AWARE",    // 0
                 "LATITUDE",
                 "LONGITUDE",    // 2
@@ -2145,7 +2151,8 @@ void read_config_file(  FILE *config_file,
                 "HAVDALAH",
                 "PREFER_HEBREW",  //20
                 "BASE_YEAR_HEBREW",
-                "BASE_YEAR_GREGORIAN"//22
+                "BASE_YEAR_GREGORIAN", //22
+								"MLTERM_ISH"
                 };
 //  TODO - parse these!
 //  opt.prefer_hebrew = TRUE;
@@ -2161,8 +2168,8 @@ void read_config_file(  FILE *config_file,
       match_count = sscanf(input_string,"%m[A-Z_]=%m[^\n]",&input_key,&input_value);
       line_count++;
       if (errno != 0) error(0,errno,"scan error at line %d", line_count);
-// DEBUG -   printf("line number = %d, matches made = %d, key = %s, value = %s, string = %s",
-//          line_count, match_count, input_key, input_value, input_string);
+// DEBUG:  printf("line number = %d, matches made = %d, key = %s, value = %s, string = %s",
+//                line_count, match_count, input_key, input_value, input_string);
       if (match_count == 2)
       {
         for (key_index=0; key_index<num_of_keys; key_index++)
@@ -2171,7 +2178,6 @@ void read_config_file(  FILE *config_file,
           {
             switch(key_index)
             {
-
     case  0:if      (strcmp(input_value,"FALSE") == 0) opt->not_sunset_aware = 1;
         else if (strcmp(input_value,"TRUE") == 0) opt->not_sunset_aware = 0;
         break;
@@ -2294,11 +2300,13 @@ void read_config_file(  FILE *config_file,
           else opt->base_year_h = temp_base_year * 100;
         }
         break;
-
-            }  // end of switch(i)
-          break;  // if found a match don't continue for loop
-          }
-        }
+//    MLTERM_ISH
+    case 23: opt->mlterm = (strcmp(input_value,"FALSE") == 0) ? FALSE : TRUE;
+        break;
+//  End of switch cases
+				    }
+				  }
+				}
       free(input_value);
       }
       if (match_count > 0 ) free(input_key);
