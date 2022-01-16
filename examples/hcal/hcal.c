@@ -119,32 +119,32 @@ static char holiday_flag[] = { '/', '+', '*', '~', '!', '@', '$' };
 
 // option_list structure definition
 typedef struct {
-  int prefer_hebrew;  // TODO - Make this user-selectable
+  bool prefer_hebrew;  // TODO - Make this user-selectable
   int base_year_h;    // TODO - Make this user-selectable
   int base_year_g;    // TODO - Make this user-selectable
   int gregorian;      // 0=Hebrew only, 1=Hebrew prime, else gregorian prime
-  int html;
-  int external_css;
-  int diaspora;
-  int parasha;
-  int shabbat;
+  bool html;
+  bool external_css;
+  bool diaspora;
+  bool parasha;
+  bool shabbat;
   int candles;
   int havdalah;
-  int no_reverse;
-  int three_month;
-  int one_year;       // get tzif data only once
+  bool no_reverse;
+  int three_month; // 0=NO, 1=YES, 12=YEAR, 13=LEAP_YEAR
+  bool one_year;       // get tzif data only once
   char* border_spacing;
   char* separator;    // BB 2022-01-16: deprecating this
-  int colorize;
-  int bold;
-  int footnote;
+  int colorize; // valid values: 0,1,2
+  bool bold;
+  bool footnote;
   int jd_today_g;
   int jd_today_h;
-  int force_hebrew;
-  int force_israel;
-  int not_sunset_aware;
-  int quiet_alerts;
-  int bidi;
+  bool force_hebrew;
+  bool force_israel;
+  bool not_sunset_aware;
+  bool quiet_alerts; // maybe change to int to be consistent with hdate?
+  bool bidi;
   bool mlterm;
   double lat;
   double lon;
@@ -294,8 +294,8 @@ VERSION=2.00\n\
 # hcal defaults to display the current day in reverse video\n\
 # The command line option for this feature is --no-reverse\n\
 #SUPPRESS_REVERSE_VIDEO=FALSE;\n\
-# hcal can display its output \"calming, muted tones\". Note that piping\n\
-# colorized output may yield unexpected results.\n\
+# hcal can display its output \"calming, muted tones\". Valid values are TRUE,\n\
+# FALSE, and BOLD. Note that piping colorized output may yield unexpected results.\n\
 #COLORIZE=FALSE\n\n\
 # HTML OUTPUT\n\
 #OUTPUT_HTML=FALSE\n\
@@ -2201,8 +2201,8 @@ void read_config_file(  FILE *config_file,
           {
             switch(key_index)
             {
-    case  0:if      (strcmp(input_value,"FALSE") == 0) opt->not_sunset_aware = 1;
-        else if (strcmp(input_value,"TRUE") == 0) opt->not_sunset_aware = 0;
+    case  0:if      (strcmp(input_value,"FALSE") == 0) opt->not_sunset_aware = TRUE;
+        else if (strcmp(input_value,"TRUE") == 0) opt->not_sunset_aware = FALSE;
         break;
     case  1:
         parse_coordinate(1, input_value, latitude);
@@ -2221,49 +2221,50 @@ void read_config_file(  FILE *config_file,
           }
         }
         break;
-    case  4:if      (strcmp(input_value,"FALSE") == 0) opt->diaspora = 0;
-        else if (strcmp(input_value,"TRUE") == 0) opt->diaspora = 1;
+    case  4:if      (strcmp(input_value,"FALSE") == 0) opt->diaspora = FALSE;
+        else if (strcmp(input_value,"TRUE") == 0) opt->diaspora = TRUE;
         break;
-    case  5:if      (strcmp(input_value,"FALSE") == 0) opt->force_israel = 0;
-        else if (strcmp(input_value,"TRUE") == 0) opt->force_israel = 1;
+    case  5:if      (strcmp(input_value,"FALSE") == 0) opt->force_israel = FALSE;
+        else if (strcmp(input_value,"TRUE") == 0) opt->force_israel = TRUE;
         break;
-    case  6:if      (strcmp(input_value,"FALSE") == 0) opt->parasha = 0;
-        else if (strcmp(input_value,"TRUE") == 0) opt->parasha = 1;
+    case  6:if      (strcmp(input_value,"FALSE") == 0) opt->parasha = FALSE;
+        else if (strcmp(input_value,"TRUE") == 0) opt->parasha = TRUE;
         break;
-    case  7:if      (strcmp(input_value,"FALSE") == 0) opt->shabbat = 0;
+    case  7:if      (strcmp(input_value,"FALSE") == 0) opt->shabbat = FALSE;
         else if (strcmp(input_value,"TRUE") == 0)
         {
-          opt->shabbat = 1;
-          opt->parasha = 1;
+          opt->shabbat = TRUE;
+          opt->parasha = TRUE;
         }
         break;
-    case  8:if      (strcmp(input_value,"FALSE") == 0) opt->footnote = 0;
-        else if (strcmp(input_value,"TRUE") == 0) opt->footnote = 1;
+    case  8:if      (strcmp(input_value,"FALSE") == 0) opt->footnote = FALSE;
+        else if (strcmp(input_value,"TRUE") == 0) opt->footnote = TRUE;
         break;
-    case  9:if      (strcmp(input_value,"FALSE") == 0) opt->force_hebrew = 0;
-        else if (strcmp(input_value,"TRUE") == 0) opt->force_hebrew = 1;
+    case  9:if      (strcmp(input_value,"FALSE") == 0) opt->force_hebrew = FALSE;
+        else if (strcmp(input_value,"TRUE") == 0) opt->force_hebrew = TRUE;
         break;
-    case 10:if      (strcmp(input_value,"FALSE") == 0) opt->bidi = 0;
+    case 10:if      (strcmp(input_value,"FALSE") == 0) opt->bidi = FALSE;
         else if (strcmp(input_value,"TRUE") == 0)
             {
-              opt->bidi = 1;
-              opt->force_hebrew = 1;
+              opt->bidi = TRUE;
+              opt->force_hebrew = TRUE;
             }
         break;
-    case 11:if      (strcmp(input_value,"FALSE") == 0) opt->no_reverse = 0;
-        else if (strcmp(input_value,"TRUE") == 0) opt->no_reverse = 1;
+    case 11:if      (strcmp(input_value,"FALSE") == 0) opt->no_reverse = FALSE;
+        else if (strcmp(input_value,"TRUE") == 0) opt->no_reverse = TRUE;
         break;
-    case 12:if      (strcmp(input_value,"FALSE") == 0) opt->colorize = 0;
+    case 12:if  (strcmp(input_value,"FALSE") == 0) opt->colorize = 0;
         else if (strcmp(input_value,"TRUE") == 0) opt->colorize = 1;
+        else if (strcmp(input_value,"BOLD") == 0) opt->colorize = 2;
         break;
-    case 13:if      (strcmp(input_value,"FALSE") == 0) opt->html = 0;
-        else if (strcmp(input_value,"TRUE") == 0) opt->html = 1;
+    case 13:if      (strcmp(input_value,"FALSE") == 0) opt->html = FALSE;
+        else if (strcmp(input_value,"TRUE") == 0) opt->html = TRUE;
         break;
-    case 14:if      (strcmp(input_value,"FALSE") == 0) opt->external_css = 0;
-        else if (strcmp(input_value,"TRUE") == 0) opt->external_css = 1;
+    case 14:if      (strcmp(input_value,"FALSE") == 0) opt->external_css = FALSE;
+        else if (strcmp(input_value,"TRUE") == 0) opt->external_css = TRUE;
         break;
-    case 15:if      (strcmp(input_value,"FALSE") == 0) opt->quiet_alerts = 0;
-        else if (strcmp(input_value,"TRUE") == 0) opt->quiet_alerts = 1;
+    case 15:if      (strcmp(input_value,"FALSE") == 0) opt->quiet_alerts = FALSE;
+        else if (strcmp(input_value,"TRUE") == 0) opt->quiet_alerts = TRUE;
         break;
     case 16:if      (strcmp(input_value,"FALSE") == 0) opt->three_month = 0;
         else if (strcmp(input_value,"TRUE") == 0) opt->three_month = 1;
@@ -2300,8 +2301,8 @@ void read_config_file(  FILE *config_file,
         }
         break;
 //    PREFER_HEBREW
-    case 20:if      (strcmp(input_value,"FALSE") == 0) opt->prefer_hebrew = 0;
-        else if (strcmp(input_value,"TRUE") == 0) opt->prefer_hebrew = 1;
+    case 20:if      (strcmp(input_value,"FALSE") == 0) opt->prefer_hebrew = FALSE;
+        else if (strcmp(input_value,"TRUE") == 0) opt->prefer_hebrew = TRUE;
         break;
 //    BASE_YEAR_HEBREW
     case 21:if (fnmatch( "[3456][[:digit:]]", input_value, FNM_EXTMATCH) == 0)
@@ -2385,7 +2386,7 @@ int hcal_parser( const int switch_arg, option_list *opt,
     {
 /** --version  */  case 0:  print_version (); exit_main(opt, 0); break;
 /** --help    */  case 1:  print_help (); exit_main(opt, 0); break;
-/** --no-reverse*/  case 2:  opt->no_reverse = 1; break;
+/** --no-reverse*/  case 2:  opt->no_reverse = TRUE; break;
 /** --html    */  case 3: break;
 /** --parasha  */  case 4: break;
 /** --shabbat  */  case 5:  break;
@@ -2397,15 +2398,15 @@ int hcal_parser( const int switch_arg, option_list *opt,
 /** --latitude  */  case 11:break;
 /** --longitude  */  case 12:break;
 /** --timezone  */  case 13:break;
-/** --not-sunset-aware */  case 14: opt->not_sunset_aware = 1;  break;
+/** --not-sunset-aware */  case 14: opt->not_sunset_aware = TRUE;  break;
 /** --quiet-alerts*/  case 15: break;
 /** --visual  */  case 16:
 /** --bidi    */  case 17: break;
 /** --one-month  */  case 18: break;
 /** --no-visual  */  case 19:
-/** --no-bidi  */  case 20: opt->bidi = 0; opt->force_hebrew = 0; break;
-/** --no-color  */  case 21: opt->colorize = 0; opt->bold = 0; break;
-/** --no-footnote*/  case 22: opt->footnote = 0; break;
+/** --no-bidi  */  case 20: opt->bidi = FALSE; opt->force_hebrew = FALSE; break;
+/** --no-color  */  case 21: opt->colorize = 0; opt->bold = FALSE; break;
+/** --no-footnote*/  case 22: opt->footnote = FALSE; break;
 /** --menu    */  case 23: break;
 /** --candles  */  case 24:
       if ( (optarg == NULL) && (opt->candles == 0) ) opt->candles = 1;
@@ -2471,27 +2472,27 @@ int hcal_parser( const int switch_arg, option_list *opt,
   case '0': opt->gregorian = 0; break;
   case '1': opt->three_month = 0; break;
   case '3': opt->three_month = 1; break;
-  case 'b': opt->bidi = 1; opt->force_hebrew = 1; break;
-  case 'B': opt->bold = 1; opt->colorize = 0; break;
+  case 'b': opt->bidi = TRUE; opt->force_hebrew = TRUE; break;
+  case 'B': opt->bold = TRUE; opt->colorize = 0; break;
   case 'c':
     if (opt->colorize < 2) opt->colorize = opt->colorize + 1;
-    opt->bold = 0;
+    opt->bold = FALSE;
     break;
-  case 'd': opt->diaspora = 1; break;
-  case 'f': opt->footnote = 1; break;
+  case 'd': opt->diaspora = TRUE; break;
+  case 'f': opt->footnote = TRUE; break;
   case 'g':
     if (opt->gregorian < 2) opt->gregorian = opt->gregorian + 1;
     break;
-  case 'h': opt->html = 1;
+  case 'h': opt->html = TRUE;
     // TODO - give this parameter an option argument 'filename'
     //        to use for output instead of stdout
     break;
-  case 'H': opt->force_hebrew = 1; break;
-  case 'I': opt->force_israel = 1; break;
-  case 'i': opt->external_css = 1; break;
+  case 'H': opt->force_hebrew = TRUE; break;
+  case 'I': opt->force_israel = TRUE; break;
+  case 'i': opt->external_css = TRUE; break;
   case 'm': opt->menu = 1; break;
-  case 'p': opt->parasha = 1; break;
-  case 'q': opt->quiet_alerts = 1; break;
+  case 'p': opt->parasha = TRUE; break;
+  case 'q': opt->quiet_alerts = TRUE; break;
   case 'l':
     error_detected = error_detected + parse_coordinate(1, optarg, lat);
     break;
@@ -2499,8 +2500,8 @@ int hcal_parser( const int switch_arg, option_list *opt,
     error_detected = error_detected + parse_coordinate(2, optarg, lon);
     break;
   case 's':
-    opt->shabbat = 1;
-    opt->parasha = 1;
+    opt->shabbat = TRUE;
+    opt->parasha = TRUE;
     if (opt->candles == 0) opt->candles = 1;
     if (opt->havdalah == 0) opt->havdalah = 1;
     break;
@@ -2558,26 +2559,26 @@ int main (int argc, char *argv[])
   opt.base_year_h = HDATE_DEFAULT_BASE_YEAR_H;    // TODO - Make this user-selectable
   opt.base_year_g = HDATE_DEFAULT_BASE_YEAR_G;    // TODO - Make this user-selectable
   opt.gregorian = 0;      // -0 don't display any gregorian information
-  opt.bidi = 0;        // visual bidi, implies --force-hebrew
-  opt.html = 0;        // -h html format flag
-  opt.diaspora = 0;      // -d Diaspora holidays
-  opt.external_css = 0;    // -i External css file
-  opt.parasha = 0;      // -p print parasha alongside calendar
-  opt.shabbat = 0;      // -c print candle-lighting alongside calendar
+  opt.bidi = FALSE;        // visual bidi, implies --force-hebrew
+  opt.html = FALSE;        // -h html format flag
+  opt.diaspora = FALSE;      // -d Diaspora holidays
+  opt.external_css = FALSE;    // -i External css file
+  opt.parasha = FALSE;      // -p print parasha alongside calendar
+  opt.shabbat = FALSE;      // -c print candle-lighting alongside calendar
   opt.candles = 0;
   opt.havdalah = 0;
-  opt.no_reverse = 0;      // don't highlight today in reverse video
+  opt.no_reverse = FALSE;      // don't highlight today in reverse video
   opt.three_month = 0;    // print previous and next months also
-  opt.one_year = 0;
+  opt.one_year = FALSE;
   opt.border_spacing = NULL;      // horizontal spacing string in 3-month mode
   opt.separator = NULL;    // vertical separator string in 3-month mode
   opt.colorize = 0;      // display calendar in muted, more pleasing tones
-  opt.bold = 0;        // display special days in boldface (no color)
-  opt.footnote = 0;      // display description of month's holidays
-  opt.force_hebrew = 0;    // force display of Hebrew data in Hebrew
-  opt.force_israel = 0;    // override diaspora-awareness
-  opt.not_sunset_aware = 0;  // override sunset-awareness
-  opt.quiet_alerts = 0;
+  opt.bold = FALSE;        // display special days in boldface (no color)
+  opt.footnote = FALSE;      // display description of month's holidays
+  opt.force_hebrew = FALSE;    // force display of Hebrew data in Hebrew
+  opt.force_israel = FALSE;    // override diaspora-awareness
+  opt.not_sunset_aware = FALSE;  // override sunset-awareness
+  opt.quiet_alerts = FALSE;
 	opt.mlterm = getenv("MLTERM") ? TRUE: FALSE;
   opt.lat = BAD_COORDINATE;
   opt.lon = BAD_COORDINATE;
@@ -2794,9 +2795,9 @@ int main (int argc, char *argv[])
     if ((opt.parasha) || (opt.shabbat) || (opt.footnote) )
     {
       error(0,0,"%s", N_("ALERT: options --parasha, --shabbat, --footnote are not supported in 'three-month' mode"));
-      opt.parasha = 0;
-      opt.shabbat = 0;
-      opt.footnote = 0;
+      opt.parasha = FALSE;
+      opt.shabbat = FALSE;
+      opt.footnote = FALSE;
     }
     if (opt.border_spacing == NULL) opt.border_spacing = default_spacing;
   }
@@ -2809,9 +2810,9 @@ int main (int argc, char *argv[])
     if ((opt.parasha) || (opt.shabbat) || (opt.footnote) )
     {
       error(0,0,"%s", N_("ALERT: options --parasha, --shabbat, --footnote are not supported in 'html' mode"));
-      opt.parasha = 0;
-      opt.shabbat = 0;
-      opt.footnote = 0;
+      opt.parasha = FALSE;
+      opt.shabbat = FALSE;
+      opt.footnote = FALSE;
     }
   }
 
@@ -2902,7 +2903,7 @@ int main (int argc, char *argv[])
       // The parse_date function returns Hebrew
       // month values in the range 101 - 114
       month = month%100;
-      if (!month) opt.one_year = 1;
+      if (!month) opt.one_year = TRUE;
     }
     else
     {
@@ -2935,7 +2936,7 @@ int main (int argc, char *argv[])
   /************************************************************
   * diaspora awareness
   ************************************************************/
-  if (opt.force_israel) opt.diaspora = 0;
+  if (opt.force_israel) opt.diaspora = FALSE;
     // why no tzset logic here?
   else
   {
@@ -2944,7 +2945,7 @@ int main (int argc, char *argv[])
     // other than the system one, and we need DST awareness if
     // displaying Shabbat times.
     // system timezone is denominated in seconds
-    if ( (timezone/-3600) != 2) opt.diaspora = 1;
+    if ( (timezone/-3600) != 2) opt.diaspora = TRUE;
   }
 
   /************************************************************
