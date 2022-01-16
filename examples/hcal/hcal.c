@@ -1364,7 +1364,16 @@ void print_day ( const hdate_struct h, const int month, option_list* opt, const 
 		{
       // need to pad Hebrew dates 1-10, 20, 30 with spaces
 			if (h.hd_day < 11)
-				printf ("%s%s"," ",hd_day_str);
+			{
+				if ((h.hd_dw == 1) &&  (h.hd_day > 4))
+					printf("%s",hd_day_str);
+				// This is an unfortunate kludge to compensate for how most
+				// terminal emulators handle bidi.
+				else printf ("%s%s"," ",hd_day_str);
+				// This is an unfortunate kludge to compensate for how most
+				// terminal emulators handle bidi.
+				if (h.hd_day == 10) printf(" ");
+			}
 			else if ( (h.hd_day == 20) || (h.hd_day == 30) )
 				printf ("%s%s",hd_day_str," ");
 			else printf ("%2s", hd_day_str);
@@ -1400,6 +1409,32 @@ void print_day ( const hdate_struct h, const int month, option_list* opt, const 
     if (opt->gregorian == 1) print_gregorian_day_and_print_holiday_flag();
   }
   if (hd_day_str != NULL) free(hd_day_str);
+}
+
+
+
+/*************************************************
+*  print padding spaces to the left of final line
+*************************************************/
+void print_last_line_padding ( int jd )
+// Calculate padding for trailing days out-of-month. ie. for the final
+// calendar line. This is an unfortunate kludge to compensate for how
+// most terminal emulators handle bidi.
+//
+// JD :: The Julian day number for the first Hebrew column of the last
+//       line, ie. the final Sunday of the Hebrew month
+{
+	hdate_struct h;
+  hdate_set_jd (&h, jd);
+	int size_of_month = hdate_get_size_of_hebrew_month( h.hd_mon, h.hd_year_type);
+	int padding = 7 - (size_of_month - h.hd_day + 1);
+	// This extra space is needed since 'ל' is a single character
+  if (size_of_month == 30)
+		printf(" ");
+	for ( ; padding > 0; padding--)
+  {
+		printf("   ");
+	}
 }
 
 
@@ -1442,18 +1477,9 @@ void print_week( int jd, const int month, option_list* opt, int final_line)
   *****************************************************/
 
 	if ( (final_line == 1) &&
-//			 (! opt->three_month) &&  // FIXME !!
+			 (! opt->three_month) &&  // FIXME !!
 			 ( (opt->force_hebrew) || (hdate_is_hebrew_locale()) ) )
-	{
-		// Calculate padding for trailing days out-of-month: Since this is
-		// the first Hebrew column of the last line, it is by definition
-		// the final Sunday of the month
-    hdate_set_jd (&h, jd);
-//printf("debug: %d; %d\n", hdate_get_size_of_hebrew_month( h.hd_mon, h.hd_year_type),h.hd_day);
-		int padding = 7 - (hdate_get_size_of_hebrew_month( h.hd_mon, h.hd_year_type) - h.hd_day + 1);
-		for ( ; padding > 0; padding--)
-			printf("   ");
-	}
+		print_last_line_padding( jd );
 
   if (opt->bidi)
   {
@@ -1779,6 +1805,12 @@ int print_calendar ( int current_month, int current_year, option_list* opt)
 
     if (opt->three_month)
     {
+			if (calendar_line == 1)
+				// insert here padding for final calendar line of
+				// "next_month", ie. third of the three months. This is an
+				// unfortunate kludge to compensate for how most terminal
+				// emulators handle bidi.
+				print_last_line_padding( jd_next_month );
       print_week(jd_previous_month, previous_month, opt, calendar_line);
       jd_previous_month = jd_previous_month + 7;
       printf("%s", opt->spacing);
