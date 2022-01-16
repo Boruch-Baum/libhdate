@@ -133,8 +133,8 @@ typedef struct {
   int no_reverse;
   int three_month;
   int one_year;       // get tzif data only once
-  char* spacing;
-  char* separator;
+  char* border_spacing;
+  char* separator;    // BB 2022-01-16: deprecating this
   int colorize;
   int bold;
   int footnote;
@@ -366,7 +366,6 @@ void print_help ()
    -3 --three-month   displays previous/next months\n\
                       side by side. requires 127 columns\n\
       --borders       displays a frame around calendars in 3-month mode\n\
-      --spacing       quoted string to separate months in 3-month mode\n\
    -b --bidi          prints hebrew in reverse (visual)\n\
       --visual\n\
       --no-bidi       over-ride config file setting if you had set\n\
@@ -910,10 +909,10 @@ int hmonth_next( const int month, const hdate_struct * h )
 }
 
 
-/**************************************************
- *  print a horizontal border line in 3-month mode
- *************************************************/
-void print_border( const option_list opt )
+/****************************************************
+ *  print a horizontal separator line in 3-month mode
+ ***************************************************/
+void print_separator( const option_list opt )
 {
 // BB 2022-01-16: I'm deciding to remove this feature as not visually
 //                appealing and just more weird bidi work to do.
@@ -925,23 +924,23 @@ void print_border( const option_list opt )
 //  if (opt.three_month == 1)
 //  {
 //    for (i=0 ; i < calendar_width; i++) printf("%s",opt.separator);
-//    printf("%s", opt.spacing);
+//    printf("%s", opt.border_spacing);
 //    for (i=0 ; i < calendar_width; i++) printf("%s",opt.separator);
-//    printf("%s", opt.spacing);
+//    printf("%s", opt.border_spacing);
 //    for (i=0 ; i < calendar_width; i++) printf("%s",opt.separator);
 //    printf("\n");
 //  }
 //  else
 //  {
 //    if (opt.three_month == 12)
-//			printf("%*s%s", calendar_width," ", opt.spacing);
+//			printf("%*s%s", calendar_width," ", opt.border_spacing);
 //    else
 //    {
 //      for (i=0 ; i < calendar_width; i++) printf("%s",opt.separator);
-//      printf("%s", opt.spacing);
+//      printf("%s", opt.border_spacing);
 //    }
 //    for (i=0 ; i < calendar_width; i++) printf("%s",opt.separator);
-//    printf("%s\n", opt.spacing);
+//    printf("%s\n", opt.border_spacing);
 //  }
   return;
 }
@@ -1098,12 +1097,12 @@ int print_header ( const int month, const int year, option_list* opt)
           printf("%*s",calendar_width," ");
       }
       else print_month_line(previous_month, opt);
-      printf("%s", opt->spacing);
+      printf("%s", opt->border_spacing);
     }
     print_month_line(current_month, opt);
     if (opt->three_month)
     {
-      printf("%s", opt->spacing);
+      printf("%s", opt->border_spacing);
       if (opt->three_month != 12)
         print_month_line(next_month, opt);
     }
@@ -1117,12 +1116,12 @@ int print_header ( const int month, const int year, option_list* opt)
         ( (fourteenth_month == FALSE) || (opt->gregorian <2) ) )
         printf("%*s",calendar_width," ");
       else print_dow_line(opt);
-      printf("%s", opt->spacing);
+      printf("%s", opt->border_spacing);
     }
     print_dow_line(opt);
     if (opt->three_month)
     {
-      printf("%s", opt->spacing);
+      printf("%s", opt->border_spacing);
       if (opt->three_month != 12)
         print_dow_line(opt);
     }
@@ -1827,7 +1826,7 @@ int print_calendar ( int current_month, int current_year, option_list* opt)
 				print_last_line_padding( jd_next_month );
       print_week(jd_previous_month, previous_month, opt, calendar_line);
       jd_previous_month = jd_previous_month + 7;
-      printf("%s", opt->spacing);
+      printf("%s", opt->border_spacing);
     }
 
     print_week(jd_current_month, current_month, opt, calendar_line);
@@ -1836,7 +1835,7 @@ int print_calendar ( int current_month, int current_year, option_list* opt)
 
     if (opt->three_month)
     {
-      printf("%s", opt->spacing);
+      printf("%s", opt->border_spacing);
       if (opt->three_month != 12)
       {
         print_week(jd_next_month, next_month, opt, calendar_line);
@@ -2397,18 +2396,18 @@ int hcal_parser( const int switch_arg, option_list *opt,
         }
       }
       break;
-/** --spacing */      case 26:
-			opt->spacing = optarg;
+/** --separator */      case 26:
+			opt->separator = optarg;
 			// BB 2022-01-16: I'm deciding to remove this feature as not
 			//                visually appealing and just more weird bidi
 			//                work to do.
 			error_detected++;
-			print_option_unknown_error("spacing");
+			print_option_unknown_error("separator");
 			break;
 /** --gregorian */      case 27: break;
 /** --no-gregorian */    case 28: break;
 /** --borders      */    case 29: opt->three_month = 1;
-                opt->spacing = default_borders_spacing;
+                opt->border_spacing = default_borders_spacing;
                 opt->separator = default_borders_separator;
                 break;
 /** --prefer-hebrew    */  case 30: opt->prefer_hebrew = TRUE; break;
@@ -2521,7 +2520,7 @@ int main (int argc, char *argv[])
   opt.no_reverse = 0;      // don't highlight today in reverse video
   opt.three_month = 0;    // print previous and next months also
   opt.one_year = 0;
-  opt.spacing = NULL;      // horizontal spacing string in 3-month mode
+  opt.border_spacing = NULL;      // horizontal spacing string in 3-month mode
   opt.separator = NULL;    // vertical separator string in 3-month mode
   opt.colorize = 0;      // display calendar in muted, more pleasing tones
   opt.bold = 0;        // display special days in boldface (no color)
@@ -2646,7 +2645,7 @@ int main (int argc, char *argv[])
     {"menu", no_argument, 0,'m'},
     {"candles", optional_argument, 0, 0},
     {"havdalah", optional_argument, 0, 0},
-    {"spacing", optional_argument, 0, 0},
+    {"separator", optional_argument, 0, 0},
     {"gregorian", no_argument, 0,'g'},
     {"no-gregorian", no_argument, 0,'0'},
     {"borders", no_argument, 0, 0},
@@ -2751,7 +2750,7 @@ int main (int argc, char *argv[])
       opt.shabbat = 0;
       opt.footnote = 0;
     }
-    if (opt.spacing == NULL) opt.spacing = default_spacing;
+    if (opt.border_spacing == NULL) opt.border_spacing = default_spacing;
   }
 
   /**************************************************
@@ -2918,7 +2917,7 @@ int main (int argc, char *argv[])
 
       for (month=2; month<num_of_months; month=month+3)
       {
-        if (opt.separator != NULL ) print_border( opt );
+        if (opt.separator != NULL ) print_separator( opt );
         if ( (h.hd_size_of_year > 355 )  &&
            (year > HDATE_HEB_YR_LOWER_BOUND) &&
            (month == 8)               )
@@ -2929,7 +2928,7 @@ int main (int argc, char *argv[])
       if  ( (year > HDATE_HEB_YR_LOWER_BOUND) &&
           ( (h.hd_size_of_year > 355 ) || (opt.gregorian > 1)) )
       {
-        if (opt.separator != NULL ) print_border( opt );
+        if (opt.separator != NULL ) print_separator( opt );
         opt.three_month = 12;
         print_month (12, year, &opt);
       }
@@ -2940,7 +2939,7 @@ int main (int argc, char *argv[])
           // and document why =13 in same discussio
           // as where explained =12
           opt.three_month = 13;
-         print_border( opt );
+         print_separator( opt );
       }
     }
     else
