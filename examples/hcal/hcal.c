@@ -184,6 +184,9 @@ typedef struct {
   int h_year_2;
 } header_info;
 
+bool in_first_line_prev = FALSE; // UGH! Temporary global debug variable
+bool in_next = FALSE; // UGH! Temporary global debug variable
+
 static const char* hcal_config_file_text = N_("\
 # configuration file for hcal - Hebrew calendar program\n\
 # part of package libhdate\n\
@@ -1347,6 +1350,15 @@ void print_day ( const hdate_struct h, const int month, option_list* opt, const 
   *****************************************************/
   void print_hebrew()
   {
+		// We begin with one of several unfortunate kludges to compensate for
+    // how most terminal emulators handle bidi. Here, we check for
+    // Sunday being the 14th of the month, in which case the final day
+    // of the week is 20, a single-character Hebrew representation.
+    // Since it will appear left-most, our kludge needs to insert a
+    // space before Sunday the 14th.
+ 		if ((h.hd_dw == 1) && (h.hd_day ==14) && (! opt->mlterm))
+      printf(" ");
+
     /*************************************************
     *  Hebrew date entry - color prefix
     *************************************************/
@@ -1410,8 +1422,8 @@ void print_day ( const hdate_struct h, const int month, option_list* opt, const 
   if ( ( (opt->gregorian >  1)  && (h.gd_mon != month) ) ||
        ( (opt->gregorian == 1)  && (h.hd_mon != month) ) )
     printf("     ");
-  else if ( (opt->gregorian == 0) && (h.hd_mon != month) )
-		printf("  ");
+  else if ( (opt->gregorian == 0) && (h.hd_mon != month))
+		{ if (! in_first_line_prev) printf("  "); }
   //  in month - print the data
   else
   {
@@ -1814,6 +1826,8 @@ int print_calendar ( int current_month, int current_year, option_list* opt)
   *  maximum six lines of calendar
   **************************************************/
 
+  if ((opt->three_month) && (! opt->mlterm))
+		in_first_line_prev = TRUE;
   for (calendar_line = max_calendar_lines; calendar_line > 0; calendar_line--)
   {
     if (opt->html) printf ("<tr>\n");
@@ -1842,6 +1856,7 @@ int print_calendar ( int current_month, int current_year, option_list* opt)
       if (opt->three_month != 12)
       {
         print_week(jd_next_month, next_month, opt, calendar_line);
+				in_first_line_prev = FALSE;
         jd_next_month = jd_next_month + 7;
       }
     }
