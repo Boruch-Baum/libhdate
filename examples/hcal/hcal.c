@@ -29,6 +29,7 @@
 #include <support.h>	/// libhdate general macros, including for gettext
 #include <stdio.h>		/// For printf
 #include <stdlib.h>		/// For atoi, malloc
+#include <stdbool.h>  /// For boolean type
 #include <locale.h>		/// For setlocale
 #include <getopt.h>		/// For getopt_long
 #include <string.h>		/// For strlen, mempcpy
@@ -144,6 +145,7 @@ typedef struct {
   int not_sunset_aware;
   int quiet_alerts;
   int bidi;
+  bool mlterm;
   double lat;
   double lon;
   double tz_lon;      // for sanity checking against user-entered longitude
@@ -1365,14 +1367,16 @@ void print_day ( const hdate_struct h, const int month, option_list* opt, const 
       // need to pad Hebrew dates 1-10, 20, 30 with spaces
 			if (h.hd_day < 11)
 			{
-				if ((h.hd_dw == 1) &&  (h.hd_day > 4))
+				if ((h.hd_dw == 1) && (h.hd_day > 4) && (! opt->mlterm))
+  				// This is an unfortunate kludge to compensate for how most
+	  			// terminal emulators handle bidi.
 					printf("%s",hd_day_str);
+				else
+					printf ("%s%s"," ",hd_day_str);
 				// This is an unfortunate kludge to compensate for how most
 				// terminal emulators handle bidi.
-				else printf ("%s%s"," ",hd_day_str);
-				// This is an unfortunate kludge to compensate for how most
-				// terminal emulators handle bidi.
-				if (h.hd_day == 10) printf(" ");
+				if ((! opt->mlterm) && (h.hd_day == 10))
+				  printf(" ");
 			}
 			else if ( (h.hd_day == 20) || (h.hd_day == 30) )
 				printf ("%s%s",hd_day_str," ");
@@ -1419,7 +1423,9 @@ void print_day ( const hdate_struct h, const int month, option_list* opt, const 
 void print_last_line_padding ( int jd )
 // Calculate padding for trailing days out-of-month. ie. for the final
 // calendar line. This is an unfortunate kludge to compensate for how
-// most terminal emulators handle bidi.
+// most terminal emulators handle bidi. Limit use of this kludge to
+// condition option mlterm == FALSE, checked currently by callers to
+// this function.
 //
 // JD :: The Julian day number for the first Hebrew column of the last
 //       line, ie. the final Sunday of the Hebrew month
@@ -1478,6 +1484,7 @@ void print_week( int jd, const int month, option_list* opt, int final_line)
 
 	if ( (final_line == 1) &&
 			 (! opt->three_month) &&  // FIXME !!
+			 (! opt->mlterm) &&
 			 ( (opt->force_hebrew) || (hdate_is_hebrew_locale()) ) )
 		print_last_line_padding( jd );
 
@@ -1805,7 +1812,7 @@ int print_calendar ( int current_month, int current_year, option_list* opt)
 
     if (opt->three_month)
     {
-			if (calendar_line == 1)
+			if ((! opt->mlterm) && (calendar_line == 1))
 				// insert here padding for final calendar line of
 				// "next_month", ie. third of the three months. This is an
 				// unfortunate kludge to compensate for how most terminal
@@ -2390,10 +2397,11 @@ int hcal_parser( const int switch_arg, option_list *opt,
                 opt->spacing = default_borders_spacing;
                 opt->separator = default_borders_separator;
                 break;
-/** --prefer-hebrew    */  case 30: opt->prefer_hebrew = TRUE;
-/** --prefer-gregorian  */  case 31: opt->prefer_hebrew = FALSE;
+/** --prefer-hebrew    */  case 30: opt->prefer_hebrew = TRUE; break;
+/** --prefer-gregorian  */  case 31: opt->prefer_hebrew = FALSE; break;
 /** --bold              */  case 32: break;
 /** --usage             */  case 33: break;
+/** --mlterm           */   case 34: opt->mlterm = TRUE; break;
     } // end switch for long_options
     break;
 
@@ -2508,6 +2516,7 @@ int main (int argc, char *argv[])
   opt.force_israel = 0;    // override diaspora-awareness
   opt.not_sunset_aware = 0;  // override sunset-awareness
   opt.quiet_alerts = 0;
+	opt.mlterm = FALSE;        // use bidi kludges to attempt to display things nicely
 
   opt.lat = BAD_COORDINATE;
   opt.lon = BAD_COORDINATE;
@@ -2631,6 +2640,7 @@ int main (int argc, char *argv[])
     {"prefer-gregorian", no_argument, 0, 0},
     {"bold", no_argument, 0, 'B'},
     {"usage", no_argument, 0, '?'},
+    {"mlterm", no_argument, 0, 0},
     {0, 0, 0, 0}
     };
 
