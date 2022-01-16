@@ -1,3 +1,33 @@
+2022-01-16  Boruch Baum  <boruch_baum@gmx.com>
+
+	* examples/hcal/hcal.c () Apply kludges to handle terminal emulators
+		with bad bidi support. Add option --mlterm for strictly correct
+		bidi suppport. Remove option --spacing as ugly. Convert many
+		integer variables to boolean.
+
+2022-01-12  Boruch Baum  <boruch_baum@gmx.com>
+
+	* src/zdump3.c () Fix logic, especially for non-integer time zones.
+
+	* examples/hcal/custom_days.c () set uniform symbol for Israeli
+		national days.
+
+2022-01-11  Boruch Baum  <boruch_baum@gmx.com>
+
+	* examples/hcal/hdate.c () Correct quiet options for correct levels
+		of message suppression. Remove compiler warnings. Set short form of
+		Shabbat to zayin. Fix omer display. Update colophons and urls.
+		Correct and update configure/make (thanks, Madhi!), fix time zone
+		handling code.
+
+2018-08-22  Boruch Baum  <boruch_baum@gmx.com>
+
+	* USE: Update and correct usage example.
+
+2018-08-27  Boruch Baum  <boruch_baum@gmx.com>
+
+	* INSTALL: File removed. Content transferred to README
+
 2018-08-22  Boruch Baum  <boruch_baum@gmx.com>
 
 	* examples/hcal/hcal.c (print_footnote): bugfix print bidi
