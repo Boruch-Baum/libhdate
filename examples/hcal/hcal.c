@@ -1362,7 +1362,8 @@ void print_day ( const hdate_struct h, const int month, option_list* opt, const 
     // of the week is 20, a single-character Hebrew representation.
     // Since it will appear left-most, our kludge needs to insert a
     // space before Sunday the 14th.
- 		if ((h.hd_dw == 1) && (h.hd_day ==14) && (! opt->mlterm))
+ 		if ((h.hd_dw == 1) && (h.hd_day ==14) && (! opt->mlterm)
+				&& ( (opt->force_hebrew) || (hdate_is_hebrew_locale()) ))
       printf(" ");
 
     /*************************************************
@@ -1422,14 +1423,21 @@ void print_day ( const hdate_struct h, const int month, option_list* opt, const 
   ******************************************************
   *****************************************************/
 
-  //  out of month - needs padding BUT NOT IF: this is the first (ie.
+  //  out-of-month - needs padding BUT NOT IF: this is the first (ie.
   //  "previous") month in a three month display and not in mlterm...
   //  (ie. we need a another bidi kludge here)
   if ( ( (opt->gregorian >  1)  && (h.gd_mon != month) ) ||
        ( (opt->gregorian == 1)  && (h.hd_mon != month) ) )
     printf("     ");
   else if ( (opt->gregorian == 0) && (h.hd_mon != month))
-		{ if (! in_first_line_prev) printf("  "); }
+	{
+		if ((opt->force_hebrew) || (hdate_is_hebrew_locale()))
+    {
+			if (! in_first_line_prev) printf("  ");
+		}
+		else
+			printf("  ");
+	}
   //  in month - print the data
   else
   {
@@ -1476,38 +1484,35 @@ void print_last_line_padding ( int jd )
 *************************************************/
 void print_week( int jd, const int month, option_list* opt, int final_line)
 {
-  #define long_parasha_name 0
   hdate_struct h;
+  hdate_struct yom_shishi;
   int calendar_column;
   // for opt->shabbat and opt->parasha
-  hdate_struct yom_shishi;
-  // for opt->shabbat
-  int sun_hour, first_light, talit, sunrise;
-  int midday, sunset, first_stars, three_stars;
-  int this_week;
-  // for opt->parasha
-  int shabbat_name;
-  char *shabbat_name_str, *shabbat_name_buffer;
-  size_t shabbat_name_str_len;
-  // for bidi column alignment
-  int print_len;
 
-  /*****************************************************
-  *  embedded sub-function: do_calendar_column()
-  *****************************************************/
-  void do_calendar_column()
-  {
-    hdate_set_jd (&h, jd);
-    if ( ((opt->shabbat) || (opt->parasha)) && (calendar_column == 5) )
-      yom_shishi = h;
-    if (opt->html) html_print_day ( h, month, opt );
-    else print_day ( h, month, opt, FALSE, NULL);
-    if (calendar_column != 6)  printf (" ");
-  }
-  /*****************************************************
-  *  END: embedded sub-function: do_calendar_column()
-  *****************************************************/
+  /* BEGIN: embedded sub-function: do_calendar_column() */
+  /**/ void do_calendar_column()
+  /**/ {
+  /**/   hdate_set_jd (&h, jd);
+  /**/   if ( ((opt->shabbat) || (opt->parasha)) && (calendar_column == 5) )
+  /**/     yom_shishi = h;
+  /**/   if (opt->html) html_print_day ( h, month, opt );
+  /**/   else print_day ( h, month, opt, FALSE, NULL);
+  /**/   if (calendar_column != 6)  printf (" ");
+  /**/ }
+  /* END: embedded sub-function: do_calendar_column()   */
 
+// TODO: When ((!opt->mlterm) && ( (opt->force_hebrew) || (hdate_is_hebrew_locale()) ) )
+//  perform  print_shabbat_data first:
+//
+//  if ((!opt->html) && ((opt->shabbat) || (opt->parasha)))
+//  {
+//    hdate_set(&yom_shishi, jd) for jd of Friday
+//    hdate_set(&h, jd) for jd of Shabbat
+//		print_shabbat_data( jd, &h, &yom_shishi, opt);
+//  }
+
+  // This is one of a set of unfortunate kludges to compensate for how
+  // most terminal emulators handle bidi.
 	if ( (final_line == 1) &&
 			 (! opt->three_month) &&  // FIXME !!
 			 (! opt->mlterm) &&
@@ -1534,153 +1539,169 @@ void print_week( int jd, const int month, option_list* opt, int final_line)
       jd++;
     }
   }
-  if (!opt->html)
+
+  if ((!opt->html) && ((opt->shabbat) || (opt->parasha)))
+		print_shabbat_data( jd, &h, &yom_shishi, opt);
+}
+
+
+
+/*************************************************
+*  print a calendar week's Shabbat data
+*************************************************/
+// Parshat Ha'Shavua, candle-lighting, and tzeit Shabbat times
+void print_shabbat_data( int jd, hdate_struct* h, hdate_struct* yom_shishi, option_list* opt )
+{
+  #define long_parasha_name 0
+  // for opt->shabbat
+  int sun_hour, first_light, talit, sunrise;
+  int midday, sunset, first_stars, three_stars;
+  // for opt->parasha
+  int shabbat_name;
+  char *shabbat_name_str, *shabbat_name_buffer;
+  size_t shabbat_name_str_len;
+  // for bidi column alignment
+  int print_len;
+
+  // Highlight current week's line specially
+  bool this_week = (((jd - 1) > opt->jd_today_h) && (((jd - 1) - opt->jd_today_h) < 7) )
+		               ? TRUE : FALSE;
+
+  /*************************************************
+  *  print Shabbat times
+  *************************************************/
+  if (opt->shabbat)
   {
-    /********************************************************
-    *  determine whether this line gets special highlighting
-    ********************************************************/
-    if (   ((opt->shabbat) || (opt->parasha))
-      && ((jd - 1) > opt->jd_today_h)
-      && (((jd - 1) - opt->jd_today_h) < 7) )
-        this_week = TRUE;
-    else  this_week = FALSE;
+    // motzei Shabbat time
+    hdate_get_utc_sun_time_full (h->gd_day, h->gd_mon, h->gd_year, opt->lat,
+                   opt->lon, &sun_hour, &first_light, &talit,
+                   &sunrise, &midday, &sunset,
+                   &first_stars, &three_stars);
+    // FIXME - allow for further minhag variation
+    if (opt->havdalah != 1) three_stars = sunset + opt->havdalah;
+    // else three_stars = three_stars;
 
-    /*************************************************
-    *  print shabbat times
-    *************************************************/
-    if (opt->shabbat)
+    // candlelighting times
+    hdate_get_utc_sun_time (yom_shishi->gd_day, yom_shishi->gd_mon, yom_shishi->gd_year,
+                opt->lat, opt->lon, &sunrise, &sunset);
+    // FIXME - allow for further minhag variation
+    if (opt->candles != 1) sunset = sunset - opt->candles;
+    else sunset = sunset - DEFAULT_CANDLES_MINUTES;
+
+
+    // convert havdalah and candlelighting time to epoch time
+    // This next snippet is very similar to
+    // one in local_functions.c : get_epoch_time_range()
+    char * original_system_timezone_string = getenv("TZ");
+    struct tm tmx;
+    time_t sunset_epoch_time;
+    time_t three_stars_epoch_time;
+    tmx.tm_sec = 0;
+    tmx.tm_min = sunset%60;
+    tmx.tm_hour = sunset/60;
+    tmx.tm_mday = yom_shishi->gd_day;
+    tmx.tm_mon =  yom_shishi->gd_mon - 1;
+    tmx.tm_year = yom_shishi->gd_year - 1900;
+    tmx.tm_wday = 0;
+    tmx.tm_yday = 0;
+    tmx.tm_isdst = 0;
+    // per man 3 tzset "If the TZ variable does appear in the environment
+    // but its value is empty ... (UTC) is used"
+    setenv("TZ", "", 1);
+    tzset();
+    sunset_epoch_time = mktime(&tmx);
+    tmx.tm_sec = 0;
+    tmx.tm_min = three_stars%60;
+    tmx.tm_hour = three_stars/60;
+    tmx.tm_mday = h->gd_day;
+    tmx.tm_mon =  h->gd_mon - 1;
+    tmx.tm_year = h->gd_year - 1900;
+    three_stars_epoch_time  = mktime(&tmx);
+    if (original_system_timezone_string)
     {
-      // motzay shabat time
-      hdate_get_utc_sun_time_full (h.gd_day, h.gd_mon, h.gd_year, opt->lat,
-                     opt->lon, &sun_hour, &first_light, &talit,
-                     &sunrise, &midday, &sunset,
-                     &first_stars, &three_stars);
-      // FIXME - allow for further minhag variation
-      if (opt->havdalah != 1) three_stars = sunset + opt->havdalah;
-      // else three_stars = three_stars;
-
-      // candlelighting times
-      hdate_get_utc_sun_time (yom_shishi.gd_day, yom_shishi.gd_mon, yom_shishi.gd_year,
-                  opt->lat, opt->lon, &sunrise, &sunset);
-      // FIXME - allow for further minhag variation
-      if (opt->candles != 1) sunset = sunset - opt->candles;
-      else sunset = sunset - DEFAULT_CANDLES_MINUTES;
-
-
-      // convert havdalah and candlelighting time to epoch time
-      // This next snippet is very similar to
-      // one in local_functions.c : get_epoch_time_range()
-      char * original_system_timezone_string = NULL;
-      struct tm tmx;
-      time_t sunset_epoch_time;
-      time_t three_stars_epoch_time;
-      tmx.tm_sec = 0;
-      tmx.tm_min = sunset%60;
-      tmx.tm_hour = sunset/60;
-      tmx.tm_mday = yom_shishi.gd_day;
-      tmx.tm_mon =  yom_shishi.gd_mon - 1;
-      tmx.tm_year = yom_shishi.gd_year - 1900;
-      tmx.tm_wday = 0;
-      tmx.tm_yday = 0;
-      tmx.tm_isdst = 0;
-      original_system_timezone_string = getenv("TZ");
-      // per man 3 tzset "If the TZ variable does appear in the environment
-      // but its value is empty ... (UTC) is used"
-      setenv("TZ", "", 1);
+      setenv("TZ", original_system_timezone_string, 1);
       tzset();
-      sunset_epoch_time = mktime(&tmx);
-      tmx.tm_sec = 0;
-      tmx.tm_min = three_stars%60;
-      tmx.tm_hour = three_stars/60;
-      tmx.tm_mday = h.gd_day;
-      tmx.tm_mon =  h.gd_mon - 1;
-      tmx.tm_year = h.gd_year - 1900;
-      three_stars_epoch_time  = mktime(&tmx);
-      if (original_system_timezone_string)
-      {
-        setenv("TZ", original_system_timezone_string, 1);
-        tzset();
-      }
-      sunset = sunset + get_tz_adjustment( sunset_epoch_time,
-                      opt->tz, &opt->tzif_index,
-                      opt->tzif_entries, opt->tzif_data );
-      three_stars = three_stars + get_tz_adjustment(three_stars_epoch_time,
-                      opt->tz, &opt->tzif_index,
-                      opt->tzif_entries, opt->tzif_data );
-
-
-      // print candleligting time
-      if (opt->colorize)
-      {
-        if (this_week) colorize_element(opt->colorize, ELEMENT_THIS_SHABBAT_TIMES);
-        else colorize_element(opt->colorize, ELEMENT_SHABBAT_TIMES);
-      }
-      else if (this_week) printf(CODE_BOLD_VIDEO);
-        printf ("  %02d:%02d", sunset / 60, sunset % 60);
-      if ( (opt->colorize) || (this_week) ) printf (CODE_RESTORE_VIDEO);
-
-      printf(" - ");
-
-      // print havdalah time
-      if (opt->colorize)
-      {
-        if (this_week) colorize_element(opt->colorize, ELEMENT_THIS_SHABBAT_TIMES);
-        else colorize_element(opt->colorize, ELEMENT_SHABBAT_TIMES);
-      }
-      else if (this_week) printf(CODE_BOLD_VIDEO);
-      printf ("%02d:%02d", three_stars / 60, three_stars % 60);
-      if ( (opt->colorize) || (this_week) ) printf (CODE_RESTORE_VIDEO);
     }
+    sunset = sunset + get_tz_adjustment( sunset_epoch_time,
+                    opt->tz, &opt->tzif_index,
+                    opt->tzif_entries, opt->tzif_data );
+    three_stars = three_stars + get_tz_adjustment(three_stars_epoch_time,
+                    opt->tz, &opt->tzif_index,
+                    opt->tzif_entries, opt->tzif_data );
 
+
+    // print candleligting time
+    if (opt->colorize)
+    {
+      if (this_week) colorize_element(opt->colorize, ELEMENT_THIS_SHABBAT_TIMES);
+      else colorize_element(opt->colorize, ELEMENT_SHABBAT_TIMES);
+    }
+    else if (this_week) printf(CODE_BOLD_VIDEO);
+      printf ("  %02d:%02d", sunset / 60, sunset % 60);
+    if ( (opt->colorize) || (this_week) ) printf (CODE_RESTORE_VIDEO);
+
+    printf(" - ");
+
+    // print havdalah time
+    if (opt->colorize)
+    {
+      if (this_week) colorize_element(opt->colorize, ELEMENT_THIS_SHABBAT_TIMES);
+      else colorize_element(opt->colorize, ELEMENT_SHABBAT_TIMES);
+    }
+    else if (this_week) printf(CODE_BOLD_VIDEO);
+    printf ("%02d:%02d", three_stars / 60, three_stars % 60);
+    if ( (opt->colorize) || (this_week) ) printf (CODE_RESTORE_VIDEO);
+  }
+
+
+  /*************************************************
+  *  print Shabbat name
+  *************************************************/
+  if (opt->parasha)
+  {
 
     /*************************************************
-    *  print shabbat name
+    *  print shabbat name - force-hebrew setup
     *************************************************/
-    if (opt->parasha)
+    shabbat_name = hdate_get_parasha (h, opt->diaspora);
+    if (shabbat_name) shabbat_name_str =
+        hdate_string( HDATE_STRING_PARASHA, shabbat_name,
+                HDATE_STRING_SHORT, opt->force_hebrew | opt->bidi);
+    else
     {
-
-      /*************************************************
-      *  print shabbat name - force-hebrew setup
-      *************************************************/
-      shabbat_name = hdate_get_parasha (&h, opt->diaspora);
+      shabbat_name = hdate_get_halachic_day(h, opt->diaspora);
       if (shabbat_name) shabbat_name_str =
-          hdate_string( HDATE_STRING_PARASHA, shabbat_name,
-                  HDATE_STRING_SHORT, opt->force_hebrew | opt->bidi);
-      else
+        hdate_string( HDATE_STRING_HOLIDAY,
+            shabbat_name,
+            HDATE_STRING_SHORT, opt->force_hebrew | opt->bidi);
+    }
+    if (shabbat_name)
+    {
+      if (opt->colorize)
       {
-        shabbat_name = hdate_get_halachic_day(&h, opt->diaspora);
-        if (shabbat_name) shabbat_name_str =
-          hdate_string( HDATE_STRING_HOLIDAY,
-              shabbat_name,
-              HDATE_STRING_SHORT, opt->force_hebrew | opt->bidi);
+        if (this_week) colorize_element(opt->colorize, ELEMENT_THIS_PARASHA);
+        else colorize_element(opt->colorize, ELEMENT_PARASHA);
       }
-      if (shabbat_name)
+      else if (this_week) printf(CODE_BOLD_VIDEO);
+
+      if (opt->bidi)
       {
-        if (opt->colorize)
-        {
-          if (this_week) colorize_element(opt->colorize, ELEMENT_THIS_PARASHA);
-          else colorize_element(opt->colorize, ELEMENT_PARASHA);
-        }
-        else if (this_week) printf(CODE_BOLD_VIDEO);
-
-        if (opt->bidi)
-        {
-          shabbat_name_str_len = strlen(shabbat_name_str);
-          shabbat_name_buffer = malloc(shabbat_name_str_len+1);
-          memcpy(shabbat_name_buffer, shabbat_name_str, shabbat_name_str_len);
-          shabbat_name_buffer[shabbat_name_str_len] = '\0';
-          print_len = revstr(shabbat_name_buffer, shabbat_name_str_len);
-          #define SHABBAT_MARGIN_MAX 16
-          printf("%*s%s", (SHABBAT_MARGIN_MAX - print_len)," ", shabbat_name_buffer);
-          free(shabbat_name_buffer);
-        }
-        else printf("  %s", shabbat_name_str);
-
-        if ( (opt->colorize) || (this_week) ) printf (CODE_RESTORE_VIDEO);
+        shabbat_name_str_len = strlen(shabbat_name_str);
+        shabbat_name_buffer = malloc(shabbat_name_str_len+1);
+        memcpy(shabbat_name_buffer, shabbat_name_str, shabbat_name_str_len);
+        shabbat_name_buffer[shabbat_name_str_len] = '\0';
+        print_len = revstr(shabbat_name_buffer, shabbat_name_str_len);
+        #define SHABBAT_MARGIN_MAX 16
+        printf("%*s%s", (SHABBAT_MARGIN_MAX - print_len)," ", shabbat_name_buffer);
+        free(shabbat_name_buffer);
       }
+      else printf("  %s", shabbat_name_str);
+
+      if ( (opt->colorize) || (this_week) ) printf (CODE_RESTORE_VIDEO);
     }
   }
 }
+
 
 
 /*************************************************************
@@ -1832,7 +1853,8 @@ int print_calendar ( int current_month, int current_year, option_list* opt)
   *  maximum six lines of calendar
   **************************************************/
 
-  if ((opt->three_month) && (! opt->mlterm))
+  if ((opt->three_month) && (! opt->mlterm)
+     && ( (opt->force_hebrew) || (hdate_is_hebrew_locale()) ))
 		in_first_line_prev = TRUE;
   for (calendar_line = max_calendar_lines; calendar_line > 0; calendar_line--)
   {
@@ -1840,7 +1862,8 @@ int print_calendar ( int current_month, int current_year, option_list* opt)
 
     if (opt->three_month)
     {
-			if ((! opt->mlterm) && (calendar_line == 1))
+			if ((! opt->mlterm) && (calendar_line == 1)
+					&& ( (opt->force_hebrew) || (hdate_is_hebrew_locale()) ))
 				// insert here (prior to printing final calendar line of
 				// "previous month") padding for final calendar line of
 				// "next_month", ie. third of the three months. This is an
