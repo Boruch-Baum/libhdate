@@ -817,7 +817,10 @@ void print_month_line( const header_info header, const option_list* opt )
   *  print padding
   ****************************************************/
   if ( (opt->gregorian == 0) && (opt->three_month) )
-    printf("%*s",((padding-1)/2)," ");
+    if (header.h_month_1 == 14) // Adar II
+			printf("%*s",((padding-1)/2)-1," ");
+    else
+			printf("%*s",((padding-1)/2)," ");
 }
 
 
