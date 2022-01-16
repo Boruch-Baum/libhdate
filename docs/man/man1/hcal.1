@@ -22,19 +22,21 @@ hcal \- displays a Hebrew / Gregorian calendar
 .SH "SYNOPSIS"
 .B hcal
 .RI [ options "] [" coordinates "] [" timezone "] [" datespec ]
-.TP
+
+.br
+.RS 5
 .IR coordinates\: " \fB\-l\fP [N|S]" yy [. yyy "] " "    \fB\-L\fP" " [E|W]" xx [. xxx ]
 .RE
-.RS 19
+.RS 17
 .RI "\fB\-l\fP [N|S]" yy [: mm [: ss "]] \fB\-L\fP [E|W]" xx [: mm [: ss ]]
 .RE
-.RS 7
+.RS 5
 .IR "timezone:   \fB\-z\fP nn" "[(."nn |: mm ")]"
 .RE
-.RS 19
+.RS 17
 .RI "\fB\-z\fP [" timezone_name "] (see below)"
 .RE
-.RS 7
+.RS 5
 .IR datespec ":   see section \fBACCEPTABLE DATE FORMATS\fP"
 .PP
 .SH "DESCRIPTION"
@@ -82,7 +84,9 @@ display a separator between months in three-month mode
 
 .TP 18
 .B \ \ \ \-\-mlterm
-use proper bidi, without kludges necessary for most terminal emulators
+use proper BIDI, without the kludges that are necessary for most
+terminal emulators. \fBmlterm\fP itself should be auto-detected; This
+option is for other BIDI/RTL compliant emulators.
 .TP 18
 .B \-B \-\-bold
 display special days in boldface, no color
@@ -255,6 +259,18 @@ If ${\fIXDG_CONFIG_HOME\fP} is undefined:
 
 .I ~/.config/hcal/custom_days
 .SH "BUGS"
+.TP 10
+.B Column alignment, especially in three-month view
+Because most terminal emulators (with the notable exception of
+\fBmlterm\fP) do not properly support BIDI and RTL languages, kludges were
+needed to be implemented in order to properly present calendar data.
+In many cases, these succeeded. A notable exception is three-month
+wide presentation. For terminal emulators that do not properly support
+BIDI and RTL languages, the mis-alignment can be mitigated by use of
+option \fB--borders\fP. If you think your terminal emulator doesn't
+need the kludges, specify option \fB--mlterm\fP. If you are using
+\fBmlterm\fP, \fBhcal\fP should auto-detect it based upon queryng the
+\fBMLTERM\fP environment variable.
 .TP 10
 .B Accuracy
 The accuracy of the astronomically-derived data will suffer from not accounting for environmental conditions such as elevation, horizon, temperature and air pressure.
