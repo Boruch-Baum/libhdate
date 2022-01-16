@@ -912,30 +912,34 @@ int hmonth_next( const int month, const hdate_struct * h )
  *************************************************/
 void print_border( const option_list opt )
 {
-  int calendar_width = CALENDAR_WIDTH_WIDE;
-  int i;
-
-  if (!opt.gregorian) calendar_width = CALENDAR_WIDTH_NARROW;
-  if (opt.three_month == 1)
-  {
-    for (i=0 ; i < calendar_width; i++) printf("%s",opt.separator);
-    printf("%s", opt.spacing);
-    for (i=0 ; i < calendar_width; i++) printf("%s",opt.separator);
-    printf("%s", opt.spacing);
-    for (i=0 ; i < calendar_width; i++) printf("%s",opt.separator);
-    printf("\n");
-  }
-  else
-  {
-    if (opt.three_month == 12) printf("%*s%s", calendar_width," ", opt.spacing);
-    else
-    {
-      for (i=0 ; i < calendar_width; i++) printf("%s",opt.separator);
-      printf("%s", opt.spacing);
-    }
-    for (i=0 ; i < calendar_width; i++) printf("%s",opt.separator);
-    printf("%s\n", opt.spacing);
-  }
+// BB 2022-01-16: I'm deciding to remove this feature as not visually
+//                appealing and just more weird bidi work to do.
+  printf("\n");
+//  int calendar_width = CALENDAR_WIDTH_WIDE;
+//  int i;
+//
+//  if (!opt.gregorian) calendar_width = CALENDAR_WIDTH_NARROW;
+//  if (opt.three_month == 1)
+//  {
+//    for (i=0 ; i < calendar_width; i++) printf("%s",opt.separator);
+//    printf("%s", opt.spacing);
+//    for (i=0 ; i < calendar_width; i++) printf("%s",opt.separator);
+//    printf("%s", opt.spacing);
+//    for (i=0 ; i < calendar_width; i++) printf("%s",opt.separator);
+//    printf("\n");
+//  }
+//  else
+//  {
+//    if (opt.three_month == 12)
+//			printf("%*s%s", calendar_width," ", opt.spacing);
+//    else
+//    {
+//      for (i=0 ; i < calendar_width; i++) printf("%s",opt.separator);
+//      printf("%s", opt.spacing);
+//    }
+//    for (i=0 ; i < calendar_width; i++) printf("%s",opt.separator);
+//    printf("%s\n", opt.spacing);
+//  }
   return;
 }
 
@@ -2390,7 +2394,14 @@ int hcal_parser( const int switch_arg, option_list *opt,
         }
       }
       break;
-/** --spacing */      case 26: opt->spacing = optarg; break;
+/** --spacing */      case 26:
+			opt->spacing = optarg;
+			// BB 2022-01-16: I'm deciding to remove this feature as not
+			//                visually appealing and just more weird bidi
+			//                work to do.
+			error_detected++;
+			print_option_unknown_error("spacing");
+			break;
 /** --gregorian */      case 27: break;
 /** --no-gregorian */    case 28: break;
 /** --borders      */    case 29: opt->three_month = 1;
