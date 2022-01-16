@@ -2547,8 +2547,7 @@ int main (int argc, char *argv[])
   opt.force_israel = 0;    // override diaspora-awareness
   opt.not_sunset_aware = 0;  // override sunset-awareness
   opt.quiet_alerts = 0;
-	opt.mlterm = FALSE;        // use bidi kludges to attempt to display things nicely
-
+	opt.mlterm = getenv("MLTERM") ? TRUE: FALSE;
   opt.lat = BAD_COORDINATE;
   opt.lon = BAD_COORDINATE;
   // explain why the duplication of these next variables
