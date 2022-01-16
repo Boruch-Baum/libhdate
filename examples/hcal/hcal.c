@@ -1373,7 +1373,7 @@ void print_day ( const hdate_struct h, const int month, option_list* opt, const 
       // need to pad Hebrew dates 1-10, 20, 30 with spaces
 			if (h.hd_day < 11)
 			{
-				if ((h.hd_dw == 1) && (h.hd_day > 4) && (! opt->mlterm))
+				if ((h.hd_dw == 1) && (h.hd_day > 3) && (! opt->mlterm))
   				// This is an unfortunate kludge to compensate for how most
 	  			// terminal emulators handle bidi.
 					printf("%s",hd_day_str);
@@ -1404,7 +1404,9 @@ void print_day ( const hdate_struct h, const int month, option_list* opt, const 
   ******************************************************
   *****************************************************/
 
-  //  out of month - needs padding
+  //  out of month - needs padding BUT NOT IF: this is the first (ie.
+  //  "previous") month in a three month display and not in mlterm...
+  //  (ie. we need a another bidi kludge here)
   if ( ( (opt->gregorian >  1)  && (h.gd_mon != month) ) ||
        ( (opt->gregorian == 1)  && (h.hd_mon != month) ) )
     printf("     ");
@@ -1819,7 +1821,8 @@ int print_calendar ( int current_month, int current_year, option_list* opt)
     if (opt->three_month)
     {
 			if ((! opt->mlterm) && (calendar_line == 1))
-				// insert here padding for final calendar line of
+				// insert here (prior to printing final calendar line of
+				// "previous month") padding for final calendar line of
 				// "next_month", ie. third of the three months. This is an
 				// unfortunate kludge to compensate for how most terminal
 				// emulators handle bidi.
