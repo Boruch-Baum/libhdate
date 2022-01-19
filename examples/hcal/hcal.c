@@ -144,6 +144,7 @@ typedef struct {
   bool not_sunset_aware;
   bool quiet_alerts; // maybe change to int to be consistent with hdate?
   bool bidi;
+  bool tmux_bidi;
   bool mlterm;
   double lat;
   double lon;
@@ -286,6 +287,11 @@ VERSION=2.00\n\
 # setting MLTERM_ISH to true will avoid using presentation kludges and improve\n\
 # column alignment, especially for three-month wide output.  \n\
 #MLTERM_ISH=FALSE\n\n\
+# TMUX  bidi and RTL trouble\n\
+# If you're using tmux or screen, hcsl should be able to auto-detect it, and\n\
+# will apply padding kludges to try to make the presentation proper. You can\n\
+# over-ride that detection here.\n\
+#TMUX_BIDI=FALSE\n\n\
 # Display enhancements\n\
 # hcal defaults to display the current day in reverse video\n\
 # The command line option for this feature is --no-reverse\n\
@@ -1318,13 +1324,15 @@ void day ( const hdate_struct* h, const int month, option_list* opt, const int p
   *****************************************************/
   void hebrew()
   {
-		// We begin with one of several unfortunate kludges to compensate for
-    // how most terminal emulators handle bidi. Here, we check for
-    // Sunday being the 14th of the month, in which case the final day
-    // of the week is 20, a single-character Hebrew representation.
-    // Since it will appear left-most, our kludge needs to insert a
-    // space before Sunday the 14th.
- 		if ((h->hd_dw == 1) && (h->hd_day ==14) && (! opt->mlterm)
+		// We begin with one of several unfortunate kludges to compensate
+    // for how tmux handles bidi. Here, we check for Sunday being the
+    // 14th of the month, in which case the final day of the week is
+    // 20, a single-character Hebrew representation. Since it will
+    // appear left-most, our kludge needs to insert a space before
+    // Sunday the 14th.
+ 		if ((h->hd_dw == 1) && (h->hd_day ==14)
+				&& (! opt->mlterm) // FIXME: this condition might not be necessary
+				&& (opt->tmux_bidi)
 				&& ( (opt->force_hebrew) || (hdate_is_hebrew_locale()) ))
       printf(" ");
 
@@ -1354,15 +1362,19 @@ void day ( const hdate_struct* h, const int month, option_list* opt, const int p
       // need to pad Hebrew dates 1-10, 20, 30 with spaces
 			if (h->hd_day < 11)
 			{
-				if ((h->hd_dw == 1) && (h->hd_day > 3) && (! opt->mlterm))
+				if ((h->hd_dw == 1) && (h->hd_day > 3)
+						&& (! opt->mlterm)  // FIXME: not certain this condition is necessary
+						&& (opt->tmux_bidi) )
   				// This is an unfortunate kludge to compensate for how most
-	  			// terminal emulators handle bidi.
+	  			// terminal emulators (update: maybe just tmux?) handle bidi.
 					printf("%s",hd_day_str);
 				else
 					printf("%s%s"," ",hd_day_str);
 				// This is an unfortunate kludge to compensate for how most
-				// terminal emulators handle bidi.
-				if ((! opt->mlterm) && (h->hd_day == 10))
+				// terminal emulators (update: maybe just tmux?) handle bidi.
+				if ((opt->tmux_bidi)
+						&& (! opt->mlterm)  // FIXME: not certain this condition is necessary
+						&& (h->hd_day == 10))
 				  printf(" ");
 			}
 			else if ( (h->hd_day == 20) || (h->hd_day == 30) )
@@ -1419,9 +1431,9 @@ void day ( const hdate_struct* h, const int month, option_list* opt, const int p
 void last_line_padding ( int jd )
 // Calculate padding for trailing days out-of-month. ie. for the final
 // calendar line. This is an unfortunate kludge to compensate for how
-// most terminal emulators handle bidi. Limit use of this kludge to
-// condition option mlterm == FALSE, checked currently by callers to
-// this function.
+// most terminal emulators (update: or is it just tmux?) handle bidi.
+// Limit use of this kludge to condition option mlterm == FALSE,
+// checked currently by callers to this function.
 //
 // JD :: The Julian day number for the first Hebrew column of the last
 //       line, ie. the final Sunday of the Hebrew month
@@ -1473,11 +1485,12 @@ void week( int jd, const int month, option_list* opt, int final_line)
 //		shabbat_data( jd, &h, &yom_shishi, opt);
 //  }
 
-  // This is one of a set of unfortunate kludges to compensate for how
-  // most terminal emulators handle bidi.
-	if ( (final_line == 1) &&
+  // This is one of a set of unfortunate kludges to compensate for tmux
+  // TERM=screen-*
+	if ( (opt->tmux_bidi) &&
+			 (final_line == 1) &&
 			 (! opt->three_month) &&  // FIXME !!
-			 (! opt->mlterm) &&
+			 (! opt->mlterm) &&       // FIXME: this condition may not be necessary
 			 ( (opt->force_hebrew) || (hdate_is_hebrew_locale()) ) )
 		last_line_padding( jd );
 
@@ -1824,13 +1837,15 @@ int calendar ( int current_month, int current_year, option_list* opt)
 
     if (opt->three_month)
     {
-			if ((! opt->mlterm) && (calendar_line == 1)
+			if ((opt->tmux_bidi)
+					&& (! opt->mlterm) // FIXME: This condition may not be necessary
+					&& (calendar_line == 1)
 					&& ( (opt->force_hebrew) || (hdate_is_hebrew_locale()) ))
 				// insert here (prior to printing final calendar line of
 				// "previous month") padding for final calendar line of
 				// "next_month", ie. third of the three months. This is an
 				// unfortunate kludge to compensate for how most terminal
-				// emulators handle bidi.
+				// emulators (update: maybe just tmux?) handle bidi.
 				last_line_padding( jd_next_month );
       week(jd_previous_month, previous_month, opt, calendar_line);
       jd_previous_month = jd_previous_month + 7;
@@ -2117,7 +2132,8 @@ void read_config_file(  FILE *config_file,
                 "PREFER_HEBREW",  //20
                 "BASE_YEAR_HEBREW",
                 "BASE_YEAR_GREGORIAN", //22
-								"MLTERM_ISH"
+								"MLTERM_ISH",
+                "TMUX_BIDI" //24
                 };
 //  TODO - parse these!
 //  opt.prefer_hebrew = TRUE;
@@ -2269,6 +2285,9 @@ void read_config_file(  FILE *config_file,
 //    MLTERM_ISH
     case 23: opt->mlterm = (strcmp(input_value,"FALSE") == 0) ? FALSE : TRUE;
         break;
+//    TMUX_BIDI
+    case 24: opt->tmux_bidi = (strcmp(input_value,"FALSE") == 0) ? FALSE : TRUE;
+        break;
 //  End of switch cases
 				    }
 				  }
@@ -2397,7 +2416,8 @@ int hcal_parser( const int switch_arg, option_list *opt,
 /** --prefer-gregorian  */  case 30: opt->prefer_hebrew = FALSE; break;
 /** --bold              */  case 31: break;
 /** --usage             */  case 32: break;
-/** --mlterm           */   case 33: opt->mlterm = TRUE; break;
+/** --mlterm            */  case 33: opt->mlterm = TRUE; break;
+/** --tmux-bidi         */  case 34: opt->tmux_bidi = TRUE; break;
     } // end switch for long_options
     break;
 
@@ -2512,6 +2532,7 @@ int main (int argc, char *argv[])
   opt.not_sunset_aware = FALSE;  // override sunset-awareness
   opt.quiet_alerts = FALSE;
 	opt.mlterm = getenv("MLTERM") ? TRUE: FALSE;
+	opt.tmux_bidi = (strstr( getenv("TERM"), "screen")) ? TRUE: FALSE;
   opt.lat = BAD_COORDINATE;
   opt.lon = BAD_COORDINATE;
   // explain why the duplication of these next variables
@@ -2634,6 +2655,7 @@ int main (int argc, char *argv[])
     {"bold", no_argument, 0, 'B'},
     {"usage", no_argument, 0, '?'},
     {"mlterm", no_argument, 0, 0},
+    {"tmux-bidi", no_argument, 0, 0},
     {0, 0, 0, 0}
     };
 
