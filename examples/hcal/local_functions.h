@@ -81,10 +81,10 @@ int parse_date( const char* parm_a, const char* parm_b, const char* parm_c,
 					 int* ret_year, int* ret_month, int* ret_day, const int parm_cnt,
 					 const int prefer_hebrew, const int base_year_h, const int base_year_g );
 
-void print_parm_error ( const char *parm_name );
-void print_parm_missing_error ( const char *parm_name );
-void print_option_unknown_error ( const char *parm_name );
-void print_config_file_create_error( int error_code, char* config_file_path );
+void parm_error ( const char *parm_name );
+void parm_missing_error ( const char *parm_name );
+void option_unknown_error ( const char *parm_name );
+void config_file_create_error( int error_code, char* config_file_path );
 
 int menu_select( char* menu_list[], int max_menu_items );
 int menu_item_parse(char* menuptr, size_t menu_len, int *menu_index,

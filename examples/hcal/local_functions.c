@@ -75,46 +75,46 @@ static char * no_timezone_entered_text = N_("no timezone entered");
 /************************************************************
 * begin - error message functions
 ************************************************************/
-void print_parm_error ( const char *parm_name )
+void parm_error ( const char *parm_name )
 {
   error(0,0,"%s: %s %s %s",error_text,
       N_("parameter"), parm_name,
       N_("is non-numeric or out of bounds"));
 }
 
-void print_parm_missing_error ( const char *parm_name )
+void parm_missing_error ( const char *parm_name )
 {
   error(0,0,"%s: %s %s %s",error_text,
       N_("option"), parm_name, N_("missing parameter"));
 }
 
-void print_option_unknown_error ( const char *parm_name )
+void option_unknown_error ( const char *parm_name )
 {
   error(0,0,"%s: %s%s",error_text,
       N_("unsupported option -"), parm_name);
 }
 
 
-void print_alert_tz( int tz )
+void alert_tz( int tz )
 {
   error(0,0,"%s: %s, %+d:%d UTC",
       N_("ALERT: time zone not entered, using current system UTC offset"),
       *tzname, tz/60, tz%60);
 }
 
-void print_alert_timezone( const char* tz_name_ptr )
+void alert_timezone( const char* tz_name_ptr )
 {
   error(0,0,"%s: %s",
       N_("ALERT: time zone not entered, using system local time zone"),
       tz_name_ptr);
 }
 
-void print_alert_using_utc_offset( const int utc_offset )
+void alert_using_utc_offset( const int utc_offset )
 {
   error(0,0,"%s %+.2f %s", N_("ALERT: time zone not entered, guessing UTC offset"), (double) utc_offset/60, N_("hours, based upon longitude") );
 }
 
-void print_alert_missing_coordinate( char* parm_name, double val, char* tz_name )
+void alert_missing_coordinate( char* parm_name, double val, char* tz_name )
 {
   error(0,0,"%s",
       N_("ALERT: coordinate not entered or invalid..."));
@@ -122,33 +122,33 @@ void print_alert_missing_coordinate( char* parm_name, double val, char* tz_name 
       N_("ALERT: guessing"), parm_name, N_("of"), tz_name, val );
 }
 
-void print_alert_delta_coordinate( char* coordinate, double hdate_val , double zonetab_val)
+void alert_delta_coordinate( char* coordinate, double hdate_val , double zonetab_val)
 {
   error(0,0,"%s %s %+lf %s %+lf",
       N_("ALERT: the input"), coordinate, hdate_val,
       N_("is at great variance from the chosen time zone default value"), zonetab_val );
 }
 
-void print_alert_not_dst_aware( char* reason_text)
+void alert_not_dst_aware( char* reason_text)
 {
   error(0,0,"%s ( %s )",
       N_("ALERT: daylight savings time can not be determined"), reason_text );
 }
 
 
-void print_parm_invalid_error( char *parm_name )
+void parm_invalid_error( char *parm_name )
 {
   error(0,0,"%s: %s %s %s",error_text,
       N_("option"), parm_name, N_("is not a valid option"));
 }
 
-void print_parm_mismatch_error()
+void parm_mismatch_error()
 {
   error(0,0,"%s: %s",error_text,
       N_("month and year parameters mismatched (Hebrew/gregorian mix)"));
 }
 
-void print_config_file_create_error( int error_code, char* config_file_path )
+void config_file_create_error( int error_code, char* config_file_path )
 {
   error(0, error_code, "%s: %s",
       N_("failure attempting to create config file"), config_file_path);
@@ -329,8 +329,8 @@ int parse_coordinate( const int type_flag, char *input_string,
   ************************************************************/
   if  (!input_string)
   {
-    if    (type_flag == 1) print_parm_missing_error(latitude_text);
-    else if (type_flag == 2) print_parm_missing_error(N_("L (Longitue)"));
+    if    (type_flag == 1) parm_missing_error(latitude_text);
+    else if (type_flag == 2) parm_missing_error(N_("L (Longitue)"));
     *coordinate = BAD_COORDINATE;
     return TRUE; // error_detected = TRUE; ie failure
   }
@@ -346,7 +346,7 @@ int parse_coordinate( const int type_flag, char *input_string,
     }
     if (glob_type_found == GLOB_NOT_FOUND)
     {
-      print_parm_error(latitude_text);
+      parm_error(latitude_text);
       *coordinate = BAD_COORDINATE;
       return TRUE; // error_detected = TRUE; ie failure
     }
@@ -370,7 +370,7 @@ int parse_coordinate( const int type_flag, char *input_string,
     {
       return FALSE; // error_detected = FALSE; ie. success
     }
-    print_parm_error(latitude_text);
+    parm_error(latitude_text);
     *coordinate = BAD_COORDINATE;
     return TRUE; // error_detected = TRUE; ie failure
   }
@@ -387,7 +387,7 @@ int parse_coordinate( const int type_flag, char *input_string,
     }
     if (glob_type_found == GLOB_NOT_FOUND)
     {
-      print_parm_error(longitude_text);
+      parm_error(longitude_text);
       *coordinate = BAD_COORDINATE;
       return TRUE; // error_detected = TRUE; ie failure
     }
@@ -411,7 +411,7 @@ int parse_coordinate( const int type_flag, char *input_string,
     {
       return FALSE; // error_detected = FALSE; ie. success
     }
-    print_parm_error(longitude_text);
+    parm_error(longitude_text);
     *coordinate = BAD_COORDINATE;
     return TRUE; // error_detected = TRUE; ie failure
   }
@@ -501,7 +501,7 @@ int parse_epoch_value( const char* epoch_string, time_t* epoch_val, int* epoch_p
   }
   else
   {
-    print_parm_error("--epoch"); // do not gettext!
+    parm_error("--epoch"); // do not gettext!
     return 1;
   }
   *epoch_parm_received = TRUE;
@@ -597,7 +597,7 @@ void process_location_parms( double *lat, double *lon, double tz_lon,
           // ie. /etc/timezone had a value for which no entry
           // exists in zonetab file, so no default lat/lon available
           // however,  there may be a valid tzif file
-          if (!quiet_alerts) print_alert_timezone( tz_name_in );
+          if (!quiet_alerts) alert_timezone( tz_name_in );
           input_info = HDVL_LOCAL_INFO;
         }
       }
@@ -619,7 +619,7 @@ void process_location_parms( double *lat, double *lon, double tz_lon,
       // But what if zonetab_tz_name_ptr isn't identical to tz_name_ptr?
       // free(zonetab_tz_name_ptr);
       *tz_name_out = zonetab_name;
-      if (!quiet_alerts) print_alert_timezone(zonetab_name);
+      if (!quiet_alerts) alert_timezone(zonetab_name);
     }
     else
     {
@@ -628,7 +628,7 @@ void process_location_parms( double *lat, double *lon, double tz_lon,
       // ie. /etc/timezone had a value for which no entry
       // exists in zonetab file, so no default lat/lon available
       // however,  there may be a valid tzif file
-      if (!quiet_alerts) print_alert_timezone( tz_name_in );
+      if (!quiet_alerts) alert_timezone( tz_name_in );
       input_info = HDVL_LOCAL_INFO;
     }
   }
@@ -643,8 +643,8 @@ void process_location_parms( double *lat, double *lon, double tz_lon,
     // *tz is set properly
     if (!quiet_alerts)
     {
-      print_alert_tz( *tz );
-      print_alert_not_dst_aware( no_timezone_entered_text );
+      alert_tz( *tz );
+      alert_not_dst_aware( no_timezone_entered_text );
     }
     // try reading tzif file from /etc/localtime
     if ( (*lat==BAD_COORDINATE) || (*lon==BAD_COORDINATE) )
@@ -658,12 +658,12 @@ void process_location_parms( double *lat, double *lon, double tz_lon,
   {
     if (guessed_tz != BAD_TIMEZONE)
     {
-      print_alert_using_utc_offset( guessed_tz );
-      print_alert_not_dst_aware( no_timezone_entered_text );
+      alert_using_utc_offset( guessed_tz );
+      alert_not_dst_aware( no_timezone_entered_text );
     }
     else
     {
-      print_alert_not_dst_aware( absolute_utc_offset_text );
+      alert_not_dst_aware( absolute_utc_offset_text );
       if ( (*lat==BAD_COORDINATE) || (*lon==BAD_COORDINATE) )
         guess_found = set_default_location( *tz, tz_name_out,
                         &guessed_lat, &guessed_lon );
@@ -678,7 +678,7 @@ void process_location_parms( double *lat, double *lon, double tz_lon,
     {
       if (guess_found) guess_name = *tz_name_out;
       else             guess_name = lon_midpoint_text;
-      print_alert_missing_coordinate(longitude_text, *lon, guess_name );
+      alert_missing_coordinate(longitude_text, *lon, guess_name );
     }
   }
 //  else if ( (!quiet_alerts) && (guessed_tz == BAD_TIMEZONE) && (abs(*lon - guessed_lon) > DELTA_LONGITUDE) )
@@ -686,7 +686,7 @@ void process_location_parms( double *lat, double *lon, double tz_lon,
   {
     if (guess_found) tz_lon = guessed_lon;
     if (abs(*lon - tz_lon) > DELTA_LONGITUDE)
-      print_alert_delta_coordinate(longitude_text, *lon, tz_lon);
+      alert_delta_coordinate(longitude_text, *lon, tz_lon);
   }
 
   if (*lat==BAD_COORDINATE)
@@ -696,7 +696,7 @@ void process_location_parms( double *lat, double *lon, double tz_lon,
     {
       if (guess_found) guess_name = *tz_name_out;
       else             guess_name = equator_text;
-      print_alert_missing_coordinate(latitude_text, *lat, guess_name );
+      alert_missing_coordinate(latitude_text, *lat, guess_name );
     }
   }
 
@@ -938,7 +938,7 @@ int get_config_file(  const char* config_dir_name,
        ( fprintf(*config_file, "%s", default_config_file_text) < 0 ) )
 
     {
-      if (!quiet_alerts) print_config_file_create_error(errno, config_file_path);
+      if (!quiet_alerts) config_file_create_error(errno, config_file_path);
       { free(config_file_path); return FALSE; };
     }
     if (!quiet_alerts) printf("%s: %s\n", N_("succeeded creating config file"), config_file_path);
@@ -1045,7 +1045,7 @@ int menu_item_parse(char* menuptr, size_t menu_len, int *menu_index,
         if (long_options[*long_option_index].name == 0)
         {
           *error_detected = *error_detected + 1;
-          print_parm_invalid_error(*optptr);
+          parm_invalid_error(*optptr);
         }
         else
         {
@@ -1063,7 +1063,7 @@ int menu_item_parse(char* menuptr, size_t menu_len, int *menu_index,
           (menuptr[*menu_index] == ':') )
         {
           *error_detected = *error_detected + 1;
-          print_parm_invalid_error(*optptr);
+          parm_invalid_error(*optptr);
         }
         else
         {

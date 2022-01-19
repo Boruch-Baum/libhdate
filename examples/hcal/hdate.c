@@ -2589,7 +2589,7 @@ int parameter_parser( int switch_arg, option_list *opt,
         if   ( (opt->candles < MIN_CANDLES_MINUTES) ||
             (opt->candles > MAX_CANDLES_MINUTES) )
         {
-          print_parm_error("--candles"); // do not gettext!
+          parm_error("--candles"); // do not gettext!
           error_detected++;
           break;
         }
@@ -2610,7 +2610,7 @@ int parameter_parser( int switch_arg, option_list *opt,
         if   ( (opt->havdalah < MIN_MOTZASH_MINUTES) ||
             (opt->havdalah > MAX_MOTZASH_MINUTES) )
         {
-          print_parm_error("--havdalah"); // do not gettext!
+          parm_error("--havdalah"); // do not gettext!
           error_detected++;
           break;
         }
@@ -2760,14 +2760,14 @@ int parameter_parser( int switch_arg, option_list *opt,
                && (strspn(&optarg[1], "0123456789.:") == 0) ) )
     {
       error_detected = error_detected + 1;
-      print_parm_missing_error(timezone_text);
+      parm_missing_error(timezone_text);
     }
     else if (!parse_timezone_numeric(optarg, &opt->tz_offset))
     {
       if (!parse_timezone_alpha(optarg, &opt->tz_name_str, &opt->tz_offset, &tz_lat, &opt->tz_lon))
       {
         error_detected = error_detected + 1;
-        print_parm_error(timezone_text);
+        parm_error(timezone_text);
       }
       else
       {
@@ -2777,7 +2777,7 @@ int parameter_parser( int switch_arg, option_list *opt,
     }
     break;
   case '?':
-    if (( optopt != '?') && (long_option_index != 72) ) print_option_unknown_error ( (char*) &optopt );
+    if (( optopt != '?') && (long_option_index != 72) ) option_unknown_error ( (char*) &optopt );
   default:
     print_usage_hdate();
     print_try_help_hdate();
@@ -3161,7 +3161,7 @@ int main (int argc, char *argv[])
              opt.prefer_hebrew, HDATE_PREFER_MD,
              opt.base_year_h, opt.base_year_g ))
       exit_main(&opt,0);
-    if (year <= 0) { print_parm_error(year_text); exit_main(&opt,0); }
+    if (year <= 0) { parm_error(year_text); exit_main(&opt,0); }
     if (year > HDATE_HEB_YR_LOWER_BOUND)
     {
       // The parse_date function returns Hebrew month values in
@@ -3170,11 +3170,11 @@ int main (int argc, char *argv[])
 
       // bounds check for month
       if (!validate_hdate(CHECK_MONTH_PARM, 0, month, year, FALSE, &h_start_day))
-        { print_parm_error(month_text); exit_main(&opt,0); }
+        { parm_error(month_text); exit_main(&opt,0); }
 
       // bounds check for day
       if (!validate_hdate(CHECK_DAY_PARM, day, month, year, TRUE, &h_start_day))
-        { print_parm_error(day_text); exit_main(&opt,0); }
+        { parm_error(day_text); exit_main(&opt,0); }
 
       hdate_set_hdate (&h_start_day, day, month, year);
       hdate_action = PROCESS_HEBREW_DAY;
@@ -3183,11 +3183,11 @@ int main (int argc, char *argv[])
     {
       // bounds check for month
       if (!validate_hdate(CHECK_MONTH_PARM, 0, month, year, FALSE, &h_start_day))
-        { print_parm_error(month_text); exit_main(&opt,0); }
+        { parm_error(month_text); exit_main(&opt,0); }
 
       // bounds check for day
       if (!validate_hdate(CHECK_DAY_PARM, day, month, year, TRUE, &h_start_day))
-        { print_parm_error(day_text); exit_main(&opt,0); }
+        { parm_error(day_text); exit_main(&opt,0); }
 
       hdate_set_gdate (&h_start_day, day, month, year);
       hdate_action = PROCESS_GREGOR_DAY;
@@ -3482,7 +3482,7 @@ case PROCESS_MONTH:
     else
     {
       if ((month <= 0) || (month > 12))
-        { print_parm_error(month_text); exit_main(&opt,0); }
+        { parm_error(month_text); exit_main(&opt,0); }
 
       if ((opt.holidays) && (custom_days_file_ready))
       {

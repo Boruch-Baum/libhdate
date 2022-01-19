@@ -171,7 +171,7 @@ H, _, 5741, 0000, 6, 27, 0, 0, שבת זכרון של פלוני, זכרון פ�
 # ============================\n\
 # These next few may in the future be hard-coded into libhdate ...\n\
 H, _, 3001, 0000,  1,  1, 0, 0, שבת שובה, שבת שובה, Shabbat Shuva, Shabbat Shuva,           0, 7, -1,  5,  4,  0,  2\n\
-H, _, 3001, 0000,  5, 15, 0, 0, סבת שירה, שבת שירה, Shabbat Shira, Shabbat Shira,           0, 0,  0, -2, -3, -4, -5\n\
+H, _, 3001, 0000,  5, 15, 0, 0, שבת שירה, שבת שירה, Shabbat Shira, Shabbat Shira,           0, 0,  0, -2, -3, -4, -5\n\
 H, _, 3001, 0000,  6,  1, 0, 0, שבת שקלים, שבת שקלים, Shabbat Shekalim, Shabbat Shekalim,  -6, 0,  0, -2, -3, -4,  0\n\
 H, _, 3001, 0000,  6, 14, 0, 0, שבת זכור, זבת זכור, Shabbat Zachor, Shabbat Zachor,        -6, 0, -1,  0, -3,  0, -5\n\
 H, _, 3001, 0000,  6, 14, 0, 0, שבת פרה, שבת פרה, Shabbat Parah, Shabbat Parah,             0, 0,  6,  0,  0,  0,  0\n\
@@ -959,7 +959,7 @@ int get_custom_days_file( const char* config_dir,
 		}
 		if (bytes_written <= 0)
 		{
-			if (!quiet_alerts) print_config_file_create_error(errno, custom_file_path);
+			if (!quiet_alerts) config_file_create_error(errno, custom_file_path);
 			{ free(custom_file_path); return FALSE; };
 		}
 		if (!quiet_alerts) printf("%s: %s\n", N_("succeeded creating config file"), custom_file_path);
