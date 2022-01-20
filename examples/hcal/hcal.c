@@ -1241,11 +1241,13 @@ void day ( const hdate_struct* h, const int month, option_list* opt, const int p
     if (opt->colorize)
     {
       if (h->hd_dw==7) colorize_element(opt->colorize, ELEMENT_SHABBAT_DAY);
-      else if ( (holiday_type) || (custom_day_flag) ) colorize_element(opt->colorize, ELEMENT_HOLIDAY_DAY);
-      else            colorize_element(opt->colorize, ELEMENT_WEEKDAY_H);
+      else if ( (holiday_type) || (custom_day_flag) )
+				colorize_element(opt->colorize, ELEMENT_HOLIDAY_DAY);
+      else
+				colorize_element(opt->colorize, ELEMENT_WEEKDAY_H);
     }
     else if ( (!printing_footnote) && (opt->bold) &&
-          ( (h->hd_dw==7) || (holiday_type) || (custom_day_flag) ) )
+            ( (h->hd_dw==7) || (holiday_type) || (custom_day_flag) ) )
       printf(CODE_BOLD_VIDEO);
   }
 
@@ -1423,19 +1425,11 @@ void day ( const hdate_struct* h, const int month, option_list* opt, const int p
   ******************************************************
   *****************************************************/
 
-  //  out-of-month - needs padding BUT NOT IF: this is the first (ie.
-  //  "previous") month in a three month display and not in mlterm...
-  //  (ie. we need a another bidi kludge here)
   if ( ( (opt->gregorian >  1)  && (h->gd_mon != month) ) ||
        ( (opt->gregorian == 1)  && (h->hd_mon != month) ) )
     printf("     ");
   else if ( (opt->gregorian == 0) && (h->hd_mon != month))
 	{
-		if ((opt->force_hebrew) || (hdate_is_hebrew_locale()))
-    {
-			if (! in_first_line_prev) printf("  ");
-		}
-		else
 			printf("  ");
 	}
   //  in month - print the data
