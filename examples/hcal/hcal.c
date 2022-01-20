@@ -2155,12 +2155,12 @@ void read_config_file(  FILE *config_file,
       {
         for (key_index=0; key_index<num_of_keys; key_index++)
         {
-          if (strcmp(input_key, key_list[key_index]) == 0)
+          if (strcasecmp(input_key, key_list[key_index]) == 0)
           {
             switch(key_index)
             {
-    case  0:if      (strcmp(input_value,"FALSE") == 0) opt->not_sunset_aware = TRUE;
-        else if (strcmp(input_value,"TRUE") == 0) opt->not_sunset_aware = FALSE;
+    case  0:if      (strcasecmp(input_value,"FALSE") == 0) opt->not_sunset_aware = TRUE;
+        else if (strcasecmp(input_value,"TRUE") == 0) opt->not_sunset_aware = FALSE;
         break;
     case  1:
         parse_coordinate(1, input_value, latitude);
@@ -2179,53 +2179,53 @@ void read_config_file(  FILE *config_file,
           }
         }
         break;
-    case  4:if      (strcmp(input_value,"FALSE") == 0) opt->diaspora = FALSE;
-        else if (strcmp(input_value,"TRUE") == 0) opt->diaspora = TRUE;
+    case  4:if      (strcasecmp(input_value,"FALSE") == 0) opt->diaspora = FALSE;
+        else if (strcasecmp(input_value,"TRUE") == 0) opt->diaspora = TRUE;
         break;
-    case  5:if      (strcmp(input_value,"FALSE") == 0) opt->force_israel = FALSE;
-        else if (strcmp(input_value,"TRUE") == 0) opt->force_israel = TRUE;
+    case  5:if      (strcasecmp(input_value,"FALSE") == 0) opt->force_israel = FALSE;
+        else if (strcasecmp(input_value,"TRUE") == 0) opt->force_israel = TRUE;
         break;
-    case  6:if      (strcmp(input_value,"FALSE") == 0) opt->parasha = FALSE;
-        else if (strcmp(input_value,"TRUE") == 0) opt->parasha = TRUE;
+    case  6:if      (strcasecmp(input_value,"FALSE") == 0) opt->parasha = FALSE;
+        else if (strcasecmp(input_value,"TRUE") == 0) opt->parasha = TRUE;
         break;
-    case  7:if      (strcmp(input_value,"FALSE") == 0) opt->shabbat = FALSE;
-        else if (strcmp(input_value,"TRUE") == 0)
+    case  7:if      (strcasecmp(input_value,"FALSE") == 0) opt->shabbat = FALSE;
+        else if (strcasecmp(input_value,"TRUE") == 0)
         {
           opt->shabbat = TRUE;
           opt->parasha = TRUE;
         }
         break;
-    case  8:if      (strcmp(input_value,"FALSE") == 0) opt->footnote = FALSE;
-        else if (strcmp(input_value,"TRUE") == 0) opt->footnote = TRUE;
+    case  8:if      (strcasecmp(input_value,"FALSE") == 0) opt->footnote = FALSE;
+        else if (strcasecmp(input_value,"TRUE") == 0) opt->footnote = TRUE;
         break;
-    case  9:if      (strcmp(input_value,"FALSE") == 0) opt->force_hebrew = FALSE;
-        else if (strcmp(input_value,"TRUE") == 0) opt->force_hebrew = TRUE;
+    case  9:if      (strcasecmp(input_value,"FALSE") == 0) opt->force_hebrew = FALSE;
+        else if (strcasecmp(input_value,"TRUE") == 0) opt->force_hebrew = TRUE;
         break;
-    case 10:if      (strcmp(input_value,"FALSE") == 0) opt->bidi = FALSE;
-        else if (strcmp(input_value,"TRUE") == 0)
+    case 10:if      (strcasecmp(input_value,"FALSE") == 0) opt->bidi = FALSE;
+        else if (strcasecmp(input_value,"TRUE") == 0)
             {
               opt->bidi = TRUE;
               opt->force_hebrew = TRUE;
             }
         break;
-    case 11:if      (strcmp(input_value,"FALSE") == 0) opt->no_reverse = FALSE;
-        else if (strcmp(input_value,"TRUE") == 0) opt->no_reverse = TRUE;
+    case 11:if      (strcasecmp(input_value,"FALSE") == 0) opt->no_reverse = FALSE;
+        else if (strcasecmp(input_value,"TRUE") == 0) opt->no_reverse = TRUE;
         break;
-    case 12:if  (strcmp(input_value,"FALSE") == 0) opt->colorize = 0;
-        else if (strcmp(input_value,"TRUE") == 0) opt->colorize = 1;
-        else if (strcmp(input_value,"BOLD") == 0) opt->colorize = 2;
+    case 12:if  (strcasecmp(input_value,"FALSE") == 0) opt->colorize = 0;
+        else if (strcasecmp(input_value,"TRUE") == 0) opt->colorize = 1;
+        else if (strcasecmp(input_value,"BOLD") == 0) opt->colorize = 2;
         break;
-    case 13:if      (strcmp(input_value,"FALSE") == 0) opt->html = FALSE;
-        else if (strcmp(input_value,"TRUE") == 0) opt->html = TRUE;
+    case 13:if      (strcasecmp(input_value,"FALSE") == 0) opt->html = FALSE;
+        else if (strcasecmp(input_value,"TRUE") == 0) opt->html = TRUE;
         break;
-    case 14:if      (strcmp(input_value,"FALSE") == 0) opt->external_css = FALSE;
-        else if (strcmp(input_value,"TRUE") == 0) opt->external_css = TRUE;
+    case 14:if      (strcasecmp(input_value,"FALSE") == 0) opt->external_css = FALSE;
+        else if (strcasecmp(input_value,"TRUE") == 0) opt->external_css = TRUE;
         break;
-    case 15:if      (strcmp(input_value,"FALSE") == 0) opt->quiet_alerts = FALSE;
-        else if (strcmp(input_value,"TRUE") == 0) opt->quiet_alerts = TRUE;
+    case 15:if      (strcasecmp(input_value,"FALSE") == 0) opt->quiet_alerts = FALSE;
+        else if (strcasecmp(input_value,"TRUE") == 0) opt->quiet_alerts = TRUE;
         break;
-    case 16:if      (strcmp(input_value,"FALSE") == 0) opt->three_month = 0;
-        else if (strcmp(input_value,"TRUE") == 0) opt->three_month = 1;
+    case 16:if      (strcasecmp(input_value,"FALSE") == 0) opt->three_month = 0;
+        else if (strcasecmp(input_value,"TRUE") == 0) opt->three_month = 1;
         break;
 
 //    MENU
@@ -2238,8 +2238,8 @@ void read_config_file(  FILE *config_file,
         }
         break;
 //    CANDLE_LIGHTING
-    case 18:if      (strcmp(input_value,"FALSE") == 0) opt->candles = 0;
-        else if (strcmp(input_value,"TRUE") == 0) opt->candles = 1;
+    case 18:if      (strcasecmp(input_value,"FALSE") == 0) opt->candles = 0;
+        else if (strcasecmp(input_value,"TRUE") == 0) opt->candles = 1;
         else if (fnmatch( "[[:digit:]]?([[:digit:]])", input_value, FNM_EXTMATCH) == 0)
         {
           opt->candles = atoi(input_value);
@@ -2249,8 +2249,8 @@ void read_config_file(  FILE *config_file,
         break;
 
 //    HAVDALAH
-    case 19:if      (strcmp(input_value,"FALSE") == 0) opt->havdalah = 0;
-        else if (strcmp(input_value,"TRUE") == 0) opt->havdalah = 1;
+    case 19:if      (strcasecmp(input_value,"FALSE") == 0) opt->havdalah = 0;
+        else if (strcasecmp(input_value,"TRUE") == 0) opt->havdalah = 1;
         else if (fnmatch( "[[:digit:]]?([[:digit:]])", input_value, FNM_EXTMATCH) == 0)
         {
           opt->havdalah = atoi(input_value);
@@ -2259,8 +2259,8 @@ void read_config_file(  FILE *config_file,
         }
         break;
 //    PREFER_HEBREW
-    case 20:if      (strcmp(input_value,"FALSE") == 0) opt->prefer_hebrew = FALSE;
-        else if (strcmp(input_value,"TRUE") == 0) opt->prefer_hebrew = TRUE;
+    case 20:if      (strcasecmp(input_value,"FALSE") == 0) opt->prefer_hebrew = FALSE;
+        else if (strcasecmp(input_value,"TRUE") == 0) opt->prefer_hebrew = TRUE;
         break;
 //    BASE_YEAR_HEBREW
     case 21:if (fnmatch( "[3456][[:digit:]]", input_value, FNM_EXTMATCH) == 0)
@@ -2283,10 +2283,10 @@ void read_config_file(  FILE *config_file,
         }
         break;
 //    MLTERM_ISH
-    case 23: opt->mlterm = (strcmp(input_value,"FALSE") == 0) ? FALSE : TRUE;
+    case 23: opt->mlterm = (strcasecmp(input_value,"FALSE") == 0) ? FALSE : TRUE;
         break;
 //    TMUX_BIDI
-    case 24: opt->tmux_bidi = (strcmp(input_value,"FALSE") == 0) ? FALSE : TRUE;
+    case 24: opt->tmux_bidi = (strcasecmp(input_value,"FALSE") == 0) ? FALSE : TRUE;
         break;
 //  End of switch cases
 				    }
