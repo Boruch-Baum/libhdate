@@ -20,11 +20,23 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 //gcc -Wall -c -g -I "../../src" "%f"
 //gcc -Wall -c -g -fmudflap -funwind-tables -I "../../src" "%f"
 //gcc -Wall -g -I "../../src" -L"../../src/.libs" -lhdate -efence -o "%e" "%f"
 //gcc -Wall -g -I "../../src" -L"../../src/.libs" -lhdate -lmudflap -rdynamic -o "%e" "%f"
 
+/* (DRAFT) COMMENTARY
+
+* opt->three_month == 12
+
+  this is an inelegant way to identify the possible fifth row of a
+  calendar displaying three months across. This can happen for a
+  Hebrew calendar in a leap year, or for a calendar displaying
+  gregorian months for an entire Hebrew year. The possibilities are to
+  print one or two months on this line.
+
+*/
 #include <hdate.h>		/// For hebrew date( gcc -I ../../src)
 #include <support.h>	/// libhdate general macros, including for gettext
 #include <stdio.h>		/// For printf
@@ -131,7 +143,7 @@ typedef struct {
   int candles;
   int havdalah;
   bool no_reverse;
-  int three_month; // 0=NO, 1=YES, 12=YEAR, 13=LEAP_YEAR
+  int three_month; // 0=NO, 1=YES, 12=YEAR, 13=LEAP_YEAR (see commentary, above)
   bool one_year;       // get tzif data only once
   char* border_spacing;
   int colorize; // valid values: 0,1,2
@@ -923,7 +935,7 @@ int hmonth_next( const int month, const hdate_struct * h )
 
 
 /**************************************************
- *  print header - year and month
+ *  print header (year and month line and dow line)
  *************************************************/
 int header ( const int month, const int year, option_list* opt)
 {
@@ -990,26 +1002,40 @@ int header ( const int month, const int year, option_list* opt)
     *  months for an entire Hebrew year. The possibilities
     *  are to print one or two months on this line.
     *****************************************************/
-    if (opt->gregorian == 0)
+    if (opt->gregorian == 0) // display only Hebrew
     {
       current_month = hcal_start_end(month, year);
       if ( (opt->three_month) && (opt->three_month != 12) )
       {
         if ( (month == 5) || (month == 7) )
           hdate_set_hdate( &h, 1, month, year);
+        if (opt->bidi) // reverse the month sequence previous/next
+        {
+          next_month.h_month_1 = hmonth_previous( month, &h );
+          next_month.h_year_1 = (month==1 ? year-1 : year);
+          next_month.h_month_2 = next_month.h_month_1;
+          next_month.h_year_2 = next_month.h_year_1;
 
-        previous_month.h_month_1 = hmonth_previous( month, &h );
-        previous_month.h_year_1 = (month==1 ? year-1 : year);
-        previous_month.h_month_2 = previous_month.h_month_1;
-        previous_month.h_year_2 = previous_month.h_year_1;
+          previous_month.h_month_1 = hmonth_next( month, &h );
+          previous_month.h_year_1 = (month==12 ? year+1: year);
+          previous_month.h_month_2 = previous_month.h_month_1;
+          previous_month.h_year_2 = previous_month.h_year_1;
+        }
+        else // (!opt->bidi) // normal presentation sequence
+				{
+          previous_month.h_month_1 = hmonth_previous( month, &h );
+          previous_month.h_year_1 = (month==1 ? year-1 : year);
+          previous_month.h_month_2 = previous_month.h_month_1;
+          previous_month.h_year_2 = previous_month.h_year_1;
 
-        next_month.h_month_1 = hmonth_next( month, &h );
-        next_month.h_year_1 = (month==12 ? year+1: year);
-        next_month.h_month_2 = next_month.h_month_1;
-        next_month.h_year_2 = next_month.h_year_1;
+          next_month.h_month_1 = hmonth_next( month, &h );
+          next_month.h_year_1 = (month==12 ? year+1: year);
+          next_month.h_month_2 = next_month.h_month_1;
+          next_month.h_year_2 = next_month.h_year_1;
+				}
       }
     }
-    else if (opt->gregorian == 1)
+    else if (opt->gregorian == 1) // display Hebrew-centric
     {
       current_month = hcal_start_end(month, year);
       if ( (opt->three_month) && (opt->three_month != 12) )
@@ -1028,7 +1054,7 @@ int header ( const int month, const int year, option_list* opt)
           next_month = hcal_start_end((month==12 ? 1 : month+1), (month==12 ? year+1: year));
       }
     }
-    else
+    else //  (opt->gregorian == 2) // Loazi-centric display
     {
       current_month = gcal_start_end(month, year);
       if (h.hd_size_of_year > 355) fourteenth_month = TRUE;
@@ -1726,7 +1752,7 @@ int how_many_calendar_lines( const int opt_gregorian, const hdate_struct* h)
 
 
 /**************************************************************
-*  print month table
+*  print month table (ie. actual days, not the header)
 **************************************************************/
 int calendar ( int current_month, int current_year, option_list* opt)
 {
@@ -1763,19 +1789,29 @@ int calendar ( int current_month, int current_year, option_list* opt)
   if (opt->three_month)
   {
     /*********************************************************
-    *  previous month
+    *  previous month (ie. left-most month displayed)
     *********************************************************/
-    if (opt->gregorian < 2)
+    if (opt->gregorian < 2) // displaying Hebrew months as primary
     {
       if (opt->three_month != 12)
       {
-        previous_month = hmonth_previous( current_month, &h );
-        previous_year = (current_month==1 ? current_year-1 : current_year);
-        hdate_set_hdate( &h, 1, previous_month, previous_year);
+				if (opt->bidi)
+				{
+          // reverse the month sequence previous/next
+          previous_month = hmonth_next( current_month, &h );
+          previous_year = (previous_month==1 ? current_year+1: current_year);
+          hdate_set_hdate( &h, 1, previous_month, previous_year);
+        }
+				else
+				{
+          previous_month = hmonth_previous( current_month, &h );
+          previous_year = (current_month==1 ? current_year-1 : current_year);
+          hdate_set_hdate( &h, 1, previous_month, previous_year);
+				}
         jd_previous_month = h.hd_jd - h.hd_dw + 1;
       }
     }
-    else
+    else // opt->gregorian == 2 // displaying Loazi months as primary
     {
       if ( opt->three_month == 12)
       {
@@ -1801,15 +1837,25 @@ int calendar ( int current_month, int current_year, option_list* opt)
     prev_month_num_of_lines = how_many_calendar_lines(opt->gregorian, &h);
 
     /*********************************************************
-    *  next month
+    *  next month (ie. right-most month displayed)
     *********************************************************/
     if (opt->gregorian < 2)
     {
       if (opt->three_month != 12)
       {
-        next_month = hmonth_next( current_month, &h );
-        next_year = (next_month==1 ? current_year+1: current_year);
-        hdate_set_hdate( &h, 1, next_month, next_year);
+				if (opt->bidi)
+				{
+          // reverse the month sequence previous/next
+          next_month = hmonth_previous( current_month, &h );
+          next_year = (current_month==1 ? current_year-1 : current_year);
+          hdate_set_hdate( &h, 1, next_month, next_year);
+        }
+				else
+				{
+          next_month = hmonth_next( current_month, &h );
+          next_year = (next_month==1 ? current_year+1: current_year);
+          hdate_set_hdate( &h, 1, next_month, next_year);
+        }
       }
     }
     else
