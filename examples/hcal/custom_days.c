@@ -23,6 +23,7 @@
  */
 //gcc -Wall -c -g -I "../../src" "%f"
 //gcc -Wall -g -I "../../src" -L"../../src/.libs" -lhdate -efence -o "%e" "%f"
+#define DEBUG
 
 /**************************************************
 *   functions to support hcal and hdate
@@ -42,7 +43,6 @@
 #include <sys/stat.h>	/// for mkdir
 #include <sys/types.h>	/// for mkdir
 #include "local_functions.h" /// hcal,hdate common_functions
-
 
 #define EXIT_CODE_BAD_PARMS	1
 
@@ -184,8 +184,9 @@ H, _, 3001, 0000, 11,  9, 0, 0, שבת נחמו, שבת נחמו, Shabbat Nacham
 # =============================\n\
 # These next few may in the future be hard-coded into libhdate ...\n\
 H, _, 3001, 0000,  8, 14, 0, 0, פסח שני, פסח שני, Pesach Sheni, Pesach Sheni,               0, 0,  0,  0,  0,  0,  0\n\
-H, _, 3001, 0000, 13, 14, 0, 0, פורים קטן, פורים קטן, Purim Katan, Purim Katan,             0, 0,  0,  0,  0,  0,  0\n\
-\n\
+H, _, 3001, 0000, 13, 14, 0, 0, פורים קטן, פורים קטן, Purim Katan, Purim Katan,             0, 0,  0,  0,  0,  0,  0\n");
+
+static const char* custom_days_file_debug_text = N_("\n\
 # DEBUG TESTS - REMOVE PRIOR TO RELEASE\n\
 # =====================================\n\
 H, :, 5700, 0000,  2,  6, 0, 0, יום הוקרת הפינגיונים עברי,   _, Penguin Appreciation Day Heb test,  _,  0,  0, 0, 0, 0, 0, 0\n\
@@ -195,8 +196,7 @@ G, :, 1960, 0000,  1,  5, 0, 0, יום הוקרת הפינגיונים לועז,
 h, :, 5730, 0000,  4,  0, 2, 5, יום הוקרת הפינגיונים עברי ב, _, Penguin Appreciation Day heb test,  _,  0,  0, 0, 0, 0, 0, 0\n\
 g, :, 1980, 0000,  5,  0, 1, 2, יום הוקרת הפינגיונים לועז ב, _, Penguin Appreciation Day greg test, _,  0,  0, 0, 0, 0, 0, 0\n\
 H, :, 5750, 0000,  6,  8, 0, 0, פינגיונים מעדיפים יום ד,     _, Penguins Appreciate Wednesday test, _, -2, -3, 3, 0, 0, 0, 0\n\
-G, :, 2000, 0000,  7,  1, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n\
-#");
+G, :, 2000, 0000,  7,  1, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n");
 
 static const char* custom_israeli_days_text_for_israel = N_("\
 \n\
@@ -950,12 +950,17 @@ int get_custom_days_file( const char* config_dir,
 		greetings_to_version_18();
 		if (!quiet_alerts) printf("%s\n", N_("attempting to create a config file ..."));
 		*custom_file = fopen(custom_file_path, "a+");
-		if (*custom_file != NULL) bytes_written = fprintf(*custom_file, "%s", custom_days_file_text);
+		if (*custom_file != NULL)
+			bytes_written = fprintf(*custom_file, "%s", custom_days_file_text);
 		if (bytes_written > 0)
 		{
 			if ((tz_name_str == NULL) || (strcmp(tz_name_str, "Asia/Jerusalem") != 0))
 				 bytes_written = fprintf(*custom_file, "%s", custom_israeli_days_text_for_diaspora);
 			else bytes_written = fprintf(*custom_file, "%s", custom_israeli_days_text_for_israel);
+#ifdef DEBUG
+  		if (bytes_written > 0)
+				bytes_written = fprintf(*custom_file, "%s", custom_days_file_debug_text);
+#endif
 		}
 		if (bytes_written <= 0)
 		{
