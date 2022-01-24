@@ -23,7 +23,7 @@
  */
 //gcc -Wall -c -g -I "../../src" "%f"
 //gcc -Wall -g -I "../../src" -L"../../src/.libs" -lhdate -efence -o "%e" "%f"
-#define DEBUG
+//#define DEBUG
 
 /**************************************************
 *   functions to support hcal and hdate
