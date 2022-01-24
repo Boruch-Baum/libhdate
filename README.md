@@ -2,14 +2,14 @@ Libhdate, hcal, hdate
 =====================
 
 CONTENTS
-========
+--------
 1] Description
 2] Brief highlights of this update
 3] Installation from source (Instructions)
 
 
 1] Description
-==============
+--------------
 LibHdate is a small library for the Hebrew calendar, dates, holidays,
 and reading sequence. It is written in C and includes bindings for
 pascal, perl, python, php, ruby.
@@ -28,7 +28,7 @@ and examples.
 
 
 2] Brief highlights of this update
-==================================
+----------------------------------
 This release brings many new options, features, and bug fixes to the two example
 programs hcal and hdate. The changes to the underlying function library include
 a few minor bug fixes, deprecation of a series of string functions in favor
@@ -38,7 +38,7 @@ locales. The documentation in the man pages and in the new configuration
 file should be sufficient.
 
 2.1] selected highlights
-========================
+------------------------
 
 hcal
 - introduced config file $XDG_CONFIG_HOME/hcal/hcalrc or ~/.config/hcal/hcalrc
@@ -93,7 +93,7 @@ bindings - ruby
 
 
 3] Installation from source (Instructions)
-==========================================
+------------------------------------------
 
   This package is available for most major operating systems, so in
   most cases if you just want to use the command line programs, the
@@ -103,7 +103,7 @@ bindings - ruby
 
 
 3.1 Pre-Requisites
-==================
+------------------
 
   GNU toolchain, ie. gcc, libtoolize, autoreconf, and make. Your
   distribution may package these as `build-essential`, `libtool`,
@@ -126,7 +126,7 @@ bindings - ruby
     perl 5.26.2
 
 3.2 Procedure
-=============
+-------------
   Run the provided shell script `autogen.sh`.
 
   The script will invoke `libtoolize`, `autoreconf`, `configure`, and
@@ -135,7 +135,7 @@ bindings - ruby
   them system-wide on your machine.
 
 3.3 Extra credit
-================
+----------------
 
   The extensive manuals and documentation for the elements of the GNU
   toolchain are a reliable source of interminable travail,
