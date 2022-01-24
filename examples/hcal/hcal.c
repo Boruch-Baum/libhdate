@@ -1876,6 +1876,7 @@ int calendar ( int current_month, int current_year, option_list* opt)
   {
     if (opt->html) printf("<tr>\n");
 
+    // week line of 'previous' month when printing three months across
     if (opt->three_month)
     {
 			if ((opt->tmux_bidi)
@@ -1894,10 +1895,11 @@ int calendar ( int current_month, int current_year, option_list* opt)
       printf("%s", opt->border_spacing);
     }
 
+    // week line of 'current' month
     week(jd_current_month, current_month, opt, calendar_line);
     jd_current_month = jd_current_month + 7;
 
-
+    // week line of 'next' month when printing three months across
     if (opt->three_month)
     {
       printf("%s", opt->border_spacing);
@@ -2791,9 +2793,9 @@ int main (int argc, char *argv[])
   *************************************************/
   if  (opt.three_month)
   {
-    if ( opt.parasha || opt.shabbat || opt.footnote )
+    if ( opt.parasha || opt.shabbat || opt.footnote || opt.html )
     {
-      error(0,0,"%s", N_("ALERT: options --parasha, --shabbat, --footnote are not supported in 'three-month' mode"));
+      error(0,0,"%s", N_("ALERT: options --parasha, --shabbat, --footnote, --html  are not supported in 'three-month' mode"));
       opt.parasha = FALSE;
       opt.shabbat = FALSE;
       opt.footnote = FALSE;
@@ -3016,10 +3018,6 @@ int main (int argc, char *argv[])
   ************************************************************/
   else month(month_to_do, year_to_do, &opt);
 
-// DEBUG:
-// printf("begin escape sequence tests\n");
-// printf("\n%c%c8l  אא     בב\n",0x1b,0x5b); //
-// printf("end escape sequence tests\n");
 
 
   /************************************************************
