@@ -193,8 +193,8 @@ typedef struct {
   int h_year_2;
 } header_info;
 
-bool in_first_line_prev = FALSE; // UGH! Temporary global debug variable
-bool in_next = FALSE; // UGH! Temporary global debug variable
+bool in_first_line_prev = false; // UGH! Temporary global debug variable
+bool in_next = false; // UGH! Temporary global debug variable
 
 
 /**************************************************
@@ -799,7 +799,7 @@ int header ( const int month, const int year, option_list* opt)
   header_info previous_month, current_month, next_month;
   hdate_struct h;
   int calendar_width;
-  int fourteenth_month = FALSE;
+  int fourteenth_month = false;
 
     /********************************************************
     *  embedded sub-function:
@@ -914,7 +914,7 @@ int header ( const int month, const int year, option_list* opt)
     else //  (opt->gregorian == 2) // Loazi-centric display
     {
       current_month = gcal_start_end(month, year);
-      if (h.hd_size_of_year > 355) fourteenth_month = TRUE;
+      if (h.hd_size_of_year > 355) fourteenth_month = true;
       if (opt->three_month)
       {
         if (opt->three_month != 12)
@@ -950,7 +950,7 @@ int header ( const int month, const int year, option_list* opt)
     if (opt->three_month)
     {
       if  ( (opt->three_month == 12) &&
-        ( (fourteenth_month == FALSE) || (opt->gregorian <2) ) )
+        ( (fourteenth_month == false) || (opt->gregorian <2) ) )
       {
           if (!opt->gregorian) calendar_width = CALENDAR_WIDTH_NARROW;
           else calendar_width = CALENDAR_WIDTH_WIDE;
@@ -973,7 +973,7 @@ int header ( const int month, const int year, option_list* opt)
     if (opt->three_month)
     {
       if  ( (opt->three_month == 12) &&
-        ( (fourteenth_month == FALSE) || (opt->gregorian <2) ) )
+        ( (fourteenth_month == false) || (opt->gregorian <2) ) )
         printf("%*s",calendar_width," ");
       else dow_line(opt);
       printf("%s", opt->border_spacing);
@@ -1119,7 +1119,7 @@ void day ( const hdate_struct* h, const int month, option_list* opt, const int p
       day_flag = custom_day_flag;
       return;
     }
-    holiday_type = hdate_get_halachic_day_type(hdate_get_halachic_day(&h, opt->diaspora));
+    holiday_type = hdate_get_halachic_day_type(hdate_get_halachic_day(h, opt->diaspora));
     day_flag = &holiday_flag[holiday_type];
     if ( !holiday_type && opt->custom_days_cnt )
     {
@@ -1310,7 +1310,7 @@ void last_line_padding ( int jd )
 // Calculate padding for trailing days out-of-month. ie. for the final
 // calendar line. This is an unfortunate kludge to compensate for how
 // most terminal emulators (update: or is it just tmux?) handle bidi.
-// Limit use of this kludge to condition option mlterm == FALSE,
+// Limit use of this kludge to condition option mlterm == false,
 // checked currently by callers to this function.
 //
 // JD :: The Julian day number for the first Hebrew column of the last
@@ -1327,74 +1327,6 @@ void last_line_padding ( int jd )
   {
 		printf("   ");
 	}
-}
-
-
-
-/*************************************************
-*  print a calendar week's entry (ie. seven columns)
-*************************************************/
-void week( int jd, const int month, option_list* opt, int final_line)
-{
-  hdate_struct h;
-  hdate_struct yom_shishi;
-  int calendar_column;
-  // for opt->shabbat and opt->parasha
-
-  /* BEGIN: embedded sub-function: do_calendar_column() */
-  /**/ void do_calendar_column()
-  /**/ {
-  /**/   hdate_set_jd(&h, jd );
-  /**/   if ( (opt->shabbat || opt->parasha) && (calendar_column == 5) )
-  /**/     yom_shishi = h;
-  /**/   if (opt->html) html_day ( h, month, opt );
-  /**/   else day ( &h, month, opt, FALSE, NULL);
-  /**/   if (calendar_column != 6)  printf(" ");
-  /**/ }
-  /* END: embedded sub-function: do_calendar_column()   */
-
-// TODO: When ((!opt->mlterm) && ( (opt->force_hebrew) || (hdate_is_hebrew_locale()) ) )
-//  perform  shabbat_data first:
-//
-//  if ((!opt->html) && ((opt->shabbat) || (opt->parasha)))
-//  {
-//    hdate_set(&yom_shishi, jd) for jd of Friday
-//    hdate_set(&h, jd) for jd of Shabbat
-//		shabbat_data( jd, &h, &yom_shishi, opt);
-//  }
-
-  // This is one of a set of unfortunate kludges to compensate for tmux
-  // TERM=screen-*
-	if ( opt->tmux_bidi &&
-			 (final_line == 1) &&
-			 !opt->three_month &&  // FIXME !!
-			 !opt->mlterm &&       // FIXME: this condition may not be necessary
-			 ( opt->force_hebrew || hdate_is_hebrew_locale() ) )
-		last_line_padding( jd );
-
-  if (opt->bidi)
-  {
-    jd=jd+6;
-    for (calendar_column = 6; calendar_column >= 0; calendar_column--)
-    {
-      do_calendar_column();
-      jd--;
-      if (calendar_column == 6) printf(" ");
-    }
-    jd=jd+7;
-    hdate_set_jd(&h, jd );
-  }
-  else
-  {
-    for (calendar_column = 0; calendar_column < 7; calendar_column++)
-    {
-      do_calendar_column();
-      jd++;
-    }
-  }
-
-  if (!opt->html && (opt->shabbat || opt->parasha))
-		shabbat_data( jd, &h, &yom_shishi, opt);
 }
 
 
@@ -1418,7 +1350,7 @@ void shabbat_data( int jd, hdate_struct* h, hdate_struct* yom_shishi, option_lis
 
   // Highlight current week's line specially
   bool this_week = (((jd - 1) > opt->jd_today_h) && (((jd - 1) - opt->jd_today_h) < 7) )
-		               ? TRUE : FALSE;
+		               ? true : false;
 
   /*************************************************
   *  print Shabbat times
@@ -1553,6 +1485,74 @@ void shabbat_data( int jd, hdate_struct* h, hdate_struct* yom_shishi, option_lis
       if ( opt->colorize || this_week ) printf(CODE_RESTORE_VIDEO);
     }
   }
+}
+
+
+
+/*************************************************
+*  print a calendar week's entry (ie. seven columns)
+*************************************************/
+void week( int jd, const int month, option_list* opt, int final_line)
+{
+  hdate_struct h;
+  hdate_struct yom_shishi;
+  int calendar_column;
+  // for opt->shabbat and opt->parasha
+
+  /* BEGIN: embedded sub-function: do_calendar_column() */
+  /**/ void do_calendar_column()
+  /**/ {
+  /**/   hdate_set_jd(&h, jd );
+  /**/   if ( (opt->shabbat || opt->parasha) && (calendar_column == 5) )
+  /**/     yom_shishi = h;
+  /**/   if (opt->html) html_day ( h, month, opt );
+  /**/   else day ( &h, month, opt, false, NULL);
+  /**/   if (calendar_column != 6)  printf(" ");
+  /**/ }
+  /* END: embedded sub-function: do_calendar_column()   */
+
+// TODO: When ((!opt->mlterm) && ( (opt->force_hebrew) || (hdate_is_hebrew_locale()) ) )
+//  perform  shabbat_data first:
+//
+//  if ((!opt->html) && ((opt->shabbat) || (opt->parasha)))
+//  {
+//    hdate_set(&yom_shishi, jd) for jd of Friday
+//    hdate_set(&h, jd) for jd of Shabbat
+//		shabbat_data( jd, &h, &yom_shishi, opt);
+//  }
+
+  // This is one of a set of unfortunate kludges to compensate for tmux
+  // TERM=screen-*
+	if ( opt->tmux_bidi &&
+			 (final_line == 1) &&
+			 !opt->three_month &&  // FIXME !!
+			 !opt->mlterm &&       // FIXME: this condition may not be necessary
+			 ( opt->force_hebrew || hdate_is_hebrew_locale() ) )
+		last_line_padding( jd );
+
+  if (opt->bidi)
+  {
+    jd=jd+6;
+    for (calendar_column = 6; calendar_column >= 0; calendar_column--)
+    {
+      do_calendar_column();
+      jd--;
+      if (calendar_column == 6) printf(" ");
+    }
+    jd=jd+7;
+    hdate_set_jd(&h, jd );
+  }
+  else
+  {
+    for (calendar_column = 0; calendar_column < 7; calendar_column++)
+    {
+      do_calendar_column();
+      jd++;
+    }
+  }
+
+  if (!opt->html && (opt->shabbat || opt->parasha))
+		shabbat_data( jd, &h, &yom_shishi, opt);
 }
 
 
@@ -1728,7 +1728,7 @@ int calendar ( int current_month, int current_year, option_list* opt)
   if ( opt->three_month && !opt->mlterm
      && ( opt->force_hebrew || hdate_is_hebrew_locale() )
      && !opt->bidi )
-		in_first_line_prev = TRUE;
+		in_first_line_prev = true;
   for (calendar_line = max_calendar_lines; calendar_line > 0; calendar_line--)
   {
     if (opt->html) printf("<tr>\n");
@@ -1747,7 +1747,7 @@ int calendar ( int current_month, int current_year, option_list* opt)
 				// emulators (update: maybe just tmux?) handle bidi.
 				last_line_padding( jd_next_month );
       week(jd_previous_month, previous_month, opt, calendar_line);
-  		in_first_line_prev = FALSE;
+  		in_first_line_prev = false;
       jd_previous_month = jd_previous_month + 7;
       printf("%s", opt->border_spacing);
     }
@@ -1823,7 +1823,7 @@ void footnote( const hdate_struct* h, const int footnote_month,
   }
 
   // day handles its own colorization
-  day( h, footnote_month, opt, TRUE, custom_day_flag);
+  day( h, footnote_month, opt, true, custom_day_flag);
 
   if (opt->bidi) printf("\n");
   else
@@ -1984,10 +1984,29 @@ int month ( int month, int year, option_list* opt)
 
 
 /****************************************************
+* exit elegantly
+****************************************************/
+// TODO - This app needs to be checked thoroughly for free()ing
+void exit_main( option_list *opt, const int exit_code)
+{
+  int i;
+  for (i=0; i<MAX_MENU_ITEMS; i++)
+  {
+    if (opt->menu_item[i] == NULL) break;
+    free(opt->menu_item[i]);
+  }
+  if (opt->jdn_list_ptr != NULL) free(opt->jdn_list_ptr);
+  if (opt->string_list_ptr != NULL) free(opt->string_list_ptr);
+  exit (exit_code);
+}
+
+
+
+/****************************************************
 * parse config file
 ****************************************************/
 void parse_config_file(
-       option_list *opt,
+       option_list* opt,
        double*  latitude,
        double*  longitude,
        int*  tz)
@@ -2003,7 +2022,7 @@ void parse_config_file(
   int    menu_item = 0;
   size_t menu_len = 0;
   int    match_count = 0;
-  int    end_of_input_file = FALSE;
+  int    end_of_input_file = false;
   int    key_index = 0;
   int    temp_base_year = 0;
   const char* key_list[] = {
@@ -2181,7 +2200,7 @@ VERSION=2.00\n\
 ");
 
 //  TODO: Consider parsing the following:
-//  opt.prefer_hebrew = TRUE;
+//  opt.prefer_hebrew = true;
 //  opt.base_year_h = 5700;    // TODO - Make this user-selectable
 //  opt.base_year_g = 2000;    // TODO - Make this user-selectable
 
@@ -2192,10 +2211,10 @@ VERSION=2.00\n\
 												 &config_file))
     return;
 
-  while ( end_of_input_file!=TRUE )
+  while ( end_of_input_file!=-1 )
   {
     end_of_input_file = getline(&input_string, &input_str_len, config_file);
-    if ( end_of_input_file!=TRUE )
+    if ( end_of_input_file!=-1 )
     {
       errno = 0;
       match_count = sscanf(input_string,"%m[A-Z_]=%m[^\n]",&input_key,&input_value);
@@ -2214,15 +2233,15 @@ VERSION=2.00\n\
 
 // Many of the switch cases will use the following macro:
 # define set_true_false(option) \
-	if (strcasecmp(input_value,"FALSE") == 0) option = FALSE; \
-  else if (strcasecmp(input_value,"TRUE") == 0) option = TRUE;
+	if (strcasecmp(input_value,"FALSE") == 0) option = false; \
+  else if (strcasecmp(input_value,"TRUE") == 0) option = true;
 
 // SUNSET_AWARE
 case  0:
   if (strcasecmp(input_value,"FALSE") == 0)
-		opt->not_sunset_aware = TRUE;
+		opt->not_sunset_aware = true;
   else if (strcasecmp(input_value,"TRUE") == 0)
-		opt->not_sunset_aware = FALSE;
+		opt->not_sunset_aware = false;
   break;
 
 // LATITUDE
@@ -2268,11 +2287,11 @@ case  6:
 // SHABBAT_INFO
 case  7:
 	if (strcasecmp(input_value,"FALSE") == 0)
-		opt->shabbat = FALSE;
+		opt->shabbat = false;
   else if (strcasecmp(input_value,"TRUE") == 0)
   {
-    opt->shabbat = TRUE;
-    opt->parasha = TRUE;
+    opt->shabbat = true;
+    opt->parasha = true;
   }
   break;
 
@@ -2282,18 +2301,18 @@ case  8:
   break;
 
 // FORCE_HEBREW
-case9:
+case  9:
   set_true_false( opt->force_hebrew )
   break;
 
 // OUTPUT_BIDI
 case 10:
 	if (strcasecmp(input_value,"FALSE") == 0)
-  	opt->bidi = FALSE;
+  	opt->bidi = false;
   else if (strcasecmp(input_value,"TRUE") == 0)
   {
-    opt->bidi = TRUE;
-    opt->force_hebrew = TRUE;
+    opt->bidi = true;
+    opt->force_hebrew = true;
   }
   break;
 
@@ -2434,22 +2453,56 @@ case 24:
 }
 
 
-/****************************************************
-* exit elegantly
-****************************************************/
-// TODO - This app needs to be checked thoroughly for free()ing
-void exit_main( option_list *opt, const int exit_code)
-{
-  int i;
-  for (i=0; i<MAX_MENU_ITEMS; i++)
-  {
-    if (opt->menu_item[i] == NULL) break;
-    free(opt->menu_item[i]);
-  }
-  if (opt->jdn_list_ptr != NULL) free(opt->jdn_list_ptr);
-  if (opt->string_list_ptr != NULL) free(opt->string_list_ptr);
-  exit (exit_code);
-}
+/************************************************************
+* getopt options constants
+*
+*   These are used in TWO places: parsing of the command line, and
+*   parsing of menu items as defined in the config files
+*
+************************************************************/
+// support for getopt short options
+const char * short_options = "013bBcdfghHiImpqsl:L:z:";
+// support for getopt long options
+const struct option long_options[] = {
+//   name,  has_arg, flag, val
+  {"version", no_argument, 0, 0},
+  {"help", no_argument, 0, 0},
+  {"no-reverse", no_argument, 0, 0},
+  {"html", no_argument, 0, 'h'},
+  {"parasha", no_argument, 0, 'p'},
+  {"shabbat", no_argument, 0, 's'},
+  {"three-month", no_argument, 0, '3'},
+  {"colorize", no_argument, 0, 'c'},
+  {"footnote", no_argument,0,'f'},
+  {"hebrew", no_argument, 0,'H'},
+  {"israel", no_argument, 0,'I'},
+  {"latitude", required_argument, 0, 'l'},
+  {"longitude", required_argument, 0, 'L'},
+  {"timezone", required_argument, 0, 'z'},
+  {"not-sunset-aware", no_argument, 0, 0},
+  {"quiet-alerts", no_argument, 0,'q'},
+  {"bidi", no_argument, 0,'b'},
+  {"visual", no_argument, 0,'b'},
+  {"one-month", no_argument, 0,'1'},
+  {"no-bidi", no_argument, 0, 0},
+  {"no-visual", no_argument, 0, 0},
+  {"no-color", no_argument, 0, 0},
+  {"no-footnote", no_argument, 0, 0},
+  {"menu", no_argument, 0,'m'},
+  {"candles", optional_argument, 0, 0},
+  {"havdalah", optional_argument, 0, 0},
+  {"gregorian", no_argument, 0,'g'},
+  {"no-gregorian", no_argument, 0,'0'},
+  {"borders", no_argument, 0, 0},
+  {"prefer-hebrew", no_argument, 0, 0},
+  {"prefer-gregorian", no_argument, 0, 0},
+  {"bold", no_argument, 0, 'B'},
+  {"usage", no_argument, 0, '?'},
+  {"mlterm", no_argument, 0, 0},
+  {"tmux-bidi", no_argument, 0, 0},
+  {0, 0, 0, 0}
+  };
+
 
 
 /****************************************************
@@ -2478,7 +2531,7 @@ int hcal_parser( const int switch_arg, option_list *opt,
     {
 /** --version  */  case 0:  print_version (); exit_main(opt, 0); break;
 /** --help    */  case 1:  help (); exit_main(opt, 0); break;
-/** --no-reverse*/  case 2:  opt->no_reverse = TRUE; break;
+/** --no-reverse*/  case 2:  opt->no_reverse = true; break;
 /** --html    */  case 3: break;
 /** --parasha  */  case 4: break;
 /** --shabbat  */  case 5:  break;
@@ -2490,15 +2543,15 @@ int hcal_parser( const int switch_arg, option_list *opt,
 /** --latitude  */  case 11:break;
 /** --longitude  */  case 12:break;
 /** --timezone  */  case 13:break;
-/** --not-sunset-aware */  case 14: opt->not_sunset_aware = TRUE;  break;
+/** --not-sunset-aware */  case 14: opt->not_sunset_aware = true;  break;
 /** --quiet-alerts*/  case 15: break;
 /** --visual  */  case 16:
 /** --bidi    */  case 17: break;
 /** --one-month  */  case 18: break;
 /** --no-visual  */  case 19:
-/** --no-bidi  */  case 20: opt->bidi = FALSE; opt->force_hebrew = FALSE; break;
-/** --no-color  */  case 21: opt->colorize = 0; opt->bold = FALSE; break;
-/** --no-footnote*/  case 22: opt->footnote = FALSE; break;
+/** --no-bidi  */  case 20: opt->bidi = false; opt->force_hebrew = false; break;
+/** --no-color  */  case 21: opt->colorize = 0; opt->bold = false; break;
+/** --no-footnote*/  case 22: opt->footnote = false; break;
 /** --menu    */  case 23: break;
 /** --candles  */  case 24:
       if ( (optarg == NULL) && (opt->candles == 0) ) opt->candles = 1;
@@ -2543,12 +2596,12 @@ int hcal_parser( const int switch_arg, option_list *opt,
 /** --borders      */    case 28: opt->three_month = 1;
                 opt->border_spacing = default_borders_spacing;
                 break;
-/** --prefer-hebrew    */  case 29: opt->prefer_hebrew = TRUE; break;
-/** --prefer-gregorian  */  case 30: opt->prefer_hebrew = FALSE; break;
+/** --prefer-hebrew    */  case 29: opt->prefer_hebrew = true; break;
+/** --prefer-gregorian  */  case 30: opt->prefer_hebrew = false; break;
 /** --bold              */  case 31: break;
 /** --usage             */  case 32: break;
-/** --mlterm            */  case 33: opt->mlterm = TRUE; break;
-/** --tmux-bidi         */  case 34: opt->tmux_bidi = TRUE; break;
+/** --mlterm            */  case 33: opt->mlterm = true; break;
+/** --tmux-bidi         */  case 34: opt->tmux_bidi = true; break;
     } // end switch for long_options
     break;
 
@@ -2556,27 +2609,27 @@ int hcal_parser( const int switch_arg, option_list *opt,
   case '0': opt->gregorian = 0; break;
   case '1': opt->three_month = 0; break;
   case '3': opt->three_month = 1; break;
-  case 'b': opt->bidi = TRUE; opt->force_hebrew = TRUE; break;
-  case 'B': opt->bold = TRUE; opt->colorize = 0; break;
+  case 'b': opt->bidi = true; opt->force_hebrew = true; break;
+  case 'B': opt->bold = true; opt->colorize = 0; break;
   case 'c':
     if (opt->colorize < 2) opt->colorize = opt->colorize + 1;
-    opt->bold = FALSE;
+    opt->bold = false;
     break;
-  case 'd': opt->diaspora = TRUE; break;
-  case 'f': opt->footnote = TRUE; break;
+  case 'd': opt->diaspora = true; break;
+  case 'f': opt->footnote = true; break;
   case 'g':
     if (opt->gregorian < 2) opt->gregorian = opt->gregorian + 1;
     break;
-  case 'h': opt->html = TRUE;
+  case 'h': opt->html = true;
     // TODO - give this parameter an option argument 'filename'
     //        to use for output instead of stdout
     break;
-  case 'H': opt->force_hebrew = TRUE; break;
-  case 'I': opt->force_israel = TRUE; break;
-  case 'i': opt->external_css = TRUE; break;
+  case 'H': opt->force_hebrew = true; break;
+  case 'I': opt->force_israel = true; break;
+  case 'i': opt->external_css = true; break;
   case 'm': opt->menu = 1; break;
-  case 'p': opt->parasha = TRUE; break;
-  case 'q': opt->quiet_alerts = TRUE; break;
+  case 'p': opt->parasha = true; break;
+  case 'q': opt->quiet_alerts = true; break;
   case 'l':
     error_detected = error_detected + parse_coordinate(1, optarg, lat);
     break;
@@ -2584,8 +2637,8 @@ int hcal_parser( const int switch_arg, option_list *opt,
     error_detected = error_detected + parse_coordinate(2, optarg, lon);
     break;
   case 's':
-    opt->shabbat = TRUE;
-    opt->parasha = TRUE;
+    opt->shabbat = true;
+    opt->parasha = true;
     if (opt->candles == 0) opt->candles = 1;
     if (opt->havdalah == 0) opt->havdalah = 1;
     break;
@@ -2624,46 +2677,80 @@ int hcal_parser( const int switch_arg, option_list *opt,
   return error_detected;
 }
 
+
+
+/************************************************************
+* parse command line
+************************************************************/
+void parse_command_line (
+       int argc,
+	  	 char* argv[],
+       option_list* opt,
+       double*  latitude,
+       double*  longitude,
+       int*  tz,
+	  	 int* error_detected )
+{
+  int switch_arg = -1;
+  int long_option_index = 0;
+  opterr = 0; // We'll do our own error reporting. See getopt_long(3)
+  while ((switch_arg = getopt_long(argc,
+																	 argv,
+                                   short_options,
+																	 long_options,
+                                   &long_option_index)) != -1)
+   error_detected = error_detected
+                  + hcal_parser(switch_arg,
+																opt,
+																latitude,
+																longitude,
+                                tz,
+																opt->tz_name_str,
+																long_option_index);
+}
+
+
+
 /**************************************************
-***************************************************
-***************************************************
-* main
-***************************************************
-***************************************************
+*
+*
+* MAIN
+*
+*
 **************************************************/
 int main (int argc, char *argv[])
 {
   hdate_struct h;
-  int error_detected = FALSE;  // exit after reporting ALL bad parms
+  int error_detected = false;  // exit after reporting ALL bad parms
   int data_sink;        // store unwanted stuff here
   int month_to_do, year_to_do;
   const int num_of_months = 12;  // how many months in the year
   option_list opt;
-  opt.prefer_hebrew = TRUE;
+  opt.prefer_hebrew = true;
   opt.base_year_h = HDATE_DEFAULT_BASE_YEAR_H;    // TODO - Make this user-selectable
   opt.base_year_g = HDATE_DEFAULT_BASE_YEAR_G;    // TODO - Make this user-selectable
   opt.gregorian = 0;      // -0 don't display any gregorian information
-  opt.bidi = FALSE;        // visual bidi, implies --force-hebrew
-  opt.html = FALSE;        // -h html format flag
-  opt.diaspora = FALSE;      // -d Diaspora holidays
-  opt.external_css = FALSE;    // -i External css file
-  opt.parasha = FALSE;      // -p print parasha alongside calendar
-  opt.shabbat = FALSE;      // -c print candle-lighting alongside calendar
+  opt.bidi = false;        // visual bidi, implies --force-hebrew
+  opt.html = false;        // -h html format flag
+  opt.diaspora = false;      // -d Diaspora holidays
+  opt.external_css = false;    // -i External css file
+  opt.parasha = false;      // -p print parasha alongside calendar
+  opt.shabbat = false;      // -c print candle-lighting alongside calendar
   opt.candles = 0;
   opt.havdalah = 0;
-  opt.no_reverse = FALSE;      // don't highlight today in reverse video
+  opt.no_reverse = false;      // don't highlight today in reverse video
   opt.three_month = 0;    // print previous and next months also
-  opt.one_year = FALSE;
+  opt.one_year = false;
   opt.border_spacing = NULL;      // horizontal spacing string in 3-month mode
   opt.colorize = 0;      // display calendar in muted, more pleasing tones
-  opt.bold = FALSE;        // display special days in boldface (no color)
-  opt.footnote = FALSE;      // display description of month's holidays
-  opt.force_hebrew = FALSE;    // force display of Hebrew data in Hebrew
-  opt.force_israel = FALSE;    // override diaspora-awareness
-  opt.not_sunset_aware = FALSE;  // override sunset-awareness
-  opt.quiet_alerts = FALSE;
-	opt.mlterm = getenv("MLTERM") ? TRUE: FALSE;
-	opt.tmux_bidi = (strstr( getenv("TERM"), "screen")) ? TRUE: FALSE;
+  opt.bold = false;        // display special days in boldface (no color)
+  opt.footnote = false;      // display description of month's holidays
+  opt.force_hebrew = false;    // force display of Hebrew data in Hebrew
+  opt.force_israel = false;    // override diaspora-awareness
+  opt.not_sunset_aware = false;  // override sunset-awareness
+  opt.quiet_alerts = false;
+	opt.mlterm = getenv("MLTERM") ? true: false;
+	opt.tmux_bidi = (strstr( getenv("TERM"), "screen")) ? true: false;
   opt.lat = BAD_COORDINATE;
   opt.lon = BAD_COORDINATE;
   // explain why the duplication of these next variables
@@ -2745,50 +2832,8 @@ int main (int argc, char *argv[])
   size_t  menu_len = 0;
   int menu_index;
   char *menuptr, *optptr;
-  // support for getopt short options
-  const char * short_options = "013bBcdfghHiImpqsl:L:z:";
-  // support for long options
-  int long_option_index = 0;
-  int switch_arg;
-  const struct option long_options[] = {
-  //   name,  has_arg, flag, val
-    {"version", no_argument, 0, 0},
-    {"help", no_argument, 0, 0},
-    {"no-reverse", no_argument, 0, 0},
-    {"html", no_argument, 0, 'h'},
-    {"parasha", no_argument, 0, 'p'},
-    {"shabbat", no_argument, 0, 's'},
-    {"three-month", no_argument, 0, '3'},
-    {"colorize", no_argument, 0, 'c'},
-    {"footnote", no_argument,0,'f'},
-    {"hebrew", no_argument, 0,'H'},
-    {"israel", no_argument, 0,'I'},
-    {"latitude", required_argument, 0, 'l'},
-    {"longitude", required_argument, 0, 'L'},
-    {"timezone", required_argument, 0, 'z'},
-    {"not-sunset-aware", no_argument, 0, 0},
-    {"quiet-alerts", no_argument, 0,'q'},
-    {"bidi", no_argument, 0,'b'},
-    {"visual", no_argument, 0,'b'},
-    {"one-month", no_argument, 0,'1'},
-    {"no-bidi", no_argument, 0, 0},
-    {"no-visual", no_argument, 0, 0},
-    {"no-color", no_argument, 0, 0},
-    {"no-footnote", no_argument, 0, 0},
-    {"menu", no_argument, 0,'m'},
-    {"candles", optional_argument, 0, 0},
-    {"havdalah", optional_argument, 0, 0},
-    {"gregorian", no_argument, 0,'g'},
-    {"no-gregorian", no_argument, 0,'0'},
-    {"borders", no_argument, 0, 0},
-    {"prefer-hebrew", no_argument, 0, 0},
-    {"prefer-gregorian", no_argument, 0, 0},
-    {"bold", no_argument, 0, 'B'},
-    {"usage", no_argument, 0, '?'},
-    {"mlterm", no_argument, 0, 0},
-    {"tmux-bidi", no_argument, 0, 0},
-    {0, 0, 0, 0}
-    };
+  int switch_arg = -1;        // FIXME: remove this declaration ?
+  int long_option_index = 0; // FIXME: remove this declaration ?
 
   /************************************************************
   * init locale
@@ -2815,17 +2860,8 @@ int main (int argc, char *argv[])
   * code does not use wide_char functions ...
   ************************************************************/
   setlocale (LC_ALL, "");
-  parse_config_file(&opt, &lat, &lon, &tz);
-
-  /************************************************************
-  * parse command line
-  ************************************************************/
-   while ((switch_arg = getopt_long(argc, argv,
-              short_options, long_options,
-              &long_option_index)) != -1)
-    error_detected = error_detected
-            + hcal_parser(switch_arg, &opt, &lat, &lon,
-                  &tz, opt.tz_name_str, long_option_index);
+  parse_config_file( &opt, &lat, &lon, &tz );
+  parse_command_line( argc, argv, &opt, &lat, &lon, &tz, &error_detected );
 
   /**************************************************
   * BEGIN - enable user-defined menu
@@ -2869,9 +2905,9 @@ int main (int argc, char *argv[])
     if ( opt.parasha || opt.shabbat || opt.footnote || opt.html )
     {
       error(0,0,"%s", N_("ALERT: options --parasha, --shabbat, --footnote, --html  are not supported in 'three-month' mode"));
-      opt.parasha = FALSE;
-      opt.shabbat = FALSE;
-      opt.footnote = FALSE;
+      opt.parasha = false;
+      opt.shabbat = false;
+      opt.footnote = false;
     }
     if (opt.border_spacing == NULL) opt.border_spacing = default_spacing;
   }
@@ -2884,9 +2920,9 @@ int main (int argc, char *argv[])
     if ( opt.parasha || opt.shabbat || opt.footnote )
     {
       error(0,0,"%s", N_("ALERT: options --parasha, --shabbat, --footnote are not supported in 'html' mode"));
-      opt.parasha = FALSE;
-      opt.shabbat = FALSE;
-      opt.footnote = FALSE;
+      opt.parasha = false;
+      opt.shabbat = false;
+      opt.footnote = false;
     }
   }
 
@@ -2977,7 +3013,7 @@ int main (int argc, char *argv[])
       // The parse_date function returns Hebrew
       // month values in the range 101 - 114
       month_to_do = month_to_do%100;
-      if (!month_to_do) opt.one_year = TRUE;
+      if (!month_to_do) opt.one_year = true;
     }
     else
     {
@@ -2988,7 +3024,7 @@ int main (int argc, char *argv[])
     /********************************************************
     * parameter validation - year
     ********************************************************/
-    if (!validate_hdate(CHECK_YEAR_PARM, 0, month_to_do, year_to_do, FALSE, &h))
+    if (!validate_hdate(CHECK_YEAR_PARM, 0, month_to_do, year_to_do, false, &h))
     {
       parm_error(year_text);
       exit_main(&opt, 0);
@@ -2996,7 +3032,7 @@ int main (int argc, char *argv[])
     /********************************************************
     * parameter validation - month
     ********************************************************/
-    if ((month_to_do!=0) && (!validate_hdate(CHECK_MONTH_PARM, 0, month_to_do, year_to_do, FALSE, &h)))
+    if ((month_to_do!=0) && (!validate_hdate(CHECK_MONTH_PARM, 0, month_to_do, year_to_do, false, &h)))
     {
       parm_error(month_text);
       exit_main(&opt, 0);
@@ -3010,7 +3046,7 @@ int main (int argc, char *argv[])
   /************************************************************
   * diaspora awareness
   ************************************************************/
-  if (opt.force_israel) opt.diaspora = FALSE;
+  if (opt.force_israel) opt.diaspora = false;
     // why no tzset logic here?
   else
   {
@@ -3019,7 +3055,7 @@ int main (int argc, char *argv[])
     // other than the system one, and we need DST awareness if
     // displaying Shabbat times.
     // system timezone is denominated in seconds
-    if ( (timezone/-3600) != 2) opt.diaspora = TRUE;
+    if ( (timezone/-3600) != 2) opt.diaspora = true;
   }
 
   /************************************************************
