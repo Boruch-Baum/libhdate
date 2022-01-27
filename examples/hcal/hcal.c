@@ -196,149 +196,6 @@ typedef struct {
 bool in_first_line_prev = FALSE; // UGH! Temporary global debug variable
 bool in_next = FALSE; // UGH! Temporary global debug variable
 
-static const char* hcal_config_file_text = N_("\
-# configuration file for hcal - Hebrew calendar program\n\
-# part of package libhdate\n\
-#\n# Should you mangle this file and wish to restore its default content,\n\
-# rename or delete this file and run hcal; hcal will automatically\n\
-# regenerate the default content.\n#\n\
-# Your system administrator can set system-wide defaults for hcal by\n\
-# modifying file <not yet implemented>.\n\
-# You may override all defaults by changing the contents of this file.\n\
-#\n\
-# Version information\n\
-# This may be used by updates to hcal to determine how to parse the file\n\
-# and whether additional information and options should be appended to\n\
-# the end of this file.\n\
-VERSION=2.00\n\
-# Location awareness\n\
-# hcal wants to accurately highlight the current Hebrew day, including\n\
-# during the hours between sunset and secular midnight. If you don't\n\
-# provide it with latitude, longitude, and time zone information, hcal\n\
-# will try to guess the information, based upon your system timezone,\n\
-# and its (limited, and maybe biased) of the dominant Jewish community\n\
-# in that timezone. When hcal is forced to guess, it alerts the user\n\
-# with a message that includes the guessed location.\n\
-# hcal's guesses will also affect its default behaviour for output of\n\
-# Shabbat times, parshiot, and choice of Israel/diaspora hoidays\n\
-#SUNSET_AWARE=TRUE\n\n\
-# Base Years\n\
-# hcal, by default, interprets two-digit year parameters as Hebrew\n\
-# years, and adds the value BASE_YEAR_HEBREW *100 to them. Set\n\
-# variable PREFER_HEBREW=FALSE to have them interpreted as gregorian,\n\
-# and have BASE_YEAR_GREGORIAN * 100 added to them.\n\
-#PREFER_HEBREW=TRUE\n\
-# valid values for BASE_YEAR_HEBREW are 30 - 69\n\
-#BASE_YEAR_HEBREW=57\n\
-# valid values for BASE_YEAR_GREGORIAN are 10 - 29\n\
-#BASE_YEAR_GREGORIAN=20\n\n\
-# LATITUDE and LONGITUDE may be in decimal format or in the form\n\
-# degrees[:minutes[:seconds]] with the characters :'\" as possible\n\
-# delimiters. Use negative values to indicate South and West, or\n\
-# use the abbreviated compass directions N, S, E, W.\n\
-#LATITUDE=\n\
-#LONGITUDE=\n\
-# TIMEZONE may may be in decimal format or in the form degrees[:minutes]\n\
-# with the characters :'\" as possible delimiters.\n\
-#TIMEZONE=\n\n\
-# Israel and the diaspora\n\
-# If hcal guesses that you're not in Israel, the DIASPORA option will be\n\
-# set true. This will affect holiday and parasha output.  FORCE_ISRAEL\n\
-# forces hcal to display calendar information for Israel, using hcal's\n\
-# default coordinates foe Israel, or coordinates that you provide that\n\
-# seem legitmately within Israel.\n\
-# Thus, if you are living in Sao Paolo, and will be visiting Israel for\n\
-# Sukkot, set BOTH flags true in order to see holiday information for\n\
-# a non-resident vistor to Israel. The command line options for these\n\
-# features are --israel, -I, --diaspora, -d.\n\
-#FORCE_DIASPORA=FALSE;\n\
-#FORCE_ISRAEL=FALSE;\n\n\
-# Shabbat related\n\
-# Setting SHABBAT_INFO true will output parshiot and Shabbat times.\n\
-# The command line options for these features are -p (--parasha), and\n\
-# -s (--shabbat). The CANDLE_LIGHTING field can accept a value of 18 - 90 (minutes\n\
-# before sunset). The HAVDALAH field can accept a value of 20 - 90\n\
-# (minutes after sunset).\n\
-#PARASHA_NAMES=FALSE\n\
-#SHABBAT_INFO=FALSE\n\
-#CANDLE_LIGHTING=FALSE\n\
-#HAVDALAH=FALSE\n\n\
-# Holiday identification\n\
-# hcal flags holidays by replacing the gregorian/Hebrew date separator\n\
-# with assorted unhelpful cryptic symbols. Setting FOOTNOTES to true\n\
-# will have hcal output after the month's calendar, a list of the month's\n\
-# holidays along with the days on which they occur.\n\
-#FOOTNOTE=FALSE\n\n\
-# Output in hebrew characters\n\
-# hcal defaults to output all information in your default language, so\n\
-# if your default language is Hebrew, you're all set. Otherwise, you can\n\
-# set FORCE_HEBREW to true to output Hebrew information in Hebrew, while\n\
-# still outputting gregorian information in your default language. To\n\
-# output ALL information in Hebrew, run something like this:\n\
-#    LC_TEMP=LC_ALL; LC_ALL=\"he_IL.UTF-8\"; hcal; LC_ALL=$LC_TEMP\n\
-# If setting FORCE_HEBREW to true results in 'garbage' or non-Hebrew\n\
-# output, you need to install a terminal font that includes the Hebrew\n\
-# character set (hint: unicode).\n\
-# The command line option for FORCE_HEBREW is either --hebrew or -H\n\
-#FORCE_HEBREW=FALSE\n\n\
-# The FORCE_HEBREW option outputs data that is 'correct' and 'logical'.\n\
-# Unfortunately, the world can not be depended upon to be either. Most\n\
-# Xwindow applications will display the data fine with FORCE_HEBREW; most\n\
-# xterm implementations will not. (in fact, the only xterm clone I know\n\
-# of that comes close is mlterm). If using FORCE_HEBREW results in\n\
-# Hebrew characters being displayed in reverse, set OUTPUT_BIDI to true.\n\
-# This will reverse the order of the Hebrew characters, so they will\n\
-# display 'visual'ly correct; however, such output will not be suitable\n\
-# for piping or pasting to many other applications. Setting OUTPUT_BIDI\n\
-# automatically forces hebrew.\n\
-# The command line option for OUTPUT_BIDI is either --bidi, --visual, or -b\n\
-#OUTPUT_BIDI=FALSE\n\n\
-# Bidi and RTL compliant terminal emulators\n\
-# If you're actually using mlterm, hcal should be able to auto-detect it. If\n\
-# you're using a terminal emulator that you think has similar compliance,\n\
-# setting MLTERM_ISH to true will avoid using presentation kludges and improve\n\
-# column alignment, especially for three-month wide output.  \n\
-#MLTERM_ISH=FALSE\n\n\
-# TMUX  bidi and RTL trouble\n\
-# If you're using tmux or screen, hcsl should be able to auto-detect it, and\n\
-# will apply padding kludges to try to make the presentation proper. You can\n\
-# over-ride that detection here.\n\
-#TMUX_BIDI=FALSE\n\n\
-# Display enhancements\n\
-# hcal defaults to display the current day in reverse video\n\
-# The command line option for this feature is --no-reverse\n\
-#SUPPRESS_REVERSE_VIDEO=FALSE;\n\
-# hcal can display its output \"calming, muted tones\". Valid values are TRUE,\n\
-# FALSE, and BOLD. Note that piping colorized output may yield unexpected results.\n\
-#COLORIZE=FALSE\n\n\
-# HTML OUTPUT\n\
-#OUTPUT_HTML=FALSE\n\
-#USE_EXTERNAL_CSS_FILE=\"pathto/foo/bar\"\n\n\
-# Suppress alerts and warnings\n\
-# hcal alerts the user via STDERR when it guesses the user's location.\n\
-#QUIET_ALERTS=FALSE\n\n\
-# Three month display\n\
-# hcal can display a previous, current and next month side-by-side. hcal\n\
-# can also display a calendar for an entire year in four rows of three\n\
-# months each. Note that this will display properly only if your console\n\
-# is set for at least 127 columns. Note also that setting this option to\n\
-# will cause options FOOTNOTES, SHABBAT, and PARASHA_NAMES to false.\n\
-#THREE_MONTH=FALSE\n\n\
-# User-defined menus\n\
-# You may specify here command-line strings to optionally be parsed\n\
-# by hcal at execution time. To do so, use the command line option -m\n\
-# (--menu). hcal will process first the settings of this config file,\n\
-# then the other settings of your command line, and then will prompt\n\
-# you for which menu item you would like to select. hcal will process\n\
-# your menu selection as if it were a new command line, further modifying\n\
-# all the prior settings.\n\
-# Only the first ten \"MENU=\" entries will be read. Each line will be\n\
-# truncated at one hundred characters\n\
-#MENU= -l -23.55 -L -46.61 -z -3      # parents in Sao Paolo\n\
-#MENU= -l 32 -L 34 -z 2               # son in bnei brak\n\
-#MENU= -fbc -l 43.71 -L -79.43 -z -5  # me in Toronto\n\
-#MENU= -l 22.26 -L 114.15 -z 8        # supplier in Hong Kong\n\
-");
 
 /**************************************************
 *  print version
@@ -2127,66 +1984,213 @@ int month ( int month, int year, option_list* opt)
 
 
 /****************************************************
-* read and parse config file
+* parse config file
 ****************************************************/
-void read_config_file(  FILE *config_file,
-            option_list *opt,
-            double*  latitude,
-            double*  longitude,
-            int*  tz,
-            char*  tz_name_str )
-
+void parse_config_file(
+       option_list *opt,
+       double*  latitude,
+       double*  longitude,
+       int*  tz)
 {
-  double tz_lat;
+  FILE  *config_file = NULL;
+  char*  tz_name_str = opt->tz_name_str;
+  double tz_lat = BAD_COORDINATE;
   char  *input_string = NULL;
-  size_t  input_str_len;  // unnecessary to initialize, per man(3) getline
-//  size_t  input_str_len = 200;  // WARNING: if you change this value
-                  // you will still have to also
-                  // change a matching value below
-                  // in the statement that includes:
-                  // match_count = sscanf(input_string
-  char  *input_key;    // unnecessary to initialize, per man(3) sscanf
-//  char  *input_key = NULL;
-  char  *input_value;  // unnecessary to initialize, per man(3) sscanf
-//  char  *input_value = NULL;
+  size_t input_str_len;  // unnecessary to initialize, per man(3) getline
+  char  *input_key;      // unnecessary to initialize, per man(3) sscanf
+  char  *input_value;    // unnecessary to initialize, per man(3) sscanf
   int    line_count = 0;
   int    menu_item = 0;
-  size_t  menu_len = 0;
-  int    match_count;
+  size_t menu_len = 0;
+  int    match_count = 0;
   int    end_of_input_file = FALSE;
   int    key_index = 0;
   int    temp_base_year = 0;
-  const int  num_of_keys = 24;
-  const char*  key_list[] = {  "SUNSET_AWARE",    // 0
-                "LATITUDE",
-                "LONGITUDE",    // 2
-                "TIMEZONE",
-                "DIASPORA",      // 4
-                "FORCE_ISRAEL",
-                "PARASHA_NAMES",  // 6
-                "SHABBAT_INFO",
-                "FOOTNOTE",    // 8
-                "FORCE_HEBREW",
-                "OUTPUT_BIDI",    //10
-                "SUPPRESS_REVERSE_VIDEO",
-                "COLORIZE",      //12
-                "OUTPUT_HTML",
-                "USE_EXTERNAL_CSS_FILE",
-                "QUIET_ALERTS",
-                "THREE_MONTH",    //16
-                "MENU",
-                "CANDLE_LIGHTING",  //18
-                "HAVDALAH",
-                "PREFER_HEBREW",  //20
-                "BASE_YEAR_HEBREW",
-                "BASE_YEAR_GREGORIAN", //22
-								"MLTERM_ISH",
-                "TMUX_BIDI" //24
-                };
-//  TODO - parse these!
+  const char* key_list[] = {
+/* 00 */ "SUNSET_AWARE",
+         "LATITUDE",
+         "LONGITUDE",
+         "TIMEZONE",
+         "DIASPORA",
+/* 05 */ "FORCE_ISRAEL",
+         "PARASHA_NAMES",
+         "SHABBAT_INFO",
+         "FOOTNOTE",
+         "FORCE_HEBREW",
+/* 10 */ "OUTPUT_BIDI",
+         "SUPPRESS_REVERSE_VIDEO",
+         "COLORIZE",
+         "OUTPUT_HTML",
+         "USE_EXTERNAL_CSS_FILE",
+/* 15 */ "QUIET_ALERTS",
+         "THREE_MONTH",
+         "MENU",
+         "CANDLE_LIGHTING",
+         "HAVDALAH",
+/* 20 */ "PREFER_HEBREW",
+         "BASE_YEAR_HEBREW",
+         "BASE_YEAR_GREGORIAN",
+         "MLTERM_ISH",
+/* 24 */ "TMUX_BIDI"
+    };
+  const int  num_of_keys = sizeof(key_list) / sizeof(char*);
+	static const char* config_dir_name  = "/hcal";
+  static const char* config_file_name = "/hcalrc_v1.8";
+  static const char* hcal_config_file_text = N_("\
+# configuration file for hcal - Hebrew calendar program\n\
+# part of package libhdate\n\
+#\n# Should you mangle this file and wish to restore its default content,\n\
+# rename or delete this file and run hcal; hcal will automatically\n\
+# regenerate the default content.\n#\n\
+# Your system administrator can set system-wide defaults for hcal by\n\
+# modifying file <not yet implemented>.\n\
+# You may override all defaults by changing the contents of this file.\n\
+#\n\
+# Version information\n\
+# This may be used by updates to hcal to determine how to parse the file\n\
+# and whether additional information and options should be appended to\n\
+# the end of this file.\n\
+VERSION=2.00\n\
+# Location awareness\n\
+# hcal wants to accurately highlight the current Hebrew day, including\n\
+# during the hours between sunset and secular midnight. If you don't\n\
+# provide it with latitude, longitude, and time zone information, hcal\n\
+# will try to guess the information, based upon your system timezone,\n\
+# and its (limited, and maybe biased) of the dominant Jewish community\n\
+# in that timezone. When hcal is forced to guess, it alerts the user\n\
+# with a message that includes the guessed location.\n\
+# hcal's guesses will also affect its default behaviour for output of\n\
+# Shabbat times, parshiot, and choice of Israel/diaspora hoidays\n\
+#SUNSET_AWARE=TRUE\n\n\
+# Base Years\n\
+# hcal, by default, interprets two-digit year parameters as Hebrew\n\
+# years, and adds the value BASE_YEAR_HEBREW *100 to them. Set\n\
+# variable PREFER_HEBREW=FALSE to have them interpreted as gregorian,\n\
+# and have BASE_YEAR_GREGORIAN * 100 added to them.\n\
+#PREFER_HEBREW=TRUE\n\
+# valid values for BASE_YEAR_HEBREW are 30 - 69\n\
+#BASE_YEAR_HEBREW=57\n\
+# valid values for BASE_YEAR_GREGORIAN are 10 - 29\n\
+#BASE_YEAR_GREGORIAN=20\n\n\
+# LATITUDE and LONGITUDE may be in decimal format or in the form\n\
+# degrees[:minutes[:seconds]] with the characters :'\" as possible\n\
+# delimiters. Use negative values to indicate South and West, or\n\
+# use the abbreviated compass directions N, S, E, W.\n\
+#LATITUDE=\n\
+#LONGITUDE=\n\
+# TIMEZONE may may be in decimal format or in the form degrees[:minutes]\n\
+# with the characters :'\" as possible delimiters.\n\
+#TIMEZONE=\n\n\
+# Israel and the diaspora\n\
+# If hcal guesses that you're not in Israel, the DIASPORA option will be\n\
+# set true. This will affect holiday and parasha output.  FORCE_ISRAEL\n\
+# forces hcal to display calendar information for Israel, using hcal's\n\
+# default coordinates foe Israel, or coordinates that you provide that\n\
+# seem legitmately within Israel.\n\
+# Thus, if you are living in Sao Paolo, and will be visiting Israel for\n\
+# Sukkot, set BOTH flags true in order to see holiday information for\n\
+# a non-resident vistor to Israel. The command line options for these\n\
+# features are --israel, -I, --diaspora, -d.\n\
+#FORCE_DIASPORA=FALSE\n\
+#FORCE_ISRAEL=FALSE\n\n\
+# Shabbat related\n\
+# Setting SHABBAT_INFO true will output parshiot and Shabbat times.\n\
+# The command line options for these features are -p (--parasha), and\n\
+# -s (--shabbat). The CANDLE_LIGHTING field can accept a value of 18 - 90 (minutes\n\
+# before sunset). The HAVDALAH field can accept a value of 20 - 90\n\
+# (minutes after sunset).\n\
+#PARASHA_NAMES=FALSE\n\
+#SHABBAT_INFO=FALSE\n\
+#CANDLE_LIGHTING=FALSE\n\
+#HAVDALAH=FALSE\n\n\
+# Holiday identification\n\
+# hcal flags holidays by replacing the gregorian/Hebrew date separator\n\
+# with assorted unhelpful cryptic symbols. Setting FOOTNOTES to true\n\
+# will have hcal output after the month's calendar, a list of the month's\n\
+# holidays along with the days on which they occur.\n\
+#FOOTNOTE=FALSE\n\n\
+# Output in hebrew characters\n\
+# hcal defaults to output all information in your default language, so\n\
+# if your default language is Hebrew, you're all set. Otherwise, you can\n\
+# set FORCE_HEBREW to true to output Hebrew information in Hebrew, while\n\
+# still outputting gregorian information in your default language. To\n\
+# output ALL information in Hebrew, run something like this:\n\
+#    LC_TEMP=LC_ALL; LC_ALL=\"he_IL.UTF-8\"; hcal; LC_ALL=$LC_TEMP\n\
+# If setting FORCE_HEBREW to true results in 'garbage' or non-Hebrew\n\
+# output, you need to install a terminal font that includes the Hebrew\n\
+# character set (hint: unicode).\n\
+# The command line option for FORCE_HEBREW is either --hebrew or -H\n\
+#FORCE_HEBREW=FALSE\n\n\
+# The FORCE_HEBREW option outputs data that is 'correct' and 'logical'.\n\
+# Unfortunately, the world can not be depended upon to be either. Most\n\
+# Xwindow applications will display the data fine with FORCE_HEBREW; most\n\
+# xterm implementations will not. (in fact, the only xterm clone I know\n\
+# of that comes close is mlterm). If using FORCE_HEBREW results in\n\
+# Hebrew characters being displayed in reverse, set OUTPUT_BIDI to true.\n\
+# This will reverse the order of the Hebrew characters, so they will\n\
+# display 'visual'ly correct; however, such output will not be suitable\n\
+# for piping or pasting to many other applications. Setting OUTPUT_BIDI\n\
+# automatically forces hebrew.\n\
+# The command line option for OUTPUT_BIDI is either --bidi, --visual, or -b\n\
+#OUTPUT_BIDI=FALSE\n\n\
+# Bidi and RTL compliant terminal emulators\n\
+# If you're actually using mlterm, hcal should be able to auto-detect it. If\n\
+# you're using a terminal emulator that you think has similar compliance,\n\
+# setting MLTERM_ISH to true will avoid using presentation kludges and improve\n\
+# column alignment, especially for three-month wide output.  \n\
+#MLTERM_ISH=FALSE\n\n\
+# TMUX  bidi and RTL trouble\n\
+# If you're using tmux or screen, hcsl should be able to auto-detect it, and\n\
+# will apply padding kludges to try to make the presentation proper. You can\n\
+# over-ride that detection here.\n\
+#TMUX_BIDI=FALSE\n\n\
+# Display enhancements\n\
+# hcal defaults to display the current day in reverse video\n\
+# The command line option for this feature is --no-reverse\n\
+#SUPPRESS_REVERSE_VIDEO=FALSE\n\
+# hcal can display its output \"calming, muted tones\". Valid values are TRUE,\n\
+# FALSE, and BOLD. Note that piping colorized output may yield unexpected results.\n\
+#COLORIZE=FALSE\n\n\
+# HTML OUTPUT\n\
+#OUTPUT_HTML=FALSE\n\
+#USE_EXTERNAL_CSS_FILE=\"pathto/foo/bar\"\n\n\
+# Suppress alerts and warnings\n\
+# hcal alerts the user via STDERR when it guesses the user's location.\n\
+#QUIET_ALERTS=FALSE\n\n\
+# Three month display\n\
+# hcal can display a previous, current and next month side-by-side. hcal\n\
+# can also display a calendar for an entire year in four rows of three\n\
+# months each. Note that this will display properly only if your console\n\
+# is set for at least 127 columns. Note also that setting this option to\n\
+# will cause options FOOTNOTES, SHABBAT, and PARASHA_NAMES to false.\n\
+#THREE_MONTH=FALSE\n\n\
+# User-defined menus\n\
+# You may specify here command-line strings to optionally be parsed\n\
+# by hcal at execution time. To do so, use the command line option -m\n\
+# (--menu). hcal will process first the settings of this config file,\n\
+# then the other settings of your command line, and then will prompt\n\
+# you for which menu item you would like to select. hcal will process\n\
+# your menu selection as if it were a new command line, further modifying\n\
+# all the prior settings.\n\
+# Only the first ten \"MENU=\" entries will be read. Each line will be\n\
+# truncated at one hundred characters\n\
+#MENU= -l -23.55 -L -46.61 -z -3      # parents in Sao Paolo\n\
+#MENU= -l 32 -L 34 -z 2               # son in bnei brak\n\
+#MENU= -fbc -l 43.71 -L -79.43 -z -5  # me in Toronto\n\
+#MENU= -l 22.26 -L 114.15 -z 8        # supplier in Hong Kong\n\
+");
+
+//  TODO: Consider parsing the following:
 //  opt.prefer_hebrew = TRUE;
 //  opt.base_year_h = 5700;    // TODO - Make this user-selectable
 //  opt.base_year_g = 2000;    // TODO - Make this user-selectable
+
+  if (! get_config_file( config_dir_name,
+												 config_file_name,
+												 hcal_config_file_text,
+                         opt->quiet_alerts,
+												 &config_file))
+    return;
 
   while ( end_of_input_file!=TRUE )
   {
@@ -2197,8 +2201,6 @@ void read_config_file(  FILE *config_file,
       match_count = sscanf(input_string,"%m[A-Z_]=%m[^\n]",&input_key,&input_value);
       line_count++;
       if (errno != 0) error(0,errno,"scan error at line %d", line_count);
-// DEBUG:  printf("line number = %d, matches made = %d, key = %s, value = %s, string = %s",
-//                line_count, match_count, input_key, input_value, input_string);
       if (match_count == 2)
       {
         for (key_index=0; key_index<num_of_keys; key_index++)
@@ -2207,136 +2209,217 @@ void read_config_file(  FILE *config_file,
           {
             switch(key_index)
             {
-    case  0:if      (strcasecmp(input_value,"FALSE") == 0) opt->not_sunset_aware = TRUE;
-        else if (strcasecmp(input_value,"TRUE") == 0) opt->not_sunset_aware = FALSE;
-        break;
-    case  1:
-        parse_coordinate(1, input_value, latitude);
-        break;
-    case  2:
-        parse_coordinate(2, input_value, longitude);
-        break;
-    case  3:
-        if  (!parse_timezone_numeric(input_value, tz))
-        {
-          if (parse_timezone_alpha(input_value, &tz_name_str, tz, &tz_lat, &opt->tz_lon))
-          {
-            // TODO - really, at this point, shouldn't either both be bad or botha be good?
-            if (*latitude  == BAD_COORDINATE) *latitude = tz_lat;
-            if (*longitude == BAD_COORDINATE) *longitude = opt->tz_lon;
-          }
-        }
-        break;
-    case  4:if      (strcasecmp(input_value,"FALSE") == 0) opt->diaspora = FALSE;
-        else if (strcasecmp(input_value,"TRUE") == 0) opt->diaspora = TRUE;
-        break;
-    case  5:if      (strcasecmp(input_value,"FALSE") == 0) opt->force_israel = FALSE;
-        else if (strcasecmp(input_value,"TRUE") == 0) opt->force_israel = TRUE;
-        break;
-    case  6:if      (strcasecmp(input_value,"FALSE") == 0) opt->parasha = FALSE;
-        else if (strcasecmp(input_value,"TRUE") == 0) opt->parasha = TRUE;
-        break;
-    case  7:if      (strcasecmp(input_value,"FALSE") == 0) opt->shabbat = FALSE;
-        else if (strcasecmp(input_value,"TRUE") == 0)
-        {
-          opt->shabbat = TRUE;
-          opt->parasha = TRUE;
-        }
-        break;
-    case  8:if      (strcasecmp(input_value,"FALSE") == 0) opt->footnote = FALSE;
-        else if (strcasecmp(input_value,"TRUE") == 0) opt->footnote = TRUE;
-        break;
-    case  9:if      (strcasecmp(input_value,"FALSE") == 0) opt->force_hebrew = FALSE;
-        else if (strcasecmp(input_value,"TRUE") == 0) opt->force_hebrew = TRUE;
-        break;
-    case 10:if      (strcasecmp(input_value,"FALSE") == 0) opt->bidi = FALSE;
-        else if (strcasecmp(input_value,"TRUE") == 0)
-            {
-              opt->bidi = TRUE;
-              opt->force_hebrew = TRUE;
-            }
-        break;
-    case 11:if      (strcasecmp(input_value,"FALSE") == 0) opt->no_reverse = FALSE;
-        else if (strcasecmp(input_value,"TRUE") == 0) opt->no_reverse = TRUE;
-        break;
-    case 12:if  (strcasecmp(input_value,"FALSE") == 0) opt->colorize = 0;
-        else if (strcasecmp(input_value,"TRUE") == 0) opt->colorize = 1;
-        else if (strcasecmp(input_value,"BOLD") == 0) opt->colorize = 2;
-        break;
-    case 13:if      (strcasecmp(input_value,"FALSE") == 0) opt->html = FALSE;
-        else if (strcasecmp(input_value,"TRUE") == 0) opt->html = TRUE;
-        break;
-    case 14:if      (strcasecmp(input_value,"FALSE") == 0) opt->external_css = FALSE;
-        else if (strcasecmp(input_value,"TRUE") == 0) opt->external_css = TRUE;
-        break;
-    case 15:if      (strcasecmp(input_value,"FALSE") == 0) opt->quiet_alerts = FALSE;
-        else if (strcasecmp(input_value,"TRUE") == 0) opt->quiet_alerts = TRUE;
-        break;
-    case 16:if      (strcasecmp(input_value,"FALSE") == 0) opt->three_month = 0;
-        else if (strcasecmp(input_value,"TRUE") == 0) opt->three_month = 1;
-        break;
+// Beginning of switch cases. For readability, I'm resetting the
+// indent level of the switch cases.
 
-//    MENU
-    case 17:if (menu_item < MAX_MENU_ITEMS)
-        {
-          menu_len = strlen(input_value);
-          opt->menu_item[menu_item] = malloc(menu_len+1);
-          memcpy(opt->menu_item[menu_item], input_value,menu_len);
-          menu_item++;
-        }
-        break;
-//    CANDLE_LIGHTING
-    case 18:if      (strcasecmp(input_value,"FALSE") == 0) opt->candles = 0;
-        else if (strcasecmp(input_value,"TRUE") == 0) opt->candles = 1;
-        else if (fnmatch( "[[:digit:]]?([[:digit:]])", input_value, FNM_EXTMATCH) == 0)
-        {
-          opt->candles = atoi(input_value);
-          if (opt->candles < MIN_CANDLES_MINUTES) opt->candles = MIN_CANDLES_MINUTES;
-          else if (opt->candles > MAX_CANDLES_MINUTES) opt->candles = MAX_CANDLES_MINUTES;
-        }
-        break;
+// Many of the switch cases will use the following macro:
+# define set_true_false(option) \
+	if (strcasecmp(input_value,"FALSE") == 0) option = FALSE; \
+  else if (strcasecmp(input_value,"TRUE") == 0) option = TRUE;
 
-//    HAVDALAH
-    case 19:if      (strcasecmp(input_value,"FALSE") == 0) opt->havdalah = 0;
-        else if (strcasecmp(input_value,"TRUE") == 0) opt->havdalah = 1;
-        else if (fnmatch( "[[:digit:]]?([[:digit:]])", input_value, FNM_EXTMATCH) == 0)
-        {
-          opt->havdalah = atoi(input_value);
-          if (opt->havdalah < MIN_MOTZASH_MINUTES) opt->havdalah = MIN_MOTZASH_MINUTES;
-          else if (opt->havdalah > MAX_MOTZASH_MINUTES) opt->havdalah = MAX_MOTZASH_MINUTES;
-        }
-        break;
-//    PREFER_HEBREW
-    case 20:if      (strcasecmp(input_value,"FALSE") == 0) opt->prefer_hebrew = FALSE;
-        else if (strcasecmp(input_value,"TRUE") == 0) opt->prefer_hebrew = TRUE;
-        break;
-//    BASE_YEAR_HEBREW
-    case 21:if (fnmatch( "[3456][[:digit:]]", input_value, FNM_EXTMATCH) == 0)
-        {
-          temp_base_year = atoi(input_value);
-          if ( (temp_base_year < (HDATE_HEB_YR_LOWER_BOUND/100)) ||
-             (temp_base_year > (HDATE_HEB_YR_UPPER_BOUND/100)) )
-             opt->base_year_h = HDATE_DEFAULT_BASE_YEAR_H;
-          else opt->base_year_h = temp_base_year * 100;
-        }
-        break;
-//    BASE_YEAR_GREGORIAN
-    case 22:if (fnmatch( "[12][[:digit:]]", input_value, FNM_EXTMATCH) == 0)
-        {
-          temp_base_year = atoi(input_value);
-          if ( (temp_base_year < (HDATE_HEB_YR_LOWER_BOUND/100)) ||
-             (temp_base_year > (HDATE_HEB_YR_UPPER_BOUND/100)) )
-             opt->base_year_h = HDATE_DEFAULT_BASE_YEAR_H;
-          else opt->base_year_h = temp_base_year * 100;
-        }
-        break;
-//    MLTERM_ISH
-    case 23: opt->mlterm = (strcasecmp(input_value,"FALSE") == 0) ? FALSE : TRUE;
-        break;
-//    TMUX_BIDI
-    case 24: opt->tmux_bidi = (strcasecmp(input_value,"FALSE") == 0) ? FALSE : TRUE;
-        break;
-//  End of switch cases
+// SUNSET_AWARE
+case  0:
+  if (strcasecmp(input_value,"FALSE") == 0)
+		opt->not_sunset_aware = TRUE;
+  else if (strcasecmp(input_value,"TRUE") == 0)
+		opt->not_sunset_aware = FALSE;
+  break;
+
+// LATITUDE
+case  1:
+  parse_coordinate(1, input_value, latitude);
+  break;
+
+// LONGITUDE
+case  2:
+  parse_coordinate(2, input_value, longitude);
+  break;
+
+// TIMEZONE
+case  3:
+  if (!parse_timezone_numeric(input_value, tz))
+  {
+    if (parse_timezone_alpha(input_value, &tz_name_str, tz, &tz_lat, &opt->tz_lon))
+    {
+      // TODO - really, at this point, shouldn't either both be bad or both be good?
+      if (*latitude  == BAD_COORDINATE)
+				*latitude = tz_lat;
+      if (*longitude == BAD_COORDINATE)
+				*longitude = opt->tz_lon;
+    }
+  }
+  break;
+
+// DIASPORA
+case  4:
+  set_true_false( opt->diaspora )
+  break;
+
+// FORCE_ISRAEL
+case  5:
+  set_true_false( opt->force_israel )
+  break;
+
+// PARASHA_NAMES
+case  6:
+  set_true_false( opt->parasha )
+  break;
+
+// SHABBAT_INFO
+case  7:
+	if (strcasecmp(input_value,"FALSE") == 0)
+		opt->shabbat = FALSE;
+  else if (strcasecmp(input_value,"TRUE") == 0)
+  {
+    opt->shabbat = TRUE;
+    opt->parasha = TRUE;
+  }
+  break;
+
+// FOOTNOTE
+case  8:
+  set_true_false( opt->footnote )
+  break;
+
+// FORCE_HEBREW
+case9:
+  set_true_false( opt->force_hebrew )
+  break;
+
+// OUTPUT_BIDI
+case 10:
+	if (strcasecmp(input_value,"FALSE") == 0)
+  	opt->bidi = FALSE;
+  else if (strcasecmp(input_value,"TRUE") == 0)
+  {
+    opt->bidi = TRUE;
+    opt->force_hebrew = TRUE;
+  }
+  break;
+
+// SUPPRESS_REVERSE_VIDEO
+case 11:
+  set_true_false( opt->no_reverse )
+  break;
+
+// COLORIZE
+case 12:
+  if (strcasecmp(input_value,"FALSE") == 0)
+    opt->colorize = 0;
+  else if (strcasecmp(input_value,"TRUE") == 0)
+    opt->colorize = 1;
+  else if (strcasecmp(input_value,"BOLD") == 0)
+    opt->colorize = 2;
+  break;
+
+// OUTPUT_HTML
+case 13:
+  set_true_false( opt->html )
+  break;
+
+// USE_EXTERNAL_CSS_FILE
+case 14:
+  set_true_false( opt->external_css )
+  break;
+
+// QUIET_ALERTS
+case 15:
+  set_true_false( opt->quiet_alerts )
+  break;
+
+// THREE_MONTH
+case 16:
+  if (strcasecmp(input_value,"FALSE") == 0)
+		opt->three_month = 0;
+  else if (strcasecmp(input_value,"TRUE") == 0)
+		opt->three_month = 1;
+  break;
+
+// MENU
+case 17:
+  if (menu_item < MAX_MENU_ITEMS)
+  {
+    menu_len = strlen(input_value);
+    opt->menu_item[menu_item] = malloc(menu_len+1);
+    memcpy(opt->menu_item[menu_item], input_value,menu_len);
+    menu_item++;
+  }
+  break;
+
+// CANDLE_LIGHTING
+case 18:
+  if (strcasecmp(input_value,"FALSE") == 0)
+		opt->candles = 0;
+  else if (strcasecmp(input_value,"TRUE") == 0)
+    opt->candles = 1;
+  else if (fnmatch( "[[:digit:]]?([[:digit:]])", input_value, FNM_EXTMATCH) == 0)
+  {
+    opt->candles = atoi(input_value);
+    if (opt->candles < MIN_CANDLES_MINUTES)
+			opt->candles = MIN_CANDLES_MINUTES;
+    else if (opt->candles > MAX_CANDLES_MINUTES)
+			opt->candles = MAX_CANDLES_MINUTES;
+  }
+  break;
+
+// HAVDALAH
+case 19:
+  if (strcasecmp(input_value,"FALSE") == 0)
+		opt->havdalah = 0;
+  else if (strcasecmp(input_value,"TRUE") == 0)
+		opt->havdalah = 1;
+  else if (fnmatch( "[[:digit:]]?([[:digit:]])", input_value, FNM_EXTMATCH) == 0)
+  {
+    opt->havdalah = atoi(input_value);
+    if (opt->havdalah < MIN_MOTZASH_MINUTES)
+			opt->havdalah = MIN_MOTZASH_MINUTES;
+    else if (opt->havdalah > MAX_MOTZASH_MINUTES)
+			opt->havdalah = MAX_MOTZASH_MINUTES;
+  }
+  break;
+
+// PREFER_HEBREW
+case 20:
+  set_true_false( opt->prefer_hebrew )
+  break;
+
+// BASE_YEAR_HEBREW
+case 21:
+  if (fnmatch( "[3456][[:digit:]]", input_value, FNM_EXTMATCH) == 0)
+  {
+    temp_base_year = atoi(input_value);
+		opt->base_year_h = // long ternary operator
+      ( (temp_base_year < (HDATE_HEB_YR_LOWER_BOUND/100))
+        || (temp_base_year > (HDATE_HEB_YR_UPPER_BOUND/100)) )
+      ? HDATE_DEFAULT_BASE_YEAR_H
+      : temp_base_year * 100;
+  }
+  break;
+
+// BASE_YEAR_GREGORIAN
+case 22:
+  if (fnmatch( "[12][[:digit:]]", input_value, FNM_EXTMATCH) == 0)
+  {
+    temp_base_year = atoi(input_value);
+    opt->base_year_g = // long ternary operator
+      ( (temp_base_year < (HDATE_GREG_YR_LOWER_BOUND/100))
+        || (temp_base_year > (HDATE_GREG_YR_UPPER_BOUND/100)) )
+      ? HDATE_DEFAULT_BASE_YEAR_G
+      : temp_base_year * 100;
+  }
+  break;
+
+// MLTERM_ISH
+case 23:
+  set_true_false( opt->mlterm )
+  break;
+
+// TMUX_BIDI
+case 24:
+  set_true_false( opt->tmux_bidi )
+  break;
+
+// End of switch cases. Returning to prior indentation level
 				    }
 				  }
 				}
@@ -2346,6 +2429,7 @@ void read_config_file(  FILE *config_file,
     }
   }
   if (input_string != NULL ) free(input_string);
+  fclose(config_file);
   return;
 }
 
@@ -2384,7 +2468,6 @@ int hcal_parser( const int switch_arg, option_list *opt,
 {
   double tz_lat;
   static char *timezone_text  = N_("z (timezone)");
-
   int error_detected = 0;
 
   switch (switch_arg)
@@ -2732,17 +2815,7 @@ int main (int argc, char *argv[])
   * code does not use wide_char functions ...
   ************************************************************/
   setlocale (LC_ALL, "");
-
-  /************************************************************
-  * parse config file
-  ************************************************************/
-  FILE *config_file = NULL;
-  if (get_config_file("/hcal", "/hcalrc_v1.8", hcal_config_file_text,
-            opt.quiet_alerts, &config_file))
-  {
-    read_config_file(config_file, &opt, &lat, &lon, &tz, opt.tz_name_str);
-    fclose(config_file);
-  }
+  parse_config_file(&opt, &lat, &lon, &tz);
 
   /************************************************************
   * parse command line
