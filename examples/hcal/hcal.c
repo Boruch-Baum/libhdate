@@ -1850,7 +1850,7 @@ void footnotes_all( hdate_struct* h, option_list* opt)
   while ( ( (opt->gregorian > 1) && (footnote_month == h->gd_mon ) ) ||
           ( (opt->gregorian < 2) && (footnote_month == h->hd_mon ) )  )
   {
-    holiday = hdate_get_halachic_day( &h, opt->diaspora );
+    holiday = hdate_get_halachic_day( h, opt->diaspora );
     if (holiday)
     {
       footnote( h, footnote_month, opt,
