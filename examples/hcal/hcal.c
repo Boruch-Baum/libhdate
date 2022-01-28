@@ -2806,6 +2806,145 @@ void parse_user_menu_selection(
 }
 
 
+
+/**************************************************
+*   warn_and_correct_bad_option_combinations
+*************************************************/
+void  warn_and_correct_bad_option_combinations( option_list* opt )
+{
+  if  (opt->three_month)
+  {
+    if ( opt->parasha || opt->shabbat || opt->footnote || opt->html )
+    {
+      error(0,0,"%s", N_("ALERT: options --parasha, --shabbat, --footnote, --html  are not supported in 'three-month' mode"));
+      opt->parasha = false;
+      opt->shabbat = false;
+      opt->footnote = false;
+    }
+    if (opt->border_spacing == NULL) opt->border_spacing = default_spacing;
+  }
+  if  (opt->html)
+  {
+    if ( opt->parasha || opt->shabbat || opt->footnote )
+    {
+      error(0,0,"%s", N_("ALERT: options --parasha, --shabbat, --footnote are not supported in 'html' mode"));
+      opt->parasha = false;
+      opt->shabbat = false;
+      opt->footnote = false;
+    }
+  }
+}
+
+
+
+/************************************************************
+* determine what day to highlight (ie. what is today)
+************************************************************/
+void set_day_needing_highlighting ( hdate_struct* h, option_list* opt )
+{
+  if ( opt->no_reverse || opt->html )
+  {
+    // user doesn't want any highlighting
+    opt->jd_today_g = 0;
+    opt->jd_today_h = 0;
+  }
+  else
+  {
+    hdate_set_gdate( h, 0, 0, 0);
+    opt->jd_today_g = h->hd_jd;
+    if ((!opt->not_sunset_aware) &&
+        (check_for_sunset(h, opt->lat, opt->lon, opt->tz)) )
+      opt->jd_today_h = h->hd_jd + 1;
+    else
+			opt->jd_today_h = h->hd_jd;
+  }
+}
+
+
+
+/**************************************************
+* parse and vaildate date parameters
+**************************************************/
+void parse_and_validate_date_parameters ( hdate_struct* h, option_list* opt, int argc, char* argv[], int* month_to_do, int* year_to_do )
+{
+  int data_sink;        // store unwanted stuff here
+
+  /**************************************************
+  * no date parameter provided - use current mm yyyy
+  * and no need to validate parameters
+  **************************************************/
+  if (argc == optind)
+  {
+    if ( opt->not_sunset_aware || opt->no_reverse || opt->html )
+      // call function only if not already called
+      // for sunset awareness, above.
+      hdate_set_gdate( h, 0, 0, 0);  // today
+    if (opt->gregorian > 1)
+    {
+      *month_to_do = h->gd_mon;
+      *year_to_do = h->gd_year;
+    }
+    else
+    {
+      *month_to_do = h->hd_mon;
+      *year_to_do = h->hd_year;
+    }
+  }
+  else
+  {
+    /********************************************************
+    * additional parameters provided - get them and validate
+    ********************************************************/
+    if (argc == (optind + 2))
+    {
+      if (!hdate_parse_date( argv[optind], argv[optind+1],
+               "", &*year_to_do, &*month_to_do, &data_sink, 2,
+               opt->prefer_hebrew, HDATE_PREFER_YM,
+               opt->base_year_h, opt->base_year_g))
+        exit_main(opt,0);
+      // The parse_date function returns Hebrew
+      // month values in the range 101 - 114
+      *month_to_do = *month_to_do%100;
+    }
+    else if (argc == (optind + 1))
+    {
+      *month_to_do = 0;
+      if (!hdate_parse_date( argv[optind], "", "",
+               &*year_to_do, &*month_to_do, &data_sink, 1,
+               opt->prefer_hebrew, HDATE_PREFER_YM,
+               opt->base_year_h, opt->base_year_g))
+        exit_main(opt,0);
+      // The parse_date function returns Hebrew
+      // month values in the range 101 - 114
+      *month_to_do = *month_to_do%100;
+      if (!*month_to_do) opt->one_year = true;
+    }
+    else
+    {
+      error(0,0,"%s: %s", N_("error"), N_("too many parameters received (expected at most month and year after options list)"));
+      exit_main(opt, 0);
+    }
+
+    /********************************************************
+    * parameter validation - year
+    ********************************************************/
+    if (!validate_hdate(CHECK_YEAR_PARM, 0, *month_to_do, *year_to_do, false, h))
+    {
+      parm_error(year_text);
+      exit_main(opt, 0);
+    }
+    /********************************************************
+    * parameter validation - month
+    ********************************************************/
+    if ((*month_to_do!=0) && (!validate_hdate(CHECK_MONTH_PARM, 0, *month_to_do, *year_to_do, false, h)))
+    {
+      parm_error(month_text);
+      exit_main(opt, 0);
+    }
+  }
+}
+
+
 /**************************************************
 * initialize an option_list data structure
 *************************************************/
@@ -2867,7 +3006,6 @@ int main (int argc, char *argv[])
 {
   hdate_struct h;
   int error_detected = false;  // exit after reporting ALL bad parms
-  int data_sink;        // store unwanted stuff here
   int month_to_do = 0;
   int year_to_do = 0;
   const int num_of_months = 12;  // how many months in the year
@@ -2882,35 +3020,7 @@ int main (int argc, char *argv[])
   parse_command_line( argc, argv, &opt, &lat, &lon, &tz, &error_detected );
   if (opt.menu)
 		parse_user_menu_selection( &opt, &lat, &lon, &tz, &error_detected );
-
-  /**************************************************
-  * three month mode checks
-  *************************************************/
-  if  (opt.three_month)
-  {
-    if ( opt.parasha || opt.shabbat || opt.footnote || opt.html )
-    {
-      error(0,0,"%s", N_("ALERT: options --parasha, --shabbat, --footnote, --html  are not supported in 'three-month' mode"));
-      opt.parasha = false;
-      opt.shabbat = false;
-      opt.footnote = false;
-    }
-    if (opt.border_spacing == NULL) opt.border_spacing = default_spacing;
-  }
-
-  /**************************************************
-  * html month mode checks
-  *************************************************/
-  if  (opt.html)
-  {
-    if ( opt.parasha || opt.shabbat || opt.footnote )
-    {
-      error(0,0,"%s", N_("ALERT: options --parasha, --shabbat, --footnote are not supported in 'html' mode"));
-      opt.parasha = false;
-      opt.shabbat = false;
-      opt.footnote = false;
-    }
-  }
+  warn_and_correct_bad_option_combinations( &opt );
 
   // MISSING - validation of lat lon tz !!
 
@@ -2926,104 +3036,8 @@ int main (int argc, char *argv[])
   opt.lon = lon;
   opt.tz = tz;
 
-  /************************************************************
-  * determine what day to highlight (ie. what is today)
-  ************************************************************/
-  if ( opt.no_reverse || opt.html )
-  {
-    // user doesn't want any highlighting
-    opt.jd_today_g = 0;
-    opt.jd_today_h = 0;
-  }
-  else
-  {
-    hdate_set_gdate( &h, 0, 0, 0);
-    opt.jd_today_g = h.hd_jd;
-    if  ((!opt.not_sunset_aware) &&
-       (check_for_sunset(&h, lat, lon, tz)) )
-          opt.jd_today_h = h.hd_jd + 1;
-    else     opt.jd_today_h = h.hd_jd;
-  }
-
-
-
-/**************************************************
-* parse and vaildate date parameters
-**************************************************/
-  /**/
-  /**************************************************
-  * no date parameter provided - use current mm yyyy
-  * and no need to validate parameters
-  **************************************************/
-  if (argc == (optind))
-  {
-    if ( opt.not_sunset_aware || opt.no_reverse || opt.html )
-      // call function only if not already called
-      // for sunset awareness, above.
-      hdate_set_gdate( &h, 0, 0, 0);  // today
-    if (opt.gregorian > 1)
-    {
-      month_to_do = h.gd_mon;
-      year_to_do = h.gd_year;
-    }
-    else
-    {
-      month_to_do = h.hd_mon;
-      year_to_do = h.hd_year;
-    }
-  }
-  else
-  {
-    /********************************************************
-    * additional parameters provided - get them and validate
-    ********************************************************/
-    if (argc == (optind + 2))
-    {
-      if (!hdate_parse_date( argv[optind], argv[optind+1],
-               "", &year_to_do, &month_to_do, &data_sink, 2,
-               opt.prefer_hebrew, HDATE_PREFER_YM,
-               opt.base_year_h, opt.base_year_g))
-        exit_main(&opt,0);
-      // The parse_date function returns Hebrew
-      // month values in the range 101 - 114
-      month_to_do = month_to_do%100;
-    }
-    else if (argc == (optind + 1))
-    {
-      month_to_do = 0;
-      if (!hdate_parse_date( argv[optind], "", "",
-               &year_to_do, &month_to_do, &data_sink, 1,
-               opt.prefer_hebrew, HDATE_PREFER_YM,
-               opt.base_year_h, opt.base_year_g))
-        exit_main(&opt,0);
-      // The parse_date function returns Hebrew
-      // month values in the range 101 - 114
-      month_to_do = month_to_do%100;
-      if (!month_to_do) opt.one_year = true;
-    }
-    else
-    {
-      error(0,0,"%s: %s", N_("error"), N_("too many parameters received (expected at most month and year after options list)"));
-      exit_main(&opt, 0);
-    }
-
-    /********************************************************
-    * parameter validation - year
-    ********************************************************/
-    if (!validate_hdate(CHECK_YEAR_PARM, 0, month_to_do, year_to_do, false, &h))
-    {
-      parm_error(year_text);
-      exit_main(&opt, 0);
-    }
-    /********************************************************
-    * parameter validation - month
-    ********************************************************/
-    if ((month_to_do!=0) && (!validate_hdate(CHECK_MONTH_PARM, 0, month_to_do, year_to_do, false, &h)))
-    {
-      parm_error(month_text);
-      exit_main(&opt, 0);
-    }
-  }
+  set_day_needing_highlighting ( &h, &opt );
+  parse_and_validate_date_parameters ( &h, &opt, argc, argv, &month_to_do, &year_to_do );
 
 /************************************************************
 * begin processing the user request
