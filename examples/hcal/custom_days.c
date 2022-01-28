@@ -186,6 +186,7 @@ H, _, 3001, 0000, 11,  9, 0, 0, שבת נחמו, שבת נחמו, Shabbat Nacham
 H, _, 3001, 0000,  8, 14, 0, 0, פסח שני, פסח שני, Pesach Sheni, Pesach Sheni,               0, 0,  0,  0,  0,  0,  0\n\
 H, _, 3001, 0000, 13, 14, 0, 0, פורים קטן, פורים קטן, Purim Katan, Purim Katan,             0, 0,  0,  0,  0,  0,  0\n");
 
+#ifdef DEBUG
 static const char* custom_days_file_debug_text = N_("\n\
 # DEBUG TESTS - REMOVE PRIOR TO RELEASE\n\
 # =====================================\n\
@@ -197,6 +198,7 @@ h, :, 5730, 0000,  4,  0, 2, 5, יום הוקרת הפינגיונים עברי 
 g, :, 1980, 0000,  5,  0, 1, 2, יום הוקרת הפינגיונים לועז ב, _, Penguin Appreciation Day greg test, _,  0,  0, 0, 0, 0, 0, 0\n\
 H, :, 5750, 0000,  6,  8, 0, 0, פינגיונים מעדיפים יום ד,     _, Penguins Appreciate Wednesday test, _, -2, -3, 3, 0, 0, 0, 0\n\
 G, :, 2000, 0000,  7,  1, 0, 0, פינגיונים בעד סופש ארוך,     _, Penguins want long weekends test,   _,  0, -1, 1, 0, 0, 0, 0\n");
+#endif
 
 static const char* custom_israeli_days_text_for_israel = N_("\
 \n\
