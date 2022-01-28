@@ -2806,6 +2806,55 @@ void parse_user_menu_selection(
 }
 
 
+/**************************************************
+* initialize an option_list data structure
+*************************************************/
+void initialize_option_list_struct( option_list* opt )
+{
+  opt->prefer_hebrew = true;
+  opt->base_year_h = HDATE_DEFAULT_BASE_YEAR_H;    // TODO - Make this user-selectable
+  opt->base_year_g = HDATE_DEFAULT_BASE_YEAR_G;    // TODO - Make this user-selectable
+  opt->gregorian = 0;      // -0 don't display any gregorian information
+  opt->bidi = false;        // visual bidi, implies --force-hebrew
+  opt->html = false;        // -h html format flag
+  opt->diaspora = false;      // -d Diaspora holidays
+  opt->external_css = false;    // -i External css file
+  opt->parasha = false;      // -p print parasha alongside calendar
+  opt->shabbat = false;      // -c print candle-lighting alongside calendar
+  opt->candles = 0;
+  opt->havdalah = 0;
+  opt->no_reverse = false;      // don't highlight today in reverse video
+  opt->three_month = 0;    // print previous and next months also
+  opt->one_year = false;
+  opt->border_spacing = NULL;      // horizontal spacing string in 3-month mode
+  opt->colorize = 0;      // display calendar in muted, more pleasing tones
+  opt->bold = false;        // display special days in boldface (no color)
+  opt->footnote = false;      // display description of month's holidays
+  opt->force_hebrew = false;    // force display of Hebrew data in Hebrew
+  opt->force_israel = false;    // override diaspora-awareness
+  opt->not_sunset_aware = false;  // override sunset-awareness
+  opt->quiet_alerts = false;
+	opt->mlterm = getenv("MLTERM") ? true: false;
+	opt->tmux_bidi = (strstr( getenv("TERM"), "screen")) ? true: false;
+  opt->lat = BAD_COORDINATE;
+  opt->lon = BAD_COORDINATE;
+  opt->tz = BAD_TIMEZONE;
+  opt->tz_name_str = NULL;
+  opt->tz_lon = BAD_COORDINATE;
+  opt->custom_days_cnt = BAD_CUSTOM_DAY_CNT;
+  opt->custom_days_index = 0;
+  opt->jdn_list_ptr = NULL;
+  opt->string_list_ptr = NULL;
+  opt->tzif_entries = 0;
+  opt->tzif_index = 0;
+  opt->tzif_data = NULL;
+  opt->epoch_start = 0;
+  opt->epoch_end = 0;
+  opt->menu = 0;
+  for (int i=0; i<MAX_MENU_ITEMS; i++) opt->menu_item[i] = NULL;
+}
+
+
 
 /**************************************************
 *
@@ -2819,63 +2868,20 @@ int main (int argc, char *argv[])
   hdate_struct h;
   int error_detected = false;  // exit after reporting ALL bad parms
   int data_sink;        // store unwanted stuff here
-  int month_to_do, year_to_do;
+  int month_to_do = 0;
+  int year_to_do = 0;
   const int num_of_months = 12;  // how many months in the year
   option_list opt;
-  opt.prefer_hebrew = true;
-  opt.base_year_h = HDATE_DEFAULT_BASE_YEAR_H;    // TODO - Make this user-selectable
-  opt.base_year_g = HDATE_DEFAULT_BASE_YEAR_G;    // TODO - Make this user-selectable
-  opt.gregorian = 0;      // -0 don't display any gregorian information
-  opt.bidi = false;        // visual bidi, implies --force-hebrew
-  opt.html = false;        // -h html format flag
-  opt.diaspora = false;      // -d Diaspora holidays
-  opt.external_css = false;    // -i External css file
-  opt.parasha = false;      // -p print parasha alongside calendar
-  opt.shabbat = false;      // -c print candle-lighting alongside calendar
-  opt.candles = 0;
-  opt.havdalah = 0;
-  opt.no_reverse = false;      // don't highlight today in reverse video
-  opt.three_month = 0;    // print previous and next months also
-  opt.one_year = false;
-  opt.border_spacing = NULL;      // horizontal spacing string in 3-month mode
-  opt.colorize = 0;      // display calendar in muted, more pleasing tones
-  opt.bold = false;        // display special days in boldface (no color)
-  opt.footnote = false;      // display description of month's holidays
-  opt.force_hebrew = false;    // force display of Hebrew data in Hebrew
-  opt.force_israel = false;    // override diaspora-awareness
-  opt.not_sunset_aware = false;  // override sunset-awareness
-  opt.quiet_alerts = false;
-	opt.mlterm = getenv("MLTERM") ? true: false;
-	opt.tmux_bidi = (strstr( getenv("TERM"), "screen")) ? true: false;
-  opt.lat = BAD_COORDINATE;
-  opt.lon = BAD_COORDINATE;
-  // explain why the duplication of these next variables
+  initialize_option_list_struct( &opt );
   // lat/lon aren't dups of opt.lat/lon because ...
   double lat = BAD_COORDINATE;  // set to this value for error handling
   double lon = BAD_COORDINATE;  // set to this value for error handling
   int tz = BAD_TIMEZONE;
-  opt.tz = BAD_TIMEZONE;
-  opt.tz_name_str = NULL;
-  opt.tz_lon = BAD_COORDINATE;
-  opt.custom_days_cnt = BAD_CUSTOM_DAY_CNT;
-  opt.custom_days_index = 0;
-  opt.jdn_list_ptr = NULL;
-  opt.string_list_ptr = NULL;
-  opt.tzif_entries = 0;
-  opt.tzif_index = 0;
-  opt.tzif_data = NULL;
-  opt.epoch_start = 0;
-  opt.epoch_end = 0;
-  // -m print menus for user-selection
-  opt.menu = 0;
-  int i;
-  for (i=0; i<MAX_MENU_ITEMS; i++) opt.menu_item[i] = NULL;
   setlocale (LC_ALL, ""); // ensure wide-character functions use utf8 (?)
   parse_config_file( &opt, &lat, &lon, &tz );
   parse_command_line( argc, argv, &opt, &lat, &lon, &tz, &error_detected );
   if (opt.menu)
 		parse_user_menu_selection( &opt, &lat, &lon, &tz, &error_detected );
-
 
   /**************************************************
   * three month mode checks
