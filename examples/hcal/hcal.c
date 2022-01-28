@@ -28,15 +28,73 @@
 
 /* (DRAFT) COMMENTARY
 
-* opt->three_month == 12
+* Explaining opt.three_month
 
-  this is an inelegant way to identify the possible fifth row of a
-  calendar displaying three months across. This can happen for a
-  Hebrew calendar in a leap year, or for a calendar displaying
-  gregorian months for an entire Hebrew year. The possibilities are to
-  print one or two months on this line.
+  opt->three_month == 12 :: This is an inelegant way to identify the
+  possible fifth row of a calendar displaying three months across.
+  This can happen for a Hebrew calendar in a leap year, or for a
+  calendar displaying gregorian months for an entire Hebrew year. The
+  possibilities are to print one or two months on this line.
+
+* Explaining TIME ZONE POLICY:
+
+   Internally, we seem to always deal with timezone (tz) in integer
+   minutes, not seconds or hours, so the valid range is:
+     -11 hours * 60 minutes = -1380 minutes
+   to
+     +14 hours * 60 minutes = +1440 minutes
+
+   As an input parameter, the options are:
+   -z number (absolute over-ride of system time zone)
+          number is in form hh[:mm] or hh.hh
+          longitude mis-sync -> just alert
+          no longitude -> guess (including zone.tab for current)
+          alert no dst awareness
+   -z name   (absolute over-ride of system time zone)
+          longitude mis-sync -> just alert
+          latitude mis-sync (re:zone.tab) - just alert
+          no longitude -> use zone.tab entry
+   -z null   system time zone (/etc/localtime)
+          longitude mis-sync -> just alert
+          latitude mis-sync (re:zone.tab) - just alert
+          no longitude -> use zone.tab entry
+
+
+* Explaiing CUSTOM DAYS DATA STRUCTUES:
+
+   custom_days_cnt - number of custom days found for interval,
+          and the number of entries in each of the associated
+          data structures.
+   custom_days_index - presuming custom days are sorted in
+          ascending date order, this is useful for resuming a
+          a scan/search of custom days. However, currently
+          sorting has not been coded.
+     jdn_list_ptr - a malloc'ed list of {custom_days_cnt} julian
+            day numbers of the custom days found for interval.
+     string_list_ptr - a malloc'ed list of {custom_days_cnt}
+            uniform lenth strings describing the custom days.
+            The first {sizeof(size_t)} bytes is the size of each
+            element in this array
+
+
+*  Explaining DAYLIGHT SAVINGS TIME DATA STRUCTUES:
+
+   These elements are necessary for displaying Shabbat times,
+   and for sunset-awareness.
+
+   tzif_entries - number of DST transitions found for the interval
+          and the number of entries in each of the associated
+          data structures.
+   tzif_index - DST transition information will always be sorted
+          in ascending date order, so this is useful for resuming
+          a scan/search
+   tzif_data -
+   epoch_start - date, in epoch format for the beginning of the
+          interval
+   epoch_end - date, in epoch format for the end of the interval.
 
 */
+
 #include <hdate.h>		/// For hebrew date( gcc -I ../../src)
 #include <support.h>	/// libhdate general macros, including for gettext
 #include <stdio.h>		/// For printf
@@ -2792,72 +2850,17 @@ int main (int argc, char *argv[])
   opt.lat = BAD_COORDINATE;
   opt.lon = BAD_COORDINATE;
   // explain why the duplication of these next variables
+  // lat/lon aren't dups of opt.lat/lon because ...
   double lat = BAD_COORDINATE;  // set to this value for error handling
   double lon = BAD_COORDINATE;  // set to this value for error handling
   int tz = BAD_TIMEZONE;
-  /******************************************************************
-  *
-  * TIME ZONE POLICY EXPLAINED:
-  *
-  * -z number (absolute over-ride of system time zone)
-    *      longitude mis-sync -> just alert
-    *      no longitude -> guess (including zone.tab for current)
-    *      alert no dst awareness
-  * -z name   (absolute over-ride of system time zone)
-    *      longitude mis-sync -> just alert
-    *      latitude mis-sync (re:zone.tab) - just alert
-    *      no longitude -> use zone.tab entry
-  * -z null   system time zone (/etc/localtime)
-    *      longitude mis-sync -> just alert
-    *      latitude mis-sync (re:zone.tab) - just alert
-    *      no longitude -> use zone.tab entry
-    *
-  *****************************************************************/
   opt.tz = BAD_TIMEZONE;
   opt.tz_name_str = NULL;
   opt.tz_lon = BAD_COORDINATE;
-  /******************************************************************
-  *
-  * CUSTOM DAYS DATA STRUCTUES EXPLAINED:
-  *
-  * custom_days_cnt - number of custom days found for interval,
-  *        and the number of entries in each of the associated
-  *        data structures.
-  * custom_days_index - presuming custom days are sorted in
-  *        ascending date order, this is useful for resuming a
-  *        a scan/search of custom days. However, currently
-  *        sorting has not been coded.
-    * jdn_list_ptr - a malloc'ed list of {custom_days_cnt} julian
-    *        day numbers of the custom days found for interval.
-    * string_list_ptr - a malloc'ed list of {custom_days_cnt}
-    *        uniform lenth strings describing the custom days.
-    *        The first {sizeof(size_t)} bytes is the size of each
-    *        element in this array
-    *
-  *****************************************************************/
   opt.custom_days_cnt = BAD_CUSTOM_DAY_CNT;
   opt.custom_days_index = 0;
   opt.jdn_list_ptr = NULL;
   opt.string_list_ptr = NULL;
-  /******************************************************************
-  *
-  * DAYLIGHT SAVINGS TIME DATA STRUCTUES EXPLAINED:
-  *
-  * These elements are necessary for displaying Shabbat times,
-  * and for sunset-awareness.
-  *
-  * tzif_entries - number of DST transitions found for the interval
-  *        and the number of entries in each of the associated
-  *        data structures.
-  * tzif_index - DST transition information will always be sorted
-  *        in ascending date order, so this is useful for resuming
-  *        a scan/search
-  * tzif_data -
-  * epoch_start - date, in epoch format for the beginning of the
-  *        interval
-  * epoch_end - date, in epoch format for the end of the interval.
-    *
-  *****************************************************************/
   opt.tzif_entries = 0;
   opt.tzif_index = 0;
   opt.tzif_data = NULL;
@@ -2867,32 +2870,7 @@ int main (int argc, char *argv[])
   opt.menu = 0;
   int i;
   for (i=0; i<MAX_MENU_ITEMS; i++) opt.menu_item[i] = NULL;
-
-  /************************************************************
-  * init locale
-  *
-  * I'm not sure why this had to be done. Per an answer on
-  * stackoverflow (not yet check out by me):
-  *
-  * "At program startup, you should call setlocale():
-  *      setlocale(LC_CTYPE, "");
-  * This will cause the wide character functions to use the
-  * appropriate character set defined by the environment - eg.
-  * on Unix-like systems, the LANG environment variable. For
-  * example, this means that if your LANG variable is set to a
-  * UTF8 locale, the wide character functions will handle input
-  * and output in UTF8. (This is how the POSIX wc utility is
-  * specified to work). You can then use the wide-character
-  * versions of all the standard functions. However, if you
-  * really do want to count characters rather than bytes, and
-  * can assume that your text files are encoded in UTF-8, then
-  * the easiest approach is to count all bytes that are not
-  * trail bytes (i.e., in the range 0x80 to 0xBF)."
-  *
-  * Note: the code sets LC_ALL instead of LC_CTYPE; and the
-  * code does not use wide_char functions ...
-  ************************************************************/
-  setlocale (LC_ALL, "");
+  setlocale (LC_ALL, ""); // ensure wide-character functions use utf8 (?)
   parse_config_file( &opt, &lat, &lon, &tz );
   parse_command_line( argc, argv, &opt, &lat, &lon, &tz, &error_detected );
   if (opt.menu)
