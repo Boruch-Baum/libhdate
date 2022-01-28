@@ -2041,6 +2041,69 @@ int month ( int month, int year, option_list* opt)
 }
 
 
+
+/****************************************************
+* process a request for a year-long calendar
+****************************************************/
+void year( int year_to_do, hdate_struct* h, option_list* opt )
+{
+  const int num_of_months = 12;  // how many months in the year
+  int month_to_do = 0;
+  {
+    if (opt->three_month)
+    {
+      if (year_to_do > HDATE_HEB_YR_LOWER_BOUND) hdate_set_hdate( h, 1, 1, year_to_do);
+      else hdate_set_gdate( h, 1, 1, year_to_do);
+
+      for (month_to_do=2; month_to_do<num_of_months; month_to_do=month_to_do+3)
+      {
+        if ( (h->hd_size_of_year > 355 )  &&
+           (year_to_do > HDATE_HEB_YR_LOWER_BOUND) &&
+           (month_to_do == 8)               )
+          month_to_do = 7;
+        month(month_to_do, year_to_do, opt);
+      }
+
+      if  ( (year_to_do > HDATE_HEB_YR_LOWER_BOUND) &&
+          ( (h->hd_size_of_year > 355 ) || (opt->gregorian > 1)) )
+      {
+        opt->three_month = 12;
+        month(12, year_to_do, opt);
+      }
+      if ( (h->hd_size_of_year > 355 ) && (opt->gregorian > 1) )
+        opt->three_month = 13;
+    }
+    else // print an entire  year, but not three months wide
+    {
+      if  ( opt->gregorian < 2 )
+        hdate_set_hdate( h, 1, 1, year_to_do);
+
+      for (month_to_do=1; month_to_do<=num_of_months; month_to_do++)
+      {
+        if ( ( opt->gregorian < 2 )       &&
+           ( h->hd_size_of_year > 355 ) )
+        {
+          if (month_to_do == 6) month(13, year_to_do, opt);
+          else if (month_to_do == 7)
+          {
+            month(14, year_to_do, opt);
+            month(month_to_do, year_to_do, opt);
+          }
+          else month(month_to_do, year_to_do, opt);
+        }
+        else month(month_to_do, year_to_do, opt);
+         if ((opt->footnote) && (month_to_do<=num_of_months)) printf("\n");
+      }
+      if ( (opt->gregorian > 1) && (year_to_do > HDATE_HEB_YR_LOWER_BOUND) )
+      {
+         if (opt->footnote) printf("\n");
+        month( 1, year_to_do+1, opt) ;
+      }
+    }
+  }
+}
+
+
 /****************************************************
 * exit elegantly
 ****************************************************/
@@ -2566,6 +2629,8 @@ const struct option long_options[] = {
 /****************************************************
 * parse a command-line or a config-file menu line
 *
+* RETURNS: Integer: number of errors detected
+*
 * It was appropriate to make this a function, outside
 * of main, because of its dual use and dual reference
 ****************************************************/
@@ -2757,14 +2822,14 @@ void parse_command_line (
                                    short_options,
 																	 long_options,
                                    &long_option_index)) != -1)
-   error_detected = error_detected
-                  + hcal_parser(switch_arg,
-																opt,
-																latitude,
-																longitude,
-                                tz,
-																opt->tz_name_str,
-																long_option_index);
+   *error_detected = *error_detected
+                   + hcal_parser(switch_arg,
+																 opt,
+																 latitude,
+																 longitude,
+                                 tz,
+																 opt->tz_name_str,
+																 long_option_index);
 }
 
 
@@ -2793,14 +2858,14 @@ void parse_user_menu_selection(
               &optptr, short_options, long_options,
               &long_option_index, error_detected) ) != -1)
     {
-      error_detected = error_detected
-                     + hcal_parser(switch_arg,
-   																 opt,
-   																 latitude,
-   																 longitude,
-                                   tz,
-   																 opt->tz_name_str,
-   																 long_option_index);
+      *error_detected = *error_detected
+                      + hcal_parser(switch_arg,
+   										 						  opt,
+   										 						  latitude,
+   										 						  longitude,
+                                    tz,
+   										 	 					  opt->tz_name_str,
+   										  						long_option_index);
     }
   }
 }
@@ -2862,12 +2927,39 @@ void set_day_needing_highlighting ( hdate_struct* h, option_list* opt )
 
 
 
+/************************************************************
+* process diaspora awareness
+************************************************************/
+void process_diaspora_awareness( option_list* opt )
+{
+  if (opt->force_israel) opt->diaspora = false;
+    // why no tzset logic here?
+  else
+  {
+    tzset();
+    // 'timzone' is a system variable. See tzset(3).
+    // But the user may be requesting a calendar for a timezone
+    // other than the system one, and we need DST awareness if
+    // displaying Shabbat times.
+    // system timezone is denominated in seconds
+    if ( (timezone/-3600) != 2) opt->diaspora = true;
+  }
+}
+
+
+
 /**************************************************
 * parse and vaildate date parameters
 **************************************************/
-void parse_and_validate_date_parameters ( hdate_struct* h, option_list* opt, int argc, char* argv[], int* month_to_do, int* year_to_do )
+void parse_and_validate_date_parameters (
+       hdate_struct* h,
+			 option_list* opt,
+			 int argc,
+			 char* argv[],
+			 int* month_to_do,
+			 int* year_to_do )
 {
-  int data_sink;        // store unwanted stuff here
+  int data_sink; // store unwanted stuff here
 
   /**************************************************
   * no date parameter provided - use current mm yyyy
@@ -2895,7 +2987,7 @@ void parse_and_validate_date_parameters ( hdate_struct* h, option_list* opt, int
     /********************************************************
     * additional parameters provided - get them and validate
     ********************************************************/
-    if (argc == (optind + 2))
+    if (argc == (optind + 2)) // for optind: man getopt(3)
     {
       if (!hdate_parse_date( argv[optind], argv[optind+1],
                "", &*year_to_do, &*month_to_do, &data_sink, 2,
@@ -3008,7 +3100,6 @@ int main (int argc, char *argv[])
   int error_detected = false;  // exit after reporting ALL bad parms
   int month_to_do = 0;
   int year_to_do = 0;
-  const int num_of_months = 12;  // how many months in the year
   option_list opt;
   initialize_option_list_struct( &opt );
   // lat/lon aren't dups of opt.lat/lon because ...
@@ -3022,7 +3113,7 @@ int main (int argc, char *argv[])
 		parse_user_menu_selection( &opt, &lat, &lon, &tz, &error_detected );
   warn_and_correct_bad_option_combinations( &opt );
 
-  // MISSING - validation of lat lon tz !!
+  // FIXME: Missing validation of lat lon tz !!
 
   // exit after reporting all bad parameters found */
   if (error_detected)
@@ -3038,102 +3129,16 @@ int main (int argc, char *argv[])
 
   set_day_needing_highlighting ( &h, &opt );
   parse_and_validate_date_parameters ( &h, &opt, argc, argv, &month_to_do, &year_to_do );
-
-/************************************************************
-* begin processing the user request
-************************************************************/
-
-  /************************************************************
-  * diaspora awareness
-  ************************************************************/
-  if (opt.force_israel) opt.diaspora = false;
-    // why no tzset logic here?
-  else
-  {
-    tzset();
-    // But the user may be requesting a calendar for a timezone
-    // other than the system one, and we need DST awareness if
-    // displaying Shabbat times.
-    // system timezone is denominated in seconds
-    if ( (timezone/-3600) != 2) opt.diaspora = true;
-  }
-
-  /************************************************************
-  * print HTML header
-  ************************************************************/
-  if (opt.html) html_header (opt.external_css, opt.force_hebrew);
-
-
-  /************************************************************
-  * print one year
-  ************************************************************/
+  process_diaspora_awareness( &opt );
+  // Now we are ready to produce the user's request
+  if (opt.html)
+		html_header (opt.external_css, opt.force_hebrew);
   if (opt.one_year)
-  {
-    if (opt.three_month)
-    {
-      if (year_to_do > HDATE_HEB_YR_LOWER_BOUND) hdate_set_hdate( &h, 1, 1, year_to_do);
-      else hdate_set_gdate( &h, 1, 1, year_to_do);
-
-      for (month_to_do=2; month_to_do<num_of_months; month_to_do=month_to_do+3)
-      {
-        if ( (h.hd_size_of_year > 355 )  &&
-           (year_to_do > HDATE_HEB_YR_LOWER_BOUND) &&
-           (month_to_do == 8)               )
-          month_to_do = 7;
-        month(month_to_do, year_to_do, &opt);
-      }
-
-      if  ( (year_to_do > HDATE_HEB_YR_LOWER_BOUND) &&
-          ( (h.hd_size_of_year > 355 ) || (opt.gregorian > 1)) )
-      {
-        opt.three_month = 12;
-        month(12, year_to_do, &opt);
-      }
-      if ( (h.hd_size_of_year > 355 ) && (opt.gregorian > 1) )
-        opt.three_month = 13;
-    }
-    else // print an entire  year, but not three months wide
-    {
-      if  ( opt.gregorian < 2 )
-        hdate_set_hdate( &h, 1, 1, year_to_do);
-
-      for (month_to_do=1; month_to_do<=num_of_months; month_to_do++)
-      {
-        if ( ( opt.gregorian < 2 )       &&
-           ( h.hd_size_of_year > 355 ) )
-        {
-          if (month_to_do == 6) month(13, year_to_do, &opt);
-          else if (month_to_do == 7)
-          {
-            month(14, year_to_do, &opt);
-            month(month_to_do, year_to_do, &opt);
-          }
-          else month(month_to_do, year_to_do, &opt);
-        }
-        else month(month_to_do, year_to_do, &opt);
-         if ((opt.footnote) && (month_to_do<=num_of_months)) printf("\n");
-      }
-      if ( (opt.gregorian > 1) && (year_to_do > HDATE_HEB_YR_LOWER_BOUND) )
-      {
-         if (opt.footnote) printf("\n");
-        month( 1, year_to_do+1, &opt) ;
-      }
-    }
-  }
-
-
-  /************************************************************
-  * print only this month
-  ************************************************************/
-  else month(month_to_do, year_to_do, &opt);
-
-
-
-  /************************************************************
-  * print HTML footer
-  ************************************************************/
-  if (opt.html) html_footer();
-
+    year( year_to_do, &h, &opt );
+  else
+		month( month_to_do, year_to_do, &opt );
+  if (opt.html)
+		html_footer();
   exit_main(&opt, 0);
   return 0;
 }
