@@ -2789,6 +2789,84 @@ int parameter_parser( int switch_arg, option_list *opt,
 }
 
 
+/**************************************************
+* initialize an option_list data structure
+*************************************************/
+void initialize_option_list_struct( option_list* opt )
+{
+  opt->prefer_hebrew = TRUE;
+  opt->base_year_h = HDATE_DEFAULT_BASE_YEAR_H;    // TODO - Make this user-selectable from command line
+  opt->base_year_g = HDATE_DEFAULT_BASE_YEAR_G;    // TODO - Make this user-selectable from command line
+  opt->lat = BAD_COORDINATE;
+  opt->lon = BAD_COORDINATE;
+  opt->tz_name_str = NULL;
+  // opt->tz_lat = BAD_COORDINATE;
+  opt->tz_lon = BAD_COORDINATE;
+  opt->tz_offset = BAD_TIMEZONE;
+  opt->tzif_entries =0;
+  opt->tzif_data = NULL;
+  opt->tzif_index = 0;
+  opt->print_tomorrow = 0;    // TRUE if currently after sunset
+  opt->time_option_requested = FALSE;
+  opt->epoch_start= 0;      // for checking dst transitions
+  opt->epoch_end  = 0;      // for checking dst transitions
+  opt->epoch_today  = 0;    // for checking dst transitions
+  opt->epoch_parm_received = 0;
+  opt->hebrew = 0;
+  opt->bidi = 0;
+  opt->yom = 0;
+  opt->leShabbat = 0;
+  opt->leSeder = 0;
+  opt->tablular_output = 0;
+  opt->not_sunset_aware = 0;
+  opt->quiet = 0;
+  opt->first_light = 0;
+  opt->talit = 0;
+  opt->sunrise = 0;
+  opt->magen_avraham = 0;
+  opt->shema = 0;
+  opt->amidah = 0;
+  opt->midday = 0;
+  opt->mincha_gedola = 0;
+  opt->mincha_ketana = 0;
+  opt->plag_hamincha = 0;
+  opt->sunset = 0;
+  opt->first_stars = 0;
+  opt->three_stars = 0;
+  opt->sun_hour = 0;
+  opt->candles = 0;
+  opt->havdalah = 0;
+  opt->times = 0;        // -t option print times of day
+  opt->short_format = 0;    // -S Short format flag
+  opt->holidays = 0;      // -h option holidays
+  opt->only_if_holiday = 0;  // -H option just holidays
+  opt->parasha = 0;      // -r option reading
+  opt->only_if_parasha = 0;  // -R option just reading
+  opt->julian = 0;        // -j option Julian day number
+  opt->diaspora = -1;      // -d option diaspora, if not explicitly set by user or config file
+                // to 0/1 will be set based on timezone/location awareness guess.
+  opt->iCal = 0;        // -i option iCal
+  opt->daf_yomi = 0;
+  opt->omer = 0;        // -o option Sfirat Haomer
+  opt->la_omer = 0;      // use lame instead of bet
+  opt->emesh = TRUE;        // whether times begin at prior sunset or AM
+  opt->menu = 0;        // -m print menus for user-selection
+  opt->afikomen = 0;      // Hebrew 'easter egg' (lehavdil)
+  opt->end_eating_chometz_ma = 0;
+  opt->end_eating_chometz_gra = 0;
+  opt->end_owning_chometz_ma = 0;
+  opt->end_owning_chometz_gra = 0;
+  opt->data_first = TRUE;
+  opt->print_epoch = FALSE;
+  opt->custom_days_cnt = 0;
+  opt->jdn_list_ptr = NULL;  // for custom_days
+  opt->string_list_ptr= NULL;  // for custom_days
+  // TODO - be sure to free() opt->jdn_list_ptr, opt->string_list_ptr upon exit
+  for (int i=0; i<MAX_MENU_ITEMS; i++) opt.menu_item[i] = NULL;
+}
+
+
+
 /************************************************************
  *
  *
@@ -2815,80 +2893,10 @@ int main (int argc, char *argv[])
   int custom_days_file_ready = FALSE;
 
   option_list opt;
-  opt.prefer_hebrew = TRUE;
-  opt.base_year_h = HDATE_DEFAULT_BASE_YEAR_H;    // TODO - Make this user-selectable from command line
-  opt.base_year_g = HDATE_DEFAULT_BASE_YEAR_G;    // TODO - Make this user-selectable from command line
-  opt.lat = BAD_COORDINATE;
-  opt.lon = BAD_COORDINATE;
-  opt.tz_name_str = NULL;
-  // opt.tz_lat = BAD_COORDINATE;
-  opt.tz_lon = BAD_COORDINATE;
-  opt.tz_offset = BAD_TIMEZONE;
-  opt.tzif_entries =0;
-  opt.tzif_data = NULL;
-  opt.tzif_index = 0;
-  opt.print_tomorrow = 0;    // TRUE if currently after sunset
-  opt.time_option_requested = FALSE;
-  opt.epoch_start= 0;      // for checking dst transitions
-  opt.epoch_end  = 0;      // for checking dst transitions
-  opt.epoch_today  = 0;    // for checking dst transitions
-  opt.epoch_parm_received = 0;
-  opt.hebrew = 0;
-  opt.bidi = 0;
-  opt.yom = 0;
-  opt.leShabbat = 0;
-  opt.leSeder = 0;
-  opt.tablular_output = 0;
-  opt.not_sunset_aware = 0;
-  opt.quiet = 0;
-  opt.first_light = 0;
-  opt.talit = 0;
-  opt.sunrise = 0;
-  opt.magen_avraham = 0;
-  opt.shema = 0;
-  opt.amidah = 0;
-  opt.midday = 0;
-  opt.mincha_gedola = 0;
-  opt.mincha_ketana = 0;
-  opt.plag_hamincha = 0;
-  opt.sunset = 0;
-  opt.first_stars = 0;
-  opt.three_stars = 0;
-  opt.sun_hour = 0;
-  opt.candles = 0;
-  opt.havdalah = 0;
-  opt.times = 0;        // -t option print times of day
-  opt.short_format = 0;    // -S Short format flag
-  opt.holidays = 0;      // -h option holidays
-  opt.only_if_holiday = 0;  // -H option just holidays
-  opt.parasha = 0;      // -r option reading
-  opt.only_if_parasha = 0;  // -R option just reading
-  opt.julian = 0;        // -j option Julian day number
-  opt.diaspora = -1;      // -d option diaspora, if not explicitly set by user or config file
-                // to 0/1 will be set based on timezone/location awareness guess.
-  opt.iCal = 0;        // -i option iCal
-  opt.daf_yomi = 0;
-  opt.omer = 0;        // -o option Sfirat Haomer
-  opt.la_omer = 0;      // use lame instead of bet
-  opt.emesh = TRUE;        // whether times begin at prior sunset or AM
-  opt.menu = 0;        // -m print menus for user-selection
-  opt.afikomen = 0;      // Hebrew 'easter egg' (lehavdil)
-  opt.end_eating_chometz_ma = 0;
-  opt.end_eating_chometz_gra = 0;
-  opt.end_owning_chometz_ma = 0;
-  opt.end_owning_chometz_gra = 0;
-  opt.data_first = TRUE;
-  opt.print_epoch = FALSE;
-  opt.custom_days_cnt = 0;
-  opt.jdn_list_ptr = NULL;  // for custom_days
-  opt.string_list_ptr= NULL;  // for custom_days
-  // TODO - be sure to free() opt.jdn_list_ptr, opt.string_list_ptr upon exit
-
-  // for user-defined menus (to be read from config file)
-  size_t  menu_len = 0;
+  initialize_option_list_struct( &opt );
+  size_t  menu_len = 0;  // for user-defined menus (to be read from config file)
   int menu_index;
   char *menuptr, *optptr;
-  int i; for (i=0; i<MAX_MENU_ITEMS; i++) opt.menu_item[i] = NULL;
 
   int getopt_retval;
   // getopt short options:
