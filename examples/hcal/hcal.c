@@ -2712,6 +2712,44 @@ void parse_command_line (
 
 
 /**************************************************
+* parse user menu selection
+*************************************************/
+void parse_user_menu_selection(
+       option_list* opt,
+       double*  latitude,
+       double*  longitude,
+       int*  tz,
+	  	 int* error_detected )
+{
+  int response = menu_select( &opt->menu_item[0], MAX_MENU_ITEMS );
+  if (response == -1) exit_main(opt, 0);
+  else if ((response < MAX_MENU_ITEMS) && (opt->menu_item[response] != NULL))
+  {
+    char* menuptr = opt->menu_item[response];
+    size_t menu_len = strlen( menuptr );
+    int menu_index = 0;
+    char* optptr = NULL;
+    int long_option_index = 0;
+    int switch_arg = -1;
+    while (( switch_arg = menu_item_parse( menuptr, menu_len, &menu_index,
+              &optptr, short_options, long_options,
+              &long_option_index, error_detected) ) != -1)
+    {
+      error_detected = error_detected
+                     + hcal_parser(switch_arg,
+   																 opt,
+   																 latitude,
+   																 longitude,
+                                   tz,
+   																 opt->tz_name_str,
+   																 long_option_index);
+    }
+  }
+}
+
+
+
+/**************************************************
 *
 *
 * MAIN
@@ -2829,11 +2867,6 @@ int main (int argc, char *argv[])
   opt.menu = 0;
   int i;
   for (i=0; i<MAX_MENU_ITEMS; i++) opt.menu_item[i] = NULL;
-  size_t  menu_len = 0;
-  int menu_index;
-  char *menuptr, *optptr;
-  int switch_arg = -1;        // FIXME: remove this declaration ?
-  int long_option_index = 0; // FIXME: remove this declaration ?
 
   /************************************************************
   * init locale
@@ -2862,39 +2895,8 @@ int main (int argc, char *argv[])
   setlocale (LC_ALL, "");
   parse_config_file( &opt, &lat, &lon, &tz );
   parse_command_line( argc, argv, &opt, &lat, &lon, &tz, &error_detected );
-
-  /**************************************************
-  * BEGIN - enable user-defined menu
-  *************************************************/
   if (opt.menu)
-  {
-    i = menu_select( &opt.menu_item[0], MAX_MENU_ITEMS );
-    if (i == -1) exit_main(&opt, 0);
-    else if ((i < MAX_MENU_ITEMS) && (opt.menu_item[i] != NULL))
-    {
-
-      /**************************************************
-      * parse user's menu selection
-      *************************************************/
-      menuptr = opt.menu_item[i];
-      menu_len = strlen( menuptr );
-      menu_index = 0;
-      optptr = NULL;
-      optarg = NULL;
-
-      while (( switch_arg = menu_item_parse( menuptr, menu_len, &menu_index,
-                &optptr, short_options, long_options,
-                &long_option_index, &error_detected) ) != -1)
-      {
-        error_detected = error_detected +
-          hcal_parser(switch_arg, &opt, &lat, &lon,
-                &tz, opt.tz_name_str, long_option_index);
-      }
-    }
-  }
-  /**************************************************
-  * END   - enable user-defined menu
-  *************************************************/
+		parse_user_menu_selection( &opt, &lat, &lon, &tz, &error_detected );
 
 
   /**************************************************
