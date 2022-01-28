@@ -2904,6 +2904,33 @@ void parse_command_line (
 
 
 /**************************************************
+* parse user menu selection
+*************************************************/
+void parse_user_menu_selection( option_list* opt, int* error_detected )
+{
+	int response = menu_select( &opt->menu_item[0], MAX_MENU_ITEMS );
+  if (response == -1) exit_main(opt, 0);
+  else if ((response < MAX_MENU_ITEMS) && (opt->menu_item[response] != NULL))
+  {
+    char* menuptr = opt->menu_item[response];
+    size_t menu_len = strlen( menuptr );
+    int menu_index = 0;
+    char *optptr = NULL;
+    int long_option_index = 0;
+    int switch_arg = -1;
+    while (( switch_arg = menu_item_parse( menuptr, menu_len, &menu_index,
+              &optptr, short_options, long_options,
+              &long_option_index, error_detected) ) != -1)
+    {
+      error_detected = error_detected +
+        parameter_parser(switch_arg, opt, long_option_index);
+    }
+  }
+  opt->afikomen = 0;  // only allow this option on the command line
+}
+
+
+/**************************************************
 * initialize an option_list data structure
 *************************************************/
 void initialize_option_list_struct( option_list* opt )
@@ -3008,17 +3035,9 @@ int main (int argc, char *argv[])
 
   option_list opt;
   initialize_option_list_struct( &opt );
-  int long_option_index = 0;
-  size_t  menu_len = 0;  // for user-defined menus (to be read from config file)
-  int menu_index;
-  char *menuptr, *optptr;
 
-  int getopt_retval;
-
-  // init locale - see man (3) setlocale, and see hcal.c for the full lecture...
-  //  TODO - verify that I'm not needlessly doing this again (and again...)
+  //  TODO - verify that I'm not needlessly setting locale repeatedly
   setlocale (LC_ALL, ""); // ensure wide-character functions use utf8 (?)
-
   parse_config_file( &opt );
   parse_command_line( argc, argv, &opt, &error_detected );
 
@@ -3029,39 +3048,8 @@ int main (int argc, char *argv[])
     exit(0);
   }
 
-  /**************************************************
-  * BEGIN - enable user-defined menu
-  *************************************************/
   if (opt.menu)
-  {
-    int i = menu_select( &opt.menu_item[0], MAX_MENU_ITEMS );
-    if (i == -1) exit_main(&opt, 0);
-    else if ((i < MAX_MENU_ITEMS) && (opt.menu_item[i] != NULL))
-    {
-
-      /**************************************************
-      * parse user's menu selection
-      *************************************************/
-      menuptr = opt.menu_item[i];
-      menu_len = strlen( menuptr );
-      menu_index = 0;
-      optptr = NULL;
-      optarg = NULL;
-
-      while (( getopt_retval = menu_item_parse( menuptr, menu_len, &menu_index,
-                &optptr, short_options, long_options,
-                &long_option_index, &error_detected) ) != -1)
-      {
-        error_detected = error_detected +
-          parameter_parser(getopt_retval, &opt, long_option_index);
-      }
-    }
-  }
-  // only allow this option on the command line
-  opt.afikomen = 0;
-  /**************************************************
-  * END   - enable user-defined menu
-  *************************************************/
+		parse_user_menu_selection( &opt, &error_detected );
 
 
   // We get custom days list even if the user didn't
