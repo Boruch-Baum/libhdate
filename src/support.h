@@ -1,7 +1,7 @@
 /** support.h            http://libhdate.sourceforge.net
  *  headers and macros for hcal and hdate (part of package libhdate)
  *
- *  Copyright (C) 2011-2018 Boruch Baum  <boruch_baum@gmx.com>
+ *  Copyright (C) 2011-2018, 2022 Boruch Baum  <boruch_baum@gmx.com>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// FIXME: Include stdbool.h and convert TRUE/FALSE to true/false
 #ifndef FALSE
 #define FALSE 0
 #endif
@@ -62,7 +63,6 @@
 #define BAD_DATE_VALUE -1
 #define BAD_COORDINATE	999
 #define BAD_TIMEZONE	999
-#define BEST_TIMEZONE  1000
 
 /** This next is for sanity-checking a timezone numeric value against
 *	a longitude value. A natural division of the Earth into 24 timezones
