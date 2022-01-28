@@ -2878,6 +2878,31 @@ const struct option long_options[] = {
 
 
 
+
+/************************************************************
+* parse command line
+************************************************************/
+void parse_command_line (
+       int argc,
+	  	 char* argv[],
+       option_list* opt,
+	  	 int* error_detected )
+{
+  int switch_arg = -1;
+  int long_option_index = 0;
+  opterr = 0; // We'll do our own error reporting. See getopt_long(3)
+  while ((switch_arg = getopt_long(argc,
+																			argv,
+                                      short_options,
+																			long_options,
+                                      &long_option_index)) != -1)
+    error_detected = error_detected
+		               + parameter_parser(switch_arg,
+																			opt,
+																			long_option_index);
+}
+
+
 /**************************************************
 * initialize an option_list data structure
 *************************************************/
@@ -2995,13 +3020,7 @@ int main (int argc, char *argv[])
   setlocale (LC_ALL, ""); // ensure wide-character functions use utf8 (?)
 
   parse_config_file( &opt );
-
-  // parse command line
-  opterr = 0; // we'll do our own error reporting
-  while ((getopt_retval = getopt_long(argc, argv,
-              short_options, long_options,
-              &long_option_index)) != -1)
-    error_detected = error_detected + parameter_parser( getopt_retval, &opt, long_option_index);
+  parse_command_line( argc, argv, &opt, &error_detected );
 
   // undocumented feature - afikomen
   if (opt.afikomen)
