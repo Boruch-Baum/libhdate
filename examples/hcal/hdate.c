@@ -170,142 +170,6 @@ typedef struct  {
 } option_list;
 
 
-static const char* hdate_config_file_text = N_("\
-# configuration file for hdate - Hebrew date information program\n\
-# part of package libhdate\n\
-#\n# Should you mangle this file and wish to restore its default content,\n\
-# rename or delete this file and run hdate; hdate will automatically\n\
-# regenerate the default content.\n#\n\
-# Your system administrator can set system-wide defaults for hcal by\n\
-# modifying file <not yet implemented>.\n\
-# You may override all defaults by changing the contents of this file.\n\
-#\n\
-# Version information\n\
-# This may be used by updates to hcal to determine how to parse the file\n\
-# and whether additional information and options should be appended to\n\
-# the end of this file.\n\
-VERSION=2.00\n\
-#\n\
-# Location awareness\n\
-# hdate wants to accurately highlight the current Hebrew day, including\n\
-# during the hours between sunset and secular midnight. If you don't\n\
-# provide it with latitude, longitude, and time zone information, hdate\n\
-# will try to guess the information, based upon your system timezone,\n\
-# and its (limited, and maybe biased) of the dominant Jewish community\n\
-# in that timezone. When hdate is forced to guess, it alerts the user\n\
-# with a message that includes the guessed location.\n\
-# hdate's guesses will also affect its default behaviour for ouput of\n\
-# Shabbat times, parshiot, and choice of Israel/diaspora hoidays.\n\
-#SUNSET_AWARE=TRUE\n\n\
-# Base Years\n\
-# hdate, by default, interprets two-digit year parameters as Hebrew\n\
-# years, and adds the value BASE_YEAR_HEBREW * 100 to them. Set\n\
-# variable PREFER_HEBREW=FALSE to have them interpreted as gregorian,\n\
-# and have BASE_YEAR_GREGORIAN * 100 added to them.\n\
-#PREFER_HEBREW=TRUE\n\
-# valid values for BASE_YEAR_HEBREW are 30 - 69\n\
-#BASE_YEAR_HEBREW=57\n\
-# valid values for BASE_YEAR_GREGORIAN are 10 - 29\n\
-#BASE_YEAR_GREGORIAN=20\n\n\
-# LATITUDE and LONGITUDE may be in decimal format or in the form\n\
-# degrees[:minutes[:seconds]] with the characters :'\" as possible\n\
-# delimiters. Use negative values to indicate South and West, or\n\
-# use the abbreviated compass directions N, S, E, W.\n\
-#LATITUDE=\n\
-#LONGITUDE=\n\
-# TIMEZONE may may be in decimal format or in the form degrees[:minutes]\n\
-# with the characters :'\" as possible delimiters.\n\
-#TIMEZONE=\n\n\
-# Output in hebrew characters\n\
-# hdate defaults to output all information in your default language, so\n\
-# if your default language is Hebrew, you're all set. Otherwise, you can\n\
-# set FORCE_HEBREW to true to output Hebrew information in Hebrew, while\n\
-# still outputting gregorian information in your default language. To\n\
-# output ALL information in Hebrew, run something like this:\n\
-#    LC_TEMP=LC_ALL; LC_ALL=\"he_IL.UTF-8\"; hdate; LC_ALL=$LC_TEMP\n\
-# If setting FORCE_HEBREW to true results in 'garbage' or non-Hebrew\n\
-# output, you need to install a terminal font that includes the Hebrew\n\
-# character set (hint: unicode).\n\
-#FORCE_HEBREW=FALSE\n\n\
-# The FORCE_HEBREW option outputs data that is 'correct' and 'logical'.\n\
-# Unfortunately, the world can not be depended upon to be either. Most\n\
-# Xwindow applications will display the data fine with FORCE_HEBREW; most\n\
-# xterm implementations will not. (in fact, the only xterm clone I know\n\
-# of that comes close is mlterm). If using FORCE_HEBREW results in\n\
-# Hebrew characters being displayed in reverse, set OUTPUT_BIDI to true.\n\
-# This will reverse the order of the Hebrew characters, so they will\n\
-# display 'visual'ly correct; however, such output will not be suitable\n\
-# for piping or pasting to many other applications. Setting OUTPUT_BIDI\n\
-# automatically forces hebrew.\n\
-#OUTPUT_BIDI=FALSE\n\n\
-# The Hebrew language output of Hebrew information can also be 'styled'\n\
-# in the following ways:\n\
-# option YOM ~> yom shishi, aleph tishrei ...\n\
-# option LESHABBAT ~> yom sheni leshabbat miketz, kof kislev ...\n\
-# option LESEDER ~> yom sheni leseder miketz, kof kislev ...\n\
-#YOM=FALSE\n\
-#LESHABBAT=FALSE\n\
-#LESEDER=FALSE\n\
-\n\
-# This value directs times-of-day to be printed beginning with sunset\n\
-# or candle-lighting of the Hebrew date, instead of beginning with\n\
-# the first time-of-day in the morning.\n\
-#EMESH=TRUE\n\
-#SUN_RISE_SET=FALSE\n\
-#TIMES_OF_DAY=FALSE\n\
-#SHORT_FORMAT=FALSE\n\
-#SEFIRAT_HAOMER=FALSE\n\
-#DIASPORA=FALSE\n\
-\n\
-\n\
-# Shabbat related\n\
-# Setting SHABBAT_INFO true will output parshiot and Shabbat times.\n\
-# The command line options for these features are -r (--parasha), and\n\
-# -c. The CANDLE_LIGHTING field can accept a value of 18 - 90 (minutes\n\
-# before sunset). The HAVDALAH field can accept a value of 20 - 90\n\
-# (minutes after sunset).\n\
-#PARASHA_NAMES=FALSE\n\
-#ONLY_IF_PARASHA_IS_READ=FALSE\n\
-#SHABBAT_INFO=FALSE\n\n\
-#CANDLE_LIGHTING=FALSE\n\
-#HAVDALAH=FALSE\n\n\
-# Holiday related\n\
-#HOLIDAYS=FALSE\n\
-#ONLY_IF_HOLIDAY=FALSE\n\n\
-# Tabular output\n\
-# This option has hdate output the information you request in a single\n\
-# comma-delimited line per day, suitable for piping or import to\n\
-# spreadsheet formatting applications, etc. To belabor the obvious,\n\
-# try running -   ./hdate 12 2011 -Rt --table |column -s, -t \n\
-# The command line option for this feature is, um, --table\n\
-#TABULAR=FALSE\n\n\
-# iCal format\n\
-# hdate can output its information in iCal-compatible format\n\
-# ICAL=FALSE\n\
-# Suppress alerts and warnings\n\
-# hdate alerts the user via STDERR when it guesses the user's location.\n\
-#QUIET_ALERTS=FALSE\n\n\
-# Julian day number\n\
-# The Julian day number is a .... See ... for more details.\n\
-# setting the option JULIAN_DAY will have hdate output that number in\n\
-# the format JDN-nnnnnnn at the beginning of its first line of output.\n\
-#JULIAN_DAY=FALSE\n\n\
-# User-defined menus\n\
-# You may specify here command-line strings to optionally be parsed\n\
-# by hcal at execution time. To do so, use the command line option -m\n\
-# (--menu). hcal will process first the settings of this config file,\n\
-# then the other settings of your command line, and then will prompt\n\
-# you for which menu item you would like to select. hcal will process\n\
-# your menu selection as if it were a new command line, further modifying\n\
-# all the prior settings.\n\
-# Only the first ten \"MENU=\" entries will be read. Each line will be\n\
-# truncated at one hundred characters\n\
-#MENU= -bd -l -23.55 -L -46.61 -z -3 # parents in Sao Paolo\n\
-#MENU= -b -l 32 -L 34 -z 2           # son in bnei brak\n\
-#MENU= -bd -l 43.71 -L -79.43 -z -5  # me in Toronto\n\
-#MENU= -bd -l 22.26 -L 114.15 -z 8   # supplier in Hong Kong\n\
-");
-
 
 // TODO - move daf yomi and limud yomi into libhdate api
 // Daf Yomi cycle began 02 March 2005 = Julian day 2453432
@@ -1167,8 +1031,8 @@ int print_omer (hdate_struct * h, const option_list* opt)
   char* days_text = N_("days");
   char* in_the_omer_text = N_("in_the_omer");
   char* today_is_day_text = N_("today_is_day");
-  char* h_in_the_omer_text = "";
-  char* h_today_is_day_text = "";
+//char* h_in_the_omer_text = "";
+//char* h_today_is_day_text = "";
 
   omer_day = hdate_get_omer_day(h);
   if (omer_day == 0)   return DATA_WAS_NOT_PRINTED;
@@ -1201,7 +1065,7 @@ int print_omer (hdate_struct * h, const option_list* opt)
 		if (opt->hebrew)
 		{
       char* b_l_omer = "בעומר";
-      if (opt->la_omer) b_l_omer = "לעומר";
+      if (opt->la_omer) { b_l_omer = "לעומר"; }
 			printf ("  %2d_%s_%s", omer_day, "ימים", b_l_omer);
 		}
 		else
@@ -2174,24 +2038,17 @@ int print_hyear ( option_list* opt, const int year)
 
 
 /****************************************************
-* read and parse config file
+* parse config file
 ****************************************************/
-void read_config_file(  FILE *config_file,
-            option_list *opt )
+void parse_config_file( option_list *opt )
 {
+  FILE  *config_file = NULL;
   double tz_lat = BAD_COORDINATE;
   double tz_lon = BAD_COORDINATE;
+  size_t input_str_len;  // unnecessary to initialize, per man(3) getline
+  char  *input_key;      // unnecessary to initialize, per man(3) sscanf
+  char  *input_value;    // unnecessary to initialize, per man(3) sscanf
   char  *input_string = NULL;
-  size_t  input_str_len;  // unnecessary to initialize, per man(3) getline
-//  size_t  input_str_len = 200;  // WARNING: if you change this value
-                  // you will still have to also
-                  // change a matching value below
-                  // in the statement that includes:
-                  // match_count = sscanf(input_string
-  char  *input_key;    // unnecessary to initialize, per man(3) sscanf
-//  char  *input_key = NULL;
-  char  *input_value;  // unnecessary to initialize, per man(3) sscanf
-//  char  *input_value = NULL;
   int    menu_item = 0;
   size_t  menu_len = 0;
   int    line_count = 0;
@@ -2199,7 +2056,6 @@ void read_config_file(  FILE *config_file,
   int    end_of_input_file = FALSE;
   int    key_index = 0;
   int    temp_base_year = 0;
-  const int  num_of_keys = 26;
   const char*  key_list[] = {
     "SUNSET_AWARE",    // 0
     "LATITUDE",
@@ -2231,12 +2087,154 @@ void read_config_file(  FILE *config_file,
     "BASE_YEAR_HEBREW",
     "BASE_YEAR_GREGORIAN"//28
     };
-//  TODO - parse these!
-//  opt.emesh
+  const int  num_of_keys = sizeof(key_list) / sizeof(char*);
+	static const char* config_dir_name  = "/hcal";
+  static const char* config_file_name = "/hcalrc_v1.8";
+  static const char* hdate_config_file_text = N_("\
+# configuration file for hdate - Hebrew date information program\n\
+# part of package libhdate\n\
+#\n# Should you mangle this file and wish to restore its default content,\n\
+# rename or delete this file and run hdate; hdate will automatically\n\
+# regenerate the default content.\n#\n\
+# Your system administrator can set system-wide defaults for hcal by\n\
+# modifying file <not yet implemented>.\n\
+# You may override all defaults by changing the contents of this file.\n\
+#\n\
+# Version information\n\
+# This may be used by updates to hcal to determine how to parse the file\n\
+# and whether additional information and options should be appended to\n\
+# the end of this file.\n\
+VERSION=2.00\n\
+#\n\
+# Location awareness\n\
+# hdate wants to accurately highlight the current Hebrew day, including\n\
+# during the hours between sunset and secular midnight. If you don't\n\
+# provide it with latitude, longitude, and time zone information, hdate\n\
+# will try to guess the information, based upon your system timezone,\n\
+# and its (limited, and maybe biased) of the dominant Jewish community\n\
+# in that timezone. When hdate is forced to guess, it alerts the user\n\
+# with a message that includes the guessed location.\n\
+# hdate's guesses will also affect its default behaviour for ouput of\n\
+# Shabbat times, parshiot, and choice of Israel/diaspora hoidays.\n\
+#SUNSET_AWARE=TRUE\n\n\
+# Base Years\n\
+# hdate, by default, interprets two-digit year parameters as Hebrew\n\
+# years, and adds the value BASE_YEAR_HEBREW * 100 to them. Set\n\
+# variable PREFER_HEBREW=FALSE to have them interpreted as gregorian,\n\
+# and have BASE_YEAR_GREGORIAN * 100 added to them.\n\
+#PREFER_HEBREW=TRUE\n\
+# valid values for BASE_YEAR_HEBREW are 30 - 69\n\
+#BASE_YEAR_HEBREW=57\n\
+# valid values for BASE_YEAR_GREGORIAN are 10 - 29\n\
+#BASE_YEAR_GREGORIAN=20\n\n\
+# LATITUDE and LONGITUDE may be in decimal format or in the form\n\
+# degrees[:minutes[:seconds]] with the characters :'\" as possible\n\
+# delimiters. Use negative values to indicate South and West, or\n\
+# use the abbreviated compass directions N, S, E, W.\n\
+#LATITUDE=\n\
+#LONGITUDE=\n\
+# TIMEZONE may may be in decimal format or in the form degrees[:minutes]\n\
+# with the characters :'\" as possible delimiters.\n\
+#TIMEZONE=\n\n\
+# Output in hebrew characters\n\
+# hdate defaults to output all information in your default language, so\n\
+# if your default language is Hebrew, you're all set. Otherwise, you can\n\
+# set FORCE_HEBREW to true to output Hebrew information in Hebrew, while\n\
+# still outputting gregorian information in your default language. To\n\
+# output ALL information in Hebrew, run something like this:\n\
+#    LC_TEMP=LC_ALL; LC_ALL=\"he_IL.UTF-8\"; hdate; LC_ALL=$LC_TEMP\n\
+# If setting FORCE_HEBREW to true results in 'garbage' or non-Hebrew\n\
+# output, you need to install a terminal font that includes the Hebrew\n\
+# character set (hint: unicode).\n\
+#FORCE_HEBREW=FALSE\n\n\
+# The FORCE_HEBREW option outputs data that is 'correct' and 'logical'.\n\
+# Unfortunately, the world can not be depended upon to be either. Most\n\
+# Xwindow applications will display the data fine with FORCE_HEBREW; most\n\
+# xterm implementations will not. (in fact, the only xterm clone I know\n\
+# of that comes close is mlterm). If using FORCE_HEBREW results in\n\
+# Hebrew characters being displayed in reverse, set OUTPUT_BIDI to true.\n\
+# This will reverse the order of the Hebrew characters, so they will\n\
+# display 'visual'ly correct; however, such output will not be suitable\n\
+# for piping or pasting to many other applications. Setting OUTPUT_BIDI\n\
+# automatically forces hebrew.\n\
+#OUTPUT_BIDI=FALSE\n\n\
+# The Hebrew language output of Hebrew information can also be 'styled'\n\
+# in the following ways:\n\
+# option YOM ~> yom shishi, aleph tishrei ...\n\
+# option LESHABBAT ~> yom sheni leshabbat miketz, kof kislev ...\n\
+# option LESEDER ~> yom sheni leseder miketz, kof kislev ...\n\
+#YOM=FALSE\n\
+#LESHABBAT=FALSE\n\
+#LESEDER=FALSE\n\
+\n\
+# This value directs times-of-day to be printed beginning with sunset\n\
+# or candle-lighting of the Hebrew date, instead of beginning with\n\
+# the first time-of-day in the morning.\n\
+#EMESH=TRUE\n\
+#SUN_RISE_SET=FALSE\n\
+#TIMES_OF_DAY=FALSE\n\
+#SHORT_FORMAT=FALSE\n\
+#SEFIRAT_HAOMER=FALSE\n\
+#DIASPORA=FALSE\n\
+\n\
+\n\
+# Shabbat related\n\
+# Setting SHABBAT_INFO true will output parshiot and Shabbat times.\n\
+# The command line options for these features are -r (--parasha), and\n\
+# -c. The CANDLE_LIGHTING field can accept a value of 18 - 90 (minutes\n\
+# before sunset). The HAVDALAH field can accept a value of 20 - 90\n\
+# (minutes after sunset).\n\
+#PARASHA_NAMES=FALSE\n\
+#ONLY_IF_PARASHA_IS_READ=FALSE\n\
+#SHABBAT_INFO=FALSE\n\n\
+#CANDLE_LIGHTING=FALSE\n\
+#HAVDALAH=FALSE\n\n\
+# Holiday related\n\
+#HOLIDAYS=FALSE\n\
+#ONLY_IF_HOLIDAY=FALSE\n\n\
+# Tabular output\n\
+# This option has hdate output the information you request in a single\n\
+# comma-delimited line per day, suitable for piping or import to\n\
+# spreadsheet formatting applications, etc. To belabor the obvious,\n\
+# try running -   ./hdate 12 2011 -Rt --table |column -s, -t \n\
+# The command line option for this feature is, um, --table\n\
+#TABULAR=FALSE\n\n\
+# iCal format\n\
+# hdate can output its information in iCal-compatible format\n\
+# ICAL=FALSE\n\
+# Suppress alerts and warnings\n\
+# hdate alerts the user via STDERR when it guesses the user's location.\n\
+#QUIET_ALERTS=FALSE\n\n\
+# Julian day number\n\
+# The Julian day number is a .... See ... for more details.\n\
+# setting the option JULIAN_DAY will have hdate output that number in\n\
+# the format JDN-nnnnnnn at the beginning of its first line of output.\n\
+#JULIAN_DAY=FALSE\n\n\
+# User-defined menus\n\
+# You may specify here command-line strings to optionally be parsed\n\
+# by hcal at execution time. To do so, use the command line option -m\n\
+# (--menu). hcal will process first the settings of this config file,\n\
+# then the other settings of your command line, and then will prompt\n\
+# you for which menu item you would like to select. hcal will process\n\
+# your menu selection as if it were a new command line, further modifying\n\
+# all the prior settings.\n\
+# Only the first ten \"MENU=\" entries will be read. Each line will be\n\
+# truncated at one hundred characters\n\
+#MENU= -bd -l -23.55 -L -46.61 -z -3 # parents in Sao Paolo\n\
+#MENU= -b -l 32 -L 34 -z 2           # son in bnei brak\n\
+#MENU= -bd -l 43.71 -L -79.43 -z -5  # me in Toronto\n\
+#MENU= -bd -l 22.26 -L 114.15 -z 8   # supplier in Hong Kong\n\
+");
 
-//  input_string = malloc(input_str_len+1); unnecessary - done by getline
-//  input_key    = malloc(input_str_len+1); unnecessary - done by sscanf
-//  input_value  = malloc(input_str_len+1); unnecessary - done by sscanf
+//  TODO - parse these!
+//    opt.emesh
+
+  if (! get_config_file( config_dir_name,
+												 config_file_name,
+												 hdate_config_file_text,
+                         opt->quiet,
+												 &config_file))
+    return;
 
   while ( end_of_input_file != TRUE )
   {
@@ -2493,6 +2491,7 @@ void read_config_file(  FILE *config_file,
   if (input_string != NULL ) free(input_string);
 //  free(input_key);
 //  free(input_value);
+  fclose(config_file);
   return;
 }
 
@@ -2789,6 +2788,96 @@ int parameter_parser( int switch_arg, option_list *opt,
 }
 
 
+/************************************************************
+* getopt options constants
+*
+*   These are used in TWO places: parsing of the command line, and
+*   parsing of menu items as defined in the config files
+*
+************************************************************/
+// support for getopt short options
+const char * short_options = "bcdeE::hHjimoqrRsStTvl:L:z:";
+// support for getopt long options
+const struct option long_options[] = {
+//       name,  has_arg, flag, val
+/**  0 */{"version", no_argument, 0, 0},
+/**  1 */{"help", no_argument, 0, 0},
+/**  2 */{"hebrew", no_argument, 0, 0},
+/**  3 */{"yom", no_argument, 0, 0},
+/**  4 */{"leshabbat", no_argument, 0, 0},
+/**  5 */{"leseder", no_argument, 0, 0},
+/**  6 */{"table",no_argument,0,'T'},
+/**  7 */{"not-sunset-aware",no_argument,0,0},
+/**  8 */{"quiet",no_argument,0,'q'},
+/**  9 */{"short_format",no_argument,0,'S'},
+/** 10 */{"parasha",no_argument,0,'r'},
+/** 11 */{"holidays",no_argument,0,'h'},
+/** 12 */{"shabbat-times",no_argument,0,'s'},
+/** 13 */{"sun",no_argument,0,0},
+/** 14 */{"sunset",no_argument,0,0},
+/** 15 */{"sunrise",no_argument,0,0},
+/** 16 */{"candle-lighting",optional_argument,0,0},
+/** 17 */{"candles", optional_argument,0,0},
+/** 18 */{"havdalah", optional_argument,0,0},
+/** 19 */{"latitude", required_argument, 0, 'l'},
+/** 20 */{"longitude", required_argument, 0, 'L'},
+/** 21 */{"timezone", required_argument, 0, 'z'},
+/** 22 */{"bidi", no_argument, 0, 'b'},
+/** 23 */{"visual", no_argument, 0, 'b'},
+/** 24 */{"omer", no_argument, 0, 'o'},
+/** 25 */{"ical", no_argument, 0, 'i'},
+/** 26 */{"julian", no_argument, 0, 'j'},
+/** 27 */{"diaspora", no_argument, 0, 'd'},
+/** 28 */{"menu",no_argument,0,'m'},
+/** 29 */{"alot", no_argument,0,0},
+/** 30 */{"first-light", no_argument,0,0},
+/** 31 */{"talit", no_argument,0,0},
+/** 32 */{"netz", no_argument,0,0},
+/** 33 */{"shema", no_argument,0,0},
+/** 34 */{"amidah", no_argument,0,0},
+/** 35 */{"midday", no_argument,0,0},
+/** 36 */{"noon", no_argument,0,0},
+/** 37 */{"chatzot", no_argument,0,0},
+/** 38 */{"mincha-gedola", no_argument,0,0},
+/** 39 */{"mincha-ketana", no_argument,0,0},
+/** 40 */{"plag-hamincha", no_argument,0,0},
+/** 41 */{"shekia", no_argument,0,0},
+/** 42 */{"tzeit-hakochavim", no_argument,0,0},
+/** 43 */{"first-stars", no_argument,0,0},
+/** 44 */{"three-stars", no_argument,0,0},
+/** 45 */{"magen-avraham", no_argument,0,0},
+/** 46 */{"sun-hour", no_argument,0,0},
+/** 47 */{"daf-yomi", no_argument,0,0},
+/** 48 */{"tabular", no_argument,0,'T'},
+/** 49 */{"end-eating-chometz-ma", no_argument,0,0},
+/** 50 */{"end-eating-chometz-gra", no_argument,0,0},
+/** 51 */{"end-owning-chometz-ma", no_argument,0,0},
+/** 52 */{"end-owning-chometz-gra", no_argument,0,0},
+/** 53 */{"erev-pesach", no_argument,0,0},
+/** 54 */{"times-of-day", no_argument,0,'t'},
+/** 55 */{"day-times", no_argument,0,'t'},
+/** 56 */{"israel", no_argument,0,0},
+/** 57 */{"la-omer", no_argument,0,0},
+/** 58 */{"ba-omer", no_argument,0,0},
+/** 59 */{"quiet-alerts", no_argument,0,0},
+/** 60 */{"quiet-gregorian", no_argument,0,0},
+/** 61 */{"quiet-descriptions", no_argument,0,0},
+/** 62 */{"quiet-hebrew", no_argument,0,0},
+/** 63 */{"data-first", no_argument,0,0},
+/** 64 */{"labels-first", no_argument,0,0},
+/** 65 */{"prefer-hebrew", no_argument,0,0},
+/** 66 */{"prefer-gregorian", no_argument,0,0},
+/** 67 */{"emesh", no_argument,0,'e'},
+/** 68 */{"erev", no_argument,0,'e'},
+/** 69 */{"no-emesh", no_argument,0,0},
+/** 70 */{"no-erev", no_argument,0,0},
+/** 71 */{"epoch",optional_argument,0,'E'},
+/** 72 */{"usage", no_argument, 0, '?'},
+/** eof*/{0, 0, 0, 0}
+  };
+
+
+
 /**************************************************
 * initialize an option_list data structure
 *************************************************/
@@ -2862,7 +2951,7 @@ void initialize_option_list_struct( option_list* opt )
   opt->jdn_list_ptr = NULL;  // for custom_days
   opt->string_list_ptr= NULL;  // for custom_days
   // TODO - be sure to free() opt->jdn_list_ptr, opt->string_list_ptr upon exit
-  for (int i=0; i<MAX_MENU_ITEMS; i++) opt.menu_item[i] = NULL;
+  for (int i=0; i<MAX_MENU_ITEMS; i++) opt->menu_item[i] = NULL;
 }
 
 
@@ -2894,105 +2983,18 @@ int main (int argc, char *argv[])
 
   option_list opt;
   initialize_option_list_struct( &opt );
+  int long_option_index = 0;
   size_t  menu_len = 0;  // for user-defined menus (to be read from config file)
   int menu_index;
   char *menuptr, *optptr;
 
   int getopt_retval;
-  // getopt short options:
-  const char * short_options = "bcdeE::hHjimoqrRsStTvl:L:z:";
-  // getopt long options:
-  int long_option_index = 0;
-  const struct option long_options[] = {
-  //       name,  has_arg, flag, val
-  /**  0 */{"version", no_argument, 0, 0},
-  /**  1 */{"help", no_argument, 0, 0},
-  /**  2 */{"hebrew", no_argument, 0, 0},
-  /**  3 */{"yom", no_argument, 0, 0},
-  /**  4 */{"leshabbat", no_argument, 0, 0},
-  /**  5 */{"leseder", no_argument, 0, 0},
-  /**  6 */{"table",no_argument,0,'T'},
-  /**  7 */{"not-sunset-aware",no_argument,0,0},
-  /**  8 */{"quiet",no_argument,0,'q'},
-  /**  9 */{"short_format",no_argument,0,'S'},
-  /** 10 */{"parasha",no_argument,0,'r'},
-  /** 11 */{"holidays",no_argument,0,'h'},
-  /** 12 */{"shabbat-times",no_argument,0,'s'},
-  /** 13 */{"sun",no_argument,0,0},
-  /** 14 */{"sunset",no_argument,0,0},
-  /** 15 */{"sunrise",no_argument,0,0},
-  /** 16 */{"candle-lighting",optional_argument,0,0},
-  /** 17 */{"candles", optional_argument,0,0},
-  /** 18 */{"havdalah", optional_argument,0,0},
-  /** 19 */{"latitude", required_argument, 0, 'l'},
-  /** 20 */{"longitude", required_argument, 0, 'L'},
-  /** 21 */{"timezone", required_argument, 0, 'z'},
-  /** 22 */{"bidi", no_argument, 0, 'b'},
-  /** 23 */{"visual", no_argument, 0, 'b'},
-  /** 24 */{"omer", no_argument, 0, 'o'},
-  /** 25 */{"ical", no_argument, 0, 'i'},
-  /** 26 */{"julian", no_argument, 0, 'j'},
-  /** 27 */{"diaspora", no_argument, 0, 'd'},
-  /** 28 */{"menu",no_argument,0,'m'},
-  /** 29 */{"alot", no_argument,0,0},
-  /** 30 */{"first-light", no_argument,0,0},
-  /** 31 */{"talit", no_argument,0,0},
-  /** 32 */{"netz", no_argument,0,0},
-  /** 33 */{"shema", no_argument,0,0},
-  /** 34 */{"amidah", no_argument,0,0},
-  /** 35 */{"midday", no_argument,0,0},
-  /** 36 */{"noon", no_argument,0,0},
-  /** 37 */{"chatzot", no_argument,0,0},
-  /** 38 */{"mincha-gedola", no_argument,0,0},
-  /** 39 */{"mincha-ketana", no_argument,0,0},
-  /** 40 */{"plag-hamincha", no_argument,0,0},
-  /** 41 */{"shekia", no_argument,0,0},
-  /** 42 */{"tzeit-hakochavim", no_argument,0,0},
-  /** 43 */{"first-stars", no_argument,0,0},
-  /** 44 */{"three-stars", no_argument,0,0},
-  /** 45 */{"magen-avraham", no_argument,0,0},
-  /** 46 */{"sun-hour", no_argument,0,0},
-  /** 47 */{"daf-yomi", no_argument,0,0},
-  /** 48 */{"tabular", no_argument,0,'T'},
-  /** 49 */{"end-eating-chometz-ma", no_argument,0,0},
-  /** 50 */{"end-eating-chometz-gra", no_argument,0,0},
-  /** 51 */{"end-owning-chometz-ma", no_argument,0,0},
-  /** 52 */{"end-owning-chometz-gra", no_argument,0,0},
-  /** 53 */{"erev-pesach", no_argument,0,0},
-  /** 54 */{"times-of-day", no_argument,0,'t'},
-  /** 55 */{"day-times", no_argument,0,'t'},
-  /** 56 */{"israel", no_argument,0,0},
-  /** 57 */{"la-omer", no_argument,0,0},
-  /** 58 */{"ba-omer", no_argument,0,0},
-  /** 59 */{"quiet-alerts", no_argument,0,0},
-  /** 60 */{"quiet-gregorian", no_argument,0,0},
-  /** 61 */{"quiet-descriptions", no_argument,0,0},
-  /** 62 */{"quiet-hebrew", no_argument,0,0},
-  /** 63 */{"data-first", no_argument,0,0},
-  /** 64 */{"labels-first", no_argument,0,0},
-  /** 65 */{"prefer-hebrew", no_argument,0,0},
-  /** 66 */{"prefer-gregorian", no_argument,0,0},
-  /** 67 */{"emesh", no_argument,0,'e'},
-  /** 68 */{"erev", no_argument,0,'e'},
-  /** 69 */{"no-emesh", no_argument,0,0},
-  /** 70 */{"no-erev", no_argument,0,0},
-  /** 71 */{"epoch",optional_argument,0,'E'},
-  /** 72 */{"usage", no_argument, 0, '?'},
-  /** eof*/{0, 0, 0, 0}
-    };
 
   // init locale - see man (3) setlocale, and see hcal.c for the full lecture...
   //  TODO - verify that I'm not needlessly doing this again (and again...)
-  char* my_locale;
-  my_locale = setlocale (LC_ALL, "");
+  setlocale (LC_ALL, ""); // ensure wide-character functions use utf8 (?)
 
-  FILE *config_file = NULL;
-  if ( get_config_file( "/hdate", "/hdaterc_v1.8", hdate_config_file_text,
-            opt.quiet, &config_file))
-  {
-    read_config_file(config_file, &opt);
-    fclose(config_file);
-  }
+  parse_config_file( &opt );
 
   // parse command line
   opterr = 0; // we'll do our own error reporting
@@ -3013,7 +3015,7 @@ int main (int argc, char *argv[])
   *************************************************/
   if (opt.menu)
   {
-    i = menu_select( &opt.menu_item[0], MAX_MENU_ITEMS );
+    int i = menu_select( &opt.menu_item[0], MAX_MENU_ITEMS );
     if (i == -1) exit_main(&opt, 0);
     else if ((i < MAX_MENU_ITEMS) && (opt.menu_item[i] != NULL))
     {
