@@ -758,6 +758,7 @@ int get_lat_lon_from_zonetab_file( const char* input_string, char** tz_name, dou
 			case 5: return (sign * (val/100 + (double)(val%100)/60) );
 			case 6:
 			case 7: return (sign * (val/10000 + (double)((val/100)%100)/60 + (double)(val%100)/3600));
+      default: return BAD_COORDINATE;
 		}
 	}
 
@@ -793,7 +794,7 @@ int get_lat_lon_from_zonetab_file( const char* input_string, char** tz_name, dou
 	if (tzfile == NULL)	return FALSE;
 
 	/// trim spaces. replace embedded spaces with underscores.
-	search_result_ptr = input_string + strspn(input_string," ");
+	search_result_ptr = (char*) input_string + strspn(input_string," ");
 	match_count = strlen(search_result_ptr);
 	if (!match_count)
 	{
@@ -878,7 +879,7 @@ int get_tz_adjustment(	const time_t t, const int tz, int *tzif_index,
 		error(0,0,"run time error: function get_tz_adjustment, reverting to Jerusalem Standard time");
 	else
 	{
-		zd = tzif_data;
+		zd = (void*) tzif_data;
 		if (   (*tzif_index < (tzif_entries - 1) )
 			&& (zd[*tzif_index + 1].start < t ) )
 		{
