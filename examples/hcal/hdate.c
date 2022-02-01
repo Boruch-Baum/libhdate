@@ -171,6 +171,14 @@ typedef struct  {
 
 
 
+typedef struct {
+  int year;
+  int month;
+  int day;
+} yymmdd;
+
+
+
 // TODO - move daf yomi and limud yomi into libhdate api
 // Daf Yomi cycle began 02 March 2005 = Julian day 2453432
 #define DAF_YOMI_START 2453432
@@ -2758,14 +2766,14 @@ int parameter_parser( int switch_arg, option_list *opt,
         || ( (optarg[0] == '-')
                && (strspn(&optarg[1], "0123456789.:") == 0) ) )
     {
-      error_detected = error_detected + 1;
+      error_detected++;
       parm_missing_error(timezone_text);
     }
     else if (!parse_timezone_numeric(optarg, &opt->tz_offset))
     {
       if (!parse_timezone_alpha(optarg, &opt->tz_name_str, &opt->tz_offset, &tz_lat, &opt->tz_lon))
       {
-        error_detected = error_detected + 1;
+        error_detected++;
         parm_error(timezone_text);
       }
       else
@@ -3008,6 +3016,319 @@ void initialize_option_list_struct( option_list* opt )
 
 
 
+/**************************************************
+* parse and vaildate date parameters
+*
+* RETURNS: Integer describing date range to process
+*          See compiler macro definitions: "PROCESS_*"
+*
+**************************************************/
+#define PROCESS_NOTHING     0
+#define PROCESS_TODAY       1
+#define PROCESS_HEBREW_DAY  2
+#define PROCESS_GREGOR_DAY  3
+#define PROCESS_JULIAN_DAY  4
+#define PROCESS_MONTH       5
+#define PROCESS_HEBREW_YEAR 6
+#define PROCESS_GREGOR_YEAR 7
+#define PROCESS_EPOCH_DAY   8
+int parse_and_validate_date_parameters (
+       hdate_struct* h_start_day,
+			 option_list* opt,
+			 int argc,
+			 char* argv[],
+       yymmdd* todo,
+			 int* error_detected )
+{
+  static const char* digits = "0123456789"; // for checking a parm as numeric
+
+  // if user input --epoch=@nnnnnn, ignore date-spec
+  if (opt->epoch_parm_received)
+  {
+    if (argc == optind)
+	    return PROCESS_EPOCH_DAY;
+    else
+    {
+      error_detected++;
+      if (!opt->quiet) error(0,0,"%s",N_("parameter conflict: you entered both a date_spec and an option --epoch date_spec"));
+      return PROCESS_NOTHING;
+    }
+  }
+
+  // (!opt->epoch_parm_received)
+  switch ( argc - optind )
+  {
+
+  case 0: // (argc == optind)
+    hdate_set_gdate (h_start_day, 0, 0, 0);
+    return PROCESS_TODAY;
+    break;
+
+  case 1: // (argc == (optind + 1))
+    if (*argv[optind] == '@')
+    {
+      if ( parse_epoch_value( argv[optind], &opt->epoch_today, &opt->epoch_parm_received ) == 0)
+      {
+        // opt->epoch_start = opt->epoch_today;
+        // opt->epoch_end = opt->epoch_today + SECONDS_PER_DAY;
+        return PROCESS_EPOCH_DAY;
+      }
+    }
+    else if ( strspn(argv[optind], digits) == strlen(argv[optind]) )
+    {
+      *todo.year = atoi (argv[optind]);
+      if ( (*todo.year >= HDATE_JUL_DY_LOWER_BOUND) && (*todo.year <= HDATE_JUL_DY_UPPER_BOUND) )
+      {
+        hdate_set_jd (h_start_day, *todo.year);
+        return PROCESS_JULIAN_DAY;
+      }
+      else
+      {
+        if (!hdate_parse_date( argv[optind], "", "", todo.year, todo.month, todo.day, 1,
+                 opt->prefer_hebrew, HDATE_PREFER_MD,
+                 opt->base_year_h, opt->base_year_g ))
+        {
+					error_detected++;
+					return PROCESS_NOTHING;
+				}
+        if (*todo.day != 0)
+        {
+          if (*todo.month > 100)
+          {
+            hdate_set_hdate (h_start_day, *todo.day, *todo.month-100, *todo.year);
+            return PROCESS_HEBREW_DAY;
+          }
+          else
+          {
+            hdate_set_gdate (h_start_day, *todo.day, *todo.month, *todo.year);
+            return PROCESS_GREGOR_DAY;
+          }
+        }
+        else if ((*todo.year >= HDATE_HEB_YR_LOWER_BOUND) && (*todo.year <= HDATE_HEB_YR_UPPER_BOUND))
+        {
+          hdate_set_hdate (h_start_day, 1, 1, *todo.year);
+          return PROCESS_HEBREW_YEAR;
+        }
+        else if ((*todo.year >= HDATE_GREG_YR_LOWER_BOUND) && (*todo.year <= HDATE_GREG_YR_UPPER_BOUND))
+        {
+          hdate_set_gdate (h_start_day, 1, 1, *todo.year);
+          return PROCESS_GREGOR_YEAR;
+        }
+      }
+    }
+    else // possibly month name
+    {
+      if (!hdate_parse_date( argv[optind], "", "",
+               todo.year, todo.month, todo.day, 2,
+               opt->prefer_hebrew, HDATE_PREFER_MD,
+               opt->base_year_h, opt->base_year_g ))
+      {
+				error_detected++;
+				return PROCESS_NOTHING;
+			}
+      return PROCESS_MONTH;
+    }
+    break;
+
+  case 2: // (argc == (optind + 2))
+    if (!hdate_parse_date( argv[optind], argv[optind+1],
+             "", todo.year, todo.month, todo.day, 2,
+             opt->prefer_hebrew, HDATE_PREFER_MD,
+             opt->base_year_h, opt->base_year_g ))
+    {
+			error_detected++;
+			return PROCESS_NOTHING;
+		}
+    if (!*todo.day)
+			return PROCESS_MONTH;
+    else
+    {
+      if (*todo.month > 100)
+      {
+        hdate_set_hdate (h_start_day, *todo.day, *todo.month-100, *todo.year);
+        return PROCESS_HEBREW_DAY;
+      }
+      else
+      {
+        hdate_set_gdate (h_start_day, *todo.day, *todo.month, *todo.year);
+        return PROCESS_GREGOR_DAY;
+      }
+    }
+    break;
+
+  case 3: // (argc == (optind + 3))
+    if (!hdate_parse_date( argv[optind], argv[optind+1],
+             argv[optind+2], todo.year, todo.month, todo.day, 3,
+             opt->prefer_hebrew, HDATE_PREFER_MD,
+             opt->base_year_h, opt->base_year_g ))
+    {
+			error_detected++;
+			return PROCESS_NOTHING;
+		}
+    if (*todo.year <= 0)
+    {
+			error_detected++;
+      parm_error(year_text);
+			return PROCESS_NOTHING;
+		}
+    if (*todo.year > HDATE_HEB_YR_LOWER_BOUND)
+    {
+      // The parse_date function returns Hebrew month values in
+      // the range 101 - 114
+      if (*todo.month > 100) *todo.month = *todo.month - 100;
+
+      // bounds check for month
+      if (!validate_hdate(CHECK_MONTH_PARM, 0, *todo.month, *todo.year, FALSE, h_start_day))
+      {
+  			error_detected++;
+        parm_error(month_text);
+  			return PROCESS_NOTHING;
+  		}
+
+      // bounds check for day
+      if (!validate_hdate(CHECK_DAY_PARM, *todo.day, *todo.month, *todo.year, TRUE, h_start_day))
+      {
+  			error_detected++;
+        parm_error(day_text);
+  			return PROCESS_NOTHING;
+  		}
+
+      hdate_set_hdate (h_start_day, *todo.day, *todo.month, *todo.year);
+      return PROCESS_HEBREW_DAY;
+    }
+    else
+    {
+      // bounds check for month
+      if (!validate_hdate(CHECK_MONTH_PARM, 0, *todo.month, *todo.year, FALSE, h_start_day))
+      {
+  			error_detected++;
+        parm_error(month_text);
+  			return PROCESS_NOTHING;
+  		}
+
+      // bounds check for day
+      if (!validate_hdate(CHECK_DAY_PARM, *todo.day, *todo.month, *todo.year, TRUE, h_start_day))
+      {
+  			error_detected++;
+        parm_error(day_text);
+  			return PROCESS_NOTHING;
+  		}
+
+      hdate_set_gdate (h_start_day, *todo.day, *todo.month, *todo.year);
+      return PROCESS_GREGOR_DAY;
+    }
+    break;
+
+  default:
+    error(0,0,"%s", N_("too many arguments (expected at most day, month and year after options list)"));
+    error_detected++;
+		return PROCESS_NOTHING;
+    break;
+
+  } // end switch ( argc - optind )
+
+  return PROCESS_NOTHING; // we should never reach this
+}
+
+
+
+void determine_diaspora_awareness ( option_list* opt )
+{
+  //  TODO - this needs to get more sophisticated in step with
+  //  increased sophistication in location and timezone awareness.
+  if (opt->diaspora == -1)
+  {
+    if (opt->tz_offset == 2) opt->diaspora = 0;
+    else opt->diaspora = 1;
+  }
+}
+
+
+
+void set_times_options ( option_list* opt )
+// option -t has three verbosity levels
+{
+  opt->first_light = 1;
+  opt->talit = 1;
+  opt->sunrise = 1;
+  opt->midday = 1;
+  opt->sunset = 1;
+  opt->first_stars = 1;
+  opt->three_stars = 1;
+  opt->sun_hour = 1;
+
+  if (opt->times > 1)
+  {
+    opt->shema = 1;
+    opt->amidah = 1;
+    opt->mincha_gedola = 1;
+    opt->mincha_ketana = 1;
+    opt->plag_hamincha = 1;
+
+    if (opt->times > 2)
+    {
+      opt->magen_avraham = 1;
+      if (opt->times > 3)
+      {
+        opt->end_eating_chometz_ma = 1;
+        opt->end_eating_chometz_gra = 1;
+        opt->end_owning_chometz_ma = 1;
+        opt->end_owning_chometz_gra = 1;
+      }
+    }
+  }
+}
+
+
+
+void set_hdate_structs( int hdate_action,
+												hdate_struct* h_start_day,
+                        hdate_struct* h_day_after_final_day,
+												yymmdd todo )
+{
+  switch (hdate_action)
+  {
+  case PROCESS_NOTHING    :
+  case PROCESS_EPOCH_DAY  : break;
+  case PROCESS_TODAY      :
+  case PROCESS_HEBREW_DAY :
+  case PROCESS_GREGOR_DAY :
+  case PROCESS_JULIAN_DAY :
+    // For all the above cases, h_start_day is set within
+	  // function parse_and_validate_date_parameters
+    hdate_set_jd ( &h_day_after_final_day, h_start_day.hd_jd + 1 );
+    break;
+  case PROCESS_MONTH      :
+    if (todo.month > 100)
+    {
+      hdate_set_hdate (&h_start_day, 1, todo.month-100, todo.year);
+      hdate_set_jd ( &h_day_after_final_day,
+                     h_start_day.hd_jd
+										 + hdate_get_size_of_hebrew_month( todo.month,
+																											 h_start_day.hd_year_type )  );
+    }
+    else
+    {
+      hdate_set_gdate (&h_start_day, 1, todo.month, todo.year);
+      hdate_set_gdate (&h_day_after_final_day,
+											 1,
+											 (todo.month == 12) ? 1 : todo.month + 1,
+											 (todo.month == 12) ? todo.year + 1 : todo.year);
+    }
+    break;
+  case PROCESS_HEBREW_YEAR:
+    hdate_set_hdate ( &h_start_day, 1, 1, todo.year );
+    hdate_set_hdate ( &h_day_after_final_day, 1, 1, todo.year+1 );
+    break;
+  case PROCESS_GREGOR_YEAR:
+    hdate_set_gdate ( &h_start_day, 1, 1, todo.year );
+    hdate_set_gdate ( &h_day_after_final_day, 1, 1, todo.year+1 );
+    break;
+  } // end switch (hdate_action)
+}
+
+
+
 /************************************************************
  *
  *
@@ -3021,37 +3342,32 @@ void initialize_option_list_struct( option_list* opt )
 int main (int argc, char *argv[])
 {
   struct tm    epoch_tm;
+  option_list  opt;
   hdate_struct h_start_day;
   hdate_struct h_day_after_final_day;
   hdate_struct h_month_to_print;
-  int day   = BAD_DATE_VALUE;  // user-input (Hebrew or gregorian)
-  int month = BAD_DATE_VALUE;  // user-input (Hebrew or gregorian)
-  int year  = BAD_DATE_VALUE;  // user-input (Hebrew or gregorian)
-  const char* digits = "0123456789"; // for checking a parm as numeric
+  yymmdd todo;
+  todo.day   = BAD_DATE_VALUE;  // user-input (Hebrew or gregorian)
+  todo.month = BAD_DATE_VALUE;  // user-input (Hebrew or gregorian)
+  todo.year  = BAD_DATE_VALUE;  // user-input (Hebrew or gregorian)
+  int hdate_action = PROCESS_NOTHING;
   char* tz_name_verified = NULL;
   int error_detected = FALSE;    // exit after reporting ALL bad parms
   FILE *custom_file = NULL;
   int custom_days_file_ready = FALSE;
-
-  option_list opt;
   initialize_option_list_struct( &opt );
 
   //  TODO - verify that I'm not needlessly setting locale repeatedly
   setlocale (LC_ALL, ""); // ensure wide-character functions use utf8 (?)
   parse_config_file( &opt );
   parse_command_line( argc, argv, &opt, &error_detected );
-
-  // undocumented feature - afikomen
-  if (opt.afikomen)
+  if (opt.afikomen)  // undocumented feature
   {
     printf("%s\n", afikomen[opt.afikomen-1]);
     exit(0);
   }
-
   if (opt.menu)
 		parse_user_menu_selection( &opt, &error_detected );
-
-
   // We get custom days list even if the user didn't
   // request holidays, so that if the file doesn't
   // exist, we can create it
@@ -3059,168 +3375,18 @@ int main (int argc, char *argv[])
                 opt.tz_name_str, opt.quiet,
                 &custom_file);
   if (!opt.holidays) fclose(custom_file);
-
-
-  #define PROCESS_NOTHING     0
-  #define PROCESS_TODAY       1
-  #define PROCESS_HEBREW_DAY  2
-  #define PROCESS_GREGOR_DAY  3
-  #define PROCESS_JULIAN_DAY  4
-  #define PROCESS_MONTH       5
-  #define PROCESS_HEBREW_YEAR 6
-  #define PROCESS_GREGOR_YEAR 7
-  #define PROCESS_EPOCH_DAY  8
-  int hdate_action = PROCESS_NOTHING;
-
-  // if user input --epoch=@nnnnnn, ignore date-spec
-  if (opt.epoch_parm_received)
-  {
-    if (argc != optind)
-    {
-      if (!opt.quiet) error(0,0,"%s",N_("parameter conflict: you entered both a date_spec and an option --epoch date_spec"));
-      exit_main(&opt, EXIT_CODE_BAD_PARMS); // need to work on exit codes !
-    }
-    hdate_action = PROCESS_EPOCH_DAY;
-  }
-  else if (argc == optind)
-  {
-    hdate_set_gdate (&h_start_day, 0, 0, 0);
-    hdate_action = PROCESS_TODAY;
-  }
-  else if (argc == (optind + 1))
-  {
-    if (*argv[optind] == '@')
-    {
-      if ( parse_epoch_value( argv[optind], &opt.epoch_today, &opt.epoch_parm_received ) == 0)
-      {
-        // opt.epoch_start = opt.epoch_today;
-        // opt.epoch_end = opt.epoch_today + SECONDS_PER_DAY;
-        hdate_action = PROCESS_EPOCH_DAY;
-      }
-    }
-    else if ( strspn(argv[optind], digits) == strlen(argv[optind]) )
-    {
-      year = atoi (argv[optind]);
-      if ( (year >= HDATE_JUL_DY_LOWER_BOUND) && (year <= HDATE_JUL_DY_UPPER_BOUND) )
-      {
-        hdate_set_jd (&h_start_day, year);
-        hdate_action = PROCESS_JULIAN_DAY;
-      }
-      else
-      {
-        if (!hdate_parse_date( argv[optind], "", "", &year, &month, &day, 1,
-                 opt.prefer_hebrew, HDATE_PREFER_MD,
-                 opt.base_year_h, opt.base_year_g ))
-          exit_main(&opt,0);
-
-        if (day != 0)
-        {
-          if (month > 100)
-          {
-            hdate_action = PROCESS_HEBREW_DAY;
-            hdate_set_hdate (&h_start_day, day, month-100, year);
-          }
-          else
-          {
-            hdate_action = PROCESS_GREGOR_DAY;
-            hdate_set_gdate (&h_start_day, day, month, year);
-          }
-        }
-        else if ((year >= HDATE_HEB_YR_LOWER_BOUND) && (year <= HDATE_HEB_YR_UPPER_BOUND))
-        {
-          hdate_action = PROCESS_HEBREW_YEAR;
-          hdate_set_hdate (&h_start_day, 1, 1, year);
-        }
-        else if ((year >= HDATE_GREG_YR_LOWER_BOUND) && (year <= HDATE_GREG_YR_UPPER_BOUND))
-        {
-          hdate_action = PROCESS_GREGOR_YEAR;
-          hdate_set_gdate (&h_start_day, 1, 1, year);
-        }
-      }
-    }
-    else // possibly month name
-    {
-      if (!hdate_parse_date( argv[optind], "", "",
-               &year, &month, &day, 2,
-               opt.prefer_hebrew, HDATE_PREFER_MD,
-               opt.base_year_h, opt.base_year_g ))
-        exit_main(&opt,0);
-      hdate_action = PROCESS_MONTH;
-    }
-  }
-  else if (argc == (optind + 2))
-  {
-
-    if (!hdate_parse_date( argv[optind], argv[optind+1],
-             "", &year, &month, &day, 2,
-             opt.prefer_hebrew, HDATE_PREFER_MD,
-             opt.base_year_h, opt.base_year_g ))
-      exit_main(&opt,0);
-    if (!day) hdate_action = PROCESS_MONTH;
-    else
-    {
-      if (month > 100)
-      {
-        hdate_set_hdate (&h_start_day, day, month-100, year);
-        hdate_action = PROCESS_HEBREW_DAY;
-      }
-      else
-      {
-        hdate_set_gdate (&h_start_day, day, month, year);
-        hdate_action = PROCESS_GREGOR_DAY;
-      }
-    }
-  }
-  else if (argc == (optind + 3))
-  {
-    if (!hdate_parse_date( argv[optind], argv[optind+1],
-             argv[optind+2], &year, &month, &day, 3,
-             opt.prefer_hebrew, HDATE_PREFER_MD,
-             opt.base_year_h, opt.base_year_g ))
-      exit_main(&opt,0);
-    if (year <= 0) { parm_error(year_text); exit_main(&opt,0); }
-    if (year > HDATE_HEB_YR_LOWER_BOUND)
-    {
-      // The parse_date function returns Hebrew month values in
-      // the range 101 - 114
-      if (month > 100) month = month - 100;
-
-      // bounds check for month
-      if (!validate_hdate(CHECK_MONTH_PARM, 0, month, year, FALSE, &h_start_day))
-        { parm_error(month_text); exit_main(&opt,0); }
-
-      // bounds check for day
-      if (!validate_hdate(CHECK_DAY_PARM, day, month, year, TRUE, &h_start_day))
-        { parm_error(day_text); exit_main(&opt,0); }
-
-      hdate_set_hdate (&h_start_day, day, month, year);
-      hdate_action = PROCESS_HEBREW_DAY;
-    }
-    else
-    {
-      // bounds check for month
-      if (!validate_hdate(CHECK_MONTH_PARM, 0, month, year, FALSE, &h_start_day))
-        { parm_error(month_text); exit_main(&opt,0); }
-
-      // bounds check for day
-      if (!validate_hdate(CHECK_DAY_PARM, day, month, year, TRUE, &h_start_day))
-        { parm_error(day_text); exit_main(&opt,0); }
-
-      hdate_set_gdate (&h_start_day, day, month, year);
-      hdate_action = PROCESS_GREGOR_DAY;
-    }
-
-  }
-  else
-  {
-    error(0,0,"%s", N_("too many arguments (expected at most day, month and year after options list)"));
-    exit_main(&opt,0);
-  }
-
-
+  // Determine the date range on which to act
+  // See compiler macro definitions PROCESS_*
+  hdate_action = parse_and_validate_date_parameters ( &h_start_day,
+																											&opt,
+																											argc,
+																											argv,
+																											&todo,
+																											&error_detected );
   // remember to free() tz_name_input
   // if user input tz as a value, it is absolute (no dst)
   // else try reading tzif /etc/localtime
+  //
   // exit after reporting all bad parameters found */
   if (error_detected)
   {
@@ -3228,90 +3394,15 @@ int main (int argc, char *argv[])
     print_try_help_hdate();
     exit_main(&opt, EXIT_CODE_BAD_PARMS);
   }
-
-
-  // diaspora-awareness
-  //  TODO - this needs to get more sophisticated in step with
-  //  increased sophistication in location and timezone awareness.
-  if (opt.diaspora == -1)
-  {
-    if (opt.tz_offset == 2) opt.diaspora = 0;
-    else opt.diaspora = 1;
-  }
-
-
-  /************************************************************
-  * option "t" has three verbosity levels
-  ************************************************************/
+  determine_diaspora_awareness( &opt );
   if (opt.times)
-  {
-    opt.first_light = 1;
-    opt.talit = 1;
-    opt.sunrise = 1;
-    opt.midday = 1;
-    opt.sunset = 1;
-    opt.first_stars = 1;
-    opt.three_stars = 1;
-    opt.sun_hour = 1;
+    set_times_options ( &opt );
+  set_hdate_structs( hdate_action, &h_start_day, &h_day_after_final_day, todo );
 
-    if (opt.times > 1)
-    {
-      opt.shema = 1;
-      opt.amidah = 1;
-      opt.mincha_gedola = 1;
-      opt.mincha_ketana = 1;
-      opt.plag_hamincha = 1;
 
-      if (opt.times > 2)
-      {
-        opt.magen_avraham = 1;
-        if (opt.times > 3)
-        {
-          opt.end_eating_chometz_ma = 1;
-          opt.end_eating_chometz_gra = 1;
-          opt.end_owning_chometz_ma = 1;
-          opt.end_owning_chometz_gra = 1;
-        }
-      }
-    }
-  }
-
-  switch (hdate_action)
-  {
-  case PROCESS_NOTHING    :
-  case PROCESS_EPOCH_DAY  : break;
-  case PROCESS_TODAY      :
-  case PROCESS_HEBREW_DAY :
-  case PROCESS_GREGOR_DAY :
-  case PROCESS_JULIAN_DAY :
-      // why aren't we calling hdate_set_gdate( &h_start_day ...
-      hdate_set_jd ( &h_day_after_final_day, h_start_day.hd_jd + 1 );
-      break;
-  case PROCESS_MONTH      :
-      if (month > 100)
-      {
-        hdate_set_hdate (&h_start_day, 1, month-100, year);
-        hdate_set_jd ( &h_day_after_final_day,
-          h_start_day.hd_jd + hdate_get_size_of_hebrew_month( month, h_start_day.hd_year_type )  );
-      }
-      else
-      {
-        hdate_set_gdate (&h_start_day, 1, month, year);
-        hdate_set_gdate (&h_day_after_final_day, 1, (month==12)?1:month+1, (month==12)?year+1:year);
-      }
-      break;
-  case PROCESS_HEBREW_YEAR:
-      hdate_set_hdate (&h_start_day, 1, 1, year);
-      hdate_set_hdate (&h_day_after_final_day, 1, 1, year+1);
-      break;
-  case PROCESS_GREGOR_YEAR:
-      hdate_set_gdate (&h_start_day, 1, 1, year);
-      hdate_set_gdate (&h_day_after_final_day, 1, 1, year+1);
-      break;
-  } // end switch (hdate_action)
-
-  if ( (opt.tzif_data == NULL) && opt.time_option_requested &&
-     !opt.epoch_parm_received )
+  if ( (opt.tzif_data == NULL)
+			 && opt.time_option_requested
+			 && !opt.epoch_parm_received )
   {
     get_epoch_time_range( &opt.epoch_start,
               &opt.epoch_end,
@@ -3334,21 +3425,19 @@ int main (int argc, char *argv[])
   // not sure about this next one
   opt.tz_name_str = tz_name_verified;
 
+  // Convert PROCESS_EPOCH_DAY to PROCESS_HEBREW_DAY
   if (hdate_action == PROCESS_EPOCH_DAY)
   {
     opt.epoch_start = opt.epoch_today + (60 * get_tz_adjustment(  opt.epoch_today, opt.tz_offset,
                     &opt.tzif_index, opt.tzif_entries, opt.tzif_data ));
-  /* temp, delete this! */ printf("epoch value = %ld, epoch start = %ld, adjustment = %ld\n", opt.epoch_today,
-                        opt.epoch_start, opt.epoch_start - opt.epoch_today);
     opt.epoch_end = opt.epoch_start + SECONDS_PER_DAY;
     opt.epoch_today = opt.epoch_start;
     gmtime_r( &opt.epoch_today, &epoch_tm );
-  /* temp, delete this! */ printf("d=%d, m=%d, y=%d, %02d:%02d\n", epoch_tm.tm_mday, epoch_tm.tm_mon+1,
-                        1900+epoch_tm.tm_year, epoch_tm.tm_hour, epoch_tm.tm_min);
     hdate_set_gdate (&h_start_day, epoch_tm.tm_mday, epoch_tm.tm_mon+1, 1900+epoch_tm.tm_year);
     hdate_action = PROCESS_HEBREW_DAY;
   }
 
+  // Process the hdate_action
   switch (hdate_action)
   {
 case PROCESS_JULIAN_DAY:
@@ -3390,13 +3479,13 @@ case PROCESS_TODAY:
       if (opt.iCal) print_ical_footer ();
     }
     break;
+
 case PROCESS_HEBREW_YEAR:
     if ( opt.holidays && custom_days_file_ready )
     {
-// (done above)  hdate_set_hdate(&h_start_day, 1, 1, year);
       opt.custom_days_cnt = read_custom_days_file(
                   custom_file, &opt.jdn_list_ptr, &opt.string_list_ptr,
-                  0, 0, year,
+                  0, 0, todo.year,
                   'H', h_start_day, opt.short_format, opt.hebrew);
       fclose(custom_file);
     }
@@ -3404,22 +3493,22 @@ case PROCESS_HEBREW_YEAR:
     if (opt.tablular_output)
     {
       print_tabular_header( &opt );
-      print_hyear_tabular( &opt, year);
+      print_hyear_tabular( &opt, todo.year);
     }
     else
     {
       if (opt.iCal) print_ical_header ();
-      print_hyear ( &opt, year);
+      print_hyear ( &opt, todo.year);
       if (opt.iCal) print_ical_footer ();
     }
     break;
+
 case PROCESS_GREGOR_YEAR:
     if ( opt.holidays && custom_days_file_ready )
     {
-// (done above)  hdate_set_gdate(&h_start_day, 1, 1, year);
       opt.custom_days_cnt = read_custom_days_file(
                   custom_file, &opt.jdn_list_ptr, &opt.string_list_ptr,
-                  0, 0, year,
+                  0, 0, todo.year,
                   'G', h_start_day, opt.short_format, opt.hebrew);
       fclose(custom_file);
     }
@@ -3427,32 +3516,33 @@ case PROCESS_GREGOR_YEAR:
     if (opt.tablular_output)
     {
       print_tabular_header( &opt );
-      print_gyear_tabular( &opt, year);
+      print_gyear_tabular( &opt, todo.year);
     }
     else
     {
       if (opt.iCal) print_ical_header ();
-      print_gyear ( &opt, year);
+      print_gyear ( &opt, todo.year);
       if (opt.iCal) print_ical_footer ();
     }
     break;
+
 case PROCESS_MONTH:
-    /************************************************************
-    * process entire Hebrew month
-    ************************************************************/
-    if (year >= HDATE_HEB_YR_LOWER_BOUND)
+    if (todo.year >= HDATE_HEB_YR_LOWER_BOUND)
     {
+      /************************************************************
+      * process entire Hebrew month
+      ************************************************************/
       // The parse_date function returns Hebrew month values in
       // the range 101 - 114
-      if (month > 100) month = month - 100;
+      if (todo.month > 100) todo.month = todo.month - 100;
 
 
       if ( opt.holidays && custom_days_file_ready )
       {
-        // hdate_set_hdate(&h, 1, month, year);
+        // hdate_set_hdate(&h, 1, todo.month, todo.year);
         opt.custom_days_cnt = read_custom_days_file(
                   custom_file, &opt.jdn_list_ptr, &opt.string_list_ptr,
-                  0, month, year,
+                  0, todo.month, todo.year,
                   'H', h_start_day, opt.short_format, opt.hebrew);
         fclose(custom_file);
       }
@@ -3462,14 +3552,14 @@ case PROCESS_MONTH:
         print_tabular_header( &opt );
 
         // if leap year, print both Adar months
-        if (h_start_day.hd_size_of_year > 365 && month == 6)
+        if (h_start_day.hd_size_of_year > 365 && todo.month == 6)
         {
-          print_hmonth_tabular ( &opt, 13, year);
-          print_hmonth_tabular ( &opt, 14, year);
+          print_hmonth_tabular ( &opt, 13, todo.year);
+          print_hmonth_tabular ( &opt, 14, todo.year);
         }
         else
         {
-          print_hmonth_tabular ( &opt, month, year);
+          print_hmonth_tabular ( &opt, todo.month, todo.year);
         }
       }
       else
@@ -3477,35 +3567,34 @@ case PROCESS_MONTH:
         if (opt.iCal) print_ical_header ();
 
         // if leap year, print both Adar months
-        if (h_start_day.hd_size_of_year > 365 && month == 6)
+        if (h_start_day.hd_size_of_year > 365 && todo.month == 6)
         {
-          hdate_set_hdate (&h_month_to_print, 1, 13, year);
+          hdate_set_hdate (&h_month_to_print, 1, 13, todo.year);
           print_hmonth (&h_month_to_print, &opt, 13);
-          hdate_set_hdate (&h_month_to_print, 1, 14, year);
+          hdate_set_hdate (&h_month_to_print, 1, 14, todo.year);
           print_hmonth (&h_month_to_print, &opt, 14);
         }
         else
         {
-          print_hmonth (&h_start_day, &opt, month);
+          print_hmonth (&h_start_day, &opt, todo.month);
         }
         if (opt.iCal)
           print_ical_footer ();
       }
     }
-
-    /************************************************************
-    * process entire Gregorian month
-    ************************************************************/
     else
     {
-      if ( month <= 0 || month > 12 )
+      /************************************************************
+      * process entire Gregorian month
+      ************************************************************/
+      if ( todo.month <= 0 || todo.month > 12 )
         { parm_error(month_text); exit_main(&opt,0); }
 
       if ( opt.holidays && custom_days_file_ready )
       {
         opt.custom_days_cnt = read_custom_days_file(
                   custom_file, &opt.jdn_list_ptr, &opt.string_list_ptr,
-                  0, month, year,
+                  0, todo.month, todo.year,
                   'G', h_start_day, opt.short_format, opt.hebrew);
         fclose(custom_file);
       }
@@ -3513,12 +3602,12 @@ case PROCESS_MONTH:
       if (opt.tablular_output)
       {
         print_tabular_header( &opt );
-        print_gmonth_tabular( &opt, month, year);
+        print_gmonth_tabular( &opt, todo.month, todo.year);
       }
       else
       {
         if (opt.iCal) print_ical_header ();
-        print_gmonth (&opt, month, year);
+        print_gmonth (&opt, todo.month, todo.year);
         if (opt.iCal) print_ical_footer ();
       }
     }
