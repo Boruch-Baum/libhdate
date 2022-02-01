@@ -14,7 +14,7 @@ pkgconfig_DATA = libhdate.pc
 
 libhdatedocdir = $(docdir)
 libhdatedoc_DATA = \
-	README\
+	README.md \
 	COPYING\
 	AUTHORS\
 	ChangeLog\
