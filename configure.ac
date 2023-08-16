@@ -4,16 +4,15 @@ AM_INIT_AUTOMAKE
 AM_MAINTAINER_MODE
 
 dnl Checks for programs.
-AC_ISC_POSIX
-AC_GNU_SOURCE
 AC_USE_SYSTEM_EXTENSIONS
+AC_SEARCH_LIBS([strerror],[cposix])
 AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
-AC_STDC_HEADERS
-AM_PROG_LIBTOOL
+
+LT_INIT
 
 AM_MAINTAINER_MODE
 
@@ -291,7 +290,7 @@ AC_SUBST(LIBS)
 
 dnl =======================================================================================
 
-AC_OUTPUT([
+AC_CONFIG_FILES([
 Makefile
 libhdate.pc
 po/Makefile.in
@@ -311,6 +310,7 @@ bindings/pascal/Makefile
 bindings/ruby/Makefile
 bindings/php/Makefile
 ])
+AC_OUTPUT
 
 dnl ===========================================================================================
 
