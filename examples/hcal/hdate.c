@@ -606,9 +606,9 @@ int print_date (hdate_struct* h, hdate_struct* tomorrow, const option_list* opt)
   int  is_parasha_read;
   int h_dow_form    = HDATE_STRING_SHORT;
   char *h_dow;
-
   char *hday_int_str, *hyear_int_str;
-  hday_int_str = hdate_string(HDATE_STRING_INT, h->hd_day, HDATE_STRING_LONG, opt->hebrew);
+
+  hday_int_str =  hdate_string(HDATE_STRING_INT, h->hd_day, HDATE_STRING_LONG, opt->hebrew);
   hyear_int_str = hdate_string(HDATE_STRING_INT, h->hd_year, HDATE_STRING_LONG, opt->hebrew);
 
   /************************************************************
@@ -1703,9 +1703,8 @@ int print_day (hdate_struct * h, option_list* opt)
   /************************************************************
   * print the date
   ************************************************************/
-  if (opt->print_tomorrow)  hdate_set_jd (&tomorrow, (h->hd_jd)+1);
+  hdate_set_jd (&tomorrow, (h->hd_jd)+1);
   if (opt->quiet < QUIET_HEBREW) print_date (h, &tomorrow, opt);
-
 
 
   /************************************************************
