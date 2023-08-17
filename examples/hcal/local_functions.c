@@ -31,7 +31,7 @@
 #include <stdlib.h>    // For atoi, malloc
 #include <error.h>    // For error
 #include <errno.h>    // For errno
-#include <time.h>    // For time
+#include <time.h>    // For time, localtime
 #include <ctype.h>    // for isprint
 #include <fnmatch.h>  // For fnmatch
 #include <string.h>    // For mempcpy
@@ -102,10 +102,11 @@ void alert_tz( int tz )
       *tzname, tz/60, tz%60);
 }
 
-void alert_timezone( const char* tz_name_ptr )
+void alert_timezone( const char* location_in_code, const char* tz_name_ptr )
 {
-  error(0,0,"%s: %s",
+  error(0,0,"%s: %s %s",
       N_("ALERT: time zone not entered, using system local time zone"),
+      location_in_code,
       tz_name_ptr);
 }
 
@@ -232,10 +233,9 @@ int check_for_sunset (hdate_struct * h, double lat, double lon, int timezone )
 
   hdate_get_utc_sun_time (h->gd_day, h->gd_mon, h->gd_year, lat, lon,
               &sunrise, &sunset);
-
   time(&now_time);
   now_timep = localtime(&now_time);
-
+  if (timezone == BAD_TIMEZONE) timezone = 0;
   if ( ((now_timep->tm_hour) *60 + now_timep->tm_min) > (sunset + timezone) ) return 1;
   else return 0;
 }
@@ -539,7 +539,7 @@ int parse_epoch_value( const char* epoch_string, time_t* epoch_val, int* epoch_p
 *
 ************************************************************/
 void process_location_parms( double *lat, double *lon, double tz_lon,
-            int *tz, char* tz_name_in, char** tz_name_out,
+            int *tz_offset, char* tz_name_in, char** tz_name_out,
             const time_t start_time, const time_t end_time,
             int * num_dst_entries_ptr, void** returned_dst_data,
             const int quiet_alerts )
@@ -562,19 +562,20 @@ void process_location_parms( double *lat, double *lon, double tz_lon,
   int    input_info = HDVL_ALL_INFO;
 
   *tz_name_out = NULL;
-  if (*tz != BAD_TIMEZONE) input_info = HDVL_TZ_INFO;
+  if (*tz_offset != BAD_TIMEZONE) input_info = HDVL_TZ_INFO;
   else
   {
     if (tz_name_in==NULL)
     {
       *tz_name_out=getenv("TZ");
       // now *tz_name_out must be free()d
-      if (strlen(*tz_name_out)==0)
+      if (*tz_name_out == NULL || strlen(*tz_name_out)==0)
           *tz_name_out = read_sys_tz_string_from_file();
 
       if (*lon == BAD_COORDINATE)
       {
-        if (*tz_name_out == NULL) input_info = HDVL_LOCAL_INFO;
+        if (*tz_name_out == NULL || strlen(*tz_name_out)==0)
+            input_info = HDVL_LOCAL_INFO;
         else input_info = HDVL_NAME_INFO;
       }
       else // (*lon != BAD_COORDINATE)
@@ -585,7 +586,7 @@ void process_location_parms( double *lat, double *lon, double tz_lon,
           if (abs(*lon - guessed_lon) > DELTA_LONGITUDE)
           {
             guessed_tz = (((int) *lon) / 15 ) * 60; // we use tz in minutes
-            *tz = guessed_tz;
+            *tz_offset = guessed_tz;
             guessed_lat = 0; // equator
             free(*tz_name_out);
             *tz_name_out = NULL;
@@ -600,7 +601,7 @@ void process_location_parms( double *lat, double *lon, double tz_lon,
           // ie. /etc/timezone had a value for which no entry
           // exists in zonetab file, so no default lat/lon available
           // however,  there may be a valid tzif file
-          if (!quiet_alerts) alert_timezone( tz_name_in );
+          if (!quiet_alerts) alert_timezone( "(1)", tz_name_in );
           input_info = HDVL_LOCAL_INFO;
         }
       }
@@ -622,7 +623,10 @@ void process_location_parms( double *lat, double *lon, double tz_lon,
       // But what if zonetab_tz_name_ptr isn't identical to tz_name_ptr?
       // free(zonetab_tz_name_ptr);
       *tz_name_out = zonetab_name;
-      if (!quiet_alerts) alert_timezone(zonetab_name);
+      if (!quiet_alerts) alert_timezone("(2)", zonetab_name);
+      time_t now_time = time(NULL);
+      struct tm* now_tm = localtime(&now_time);
+      *tz_offset = now_tm->tm_gmtoff / 60;
     }
     else
     {
@@ -631,7 +635,7 @@ void process_location_parms( double *lat, double *lon, double tz_lon,
       // ie. /etc/timezone had a value for which no entry
       // exists in zonetab file, so no default lat/lon available
       // however,  there may be a valid tzif file
-      if (!quiet_alerts) alert_timezone( tz_name_in );
+      if (!quiet_alerts) alert_timezone( "(3)", tz_name_in );
       input_info = HDVL_LOCAL_INFO;
     }
   }
@@ -641,18 +645,18 @@ void process_location_parms( double *lat, double *lon, double tz_lon,
     // system timezone is in seconds, but we deal in minutes
     // not sure if this tzset() is still necessary
     tzset();
-    *tz = timezone / (-60);
+    *tz_offset = timezone / (-60);
     // double-check that when using non-system default timezone that
-    // *tz is set properly
+    // *tz_offset is set properly
     if (!quiet_alerts)
     {
-      alert_tz( *tz );
+      alert_tz( *tz_offset );
       alert_not_dst_aware( no_timezone_entered_text );
     }
     // try reading tzif file from /etc/localtime
     if ( (*lat==BAD_COORDINATE) || (*lon==BAD_COORDINATE) )
     {
-      guess_found = set_default_location( *tz, tz_name_out,
+      guess_found = set_default_location( *tz_offset, tz_name_out,
                         &guessed_lat, &guessed_lon );
     }
   }
@@ -668,7 +672,7 @@ void process_location_parms( double *lat, double *lon, double tz_lon,
     {
       alert_not_dst_aware( absolute_utc_offset_text );
       if ( (*lat==BAD_COORDINATE) || (*lon==BAD_COORDINATE) )
-        guess_found = set_default_location( *tz, tz_name_out,
+        guess_found = set_default_location( *tz_offset, tz_name_out,
                         &guessed_lat, &guessed_lon );
     }
   }
@@ -720,7 +724,7 @@ void process_location_parms( double *lat, double *lon, double tz_lon,
          ( zdump( "America/New York", start_time, end_time, num_dst_entries_ptr, returned_dst_data) !=0 ) )
       {
         error(0,0,"%s",N_("unable to parse timezone or dalight savings time data;\n      using Jerusalem Standard Time"));
-        *tz = JERUSALEM_STANDARD_TIME_IN_MINUTES;
+        *tz_offset = JERUSALEM_STANDARD_TIME_IN_MINUTES;
       }
       else
       {
