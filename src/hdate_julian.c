@@ -1,7 +1,7 @@
 /*  libhdate - Hebrew calendar library
  *
  *  Copyright (C) 1984-2003 Amos Shapir, 2004-2007  Yaacov Zamir <kzamir@walla.co.il>
- *  
+ *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
@@ -19,6 +19,7 @@
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <error.h>
 
 #include "hdate.h"
 #include "support.h"
@@ -31,9 +32,9 @@
 
 /**
  @brief Days since bet (?) Tishrey 3744
- 
- @author Amos Shapir 1984 (rev. 1985, 1992) Yaacov Zamir 2003-2005 
- 
+
+ @author Amos Shapir 1984 (rev. 1985, 1992) Yaacov Zamir 2003-2005
+
  @param hebrew_year The Hebrew year
  @return Number of days since 3,1,3744
 */
@@ -89,7 +90,7 @@ hdate_days_from_3744 (int hebrew_year)
 
 /**
  @brief Size of Hebrew year in days
- 
+
  @param hebrew_year The Hebrew year
  @return Size of Hebrew year
 */
@@ -102,7 +103,7 @@ hdate_get_size_of_hebrew_year (int hebrew_year)
 
 /**
  @brief Return Hebrew year type based on size and first week day of year.
- 
+
  |year| year |Tishrei 1|months|
  |type| len  |day of wk|6-rows|
  | 1  | 353  | 2       |  5   |
@@ -119,7 +120,7 @@ hdate_get_size_of_hebrew_year (int hebrew_year)
  |12  | 385  | 2       |  7   |
  |13  | 385  | 5       | 2,13 |
  |14  | 385  | 7       |  1,5 |
- 
+
  @param size_of_year Length of year in days
  @param new_year_dw First week day of year
  @return A number for year type (1..14)
@@ -131,22 +132,22 @@ hdate_get_year_type (int size_of_year, int new_year_dw)
 	static int year_types[24] =
 		{1, 0, 0, 2, 0, 3, 4, 0, 5, 0, 6, 7,
 		8, 0, 9, 10, 0, 11, 0, 0, 12, 0, 13, 14};
-	
+
 	int offset;
-	
+
 	/* convert size and first day to 1..24 number */
 	/* 2,3,5,7 -> 1,2,3,4 */
 	/* 353, 354, 355, 383, 384, 385 -> 0, 1, 2, 3, 4, 5 */
 	offset = (new_year_dw + 1) / 2;
 	offset = offset + 4 * ((size_of_year % 10 - 3) + (size_of_year / 10 - 35));
-	
+
 	/* some combinations are imposible */
 	return year_types[offset - 1];
 }
 
 /**
  @brief Compute Julian day from Gregorian day, month and year
- Algorithm from the wikipedia's julian_day 
+ Algorithm from the wikipedia's julian_day
 
  @author Yaacov Zamir
 
@@ -162,19 +163,19 @@ hdate_gdate_to_jd (int day, int month, int year)
 	int y;
 	int m;
 	int jdn;
-	
+
 	a = (14 - month) / 12;
 	y = year + 4800 - a;
 	m = month + 12 * a - 3;
-	
+
 	jdn = day + (153 * m + 2) / 5 + 365 * y + y / 4 - y / 100 + y / 400 - 32045;
-	
+
 	return jdn;
 }
 
 /**
  @brief Compute Julian day from Hebrew day, month and year
- 
+
  @author Amos Shapir 1984 (rev. 1985, 1992) Yaacov Zamir 2003-2005
 
  @param day Day of month 1..31
@@ -206,7 +207,7 @@ hdate_hdate_to_jd (int day, int month, int year, int *jd_tishrey1, int *jd_tishr
 
 	/* length of year */
 	length_of_year = hdate_days_from_3744 (year + 1) - days_from_3744;
-	
+
 	/* Special cases for this year */
 	if (length_of_year % 10 > 4 && month > 2)	/* long Heshvan */
 		day++;
@@ -224,13 +225,13 @@ hdate_hdate_to_jd (int day, int month, int year, int *jd_tishrey1, int *jd_tishr
 		*jd_tishrey1 = days_from_3744 + 1715119;
 		*jd_tishrey1_next_year = *jd_tishrey1 + length_of_year;
 	}
-	
+
 	return jd;
 }
 
 /**
  @brief Converting from the Julian day to the Gregorian day
- Algorithm from 'Julian and Gregorian Day Numbers' by Peter Meyer 
+ Algorithm from 'Julian and Gregorian Day Numbers' by Peter Meyer
 
  @author Yaacov Zamir ( Algorithm, Henry F. Fliegel and Thomas C. Van Flandern ,1968)
 
@@ -259,7 +260,7 @@ hdate_jd_to_gdate (int jd, int *d, int *m, int *y)
 
 /**
  @brief Converting from the Julian day to the Hebrew day
- 
+
  @author Amos Shapir 1984 (rev. 1985, 1992) Yaacov Zamir 2003-2008
 
  @param jd Julian day
@@ -273,7 +274,7 @@ hdate_jd_to_hdate (int jd, int *day, int *month, int *year, int *jd_tishrey1, in
 	int days;
 	int size_of_year;
 	int internal_jd_tishrey1, internal_jd_tishrey1_next_year;
-	
+
 	/* calculate Gregorian date */
 	hdate_jd_to_gdate (jd, day, month, year);
 
@@ -282,7 +283,7 @@ hdate_jd_to_hdate (int jd, int *day, int *month, int *year, int *jd_tishrey1, in
 
 	internal_jd_tishrey1 = hdate_days_from_3744 (*year) + 1715119;
 	internal_jd_tishrey1_next_year = hdate_days_from_3744 (*year + 1) + 1715119;
-	
+
 	/* Check if computed year was underestimated */
 	if (internal_jd_tishrey1_next_year <= jd)
 	{
@@ -292,19 +293,19 @@ hdate_jd_to_hdate (int jd, int *day, int *month, int *year, int *jd_tishrey1, in
 	}
 
 	size_of_year = internal_jd_tishrey1_next_year - internal_jd_tishrey1;
-	
+
 	/* days into this year, first month 0..29 */
 	days = jd - internal_jd_tishrey1;
-	
+
 	/* last 8 months allways have 236 days */
 	if (days >= (size_of_year - 236)) /* in last 8 months */
 	{
 		days = days - (size_of_year - 236);
 		*month = days * 2 / 59;
 		*day = days - (*month * 59 + 1) / 2 + 1;
-		
+
 		*month = *month + 4 + 1;
-		
+
 		/* if leap */
 		if (size_of_year > 355 && *month <=6)
 			*month = *month + 8;
@@ -332,17 +333,17 @@ hdate_jd_to_hdate (int jd, int *day, int *month, int *year, int *jd_tishrey1, in
 				*month = days * 2 / 59;
 				*day = days - (*month * 59 + 1) / 2 + 1;
 			}
-			
+
 		*month = *month + 1;
 	}
-	
+
 	/* return the 1 of tishrey julians */
 	if (jd_tishrey1 && jd_tishrey1_next_year)
 	{
 		*jd_tishrey1 = internal_jd_tishrey1;
 		*jd_tishrey1_next_year = internal_jd_tishrey1_next_year;
 	}
-	
+
 	return;
 }
 
@@ -367,16 +368,21 @@ hdate_set_gdate (hdate_struct * h, int d, int m, int y)
 	 */
 {
 	int jd;
-	
+
 	if (!h) return NULL;
-	
+
 	/* check for null dates (kobi) */
 	if ((d == 0) || (m == 0) )
 	{
 		struct tm *tm;
 		long t;
 		/* FIXME: day start at sunset or gregorian midnight? */
-		t = time (0);
+		t = time (NULL);
+    if (t == -1)
+    {
+      error(0,0,"%s: %s", N_("FATAL: unable to get local time"), "");
+      exit(1);
+    }
 		tm = localtime (&t);
 		d = tm->tm_mday;
 		m = tm->tm_mon + 1;
@@ -404,7 +410,7 @@ hdate_set_gdate (hdate_struct * h, int d, int m, int y)
 	h->hd_jd = jd;
 	h->hd_days = jd - jd_tishrey1 + 1;
 	h->hd_weeks = ((h->hd_days - 1) + (h->hd_new_year_dw - 1)) / 7 + 1;
-*/	
+*/
 	hdate_set_jd(h, jd);
 
 	return (h);
@@ -429,9 +435,9 @@ hdate_set_hdate (hdate_struct * h, int d, int m, int y)
 	 */
 	int jd;
 	int jd_tishrey1, jd_tishrey1_next_year;
-	
+
 	if (!h) return NULL;
-	
+
 	if ((d == 0) || (m == 0) )
 	{
 		struct tm *tm;
@@ -446,7 +452,7 @@ hdate_set_hdate (hdate_struct * h, int d, int m, int y)
 	}
 	else jd = hdate_hdate_to_jd (d, m, y, &jd_tishrey1, &jd_tishrey1_next_year);
 	hdate_set_jd(h, jd);
-	
+
 	return (h);
 }
 
@@ -459,12 +465,12 @@ hdate_struct *
 hdate_set_jd (hdate_struct * h, int jd)
 {
 	int jd_tishrey1, jd_tishrey1_next_year;
-	
+
 	if (!h) return NULL;
-	
+
 	hdate_jd_to_gdate (jd, &(h->gd_day), &(h->gd_mon), &(h->gd_year));
 	hdate_jd_to_hdate (jd, &(h->hd_day), &(h->hd_mon), &(h->hd_year), &jd_tishrey1, &jd_tishrey1_next_year);
-	
+
 	h->hd_dw = (jd + 1) % 7 + 1;
 	h->hd_size_of_year = jd_tishrey1_next_year - jd_tishrey1;
 	h->hd_new_year_dw = (jd_tishrey1 + 1) % 7 + 1;
@@ -472,7 +478,7 @@ hdate_set_jd (hdate_struct * h, int jd)
 	h->hd_jd = jd;
 	h->hd_days = jd - jd_tishrey1 + 1;
 	h->hd_weeks = ((h->hd_days - 1) + (h->hd_new_year_dw - 1)) / 7 + 1;
-	
+
 	return (h);
 }
 
@@ -636,14 +642,14 @@ new_hdate ()
 {
 	/* allocate memory for a new hdate object */
 	hdate_struct *h = (hdate_struct *) malloc (sizeof (hdate_struct));
-	
+
 	/* check for out of memory */
 	if (!h)
 		return NULL;
-	
+
 	/* get todays date */
 	hdate_set_gdate (h, 0, 0, 0);
-	
+
 	return h;
 }
 
@@ -664,4 +670,3 @@ delete_hdate (hdate_struct *h)
 
 	return h;
 }
-
