@@ -567,8 +567,11 @@ void process_location_parms( double *lat, double *lon, double tz_lon,
   {
     if (tz_name_in==NULL)
     {
-      *tz_name_out = read_sys_tz_string_from_file();
+      *tz_name_out=getenv("TZ");
       // now *tz_name_out must be free()d
+      if (strlen(*tz_name_out)==0)
+          *tz_name_out = read_sys_tz_string_from_file();
+
       if (*lon == BAD_COORDINATE)
       {
         if (*tz_name_out == NULL) input_info = HDVL_LOCAL_INFO;
