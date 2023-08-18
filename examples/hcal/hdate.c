@@ -2773,7 +2773,7 @@ int parameter_parser( int switch_arg, option_list *opt,
       if (!parse_timezone_alpha(optarg, &opt->tz_name_str, &opt->tz_offset, &tz_lat, &opt->tz_lon))
       {
         error_detected++;
-        parm_error(timezone_text);
+        error(0,0,"error: %s %s %s", N_("parameter"), timezone_text, N_("alpha string is invalid (hint: see system's zone.tab file)."));
       }
       else
       {
