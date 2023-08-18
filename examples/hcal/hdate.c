@@ -2903,10 +2903,10 @@ void parse_command_line (
                                       short_options,
 																			long_options,
                                       &long_option_index)) != -1)
-    error_detected = error_detected
-		               + parameter_parser(switch_arg,
-																			opt,
-																			long_option_index);
+    *error_detected = *error_detected
+		                  + parameter_parser(switch_arg,
+										   									 opt,
+																			   long_option_index);
 }
 
 
