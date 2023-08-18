@@ -212,6 +212,7 @@ typedef struct {
   bool force_hebrew;
   bool force_israel;
   bool not_sunset_aware;
+  bool is_after_sunset;
   bool quiet_alerts; // maybe change to int to be consistent with hdate?
   bool bidi;
   bool tmux_bidi;
@@ -2917,8 +2918,7 @@ void set_day_needing_highlighting ( hdate_struct* h, option_list* opt )
   {
     hdate_set_gdate( h, 0, 0, 0);
     opt->jd_today_g = h->hd_jd;
-    if ((!opt->not_sunset_aware) &&
-        (check_for_sunset(h, opt->lat, opt->lon, opt->tz)) )
+    if (opt->is_after_sunset)
       opt->jd_today_h = h->hd_jd + 1;
     else
 			opt->jd_today_h = h->hd_jd;
@@ -2971,6 +2971,13 @@ void parse_and_validate_date_parameters (
       // call function only if not already called
       // for sunset awareness, above.
       hdate_set_gdate( h, 0, 0, 0);  // today
+
+    if (opt->is_after_sunset)
+    {
+      opt->jd_today_h = h->hd_jd + 1;
+      hdate_set_jd( h, opt->jd_today_h);
+    }
+
     if (opt->gregorian > 1)
     {
       *month_to_do = h->gd_mon;
@@ -3064,6 +3071,7 @@ void initialize_option_list_struct( option_list* opt )
   opt->force_hebrew = false;    // force display of Hebrew data in Hebrew
   opt->force_israel = false;    // override diaspora-awareness
   opt->not_sunset_aware = false;  // override sunset-awareness
+  opt->is_after_sunset = false;
   opt->quiet_alerts = false;
 	opt->mlterm = getenv("MLTERM") ? true: false;
 	opt->tmux_bidi = (strstr( getenv("TERM"), "screen")) ? true: false;
@@ -3126,7 +3134,10 @@ int main (int argc, char *argv[])
   opt.lat = lat;
   opt.lon = lon;
   opt.tz = tz;
-
+  if ((opt.gregorian <2) &&
+      (!opt.not_sunset_aware) &&
+      (check_for_sunset(&h, opt.lat, opt.lon, opt.tz)) )
+    opt.is_after_sunset = true;
   set_day_needing_highlighting ( &h, &opt );
   parse_and_validate_date_parameters ( &h, &opt, argc, argv, &month_to_do, &year_to_do );
   process_diaspora_awareness( &opt );
