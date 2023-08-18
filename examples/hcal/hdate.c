@@ -886,7 +886,7 @@ int print_times ( hdate_struct * h, option_list* opt)
   **  Now that we are checking for dst adjustments, we need input seconds for all time values
   */
 
-  if (opt->emesh)
+  if (opt->emesh || opt->print_tomorrow)
   {
     if (opt->print_epoch) opt->epoch_today = opt->epoch_today - SECONDS_PER_DAY;
     if ( opt->candles || opt->havdalah )
